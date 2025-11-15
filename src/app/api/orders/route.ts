@@ -1,9 +1,11 @@
+export const runtime = "edge";
+
 import { NextResponse } from "next/server";
 import { createOrder, getOrders } from "@/lib/controllers/orders";
 
 export async function POST(req: Request) {
   const result = await createOrder(req);
-  
+
   if (result.success) {
     return NextResponse.json(result.data, { status: result.statusCode });
   } else {
@@ -19,7 +21,7 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   const result = await getOrders(req);
-  
+
   if (result.success) {
     return NextResponse.json(result.data, { status: result.statusCode });
   } else {
