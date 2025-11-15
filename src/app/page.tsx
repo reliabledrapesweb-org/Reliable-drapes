@@ -7,10 +7,10 @@ import { CategoriesSection } from "@/components/homepageComponents/CategoriesSec
 import { BenefitsSection } from "@/components/homepageComponents/BenefitsSection";
 import { BestsellerSection } from "@/components/homepageComponents/BestsellerSection";
 import { NewsletterSection } from "@/components/homepageComponents/NewsletterSection";
-import { CTASection } from "@/components/homepageComponents/CTASection";
+import { CTASection } from "@/components/CTASection";
 import { MessageCircle } from "lucide-react";
 
-export default function App() {
+export default function HomePage() {
   return (
     <main>
       <HeroSection />

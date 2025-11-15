@@ -8,7 +8,7 @@ export function CTASection() {
       {/* Background */}
       <div className="absolute inset-0">
         <Image
-          src="/images/ctaBg.png"
+          src="/images/ctasbg.png"
           alt=""
           width={100}
           height={100}
