@@ -1,10 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { Menu, X, Search, User, ShoppingCart } from "lucide-react";
+import { MobileMenu } from "./MobileMenu";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 export function Header() {
   const pathname = usePathname();
@@ -32,14 +34,16 @@ export function Header() {
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
           >
-            <Image
-              src={isHome ? "/images/logo.png" : "/images/defaultlogo.png"}
-              alt="Logo"
-              width={120}
-              height={38}
-              className="object-contain md:w-[130px] lg:w-[140px]"
-              priority
-            />
+            <Link href={"/"}>
+              <Image
+                src={isHome ? "/images/logo.png" : "/images/defaultlogo.png"}
+                alt="Logo"
+                width={120}
+                height={38}
+                className="object-contain md:w-[130px] lg:w-[140px]"
+                priority
+              />
+            </Link>
           </motion.div>
 
           {/* DESKTOP NAVIGATION */}
@@ -152,7 +156,7 @@ export function Header() {
                 isHome ? "text-white" : "text-black"
               } cursor-pointer`}
               aria-label="Menu"
-              onClick={() => setIsOpen((prev) => !prev)}
+              onClick={() => setIsOpen(true)}
               whileTap={{ scale: 0.9 }}
               transition={{ duration: 0.2 }}
             >
@@ -161,86 +165,14 @@ export function Header() {
                 animate={{ rotate: isOpen ? 180 : 0 }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
               >
-                {isOpen ? (
-                  <X className="w-6 h-6" />
-                ) : (
-                  <Menu className="w-6 h-6" />
-                )}
+                <Menu className="w-6 h-6" />
               </motion.div>
             </motion.button>
           </div>
         </div>
       </nav>
 
-      {/* FULL SCREEN DROPDOWN MENU */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.35 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-xl z-40 lg:hidden"
-            onClick={() => setIsOpen(false)}
-          >
-            <motion.button
-              onClick={() => setIsOpen(false)}
-              className={`absolute top-6 right-6 ${
-                isHome ? "text-white" : "text-black"
-              } cursor-pointer z-[95]`}
-              whileTap={{ scale: 0.9 }}
-              transition={{ duration: 0.2 }}
-            >
-              <motion.div
-                initial={{ rotate: 0 }}
-                animate={{ rotate: 180 }}
-                exit={{ rotate: 0 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-              >
-                <X className="w-7 h-7 md:w-8 md:h-8" />
-              </motion.div>
-            </motion.button>
-
-            <motion.div
-              initial={{ y: -40, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -40, opacity: 0 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-              className="absolute top-24 left-0 right-0 mx-auto w-full px-10"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div
-                className={`flex flex-col items-center space-y-8 ${
-                  isHome ? "text-white" : "text-black"
-                } text-xl font-light tracking-wide`}
-              >
-                {navLinks.map((item, i) => (
-                  <motion.a
-                    key={i}
-                    href={item.link}
-                    onClick={() => setIsOpen(false)}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.07 }}
-                    className="hover:opacity-70 transition"
-                  >
-                    {item.name}
-                  </motion.a>
-                ))}
-
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  className={`mt-6 bg-[#2f2582] shadow-[0px_4px_18px_0px_rgba(47,37,130,0.4)] ${
-                    isHome ? "text-white" : "text-black"
-                  } px-6 py-2 rounded-lg backdrop-blur-sm`}
-                >
-                  Trader Log In
-                </motion.button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <MobileMenu isOpen={isOpen} setIsOpen={setIsOpen} navLinks={navLinks} />
     </header>
   );
 }

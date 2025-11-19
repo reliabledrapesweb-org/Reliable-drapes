@@ -12,7 +12,7 @@ export async function getCategories(req: Request): Promise<ControllerResult> {
     const admin = getAdminSupabase();
 
     // Build the query
-    let fields = [
+    const fields = [
       "id",
       "name",
       "slug",
