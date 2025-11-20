@@ -30,8 +30,8 @@ export function Footer() {
               <Image
                 src="/images/logo.png"
                 alt="Logo"
-                width={120}
-                height={38}
+                width={240}
+                height={76}
                 className="object-contain md:w-[130px] lg:w-[140px]"
                 priority
               />

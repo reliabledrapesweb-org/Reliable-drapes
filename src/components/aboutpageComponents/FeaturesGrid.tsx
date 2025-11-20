@@ -39,7 +39,7 @@ export function FeaturesGrid() {
   return (
     <section className="py-16 lg:py-24 bg-[#f8f8f8]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <motion.div 
+        <motion.div
           className="grid md:grid-cols-3 gap-12 lg:gap-16"
           variants={container}
           initial="hidden"
@@ -53,10 +53,10 @@ export function FeaturesGrid() {
               className="flex flex-col items-center text-center group"
             >
               {/* Icon */}
-              <div className="w-24 h-24 mb-6 flex items-center justify-center bg-white rounded-full shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:shadow-md">
+              <div className="w-24 h-24 mb-6 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
                 <Image
-                  width={100}
-                  height={100}
+                  width={200}
+                  height={200}
                   src={feature.icon}
                   alt=""
                   className="w-12 h-12 text-black object-contain"
@@ -64,8 +64,12 @@ export function FeaturesGrid() {
               </div>
 
               {/* Content */}
-              <h3 className="text-xl font-medium mb-3 text-black">{feature.title}</h3>
-              <p className="text-[#575757] max-w-xs leading-relaxed">{feature.description}</p>
+              <h3 className="text-xl font-medium mb-3 text-black">
+                {feature.title}
+              </h3>
+              <p className="text-[#575757] max-w-xs leading-relaxed">
+                {feature.description}
+              </p>
             </motion.div>
           ))}
         </motion.div>

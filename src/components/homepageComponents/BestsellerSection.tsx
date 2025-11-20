@@ -58,8 +58,8 @@ export function BestsellerSection() {
                 whileHover={{ scale: 1.03 }}
               >
                 <Image
-                  width={100}
-                  height={100}
+                  width={800}
+                  height={800}
                   src={product.image}
                   alt={product.title}
                   className="w-full h-full object-cover"
@@ -101,8 +101,8 @@ export function BestsellerSection() {
                 whileHover={{ scale: 1.03 }}
               >
                 <Image
-                  width={100}
-                  height={100}
+                  width={800}
+                  height={800}
                   src={product.image}
                   alt={product.title}
                   className="w-full h-full object-cover"

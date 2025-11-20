@@ -54,7 +54,7 @@ export function FeaturesSection() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <div className="w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center">
-                  <Image src={feature.icon} alt="" width={100} height={100} />
+                  <Image src={feature.icon} alt="" width={200} height={200} />
                 </div>
                 <p className="text-black text-xs md:text-sm lg:text-md tracking-widest uppercase leading-tight">
                   {feature.title}

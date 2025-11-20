@@ -6,7 +6,7 @@ export function VisionMissionSection() {
     <section className="py-16 lg:py-24 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}
-        <motion.div 
+        <motion.div
           className="flex items-center justify-center gap-4 mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -16,8 +16,8 @@ export function VisionMissionSection() {
           <Image
             src="/images/target.png"
             alt=""
-            width={100}
-            height={100}
+            width={200}
+            height={200}
             className="w-12 h-12 md:w-14 md:h-14 text-black"
           />
           <h2 className="text-3xl lg:text-4xl font-light text-black">
@@ -30,7 +30,7 @@ export function VisionMissionSection() {
           {/* Vision */}
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
             {/* Image */}
-            <motion.div 
+            <motion.div
               className="flex-shrink-0"
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -52,14 +52,16 @@ export function VisionMissionSection() {
             </motion.div>
 
             {/* Text */}
-            <motion.div 
+            <motion.div
               className="flex-1 max-w-2xl"
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <h3 className="text-2xl font-medium mb-6 text-black">Our Vision</h3>
+              <h3 className="text-2xl font-medium mb-6 text-black">
+                Our Vision
+              </h3>
               <div className="space-y-6 text-[#575757] text-lg leading-relaxed">
                 <p>
                   Our mission is to redefine home styling by creating
@@ -79,7 +81,7 @@ export function VisionMissionSection() {
           {/* Mission */}
           <div className="flex flex-col lg:flex-row-reverse items-center gap-12 lg:gap-20">
             {/* Image */}
-            <motion.div 
+            <motion.div
               className="flex-shrink-0"
               initial={{ opacity: 0, x: 50 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -101,14 +103,16 @@ export function VisionMissionSection() {
             </motion.div>
 
             {/* Text */}
-            <motion.div 
+            <motion.div
               className="flex-1 max-w-2xl"
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <h3 className="text-2xl font-medium mb-6 text-black">Our Mission</h3>
+              <h3 className="text-2xl font-medium mb-6 text-black">
+                Our Mission
+              </h3>
               <div className="space-y-6 text-[#575757] text-lg leading-relaxed">
                 <p>
                   At Reliable Drapes, our mission is to craft high-quality,
@@ -121,7 +125,7 @@ export function VisionMissionSection() {
                     "Design collections that balance tradition and innovation.",
                     "Offer a wide range of fabrics and furnishings curated by our expert designer team.",
                     "Ensure durability, comfort, and beauty in every product.",
-                    "Help customers transform houses into homes that tell their unique story."
+                    "Help customers transform houses into homes that tell their unique story.",
                   ].map((item, index) => (
                     <li key={index} className="flex gap-3 items-start">
                       <span className="mt-2 w-1.5 h-1.5 rounded-full bg-[#2F2582] flex-shrink-0" />

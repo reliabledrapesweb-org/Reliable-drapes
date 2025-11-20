@@ -10,8 +10,8 @@ export function CTASection() {
         <Image
           src="/images/ctasbg.png"
           alt=""
-          width={100}
-          height={100}
+          width={1920}
+          height={1080}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/10" />
