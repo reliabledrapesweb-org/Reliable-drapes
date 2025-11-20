@@ -25,7 +25,7 @@ const features = [
     title: "Water repellent",
   },
   {
-    icon: "/images/features/fe5.png",
+    icon: "/images/features/fe6.png",
     title: "Colour Fastness",
   },
 ];

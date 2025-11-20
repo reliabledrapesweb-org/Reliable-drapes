@@ -35,60 +35,66 @@ export function AboutSection() {
 
           {/* Images */}
           <motion.div
-            className="flex-1 relative max-lg:-translate-x-18 max-xl:-translate-x-22 mb-10 lg:mb-0 order-1 lg:order-2"
-            initial={{ opacity: 0, x: -50 }}
+            className="flex-1 w-full order-1 lg:order-2"
+            initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <div className="relative flex items-center justify-center">
+            <div className="relative w-full max-w-[320px] md:max-w-[400px] lg:max-w-[500px] aspect-square mx-auto mt-8 lg:mt-0">
+              {/* Image 1 - Left */}
               <motion.div
-                className="absolute w-[171px] h-[171px] md:w-[182px] md:h-[182px] lg:w-[230px] lg:h-[230px] xl:w-[272px] xl:h-[272px] rotate-[350deg] translate-y-8"
-                whileHover={{ scale: 1.05 }}
+                className="absolute left-0 top-1/4 w-[55%] aspect-square z-10"
+                style={{ rotate: -10 }}
+                whileHover={{ scale: 1.05, rotate: -8 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="w-full h-full rounded-2xl overflow-hidden">
+                <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg border-4 border-white">
                   <Image
                     src="/images/about/aboutImg1.png"
-                    width={100}
-                    height={100}
-                    alt=""
+                    width={300}
+                    height={300}
+                    alt="Interior design"
                     className="w-full h-full object-cover"
                   />
                 </div>
               </motion.div>
+
+              {/* Image 2 - Top Right */}
               <motion.div
-                className="absolute w-[168px] h-[168px] md:w-[182px] md:h-[182px] lg:w-[230px] lg:h-[230px] xl:w-[272px] xl:h-[272px] rotate-[6deg] translate-x-30 md:translate-x-34 lg:translate-x-52 -translate-y-8 lg:-translate-y-16"
-                whileHover={{ scale: 1.05 }}
+                className="absolute right-0 top-0 w-[55%] aspect-square z-0"
+                style={{ rotate: 6 }}
+                whileHover={{ scale: 1.05, rotate: 8 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="w-full h-full rounded-2xl overflow-hidden">
+                <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg border-4 border-white">
                   <Image
                     src="/images/about/aboutImg2.png"
-                    width={100}
-                    height={100}
-                    alt=""
+                    width={300}
+                    height={300}
+                    alt="Curtain details"
                     className="w-full h-full object-cover"
                   />
                 </div>
               </motion.div>
+
+              {/* Image 3 - Bottom Right */}
               <motion.div
-                className="absolute w-[168px] h-[168px] md:w-[182px] md:h-[182px] lg:w-[230px] lg:h-[230px] xl:w-[272px] xl:h-[272px] rotate-[353deg] translate-x-30 md:translate-x-34 lg:translate-x-50 translate-y-24"
-                whileHover={{ scale: 1.05 }}
+                className="absolute right-4 bottom-0 w-[55%] aspect-square z-20"
+                style={{ rotate: -7 }}
+                whileHover={{ scale: 1.05, rotate: -5 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="w-full h-full rounded-2xl overflow-hidden">
+                <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg border-4 border-white">
                   <Image
                     src="/images/about/aboutImg3.png"
-                    width={100}
-                    height={100}
-                    alt=""
+                    width={300}
+                    height={300}
+                    alt="Fabric texture"
                     className="w-full h-full object-cover"
                   />
                 </div>
               </motion.div>
-              {/* Spacer for layout */}
-              <div className="w-[280px] md:w-[320px] lg:w-[350px] h-[280px] md:h-[320px] lg:h-[350px]" />
             </div>
           </motion.div>
         </div>
