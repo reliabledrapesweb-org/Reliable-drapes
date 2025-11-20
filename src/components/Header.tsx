@@ -38,8 +38,8 @@ export function Header() {
               <Image
                 src={isHome ? "/images/logo.png" : "/images/defaultlogo.png"}
                 alt="Logo"
-                width={240}
-                height={76}
+                width={100}
+                height={100}
                 className="object-contain md:w-[130px] lg:w-[140px]"
                 priority
               />
