@@ -7,14 +7,14 @@ export function WhyChooseSection() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
           {/* Content */}
-          <motion.div 
+          <motion.div
             className="flex-1 max-w-2xl order-2 lg:order-1"
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-3xl lg:text-4xl font-light mb-8 text-black">
+            <h2 className="text-2xl lg:text-[32px] font-semibold mb-4 text-black">
               Why Choose Reliable Drapes?
             </h2>
 
@@ -36,7 +36,7 @@ export function WhyChooseSection() {
           </motion.div>
 
           {/* Images */}
-          <motion.div 
+          <motion.div
             className="flex-shrink-0 order-1 lg:order-2"
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}

@@ -26,8 +26,8 @@ export function AboutHero() {
           className="max-w-3xl"
         >
           {/* Logo */}
-          <motion.div 
-            className="mb-6 md:mb-8"
+          <motion.div
+            className="mb-4 md:mb-6"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2, duration: 0.6 }}
@@ -42,24 +42,24 @@ export function AboutHero() {
             />
           </motion.div>
 
+          <motion.p
+            className="text-white/90 text-sm md:text-base font-light tracking-wide mb-4 md:mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+          >
+            (A Unit of Shree Ambica Furnishings (India) Pvt. Ltd.)
+          </motion.p>
+
           {/* Heading */}
-          <motion.h1 
-            className="text-white text-4xl md:text-5xl lg:text-6xl font-light mb-4 tracking-tight leading-tight"
+          <motion.h1
+            className="text-white font-bold text-2xl md:text-4xl mb-4 tracking-tight leading-tight"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
           >
             About Reliable Drapes
           </motion.h1>
-          
-          <motion.p 
-            className="text-white/90 text-lg md:text-xl lg:text-2xl font-light tracking-wide"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-          >
-            A Unit of Shree Ambica Furnishings (India) Pvt. Ltd.
-          </motion.p>
         </motion.div>
       </div>
     </section>

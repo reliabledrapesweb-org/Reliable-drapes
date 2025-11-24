@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import { HeroSection } from "@/components/homepageComponents/HeroSection";
 import { FeaturesSection } from "@/components/homepageComponents/FeaturesSection";
 import { AboutSection } from "@/components/homepageComponents/AboutSection";
@@ -30,12 +31,15 @@ export default function HomePage() {
       <CTASection />
 
       {/* WhatsApp Floating Button */}
-      <button
+      <motion.button
         className="fixed bottom-8 right-8 w-16 h-16 bg-[#2F2582] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform z-50 cursor-pointer"
         aria-label="Contact us on WhatsApp"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ duration: 0.2 }}
       >
         <MessageCircle className="w-8 h-8 text-white" />
-      </button>
+      </motion.button>
     </main>
   );
 }

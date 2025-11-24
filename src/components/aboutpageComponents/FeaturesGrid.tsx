@@ -59,12 +59,12 @@ export function FeaturesGrid() {
                   height={200}
                   src={feature.icon}
                   alt=""
-                  className="w-12 h-12 text-black object-contain"
+                  className="md:w-20 md:h-20 w-16 h-16 text-black object-contain"
                 />
               </div>
 
               {/* Content */}
-              <h3 className="text-xl font-medium mb-3 text-black">
+              <h3 className="text-xl font-semibold mb-3 text-black">
                 {feature.title}
               </h3>
               <p className="text-[#575757] max-w-xs leading-relaxed">

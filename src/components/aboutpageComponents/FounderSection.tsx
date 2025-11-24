@@ -7,7 +7,7 @@ export function FounderSection() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
           {/* Image */}
-          <motion.div 
+          <motion.div
             className="flex-shrink-0"
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -29,14 +29,14 @@ export function FounderSection() {
           </motion.div>
 
           {/* Content */}
-          <motion.div 
+          <motion.div
             className="flex-1 max-w-2xl"
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h2 className="text-3xl lg:text-4xl font-light mb-8 text-black">
+            <h2 className="text-2xl lg:text-3xl font-semibold mb-8 text-black">
               Our Founder
             </h2>
 
@@ -50,21 +50,27 @@ export function FounderSection() {
                 className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-md"
               />
               <div>
-                <h3 className="text-xl font-medium text-black">Mr. Sumit Narang</h3>
-                <p className="text-[#575757] text-sm uppercase tracking-wider">Founder & CEO</p>
+                <h3 className="text-xl font-semibold text-black">
+                  Mr. Sumit Narang
+                </h3>
+                <p className="text-[#575757] text-sm font-medium md:text-[18px]">
+                  Founder & CEO
+                </p>
               </div>
             </div>
 
             {/* Description */}
             <div className="space-y-6 text-[#575757] text-lg leading-relaxed">
               <div>
-                <h4 className="text-black font-medium mb-2">His Vision Behind Reliable Drapes</h4>
+                <h4 className="font-semibold mb-2">
+                  His Vision Behind Reliable Drapes
+                </h4>
                 <p>
                   Our founder envisioned a home furnishings brand that combines
                   elegance, quality, and innovation. With a deep passion for
                   design and decades of experience in textiles, they built
-                  Reliable Drapes on the principles of craftsmanship, creativity,
-                  and timeless style.
+                  Reliable Drapes on the principles of craftsmanship,
+                  creativity, and timeless style.
                 </p>
               </div>
 
