@@ -75,16 +75,16 @@ export function MobileMenu({ isOpen, setIsOpen, navLinks }: MobileMenuProps) {
           initial="initial"
           animate="animate"
           exit="exit"
-          className="fixed inset-0 bg-[#2F2582] z-50 flex flex-col justify-center items-center lg:hidden overflow-hidden"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-black lg:hidden"
         >
           {/* Close Button */}
           <motion.button
             onClick={() => setIsOpen(false)}
-            className="absolute top-6 right-6 text-white p-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer"
+            className="absolute top-6 right-6 cursor-pointer rounded-full p-2 text-white transition-colors hover:bg-white/10"
             whileHover={{ scale: 1.1, rotate: 90 }}
             whileTap={{ scale: 0.9 }}
           >
-            <X className="w-8 h-8 md:w-10 md:h-10" />
+            <X className="h-8 w-8 md:h-10 md:w-10" />
           </motion.button>
 
           {/* Menu Links */}
@@ -96,11 +96,15 @@ export function MobileMenu({ isOpen, setIsOpen, navLinks }: MobileMenuProps) {
             className="flex flex-col items-center space-y-6 md:space-y-8"
           >
             {navLinks.map((item, i) => (
-              <motion.div key={i} variants={linkVariants} className="overflow-hidden">
+              <motion.div
+                key={i}
+                variants={linkVariants}
+                className="overflow-hidden"
+              >
                 <a
                   href={item.link}
                   onClick={() => setIsOpen(false)}
-                  className="group relative flex items-center gap-4 text-white text-4xl md:text-5xl font-light tracking-tight hover:text-white/90 transition-colors"
+                  className="group relative flex items-center gap-4 text-3xl font-light tracking-tight text-white transition-colors hover:text-white/90 md:text-4xl"
                 >
                   <span className="relative z-10">{item.name}</span>
                   <motion.span
@@ -109,30 +113,31 @@ export function MobileMenu({ isOpen, setIsOpen, navLinks }: MobileMenuProps) {
                     transition={{ duration: 0.3 }}
                     className="hidden md:block"
                   >
-                    <ArrowRight className="w-8 h-8 md:w-10 md:h-10" />
+                    <ArrowRight className="h-8 w-8 md:h-10 md:w-10" />
                   </motion.span>
-                  
+
                   {/* Hover Underline Effect */}
-                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-white transition-all duration-300 group-hover:w-full" />
+                  <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-white transition-all duration-300 group-hover:w-full" />
                 </a>
               </motion.div>
             ))}
 
             {/* CTA Button */}
-            <motion.div variants={linkVariants} className="pt-8"
+            <motion.div
+              variants={linkVariants}
+              className="pt-8"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
-              transition={{ duration: 0.2 }}>
-              <button
-                className="bg-white text-[#2F2582] px-8 py-3 md:px-10 md:py-4 rounded-full text-lg md:text-xl font-medium shadow-lg hover:shadow-xl hover:bg-gray-100 transition-all transform hover:-translate-y-1 active:translate-y-0 cursor-pointer"
-              >
+              transition={{ duration: 0.2 }}
+            >
+              <button className="transform cursor-pointer rounded-full bg-white px-8 py-3 text-lg font-medium text-black shadow-lg transition-all hover:-translate-y-1 hover:bg-gray-100 hover:shadow-xl active:translate-y-0 md:px-10 md:py-4 md:text-xl">
                 Trader Log In
               </button>
             </motion.div>
           </motion.div>
-          
+
           {/* Background Decorative Elements */}
-          <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+          <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-full bg-gradient-to-t from-black/20 to-transparent" />
         </motion.div>
       )}
     </AnimatePresence>
