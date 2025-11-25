@@ -1,4 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Decor App - Luxury Home Furnishings
+
+A modern, responsive web application built with **Next.js 15** to showcase luxury home furnishings. The application features a premium design with smooth animations, a comprehensive product catalogue, and an immersive user experience.
+
+## Features
+
+- **Modern UI/UX**: Premium design with glassmorphism, smooth transitions, and responsive layouts.
+- **Home Page**: Engaging hero section, featured products, and brand storytelling.
+- **About Page**: Detailed company information, vision/mission, and founder spotlight.
+- **E-Catalogue**: Browsable product catalogue with filtering, search, and detailed product cards.
+- **Responsive Design**: Optimized for mobile, tablet, and desktop devices.
+- **Animations**: Powered by Framer Motion for a fluid feel.
+
+## Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
 
 ## Getting Started
 

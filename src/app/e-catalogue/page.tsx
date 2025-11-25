@@ -16,7 +16,7 @@ export default function App() {
           <div className="mb-8 flex flex-row justify-between">
             <div className="mb-6 flex flex-col gap-2">
               <p className="text-[14px] tracking-[8px] text-[#575757] uppercase">
-                E- catalogue
+                E-catalogue
               </p>
               <h1 className="text-[32px] text-[#161616]">
                 All About Catalogue
