@@ -4,12 +4,12 @@ import { Breadcrumb } from "@/components/Breadcrumb";
 import { FilterSidebar } from "@/components/eCatalogueComponents/FilterSidebar";
 import { ProductGrid } from "@/components/eCatalogueComponents/ProductGrid";
 import { SearchBar } from "@/components/SearchBar";
-import { AboutHero } from "@/components/aboutpageComponents/AboutHero";
+import { PageHero } from "@/components/PageHero";
 
 export default function App() {
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
-      <AboutHero />
+      <PageHero heading="E-catalogue" />
       <Breadcrumb />
       <div className="w-full py-12">
         <div className="mx-auto max-w-[1440px] px-6">

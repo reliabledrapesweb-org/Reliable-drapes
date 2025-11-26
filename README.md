@@ -1,4 +1,4 @@
-# Decor App - Luxury Home Furnishings
+# Reliable Drapes - Luxury Home Furnishings
 
 A modern, responsive web application built with **Next.js 15** to showcase luxury home furnishings. The application features a premium design with smooth animations, a comprehensive product catalogue, and an immersive user experience.
 
@@ -10,6 +10,7 @@ A modern, responsive web application built with **Next.js 15** to showcase luxur
 - **E-Catalogue**: Browsable product catalogue with filtering, search, and detailed product cards.
 - **Responsive Design**: Optimized for mobile, tablet, and desktop devices.
 - **Animations**: Powered by Framer Motion for a fluid feel.
+- **Backend**: Powered by Supabase with Server Actions and Server Components.
 
 ## Tech Stack
 
@@ -18,6 +19,12 @@ A modern, responsive web application built with **Next.js 15** to showcase luxur
 - **Styling**: Tailwind CSS
 - **Animations**: Framer Motion
 - **Icons**: Lucide React
+- **Backend**: Supabase (PostgreSQL, Auth)
+- **Architecture**: Server Actions & Server Components (Edge Compatible)
+
+## Documentation
+
+For detailed backend documentation, including data models and server functions, please refer to [BACKEND_DOCUMENTATION.md](./BACKEND_DOCUMENTATION.md).
 
 ## Getting Started
 
@@ -35,18 +42,17 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy on Cloudflare Pages
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This application is optimized for deployment on **Cloudflare Pages**.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Connect your repository to Cloudflare Pages.
+2. Select **Next.js** as the framework preset.
+3. Add your environment variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+4. Deploy!
 
 ## Deploy on Vercel
 
