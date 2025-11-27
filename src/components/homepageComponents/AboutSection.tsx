@@ -1,20 +1,20 @@
-import Image from "next/image";
+import { ImageWithLoading as Image } from "@/components/ui/ImageWithLoading";
 import { motion } from "motion/react";
 
 export function AboutSection() {
   return (
-    <section className="py-12 md:py-16 lg:py-20 bg-white">
+    <section className="bg-white py-12 md:py-16 lg:py-20">
       <div className="container mx-auto px-6">
-        <div className="flex flex-col lg:flex-row items-center gap-8 max-w-6xl mx-auto">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 lg:flex-row">
           {/* Content */}
           <motion.div
-            className="flex-1 max-w-lg order-2 lg:order-1"
+            className="order-2 max-w-lg flex-1 lg:order-1"
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-black text-3xl font-semibold lg:text-4xl lg:font-medium">
+            <h2 className="text-3xl font-semibold text-black lg:text-4xl lg:font-medium">
               About Reliable Drapes
             </h2>
             <div className="space-y-4 text-[#575757]">
@@ -35,63 +35,63 @@ export function AboutSection() {
 
           {/* Images */}
           <motion.div
-            className="flex-1 w-full order-1 lg:order-2"
+            className="order-1 w-full flex-1 lg:order-2"
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <div className="relative w-full max-w-[320px] md:max-w-[400px] lg:max-w-[500px] aspect-square mx-auto mt-8 lg:mt-0">
+            <div className="relative mx-auto mt-8 aspect-square w-full max-w-[320px] md:max-w-[400px] lg:mt-0 lg:max-w-[500px]">
               {/* Image 1 - Left */}
               <motion.div
-                className="absolute left-0 top-1/4 w-[55%] aspect-square z-10"
+                className="absolute top-1/4 left-0 z-10 aspect-square w-[55%]"
                 style={{ rotate: -10 }}
                 whileHover={{ scale: 1.05, rotate: -8 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg border-4 border-white">
+                <div className="h-full w-full overflow-hidden rounded-2xl border-4 border-white shadow-lg">
                   <Image
                     src="/images/about/aboutImg1.png"
                     width={300}
                     height={300}
                     alt="Interior design"
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover"
                   />
                 </div>
               </motion.div>
 
               {/* Image 2 - Top Right */}
               <motion.div
-                className="absolute right-0 top-0 w-[55%] aspect-square z-0"
+                className="absolute top-0 right-0 z-0 aspect-square w-[55%]"
                 style={{ rotate: 6 }}
                 whileHover={{ scale: 1.05, rotate: 8 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg border-4 border-white">
+                <div className="h-full w-full overflow-hidden rounded-2xl border-4 border-white shadow-lg">
                   <Image
                     src="/images/about/aboutImg2.png"
                     width={300}
                     height={300}
                     alt="Curtain details"
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover"
                   />
                 </div>
               </motion.div>
 
               {/* Image 3 - Bottom Right */}
               <motion.div
-                className="absolute right-4 bottom-0 w-[55%] aspect-square z-20"
+                className="absolute right-4 bottom-0 z-20 aspect-square w-[55%]"
                 style={{ rotate: -7 }}
                 whileHover={{ scale: 1.05, rotate: -5 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg border-4 border-white">
+                <div className="h-full w-full overflow-hidden rounded-2xl border-4 border-white shadow-lg">
                   <Image
                     src="/images/about/aboutImg3.png"
                     width={300}
                     height={300}
                     alt="Fabric texture"
-                    className="w-full h-full object-cover"
+                    className="h-full w-full object-cover"
                   />
                 </div>
               </motion.div>

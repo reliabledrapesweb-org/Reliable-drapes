@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ImageWithLoading as Image } from "@/components/ui/ImageWithLoading";
 import { motion } from "motion/react";
 
 export function FeaturesGrid() {
@@ -37,10 +37,10 @@ export function FeaturesGrid() {
   };
 
   return (
-    <section className="py-16 lg:py-24 bg-[#f8f8f8]">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <section className="bg-[#f8f8f8] py-16 lg:py-24">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <motion.div
-          className="grid md:grid-cols-3 gap-12 lg:gap-16"
+          className="grid gap-12 md:grid-cols-3 lg:gap-16"
           variants={container}
           initial="hidden"
           whileInView="show"
@@ -50,24 +50,24 @@ export function FeaturesGrid() {
             <motion.div
               key={feature.title}
               variants={item}
-              className="flex flex-col items-center text-center group"
+              className="group flex flex-col items-center text-center"
             >
               {/* Icon */}
-              <div className="w-24 h-24 mb-6 flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+              <div className="mb-6 flex h-24 w-24 items-center justify-center transition-transform duration-300 group-hover:scale-110">
                 <Image
                   width={200}
                   height={200}
                   src={feature.icon}
                   alt=""
-                  className="md:w-20 md:h-20 w-16 h-16 text-black object-contain"
+                  className="h-16 w-16 object-contain text-black md:h-20 md:w-20"
                 />
               </div>
 
               {/* Content */}
-              <h3 className="text-xl font-semibold mb-3 text-black">
+              <h3 className="mb-3 text-xl font-semibold text-black">
                 {feature.title}
               </h3>
-              <p className="text-[#575757] max-w-xs leading-relaxed">
+              <p className="max-w-xs leading-relaxed text-[#575757]">
                 {feature.description}
               </p>
             </motion.div>

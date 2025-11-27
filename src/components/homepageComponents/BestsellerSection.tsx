@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "motion/react";
-import Image from "next/image";
+import { ImageWithLoading as Image } from "@/components/ui/ImageWithLoading";
 
 const products = [
   {
@@ -37,20 +37,20 @@ const products = [
 
 export function BestsellerSection() {
   return (
-    <section className="py-12 lg:py-20 bg-white">
-      <div className="container mx-auto px-6 md:px-16 max-w-6xl">
-        <h2 className="font-medium text-[28px] lg:text-[36px] tracking-[-2px] mb-12 text-black">
+    <section className="bg-white py-12 lg:py-20">
+      <div className="container mx-auto max-w-6xl px-6 md:px-16">
+        <h2 className="mb-12 text-[28px] font-medium tracking-[-2px] text-black lg:text-[36px]">
           Season&apos;s Bestseller
         </h2>
 
         {/* Desktop Grid */}
-        <div className="hidden lg:grid gap-4 max-w-7xl mx-auto">
+        <div className="mx-auto hidden max-w-7xl gap-4 lg:grid">
           {/* Top Row - 3 equal items */}
           <div className="grid grid-cols-3 gap-4">
             {products.slice(0, 3).map((product, index) => (
               <motion.div
                 key={index}
-                className="relative rounded-2xl overflow-hidden group cursor-pointer aspect-square"
+                className="group relative aspect-square cursor-pointer overflow-hidden rounded-2xl"
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
@@ -62,24 +62,15 @@ export function BestsellerSection() {
                   height={800}
                   src={product.image}
                   alt={product.title}
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[46%] to-black/80" />
                 <div className="absolute bottom-6 left-6">
-                  <h3 className="text-white tracking-widest uppercase">
+                  <h3 className="tracking-widest text-white uppercase">
                     {product.title}
                   </h3>
                   {product.description && (
-                    <p
-                      className="
-                        text-sm text-white max-w-xs 
-                        opacity-0 translate-y-2
-                        group-hover:opacity-100 group-hover:translate-y-0
-                        transition-all duration-300 ease-out
-                        mt-2 min-h-[48px]
-                        border-t border-white
-                      "
-                    >
+                    <p className="mt-2 min-h-[48px] max-w-xs translate-y-2 border-t border-white text-sm text-white opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
                       {product.description}
                     </p>
                   )}
@@ -93,7 +84,7 @@ export function BestsellerSection() {
             {products.slice(3, 5).map((product, index) => (
               <motion.div
                 key={index}
-                className="relative rounded-2xl overflow-hidden group cursor-pointer aspect-auto"
+                className="group relative aspect-auto cursor-pointer overflow-hidden rounded-2xl"
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
@@ -105,24 +96,15 @@ export function BestsellerSection() {
                   height={800}
                   src={product.image}
                   alt={product.title}
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[46%] to-black/80" />
                 <div className="absolute bottom-6 left-6">
-                  <h3 className="text-white tracking-widest uppercase">
+                  <h3 className="tracking-widest text-white uppercase">
                     {product.title}
                   </h3>
                   {product.description && (
-                    <p
-                      className="
-                        text-sm text-white max-w-xs 
-                        opacity-0 translate-y-2
-                        group-hover:opacity-100 group-hover:translate-y-0
-                        transition-all duration-300 ease-out
-                        mt-2 min-h-[48px]
-                        border-t border-white
-                      "
-                    >
+                    <p className="mt-2 min-h-[48px] max-w-xs translate-y-2 border-t border-white text-sm text-white opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
                       {product.description}
                     </p>
                   )}
@@ -133,11 +115,11 @@ export function BestsellerSection() {
         </div>
 
         {/* Mobile Scroll */}
-        <div className="lg:hidden flex flex-col gap-3">
+        <div className="flex flex-col gap-3 lg:hidden">
           {products.map((product, index) => (
             <motion.div
               key={index}
-              className="relative rounded-2xl overflow-hidden cursor-pointer aspect-square"
+              className="relative aspect-square cursor-pointer overflow-hidden rounded-2xl"
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -149,11 +131,11 @@ export function BestsellerSection() {
                 height={100}
                 src={product.image}
                 alt={product.title}
-                className="w-full h-full object-cover"
+                className="h-full w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[46%] to-black/80" />
               <div className="absolute bottom-6 left-6">
-                <h3 className="text-white tracking-widest uppercase mb-2">
+                <h3 className="mb-2 tracking-widest text-white uppercase">
                   {product.title}
                 </h3>
                 {/* {product.description && (

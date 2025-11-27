@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ImageWithLoading as Image } from "@/components/ui/ImageWithLoading";
 
 interface ProductCardProps {
   title: string;

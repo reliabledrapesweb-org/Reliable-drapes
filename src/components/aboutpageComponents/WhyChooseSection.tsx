@@ -1,24 +1,24 @@
-import Image from "next/image";
+import { ImageWithLoading as Image } from "@/components/ui/ImageWithLoading";
 import { motion } from "motion/react";
 
 export function WhyChooseSection() {
   return (
-    <section className="py-16 lg:py-24 bg-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+    <section className="overflow-hidden bg-white py-16 lg:py-24">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-20">
           {/* Content */}
           <motion.div
-            className="flex-1 max-w-2xl order-2 lg:order-1"
+            className="order-2 max-w-2xl flex-1 lg:order-1"
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-2xl lg:text-[32px] font-semibold mb-4 text-black">
+            <h2 className="mb-4 text-2xl font-semibold text-black lg:text-[32px]">
               Why Choose Reliable Drapes?
             </h2>
 
-            <div className="space-y-6 text-[#575757] text-lg leading-relaxed">
+            <div className="space-y-6 text-lg leading-relaxed text-[#575757]">
               <p>
                 We combine decades of experience, exceptional craftsmanship, and
                 a passion for design with a dedicated designing team to help you
@@ -37,21 +37,21 @@ export function WhyChooseSection() {
 
           {/* Images */}
           <motion.div
-            className="flex-shrink-0 order-1 lg:order-2"
+            className="order-1 flex-shrink-0 lg:order-2"
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div className="relative w-72 h-72 md:w-96 md:h-96">
+            <div className="relative h-72 w-72 md:h-96 md:w-96">
               {/* Background rotated image */}
-              <div className="absolute inset-0 transform translate-x-4 translate-y-4 md:translate-x-8 md:translate-y-8">
+              <div className="absolute inset-0 translate-x-4 translate-y-4 transform md:translate-x-8 md:translate-y-8">
                 <Image
                   width={400}
                   height={400}
                   src="/images/whyReliablePic.png"
                   alt="Elegant curtains"
-                  className="w-64 h-64 md:w-80 md:h-80 object-cover rounded-3xl border-4 border-white shadow-lg transform rotate-[-12deg] opacity-80"
+                  className="h-64 w-64 rotate-[-12deg] transform rounded-3xl border-4 border-white object-cover opacity-80 shadow-lg md:h-80 md:w-80"
                 />
               </div>
               {/* Foreground image */}
@@ -61,7 +61,7 @@ export function WhyChooseSection() {
                   height={400}
                   src="/images/whyReliablePic.png"
                   alt="Modern furnishings"
-                  className="w-64 h-64 md:w-80 md:h-80 object-cover rounded-3xl border-4 border-white shadow-xl hover:scale-105 transition-transform duration-500"
+                  className="h-64 w-64 rounded-3xl border-4 border-white object-cover shadow-xl transition-transform duration-500 hover:scale-105 md:h-80 md:w-80"
                 />
               </div>
             </div>

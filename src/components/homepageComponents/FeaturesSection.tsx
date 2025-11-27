@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import Image from "next/image";
+import { ImageWithLoading as Image } from "@/components/ui/ImageWithLoading";
 
 const features = [
   {
@@ -32,31 +32,31 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section className="py-10 md:py-16 lg:py-20 bg-white">
+    <section className="bg-white py-10 md:py-16 lg:py-20">
       <div className="container mx-auto px-6">
         <h2
           style={{ fontWeight: 600, fontSize: 24 }}
-          className="text-center text-semibold md:hidden mb-10 text-black"
+          className="text-semibold mb-10 text-center text-black md:hidden"
         >
           Our Fabric Features
         </h2>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-6 md:gap-10 lg:gap-12 max-w-6xl mx-auto">
+        <div className="mx-auto grid max-w-6xl grid-cols-3 gap-6 md:grid-cols-6 md:gap-10 lg:gap-12">
           {features.map((feature, index) => {
             return (
               <motion.div
                 key={index}
-                className="flex flex-col items-center text-center gap-3 lg:gap-4"
+                className="flex flex-col items-center gap-3 text-center lg:gap-4"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <div className="w-10 h-10 md:w-14 md:h-14 lg:w-16 lg:h-16 flex items-center justify-center">
+                <div className="flex h-10 w-10 items-center justify-center md:h-14 md:w-14 lg:h-16 lg:w-16">
                   <Image src={feature.icon} alt="" width={200} height={200} />
                 </div>
-                <p className="text-black text-xs md:text-sm lg:text-md tracking-widest uppercase leading-tight">
+                <p className="lg:text-md text-xs leading-tight tracking-widest text-black uppercase md:text-sm">
                   {feature.title}
                 </p>
               </motion.div>

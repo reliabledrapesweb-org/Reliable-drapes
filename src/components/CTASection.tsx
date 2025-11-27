@@ -1,10 +1,10 @@
 import { ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
-import Image from "next/image";
+import { ImageWithLoading as Image } from "@/components/ui/ImageWithLoading";
 
 export function CTASection() {
   return (
-    <section className="relative py-12 md:py-20 lg:py-24 overflow-hidden">
+    <section className="relative overflow-hidden py-12 md:py-20 lg:py-24">
       {/* Background */}
       <div className="absolute inset-0">
         <Image
@@ -12,7 +12,7 @@ export function CTASection() {
           alt=""
           width={1920}
           height={1080}
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-black/10" />
       </div>
@@ -27,7 +27,7 @@ export function CTASection() {
       >
         <h2
           style={{ fontWeight: 500, fontSize: "28px" }}
-          className="text-white md:text-[36px] lg:text-[44px] tracking-tight mb-6 md:mb-7 lg:mb-8"
+          className="mb-6 tracking-tight text-white md:mb-7 md:text-[36px] lg:mb-8 lg:text-[44px]"
         >
           Trends Beyond
           <br />
@@ -35,19 +35,19 @@ export function CTASection() {
         </h2>
 
         <motion.button
-          className="backdrop-blur-[6px] bg-[rgba(0,0,0,0.1)] border border-[rgba(255,255,255,0.15)] rounded-full px-5 md:px-7 lg:px-9 py-2.5 md:py-3.5 text-white inline-flex items-center gap-2 cursor-pointer"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[rgba(255,255,255,0.15)] bg-[rgba(0,0,0,0.1)] px-5 py-2.5 text-white backdrop-blur-[6px] md:px-7 md:py-3.5 lg:px-9"
           whileHover={{ scale: 1.05, backgroundColor: "rgba(0,0,0,0.2)" }}
           whileTap={{ scale: 0.98 }}
           transition={{ duration: 0.2 }}
         >
-          <span className="tracking-widest uppercase text-sm md:text-base">
+          <span className="text-sm tracking-widest uppercase md:text-base">
             Explore Now
           </span>
           <motion.div
             animate={{ x: [0, 5, 0] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           >
-            <ArrowRight className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6" />
+            <ArrowRight className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" />
           </motion.div>
         </motion.button>
       </motion.div>

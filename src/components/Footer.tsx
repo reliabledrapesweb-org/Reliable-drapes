@@ -11,19 +11,19 @@ import {
   Linkedin,
 } from "lucide-react";
 import { motion } from "motion/react";
-import Image from "next/image";
+import { ImageWithLoading as Image } from "@/components/ui/ImageWithLoading";
 
 export function Footer() {
   return (
     <footer className="bg-[#0e0e0e] text-white">
       <div className="container mx-auto px-6 py-10 md:py-12 lg:py-16">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 md:gap-10 lg:gap-8 mb-10 md:mb-12">
+        <div className="mb-10 grid grid-cols-1 gap-8 md:mb-12 md:grid-cols-2 md:gap-10 lg:grid-cols-12 lg:gap-8">
           {/* Company Info */}
-          <div className="md:col-span-2 lg:col-span-4 space-y-4">
+          <div className="space-y-4 md:col-span-2 lg:col-span-4">
             {/* Logo */}
             <motion.div
-              className="flex items-center cursor-pointer"
+              className="flex cursor-pointer items-center"
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.2 }}
             >
@@ -37,11 +37,11 @@ export function Footer() {
               />
             </motion.div>
 
-            <p className="text-[#f1f1f1] text-sm md:text-base">
+            <p className="text-sm text-[#f1f1f1] md:text-base">
               A Unit of Shree Ambica Furnishings (India) Pvt. Ltd.
             </p>
 
-            <p className="text-[#7e7e7e] text-sm md:text-base">
+            <p className="text-sm text-[#7e7e7e] md:text-base">
               Creating spaces of comfort and tranquility with our premium
               collection of home essentials. Experience luxury, sustainability,
               and timeless design.
@@ -49,20 +49,20 @@ export function Footer() {
 
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-[#7e7e7e]" />
-                <span className="text-[#7e7e7e] text-sm md:text-base">
+                <Mail className="h-4 w-4 text-[#7e7e7e]" />
+                <span className="text-sm text-[#7e7e7e] md:text-base">
                   hello@Reliable.com
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-[#7e7e7e]" />
-                <span className="text-[#7e7e7e] text-sm md:text-base">
+                <Phone className="h-4 w-4 text-[#7e7e7e]" />
+                <span className="text-sm text-[#7e7e7e] md:text-base">
                   1-800-Reliable
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <MapPin className="w-4 h-4 text-[#7e7e7e]" />
-                <span className="text-[#7e7e7e] text-sm md:text-base">
+                <MapPin className="h-4 w-4 text-[#7e7e7e]" />
+                <span className="text-sm text-[#7e7e7e] md:text-base">
                   Delhi, India
                 </span>
               </div>
@@ -70,11 +70,11 @@ export function Footer() {
           </div>
 
           {/* Shop Links */}
-          <div className="lg:col-span-2 space-y-4">
-            <h3 className="tracking-widest uppercase text-sm md:text-base">
+          <div className="space-y-4 lg:col-span-2">
+            <h3 className="text-sm tracking-widest uppercase md:text-base">
               Shop
             </h3>
-            <ul className="space-y-3 text-[#7e7e7e] text-sm md:text-base">
+            <ul className="space-y-3 text-sm text-[#7e7e7e] md:text-base">
               <li>
                 <motion.a
                   href="#"
@@ -129,11 +129,11 @@ export function Footer() {
           </div>
 
           {/* Customer Care Links */}
-          <div className="lg:col-span-2 space-y-4">
-            <h3 className="tracking-widest uppercase text-sm md:text-base">
+          <div className="space-y-4 lg:col-span-2">
+            <h3 className="text-sm tracking-widest uppercase md:text-base">
               Customer Care
             </h3>
-            <ul className="space-y-3 text-[#7e7e7e] text-sm md:text-base">
+            <ul className="space-y-3 text-sm text-[#7e7e7e] md:text-base">
               <li>
                 <motion.a
                   href="#"
@@ -178,11 +178,11 @@ export function Footer() {
           </div>
 
           {/* Company Links */}
-          <div className="lg:col-span-2 space-y-4">
-            <h3 className="tracking-widest uppercase text-sm md:text-base">
+          <div className="space-y-4 lg:col-span-2">
+            <h3 className="text-sm tracking-widest uppercase md:text-base">
               Company
             </h3>
-            <ul className="space-y-3 text-[#7e7e7e] text-sm md:text-base">
+            <ul className="space-y-3 text-sm text-[#7e7e7e] md:text-base">
               <li>
                 <motion.a
                   href="#"
@@ -217,53 +217,53 @@ export function Footer() {
           </div>
 
           {/* Social Media */}
-          <div className="lg:col-span-2 space-y-4">
-            <h3 className="text-[#7e7e7e] text-sm md:text-base">Follow us</h3>
+          <div className="space-y-4 lg:col-span-2">
+            <h3 className="text-sm text-[#7e7e7e] md:text-base">Follow us</h3>
             <div className="flex items-center gap-4">
               <motion.a
                 href="#"
-                className="text-[#7e7e7e] cursor-pointer"
+                className="cursor-pointer text-[#7e7e7e]"
                 aria-label="Instagram"
                 whileHover={{ color: "#ffffff", scale: 1.15 }}
                 transition={{ duration: 0.2 }}
               >
-                <Instagram className="w-5 h-5 md:w-6 md:h-6" />
+                <Instagram className="h-5 w-5 md:h-6 md:w-6" />
               </motion.a>
               <motion.a
                 href="#"
-                className="text-[#7e7e7e] cursor-pointer"
+                className="cursor-pointer text-[#7e7e7e]"
                 aria-label="Facebook"
                 whileHover={{ color: "#ffffff", scale: 1.15 }}
                 transition={{ duration: 0.2 }}
               >
-                <Facebook className="w-5 h-5 md:w-6 md:h-6" />
+                <Facebook className="h-5 w-5 md:h-6 md:w-6" />
               </motion.a>
               <motion.a
                 href="#"
-                className="text-[#7e7e7e] cursor-pointer"
+                className="cursor-pointer text-[#7e7e7e]"
                 aria-label="Twitter"
                 whileHover={{ color: "#ffffff", scale: 1.15 }}
                 transition={{ duration: 0.2 }}
               >
-                <Twitter className="w-5 h-5 md:w-6 md:h-6" />
+                <Twitter className="h-5 w-5 md:h-6 md:w-6" />
               </motion.a>
               <motion.a
                 href="#"
-                className="text-[#7e7e7e] cursor-pointer"
+                className="cursor-pointer text-[#7e7e7e]"
                 aria-label="YouTube"
                 whileHover={{ color: "#ffffff", scale: 1.15 }}
                 transition={{ duration: 0.2 }}
               >
-                <Youtube className="w-5 h-5 md:w-6 md:h-6" />
+                <Youtube className="h-5 w-5 md:h-6 md:w-6" />
               </motion.a>
               <motion.a
                 href="#"
-                className="text-[#7e7e7e] cursor-pointer"
+                className="cursor-pointer text-[#7e7e7e]"
                 aria-label="LinkedIn"
                 whileHover={{ color: "#ffffff", scale: 1.15 }}
                 transition={{ duration: 0.2 }}
               >
-                <Linkedin className="w-5 h-5 md:w-6 md:h-6" />
+                <Linkedin className="h-5 w-5 md:h-6 md:w-6" />
               </motion.a>
             </div>
           </div>
@@ -271,12 +271,12 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-6">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs md:text-sm text-[#a5a5a5]">
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4">
-              <p className="text-center text-sm md:text-base md:text-left">
+          <div className="flex flex-col items-start justify-between gap-4 text-xs text-[#a5a5a5] md:flex-row md:items-center md:text-sm">
+            <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:gap-4">
+              <p className="text-center text-sm md:text-left md:text-base">
                 © 2025 Reliable Drapes. All rights reserved.
               </p>
-              <div className="flex items-center text-sm md:text-base gap-3 md:gap-4">
+              <div className="flex items-center gap-3 text-sm md:gap-4 md:text-base">
                 <motion.a
                   href="#"
                   className="cursor-pointer"
@@ -295,7 +295,7 @@ export function Footer() {
                 </motion.a>
               </div>
             </div>
-            <p className="text-start text-sm md:text-base md:text-right">
+            <p className="text-start text-sm md:text-right md:text-base">
               Made with ❤️ By Gagan Ahuja
             </p>
           </div>

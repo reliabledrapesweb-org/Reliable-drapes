@@ -1,11 +1,11 @@
-import Image from "next/image";
+import { ImageWithLoading as Image } from "@/components/ui/ImageWithLoading";
 import { motion } from "motion/react";
 
 export function FounderSection() {
   return (
-    <section className="py-16 lg:py-24 bg-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+    <section className="overflow-hidden bg-white py-16 lg:py-24">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-20">
           {/* Image */}
           <motion.div
             className="flex-shrink-0"
@@ -14,15 +14,15 @@ export function FounderSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <div className="relative group">
-              <div className="w-72 h-72 md:w-80 md:h-80 lg:w-96 lg:h-96 bg-gray-100 rounded-3xl shadow-xl transform rotate-[-6deg] transition-transform duration-500 group-hover:rotate-[-3deg]" />
-              <div className="absolute inset-0 w-72 h-72 md:w-80 md:h-80 lg:w-96 lg:h-96">
+            <div className="group relative">
+              <div className="h-72 w-72 rotate-[-6deg] transform rounded-3xl bg-gray-100 shadow-xl transition-transform duration-500 group-hover:rotate-[-3deg] md:h-80 md:w-80 lg:h-96 lg:w-96" />
+              <div className="absolute inset-0 h-72 w-72 md:h-80 md:w-80 lg:h-96 lg:w-96">
                 <Image
                   width={400}
                   height={400}
                   src="/images/founderPic.png"
                   alt="Founder portrait"
-                  className="w-full h-full object-cover rounded-3xl border-4 border-white shadow-lg transform translate-x-2 translate-y-2 transition-transform duration-500 group-hover:translate-x-0 group-hover:translate-y-0"
+                  className="h-full w-full translate-x-2 translate-y-2 transform rounded-3xl border-4 border-white object-cover shadow-lg transition-transform duration-500 group-hover:translate-x-0 group-hover:translate-y-0"
                 />
               </div>
             </div>
@@ -30,39 +30,39 @@ export function FounderSection() {
 
           {/* Content */}
           <motion.div
-            className="flex-1 max-w-2xl"
+            className="max-w-2xl flex-1"
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h2 className="text-2xl lg:text-3xl font-semibold mb-8 text-black">
+            <h2 className="mb-8 text-2xl font-semibold text-black lg:text-3xl">
               Our Founder
             </h2>
 
             {/* Founder Info */}
-            <div className="flex items-center gap-5 mb-8 p-4 bg-gray-50 rounded-2xl w-fit">
+            <div className="mb-8 flex w-fit items-center gap-5 rounded-2xl bg-gray-50 p-4">
               <Image
                 width={60}
                 height={60}
                 src="/images/founderPic.png"
                 alt="Mr. Sumit Narang"
-                className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-md"
+                className="h-14 w-14 rounded-full border-2 border-white object-cover shadow-md"
               />
               <div>
                 <h3 className="text-xl font-semibold text-black">
                   Mr. Sumit Narang
                 </h3>
-                <p className="text-[#575757] text-sm font-medium md:text-[18px]">
+                <p className="text-sm font-medium text-[#575757] md:text-[18px]">
                   Founder & CEO
                 </p>
               </div>
             </div>
 
             {/* Description */}
-            <div className="space-y-6 text-[#575757] text-lg leading-relaxed">
+            <div className="space-y-6 text-lg leading-relaxed text-[#575757]">
               <div>
-                <h4 className="font-semibold mb-2">
+                <h4 className="mb-2 font-semibold">
                   His Vision Behind Reliable Drapes
                 </h4>
                 <p>
@@ -74,7 +74,7 @@ export function FounderSection() {
                 </p>
               </div>
 
-              <p className="italic border-l-4 border-[#2F2582] pl-4 text-gray-600">
+              <p className="border-l-4 border-[#2F2582] pl-4 text-gray-600 italic">
                 "To inspire every home with beautiful, functional, and
                 personalized furnishings that bring comfort, elegance, and a
                 sense of individuality to living spaces."

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { ImageWithLoading as Image } from "@/components/ui/ImageWithLoading";
 import { motion } from "motion/react";
 import { Menu, X, Search, User, ShoppingCart } from "lucide-react";
 import { MobileMenu } from "./MobileMenu";
