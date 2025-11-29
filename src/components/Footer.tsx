@@ -11,7 +11,7 @@ import {
   Linkedin,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { ImageWithLoading as Image } from "@/components/ui/ImageWithLoading";
+import Image from "next/image";
 
 export function Footer() {
   return (

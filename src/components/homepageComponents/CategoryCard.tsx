@@ -2,7 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { ImageWithLoading as Image } from "@/components/ui/ImageWithLoading";
+import Image from "next/image";
 
 interface CategoryCardProps {
   image: string;

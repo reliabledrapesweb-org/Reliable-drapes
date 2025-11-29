@@ -1,4 +1,4 @@
-import { ImageWithLoading as Image } from "@/components/ui/ImageWithLoading";
+import Image from "next/image";
 import { motion } from "motion/react";
 
 export function VisionMissionSection() {

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { ImageWithLoading as Image } from "@/components/ui/ImageWithLoading";
+import Image from "next/image";
 
 const features = [
   {
