@@ -117,6 +117,7 @@ function BestsellerCard({
         src={product.image}
         alt={product.title}
         className="h-full w-full object-cover"
+        sizes="(max-width: 1024px) 100vw, 50vw"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[46%] to-black/80" />
       <div className="absolute bottom-6 left-6 z-20">

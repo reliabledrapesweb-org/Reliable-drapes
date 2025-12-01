@@ -13,6 +13,8 @@ export function CTASection() {
           width={1920}
           height={1080}
           className="h-full w-full object-cover"
+          priority
+          sizes="100vw"
         />
         <div className="absolute inset-0 bg-black/10" />
       </div>

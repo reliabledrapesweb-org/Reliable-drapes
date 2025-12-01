@@ -54,7 +54,13 @@ export function FeaturesSection() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <div className="flex h-10 w-10 items-center justify-center md:h-14 md:w-14 lg:h-16 lg:w-16">
-                  <Image src={feature.icon} alt="" width={200} height={200} />
+                  <Image
+                    src={feature.icon}
+                    alt=""
+                    width={200}
+                    height={200}
+                    sizes="(max-width: 768px) 40px, (max-width: 1024px) 56px, 64px"
+                  />
                 </div>
                 <p className="lg:text-md text-xs leading-tight tracking-widest text-black uppercase md:text-sm">
                   {feature.title}

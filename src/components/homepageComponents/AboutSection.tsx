@@ -56,6 +56,7 @@ export function AboutSection() {
                     height={300}
                     alt="Interior design"
                     className="h-full w-full object-cover"
+                    sizes="(max-width: 768px) 176px, (max-width: 1024px) 220px, 275px"
                   />
                 </div>
               </motion.div>
@@ -74,6 +75,7 @@ export function AboutSection() {
                     height={300}
                     alt="Curtain details"
                     className="h-full w-full object-cover"
+                    sizes="(max-width: 768px) 176px, (max-width: 1024px) 220px, 275px"
                   />
                 </div>
               </motion.div>
@@ -92,6 +94,7 @@ export function AboutSection() {
                     height={300}
                     alt="Fabric texture"
                     className="h-full w-full object-cover"
+                    sizes="(max-width: 768px) 176px, (max-width: 1024px) 220px, 275px"
                   />
                 </div>
               </motion.div>
