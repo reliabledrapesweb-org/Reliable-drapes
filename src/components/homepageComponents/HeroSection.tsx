@@ -4,6 +4,8 @@ import { ArrowRight } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
+import Image from "next/image";
+
 const carouselImages = [
   "/images/hero/heroImg2.png",
   "/images/hero/2.jpg",
@@ -23,6 +25,14 @@ export function HeroSection() {
     setCurrentIndex((prev) =>
       prev === 0 ? carouselImages.length - 1 : prev - 1,
     );
+  }, []);
+
+  // Preload images
+  useEffect(() => {
+    carouselImages.forEach((src) => {
+      const img = new window.Image();
+      img.src = src;
+    });
   }, []);
 
   // Auto slide
@@ -52,9 +62,17 @@ export function HeroSection() {
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 1, zIndex: -1 }}
             transition={{ duration: 1.2, ease: "easeInOut" }}
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${carouselImages[currentIndex]})` }}
-          />
+            className="absolute inset-0"
+          >
+            <Image
+              src={carouselImages[currentIndex]}
+              alt="Hero Background"
+              fill
+              priority
+              className="object-cover"
+              sizes="100vw"
+            />
+          </motion.div>
         </AnimatePresence>
         <div className="absolute inset-0 bg-black/30" />
       </div>
