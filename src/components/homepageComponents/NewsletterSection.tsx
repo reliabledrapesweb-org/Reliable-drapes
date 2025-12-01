@@ -14,7 +14,7 @@ export function NewsletterSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-black mb-6 md:mb-8 text-[28px] font-medium md:text-[36px]">
+          <h2 className="text-black mb-6 md:mb-8 text-[28px] tracking-tight font-medium md:text-[36px]">
             Be the first know about <br /> our latest collection
           </h2>
 

@@ -25,7 +25,7 @@ export function CTASection() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="mb-6 font-semibold text-[32px] tracking-tight text-white md:mb-7 md:text-[36px] lg:mb-10 lg:text-[44px]">
+        <h2 className="mb-6 font-semibold text-[32px] tracking-tight text-white md:mb-8 md:text-[36px] lg:mb-12 lg:text-[44px]">
           Trends Beyond
           <br />
           Imagination
