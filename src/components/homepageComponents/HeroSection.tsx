@@ -44,14 +44,14 @@ export function HeroSection() {
   return (
     <section className="relative h-[576px] w-full overflow-hidden md:h-screen lg:h-screen">
       {/* Background Image Carousel */}
-      <div className="absolute inset-0">
-        <AnimatePresence mode="wait">
+      <div className="absolute inset-0 bg-black">
+        <AnimatePresence>
           <motion.div
             key={currentIndex}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1 }}
+            initial={{ opacity: 0, scale: 1.2, filter: "blur(10px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 1, zIndex: -1 }}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${carouselImages[currentIndex]})` }}
           />
@@ -91,11 +91,10 @@ export function HeroSection() {
             <motion.button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`cursor-pointer rounded-full transition-all ${
-                index === currentIndex
-                  ? "h-2 w-5 bg-white"
-                  : "h-1 w-1 bg-white/60 hover:bg-white/80"
-              }`}
+              className={`cursor-pointer rounded-full transition-all ${index === currentIndex
+                ? "h-2 w-5 bg-white"
+                : "h-1 w-1 bg-white/60 hover:bg-white/80"
+                }`}
               whileHover={{ scale: 1.2 }}
               transition={{ duration: 0.2 }}
               aria-label={`Go to slide ${index + 1}`}
