@@ -10,6 +10,7 @@ import { BestsellerSection } from "@/components/homepageComponents/BestsellerSec
 import { NewsletterSection } from "@/components/homepageComponents/NewsletterSection";
 import { CTASection } from "@/components/CTASection";
 import { MessageCircle } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 
 export default function HomePage() {
   return (
@@ -32,13 +33,13 @@ export default function HomePage() {
 
       {/* WhatsApp Floating Button */}
       <motion.button
-        className="fixed bottom-8 right-8 w-16 h-16 bg-[#2F2582] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform z-50 cursor-pointer"
+        className="fixed right-8 bottom-8 z-50 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-[#2F2582] shadow-lg transition-transform hover:scale-110"
         aria-label="Contact us on WhatsApp"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.98 }}
         transition={{ duration: 0.2 }}
       >
-        <MessageCircle className="w-8 h-8 text-white" />
+        <FaWhatsapp className="h-8 w-8 text-white" />
       </motion.button>
     </main>
   );

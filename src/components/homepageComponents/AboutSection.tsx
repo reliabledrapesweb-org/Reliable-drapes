@@ -14,7 +14,7 @@ export function AboutSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-3xl font-semibold text-black lg:text-4xl lg:font-medium">
+            <h2 className="mb-4 text-3xl font-semibold text-black lg:text-4xl lg:font-medium">
               About Reliable Drapes
             </h2>
             <div className="space-y-4 text-[#575757]">

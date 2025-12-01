@@ -134,7 +134,7 @@ export function Header() {
             </div>
 
             <motion.a
-              href="#trader-login"
+              href="/login"
               className={`${
                 shouldUseWhiteText ? "text-white" : "text-black"
               } cursor-pointer text-sm tracking-tight xl:text-base`}

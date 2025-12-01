@@ -130,9 +130,12 @@ export function MobileMenu({ isOpen, setIsOpen, navLinks }: MobileMenuProps) {
               whileTap={{ scale: 0.98 }}
               transition={{ duration: 0.2 }}
             >
-              <button className="transform cursor-pointer rounded-full bg-white px-8 py-3 text-lg font-medium text-black shadow-lg transition-all hover:-translate-y-1 hover:bg-gray-100 hover:shadow-xl active:translate-y-0 md:px-10 md:py-4 md:text-xl">
+              <a
+                href="/login"
+                className="inline-block transform cursor-pointer rounded-full bg-white px-8 py-3 text-lg font-medium text-black shadow-lg transition-all hover:-translate-y-1 hover:bg-gray-100 hover:shadow-xl active:translate-y-0 md:px-10 md:py-4 md:text-xl"
+              >
                 Trader Log In
-              </button>
+              </a>
             </motion.div>
           </motion.div>
 

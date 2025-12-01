@@ -25,10 +25,7 @@ export function CTASection() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <h2
-          style={{ fontWeight: 500, fontSize: "28px" }}
-          className="mb-6 tracking-tight text-white md:mb-7 md:text-[36px] lg:mb-8 lg:text-[44px]"
-        >
+        <h2 className="mb-6 text-[32px] tracking-tight text-white md:mb-7 md:text-[36px] lg:mb-8 lg:text-[44px]">
           Trends Beyond
           <br />
           Imagination

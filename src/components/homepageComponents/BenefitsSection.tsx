@@ -23,15 +23,15 @@ const benefits = [
 
 export function BenefitsSection() {
   return (
-    <section className="py-12 md:py-16 lg:py-20 bg-white">
+    <section className="bg-white py-12 md:py-16 lg:py-20">
       <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-8 max-w-6xl mx-auto">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 md:grid-cols-3 lg:gap-8">
           {benefits.map((benefit, index) => {
             const Icon = benefit.icon;
             return (
               <motion.div
                 key={index}
-                className="rounded-3xl p-6 md:p-8 lg:p-10 md:text-start flex flex-col items-center text-center md:items-start gap-4"
+                className="flex flex-col items-center gap-4 rounded-3xl p-6 text-center md:items-start md:p-8 md:text-start lg:p-10"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -39,19 +39,19 @@ export function BenefitsSection() {
                 whileHover={{ y: -5 }}
               >
                 <motion.div
-                  className="w-14 h-14 md:w-16 md:h-16 lg:w-[68px] lg:h-[68px] rounded-xl bg-[#878787] flex items-center justify-center"
+                  className="flex h-14 w-14 items-center justify-center rounded-xl bg-[#878787] md:h-16 md:w-16 lg:h-[68px] lg:w-[68px]"
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   transition={{ duration: 0.3 }}
                 >
                   <Icon
-                    className="w-7 h-7 md:w-9 md:h-9 lg:w-10 lg:h-10 text-white"
-                    strokeWidth={2}
+                    className="h-7 w-7 text-white md:h-9 md:w-9 lg:h-10 lg:w-10"
+                    strokeWidth={1.5}
                   />
                 </motion.div>
-                <h3 className="text-black tracking-widest uppercase font-semibold text-base">
+                <h3 className="text-base font-semibold tracking-widest text-black uppercase">
                   {benefit.title}
                 </h3>
-                <p className="text-[#575757] text-sm md:text-base">
+                <p className="text-sm text-[#575757] md:text-base">
                   {benefit.description}
                 </p>
               </motion.div>
