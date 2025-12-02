@@ -1,15 +1,16 @@
 "use client";
 
 import { motion } from "motion/react";
-import { HeroSection } from "@/components/homepageComponents/HeroSection";
-import { FeaturesSection } from "@/components/homepageComponents/FeaturesSection";
-import { AboutSection } from "@/components/homepageComponents/AboutSection";
-import { CategoriesSection } from "@/components/homepageComponents/CategoriesSection";
-import { BenefitsSection } from "@/components/homepageComponents/BenefitsSection";
-import { BestsellerSection } from "@/components/homepageComponents/BestsellerSection";
-import { NewsletterSection } from "@/components/homepageComponents/NewsletterSection";
-import { CTASection } from "@/components/CTASection";
-import { MessageCircle } from "lucide-react";
+import {
+  HeroSection,
+  FeaturesSection,
+  AboutSection,
+  CategoriesSection,
+  BenefitsSection,
+  BestsellerSection,
+  NewsletterSection,
+} from "@/components/features/home";
+import { CTASection } from "@/components/shared";
 import { FaWhatsapp } from "react-icons/fa";
 
 export default function HomePage() {

@@ -1,12 +1,14 @@
 "use server";
 
-import { getAdminSupabase } from "@/lib/supabaseAdmin";
-import { getAnonSupabase } from "@/lib/supabaseAnon";
+import { getAdminSupabase } from "@/lib/supabase/admin";
+import { getAnonSupabase } from "@/lib/supabase/anon";
 import { authSignupSchema, authLoginSchema } from "@/lib/validators";
+import type { AuthResponse } from "@/lib/types";
+import { redirect } from "next/navigation";
 
 export async function signupAction(
   formData: FormData | { email: string; password: string; full_name?: string },
-) {
+): Promise<AuthResponse> {
   // Extract data from FormData or object
   const data =
     formData instanceof FormData ? Object.fromEntries(formData) : formData;
@@ -64,13 +66,62 @@ export async function signupAction(
     success: true,
     message: "User created successfully",
     userId,
-    user: created.user,
+    user: created.user ? {
+      id: created.user.id,
+      email: created.user.email || '',
+      full_name: (created.user.user_metadata?.full_name as string) || undefined,
+    } : undefined,
   };
 }
 
+export async function forgotPasswordAction(
+  email: string,
+): Promise<AuthResponse> {
+  const anon = getAnonSupabase();
+
+  const { error } = await anon.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password`,
+  });
+
+  if (error) {
+    return {
+      success: false,
+      error: "Failed to send reset email",
+      details: error.message,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Check your email for password reset link",
+  };
+}
+
+export async function resetPasswordAction(
+  newPassword: string,
+): Promise<AuthResponse> {
+  const anon = getAnonSupabase();
+
+  const { data, error } = await anon.auth.updateUser({
+    password: newPassword,
+  });
+
+  if (error) {
+    return {
+      success: false,
+      error: "Failed to reset password",
+      details: error.message,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Password reset successfully",
+  };
+}
 export async function loginAction(
   formData: FormData | { email: string; password: string },
-) {
+): Promise<AuthResponse> {
   // Extract data from FormData or object
   const data =
     formData instanceof FormData ? Object.fromEntries(formData) : formData;
@@ -102,7 +153,23 @@ export async function loginAction(
   return {
     success: true,
     message: "Logged in successfully",
-    user: authData.user,
-    session: authData.session,
+    user: authData.user ? {
+      id: authData.user.id,
+      email: authData.user.email || '',
+      full_name: (authData.user.user_metadata?.full_name as string) || undefined,
+    } : undefined,
+    session: authData.session ? {
+      access_token: authData.session.access_token,
+      refresh_token: authData.session.refresh_token || '',
+      expires_at: authData.session.expires_at,
+      user: authData.user ? {
+        id: authData.user.id,
+        email: authData.user.email || '',
+        full_name: (authData.user.user_metadata?.full_name as string) || undefined,
+      } : {
+        id: '',
+        email: '',
+      },
+    } : undefined,
   };
 }

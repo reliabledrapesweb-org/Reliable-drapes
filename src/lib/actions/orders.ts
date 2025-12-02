@@ -1,7 +1,7 @@
 "use server";
 
-import { getAdminSupabase } from "@/lib/supabaseAdmin";
-import { getAnonSupabase } from "@/lib/supabaseAnon";
+import { getAdminSupabase } from "@/lib/supabase/admin";
+import { getAnonSupabase } from "@/lib/supabase/anon";
 import { createOrderSchema } from "@/lib/validators";
 import { cookies } from "next/headers";
 

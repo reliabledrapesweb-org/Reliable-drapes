@@ -1,0 +1,187 @@
+"use client";
+
+import { motion, AnimatePresence, Variants } from "motion/react";
+import { X, ArrowRight, LogOut } from "lucide-react";
+import { useState } from "react";
+import { useAuthStore } from "@/lib/store";
+
+interface MobileMenuProps {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  navLinks: { name: string; link: string }[];
+}
+
+export function MobileMenu({ isOpen, setIsOpen, navLinks }: MobileMenuProps) {
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const { user, logout } = useAuthStore();
+
+  const menuVariants: Variants = {
+    initial: {
+      clipPath: "circle(0% at 100% 0%)",
+    },
+    animate: {
+      clipPath: "circle(150% at 100% 0%)",
+      transition: {
+        duration: 0.7,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+    exit: {
+      clipPath: "circle(0% at 100% 0%)",
+      transition: {
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1],
+        delay: 0.2,
+      },
+    },
+  };
+
+  const containerVariants: Variants = {
+    initial: {
+      transition: {
+        staggerChildren: 0.05,
+        staggerDirection: -1,
+      },
+    },
+    animate: {
+      transition: {
+        delayChildren: 0.2,
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const linkVariants: Variants = {
+    initial: {
+      y: 50,
+      opacity: 0,
+    },
+    animate: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      },
+    },
+    exit: {
+      y: 50,
+      opacity: 0,
+      transition: {
+        duration: 0.3,
+        ease: "easeIn",
+      },
+    },
+  };
+
+  return (
+    <AnimatePresence mode="wait">
+      {isOpen && (
+        <motion.div
+          variants={menuVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-black lg:hidden"
+        >
+          {/* Close Button */}
+          <motion.button
+            onClick={() => setIsOpen(false)}
+            className="absolute top-6 right-6 cursor-pointer rounded-full p-2 text-white transition-colors hover:bg-white/10"
+            whileHover={{ scale: 1.1, rotate: 90 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <X className="h-8 w-8 md:h-10 md:w-10" />
+          </motion.button>
+
+          {/* Menu Links */}
+          <motion.div
+            variants={containerVariants}
+            initial="initial"
+            animate="animate"
+            exit="initial"
+            className="flex flex-col items-center space-y-6 md:space-y-8"
+          >
+            {navLinks.map((item, i) => (
+              <motion.div
+                key={i}
+                variants={linkVariants}
+                className="overflow-hidden"
+              >
+                <a
+                  href={item.link}
+                  onClick={() => setIsOpen(false)}
+                  className="group relative flex items-center gap-4 text-3xl font-light tracking-tight text-white transition-colors hover:text-white/90 md:text-4xl"
+                >
+                  <span className="relative z-10">{item.name}</span>
+                  <motion.span
+                    initial={{ opacity: 0, x: -20 }}
+                    whileHover={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="hidden md:block"
+                  >
+                    <ArrowRight className="h-8 w-8 md:h-10 md:w-10" />
+                  </motion.span>
+
+                  {/* Hover Underline Effect */}
+                  <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-white transition-all duration-300 group-hover:w-full" />
+                </a>
+              </motion.div>
+            ))}
+
+            {/* USER MENU OR LOGIN BUTTON */}
+            <motion.div
+              variants={linkVariants}
+              className="pt-8"
+            >
+              {user ? (
+                <div className="relative">
+                  <motion.button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="inline-block transform cursor-pointer rounded-full bg-white px-8 py-3 text-lg font-medium text-black shadow-lg transition-all hover:-translate-y-1 hover:bg-gray-100 hover:shadow-xl active:translate-y-0 md:px-10 md:py-4 md:text-xl"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {user.full_name || user.email.split('@')[0]}
+                  </motion.button>
+
+                  {showUserMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute right-0 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg z-10"
+                    >
+                      <button
+                        onClick={() => {
+                          logout();
+                          setShowUserMenu(false);
+                          setIsOpen(false);
+                        }}
+                        className="flex w-full items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Log Out
+                      </button>
+                    </motion.div>
+                  )}
+                </div>
+              ) : (
+                <a
+                  href="/login"
+                  onClick={() => setIsOpen(false)}
+                  className="inline-block transform cursor-pointer rounded-full bg-white px-8 py-3 text-lg font-medium text-black shadow-lg transition-all hover:-translate-y-1 hover:bg-gray-100 hover:shadow-xl active:translate-y-0 md:px-10 md:py-4 md:text-xl"
+                >
+                  Trader Log In
+                </a>
+              )}
+            </motion.div>
+          </motion.div>
+
+          {/* Background Decorative Elements */}
+          <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-full bg-gradient-to-t from-black/20 to-transparent" />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}

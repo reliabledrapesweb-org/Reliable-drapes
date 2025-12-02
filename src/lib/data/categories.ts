@@ -1,4 +1,4 @@
-import { getAdminSupabase } from "@/lib/supabaseAdmin";
+import { getAdminSupabase } from "@/lib/supabase/admin";
 import { cache } from "react";
 
 // Helper to build hierarchical tree

@@ -1,13 +1,11 @@
 "use client";
 
-import { Breadcrumb } from "@/components/Breadcrumb";
-import { FilterSidebar } from "@/components/eCatalogueComponents/FilterSidebar";
+import { Breadcrumb, SearchBar, PageHero } from "@/components/shared";
 import {
+  FilterSidebar,
   ProductGrid,
-  products,
-} from "@/components/eCatalogueComponents/ProductGrid";
-import { SearchBar } from "@/components/SearchBar";
-import { PageHero } from "@/components/PageHero";
+} from "@/components/features/catalog";
+import { products } from "@/components/features/catalog/ProductGrid";
 import { useMemo, useState } from "react";
 
 export default function App() {

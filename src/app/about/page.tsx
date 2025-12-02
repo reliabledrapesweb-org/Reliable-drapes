@@ -1,11 +1,12 @@
 "use client";
 
-import { FounderSection } from "@/components/aboutpageComponents/FounderSection";
-import { WhyChooseSection } from "@/components/aboutpageComponents/WhyChooseSection";
-import { FeaturesGrid } from "@/components/aboutpageComponents/FeaturesGrid";
-import { VisionMissionSection } from "@/components/aboutpageComponents/VisionMissionSection";
-import { CTASection } from "@/components/CTASection";
-import { PageHero } from "@/components/PageHero";
+import {
+  FounderSection,
+  WhyChooseSection,
+  FeaturesGrid,
+  VisionMissionSection,
+} from "@/components/features/about";
+import { CTASection, PageHero } from "@/components/shared";
 
 export default function AboutPage() {
   return (

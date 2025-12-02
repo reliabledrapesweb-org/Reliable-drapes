@@ -1,5 +1,5 @@
-import { getAdminSupabase } from "@/lib/supabaseAdmin";
-import { getAnonSupabase } from "@/lib/supabaseAnon";
+import { getAdminSupabase } from "@/lib/supabase/admin";
+import { getAnonSupabase } from "@/lib/supabase/anon";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
