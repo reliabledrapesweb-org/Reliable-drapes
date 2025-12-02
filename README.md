@@ -308,30 +308,10 @@ describe('MyComponent', () => {
 
 ## 🚢 Deployment
 
-### Deploy on Vercel (Recommended)
-
-The easiest way to deploy Next.js applications:
-
-1. Push code to GitHub
-2. Import repository in [Vercel](https://vercel.com/new)
-3. Add environment variables:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-4. Click Deploy!
-
-### Deploy on Other Platforms
-
 **Cloudflare Pages:**
 ```bash
 npm run build
 # Follow Cloudflare Pages deployment instructions
-```
-
-**Self-Hosted (Docker):**
-```bash
-npm run build
-npm start
 ```
 
 ## 📋 Development Standards
@@ -341,14 +321,6 @@ This project follows the **CLAUDE.md** development guidelines:
 - **C-1 to C-9**: Code organization, naming conventions, and structure
 - **T-1 to T-6**: Testing best practices and coverage expectations
 - See `CLAUDE.md` for detailed guidelines
-
-## 🤝 Contributing
-
-1. **Fork** the repository
-2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
-3. **Commit** changes: `git commit -m 'Add amazing feature'`
-4. **Push** to branch: `git push origin feature/amazing-feature`
-5. **Open** a Pull Request
 
 ### Commit Message Format
 
@@ -393,9 +365,9 @@ This project is private and proprietary. All rights reserved.
 
 ## 📞 Support
 
-For questions or support, please contact: **Helloreliable@gmail.com
+For questions or support, please contact: **Helloreliable@gmail.com**
 
 ---
 
-**Last Updated**: December 2024
-**Maintainers**: Kolade Development Team
+**Last Updated**: December 2025
+**Maintainers**: Kolade
