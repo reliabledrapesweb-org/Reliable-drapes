@@ -1,10 +1,11 @@
 "use client";
 
-import { Eye, EyeOff, AlertCircle, Loader } from "lucide-react";
+import { Eye, EyeOff, Loader } from "lucide-react";
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { loginAction, signupAction } from "@/lib/actions/auth";
 import { useAuthStore } from "@/lib/store";
+import { useToast, ToastContainer } from "@/components/ui/Toast";
 
 export interface AuthFormProps {
   mode: "login" | "signup";
@@ -19,8 +20,8 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const { toasts, addToast, removeToast } = useToast();
 
   const { setUser, setSession, setLoading, setError: setStoreError } = useAuthStore();
 
@@ -32,21 +33,20 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
 
     // Validation
     if (!email || !password) {
-      setError("Please fill in all required fields");
+      addToast("Please fill in all required fields", "warning");
       return;
     }
 
     if (!isLogin && password !== confirmPassword) {
-      setError("Passwords do not match");
+      addToast("Passwords do not match", "error");
       return;
     }
 
     if (!isLogin && (!fullName || fullName.trim().length === 0)) {
-      setError("Full name is required");
+      addToast("Full name is required", "warning");
       return;
     }
 
@@ -64,7 +64,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
       const result = await action(formData);
 
       if (!result.success) {
-        setError(result.error || "Authentication failed");
+        addToast(result.error || "Authentication failed", "error");
         setStoreError(result.error || null);
         setLoading(false);
         return;
@@ -79,12 +79,20 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
       }
       setLoading(false);
 
+      // Show success message
+      addToast(
+        isLogin ? "Logged in successfully!" : "Account created successfully!",
+        "success",
+      );
+
       // Redirect on success
-      if (isLogin) {
-        window.location.href = "/";
-      } else {
-        window.location.href = "/login?signup=success";
-      }
+      setTimeout(() => {
+        if (isLogin) {
+          window.location.href = "/";
+        } else {
+          window.location.href = "/login?signup=success";
+        }
+      }, 500);
     });
   };
 
@@ -120,12 +128,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
           <p className="mb-16 text-center text-sm text-gray-500">{subtitle}</p>
         )}
 
-        {error && (
-          <div className="mb-6 flex gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
-            <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-600" />
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
+
 
         <form onSubmit={handleSubmit}>
           <div className="relative flex flex-col gap-8 lg:flex-row lg:gap-16">
@@ -269,7 +272,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
             </div>
 
             {/* Divider */}
-            <div className="absolute top-1/2 left-1/2 hidden h-56 -translate-x-1/2 -translate-y-1/2 flex-col items-center lg:flex">
+            <div className="absolute top-0 left-1/2 hidden h-full -translate-x-1/2 flex-col items-center lg:flex">
               <div className="w-px flex-1 bg-gray-300" />
               <p className="my-6 text-xs tracking-wider text-gray-500 uppercase">
                 or
@@ -384,6 +387,9 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
               </div>
         </div>
       </div>
+
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </section>
   );
 }

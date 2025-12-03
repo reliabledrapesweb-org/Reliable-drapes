@@ -16,6 +16,7 @@ export async function signupAction(
   // Validate input
   const parse = authSignupSchema.safeParse(data);
   if (!parse.success) {
+    console.error("Signup validation failed:", parse.error.flatten());
     return {
       success: false,
       error: "Invalid signup payload",
@@ -24,6 +25,7 @@ export async function signupAction(
   }
 
   const { email, password, full_name } = parse.data;
+  console.log("Creating user with email:", email);
   const admin = getAdminSupabase();
 
   // Create user via admin API
@@ -37,20 +39,28 @@ export async function signupAction(
   );
 
   if (createErr) {
+    console.error("Failed to create user:", {
+      code: createErr.code,
+      message: createErr.message,
+      status: createErr.status,
+    });
     return {
       success: false,
-      error: "Failed to create user",
+      error: createErr.message || "Failed to create user",
       details: createErr.message,
     };
   }
 
   const userId = created.user?.id;
   if (!userId) {
+    console.error("User created but no ID returned");
     return {
       success: false,
       error: "User created but no id returned",
     };
   }
+
+  console.log("User created successfully with ID:", userId);
 
   // Upsert profile row
   const { error: upsertErr } = await admin
@@ -59,7 +69,10 @@ export async function signupAction(
 
   if (upsertErr) {
     // Log but don't fail - profile creation is not critical
-    console.error("profile upsert error", upsertErr);
+    console.error("Profile upsert error", {
+      code: upsertErr.code,
+      message: upsertErr.message,
+    });
   }
 
   return {
