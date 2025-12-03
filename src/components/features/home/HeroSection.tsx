@@ -16,6 +16,7 @@ const carouselImages = [
 
 export function HeroSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
 
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % carouselImages.length);
@@ -27,10 +28,21 @@ export function HeroSection() {
     );
   }, []);
 
-  // Preload images
+  // Preload images and track when they're loaded
   useEffect(() => {
+    const loaded = new Set<string>();
+    
     carouselImages.forEach((src) => {
       const img = new window.Image();
+      img.onload = () => {
+        loaded.add(src);
+        setLoadedImages(new Set(loaded));
+      };
+      img.onerror = () => {
+        // Still mark as loaded on error to not block
+        loaded.add(src);
+        setLoadedImages(new Set(loaded));
+      };
       img.src = src;
     });
   }, []);
@@ -58,10 +70,10 @@ export function HeroSection() {
         <AnimatePresence>
           <motion.div
             key={currentIndex}
-            initial={{ opacity: 0, scale: 1.2, filter: "blur(10px)" }}
+            initial={{ opacity: 0, scale: 1.05, filter: "blur(2px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 1, zIndex: -1 }}
-            transition={{ duration: 1.2, ease: "easeInOut" }}
+            exit={{ opacity: 0, zIndex: -1 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
             className="absolute inset-0"
           >
             <Image

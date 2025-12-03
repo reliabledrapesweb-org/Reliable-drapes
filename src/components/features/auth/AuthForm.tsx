@@ -339,7 +339,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
               <p className="text-sm text-gray-500">
                 Don't have an account?{" "}
                 <Link
-                  href="/auth/signup"
+                  href="/signup"
                   className="font-semibold text-gray-900 hover:text-[#2f2581]"
                 >
                   Sign up
@@ -353,7 +353,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
               <p className="text-sm text-gray-500">
                 Already have an account?{" "}
                 <Link
-                  href="/auth/login"
+                  href="/login"
                   className="font-semibold text-gray-900 hover:text-[#2f2581]"
                 >
                   Log in

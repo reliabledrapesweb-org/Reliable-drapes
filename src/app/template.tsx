@@ -10,15 +10,62 @@ export default function Template({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Reset loading state on path change (template remounts automatically, but good to be explicit)
+    // Reset loading state on path change
     setIsLoading(true);
 
-    // Wait for 1.5 seconds to allow content to load behind the screen
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
+    const waitForAssets = async () => {
+      // Minimum wait time to ensure content renders
+      const minWaitTime = 500;
+      const startTime = Date.now();
 
-    return () => clearTimeout(timer);
+      // Wait for all images and fonts to load
+      const imageLoadPromises = Array.from(document.images).map((img) => {
+        return new Promise<void>((resolve) => {
+          if (img.complete) {
+            // Image is already loaded from cache
+            resolve();
+          } else {
+            // Wait for image to load
+            const onLoad = () => {
+              img.removeEventListener("load", onLoad);
+              img.removeEventListener("error", onError);
+              resolve();
+            };
+            const onError = () => {
+              img.removeEventListener("load", onLoad);
+              img.removeEventListener("error", onError);
+              resolve(); // Resolve even on error to not block
+            };
+            img.addEventListener("load", onLoad);
+            img.addEventListener("error", onError);
+          }
+        });
+      });
+
+      // Wait for document to be fully interactive
+      const documentReadyPromise = new Promise<void>((resolve) => {
+        if (document.readyState === "complete") {
+          resolve();
+        } else {
+          window.addEventListener("load", () => resolve(), { once: true });
+        }
+      });
+
+      // Wait for all images and document to load
+      await Promise.all([...imageLoadPromises, documentReadyPromise]);
+
+      // Ensure minimum wait time has passed
+      const elapsedTime = Date.now() - startTime;
+      const remainingWait = Math.max(minWaitTime - elapsedTime, 0);
+
+      if (remainingWait > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remainingWait));
+      }
+
+      setIsLoading(false);
+    };
+
+    waitForAssets();
   }, [pathname]);
 
   return (
