@@ -6,7 +6,7 @@ import {
   FeaturesGrid,
   VisionMissionSection,
 } from "@/components/features/about";
-import { CTASection, PageHero } from "@/components/shared";
+import { PageHero } from "@/components/shared";
 
 export default function AboutPage() {
   return (
@@ -16,7 +16,6 @@ export default function AboutPage() {
       <WhyChooseSection />
       <FeaturesGrid />
       <VisionMissionSection />
-      <CTASection />
     </main>
   );
 }

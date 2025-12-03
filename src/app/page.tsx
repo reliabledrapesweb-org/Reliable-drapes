@@ -10,7 +10,6 @@ import {
   BestsellerSection,
   NewsletterSection,
 } from "@/components/features/home";
-import { CTASection } from "@/components/shared";
 import { FaWhatsapp } from "react-icons/fa";
 
 export default function HomePage() {
@@ -29,8 +28,6 @@ export default function HomePage() {
       <BestsellerSection />
 
       <NewsletterSection />
-
-      <CTASection />
 
       {/* WhatsApp Floating Button */}
       <motion.button

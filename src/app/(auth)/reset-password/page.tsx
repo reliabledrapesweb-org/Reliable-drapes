@@ -47,10 +47,10 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <section className="mx-auto w-full max-w-7xl px-4 py-14 md:px-8 md:py-24">
+      <section className="mx-auto w-full max-w-7xl px-4 py-8 md:px-8 md:py-16">
         <div className="mx-auto max-w-md text-center">
           <CheckCircle className="mx-auto mb-6 h-16 w-16 text-green-600" />
-          <h1 className="mb-4 text-2xl text-gray-900">Password Reset Successful</h1>
+          <h1 className="mb-4 text-3xl font-semibold text-gray-900">Password Reset Successful</h1>
           <p className="mb-8 text-gray-500">
             Your password has been reset successfully. You can now log in with your new password.
           </p>
@@ -66,12 +66,12 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-7xl px-4 py-14 md:px-8 md:py-24">
+    <section className="mx-auto w-full max-w-7xl px-4 py-8 md:px-8 md:py-16">
       <div className="mx-auto max-w-md">
-        <h1 className="mb-4 text-center text-2xl text-gray-900">
+        <h1 className="mb-6 mt-14 text-center text-3xl font-semibold text-gray-900 md:mt-16 lg:mt-[72px]">
           Create New Password
         </h1>
-        <p className="mb-16 text-center text-sm text-gray-500">
+        <p className="mb-8 text-center text-sm text-gray-600">
           Enter a new password for your account
         </p>
 
@@ -86,7 +86,7 @@ export default function ResetPasswordPage() {
           <div>
             <label
               htmlFor="password"
-              className="mb-2 block text-xs tracking-wider text-gray-500 uppercase"
+              className="mb-3 block text-xs tracking-widest text-gray-600 uppercase"
             >
               New Password
             </label>
@@ -119,7 +119,7 @@ export default function ResetPasswordPage() {
           <div>
             <label
               htmlFor="confirm_password"
-              className="mb-2 block text-xs tracking-wider text-gray-500 uppercase"
+              className="mb-3 block text-xs tracking-widest text-gray-600 uppercase"
             >
               Confirm Password
             </label>
@@ -152,14 +152,14 @@ export default function ResetPasswordPage() {
           <button
             type="submit"
             disabled={isPending}
-            className="flex h-11 w-full cursor-pointer items-center justify-center gap-2 bg-gray-200 text-xs tracking-wider text-gray-500 uppercase transition-colors hover:bg-gray-300 disabled:opacity-50"
+            className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 bg-gray-200 text-xs tracking-widest text-gray-600 uppercase font-medium transition-colors hover:bg-gray-300 disabled:opacity-50"
           >
             {isPending && <Loader className="h-4 w-4 animate-spin" />}
             Reset Password
           </button>
         </form>
 
-        <div className="mt-12 text-center">
+        <div className="mt-10 text-center">
           <Link
             href="/login"
             className="text-sm text-gray-500 hover:text-[#2f2581]"

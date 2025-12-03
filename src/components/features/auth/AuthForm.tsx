@@ -128,7 +128,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
         <motion.h1
-          className="mb-6 text-center text-3xl font-semibold text-gray-900"
+          className="mb-6 mt-14 text-center text-3xl font-semibold text-gray-900 md:mt-16 lg:mt-[72px]"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
