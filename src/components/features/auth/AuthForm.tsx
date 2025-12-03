@@ -128,7 +128,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
         <motion.h1
-          className="mb-2 text-center text-2xl text-gray-900"
+          className="mb-6 text-center text-3xl font-semibold text-gray-900"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
@@ -154,7 +154,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
         >
-          <div className="relative flex flex-col gap-6 lg:flex-row lg:gap-12">
+          <div className="relative flex flex-col gap-8 lg:flex-row lg:gap-20">
             {/* Form Fields */}
             <motion.div
               className="w-full lg:w-1/2"
@@ -165,14 +165,14 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
               {/* Full Name (Signup Only) */}
               {!isLogin && (
                 <motion.div
-                  className="mb-4"
+                  className="mb-6"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.35 }}
                 >
                   <label
                     htmlFor="full_name"
-                    className="mb-2 block text-xs tracking-wider text-gray-500 uppercase"
+                    className="mb-3 block text-xs tracking-widest text-gray-600 uppercase"
                   >
                     Full Name
                   </label>
@@ -191,14 +191,14 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
 
               {/* Email */}
               <motion.div
-                className="mb-4"
+                className="mb-6"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
               >
                 <label
                   htmlFor="email"
-                  className="mb-2 block text-xs tracking-wider text-gray-500 uppercase"
+                  className="mb-3 block text-xs tracking-widest text-gray-600 uppercase"
                 >
                   Email address
                 </label>
@@ -216,14 +216,14 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
 
               {/* Password */}
               <motion.div
-                className="mb-4"
+                className="mb-6"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.45 }}
               >
                 <label
                   htmlFor="password"
-                  className="mb-2 block text-xs tracking-wider text-gray-500 uppercase"
+                  className="mb-3 block text-xs tracking-widest text-gray-600 uppercase"
                 >
                   Password
                 </label>
@@ -257,14 +257,14 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
               {/* Confirm Password (Signup Only) */}
               {!isLogin && (
                 <motion.div
-                  className="mb-6"
+                  className="mb-8"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.5 }}
                 >
                   <label
                     htmlFor="confirm_password"
-                    className="mb-2 block text-xs tracking-wider text-gray-500 uppercase"
+                    className="mb-3 block text-xs tracking-widest text-gray-600 uppercase"
                   >
                     Confirm Password
                   </label>
@@ -300,7 +300,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
               <motion.button
                 type="submit"
                 disabled={isPending}
-                className="flex h-11 w-full cursor-pointer items-center justify-center gap-2 bg-gray-200 text-xs tracking-wider text-gray-500 uppercase transition-colors hover:bg-gray-300 disabled:opacity-50"
+                className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 bg-gray-200 text-xs tracking-widest text-gray-600 uppercase font-medium transition-colors hover:bg-gray-300 disabled:opacity-50"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.55 }}
@@ -314,14 +314,14 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
               {/* Additional Links */}
               {isLogin && (
                 <motion.div
-                  className="mt-3"
+                  className="mt-4 text-center"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5, delay: 0.6 }}
                 >
                   <Link
                     href="/forgot-password"
-                    className="text-xs tracking-wider text-gray-500 uppercase hover:text-[#2f2581] transition-colors"
+                    className="text-xs tracking-widest text-gray-600 uppercase hover:text-[#2f2581] transition-colors"
                   >
                     Forgot Password?
                   </Link>
@@ -338,7 +338,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
               style={{ originY: 0 }}
             >
               <div className="w-px flex-1 bg-gray-300" />
-              <p className="my-6 text-xs tracking-wider text-gray-500 uppercase">
+              <p className="my-8 text-xs tracking-widest text-gray-600 uppercase font-medium">
                 or
               </p>
               <div className="w-px flex-1 bg-gray-300" />
@@ -346,7 +346,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
 
             {/* OAuth Buttons */}
             <motion.div
-              className="flex w-full flex-col justify-center gap-3 lg:w-1/2"
+              className="flex w-full flex-col justify-center gap-4 lg:w-1/2"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
@@ -355,7 +355,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={isPending}
-                className="flex h-14 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50"
+                className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
@@ -395,7 +395,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                 type="button"
                 onClick={handleAppleLogin}
                 disabled={isPending}
-                className="flex h-14 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50"
+                className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.45 }}
@@ -417,12 +417,12 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
         {/* Footer Links */}
         {isLogin ? (
           <motion.div
-            className="mt-12 text-center"
+            className="mt-16 text-center"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
           >
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-600">
               Don't have an account?{" "}
               <Link
                 href="/signup"
@@ -434,12 +434,12 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
           </motion.div>
         ) : (
           <motion.div
-            className="mt-12 text-center"
+            className="mt-16 text-center"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
           >
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-600">
               Already have an account?{" "}
               <Link
                 href="/login"
@@ -452,25 +452,25 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
         )}
 
         <motion.div
-          className="mt-8 text-center"
+          className="mt-10 text-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.55 }}
         >
-          <p className="text-xs text-gray-500">
-            Secure authentication powered by Supabase
+          <p className="text-xs text-gray-600">
+            Secure Login with reCAPTCHA subject to Google
           </p>
-          <div className="mt-3 flex items-center justify-center gap-1">
+          <div className="mt-2 flex items-center justify-center gap-1">
             <Link
               href="/terms-of-service"
-              className="text-xs text-gray-500 hover:text-[#2f2581] transition-colors"
+              className="text-xs text-gray-600 hover:text-[#2f2581] transition-colors"
             >
               Terms
             </Link>
-            <span className="text-xs text-gray-500">&</span>
+            <span className="text-xs text-gray-600">&</span>
             <Link
               href="/privacy-policy"
-              className="text-xs text-gray-500 hover:text-[#2f2581] transition-colors"
+              className="text-xs text-gray-600 hover:text-[#2f2581] transition-colors"
             >
               Privacy
             </Link>
