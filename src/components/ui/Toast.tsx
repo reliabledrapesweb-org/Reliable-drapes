@@ -69,7 +69,7 @@ interface ToastContainerProps {
 
 export function ToastContainer({ toasts, removeToast }: ToastContainerProps) {
   return (
-    <div className="fixed top-4 right-4 z-50 flex max-w-md flex-col gap-2">
+    <div className="fixed bottom-4 left-4 right-4 z-50 flex max-w-md flex-col gap-2 md:left-auto md:right-4">
       <AnimatePresence>
         {toasts.map((toast) => {
           const Icon = icons[toast.type];
@@ -79,9 +79,9 @@ export function ToastContainer({ toasts, removeToast }: ToastContainerProps) {
           return (
             <motion.div
               key={toast.id}
-              initial={{ opacity: 0, y: -20, x: 100 }}
+              initial={{ opacity: 0, y: 20, x: 0 }}
               animate={{ opacity: 1, y: 0, x: 0 }}
-              exit={{ opacity: 0, y: -20, x: 100 }}
+              exit={{ opacity: 0, y: 20, x: 0 }}
               transition={{ duration: 0.3 }}
               className={`flex items-start gap-3 rounded-lg border ${bgColor} p-4`}
             >
