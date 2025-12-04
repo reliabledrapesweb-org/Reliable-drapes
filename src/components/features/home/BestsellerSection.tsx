@@ -1,41 +1,10 @@
 "use client";
 import { motion } from "motion/react";
 import Image from "next/image";
-
-const products = [
-  {
-    image: "/images/bestseller/bes1.png",
-    title: "Upholstery",
-    description:
-      "From elegant drapes to plush upholstery, our fabrics adapt to your vision.",
-  },
-  {
-    image: "/images/bestseller/bes2.png",
-    title: "Sheers",
-    description:
-      "From elegant drapes to plush upholstery, our fabrics adapt to your vision.",
-  },
-  {
-    image: "/images/bestseller/bes3.png",
-    title: "Sofa",
-    description:
-      "From elegant drapes to plush upholstery, our fabrics adapt to your vision.",
-  },
-  {
-    image: "/images/bestseller/bes4.png",
-    title: "Comforters",
-    description:
-      "From elegant drapes to plush upholstery, our fabrics adapt to your vision.",
-  },
-  {
-    image: "/images/bestseller/bes5.png",
-    title: "Comforters",
-    description:
-      "From elegant drapes to plush upholstery, our fabrics adapt to your vision.",
-  },
-];
+import { BESTSELLER_PRODUCTS, type BestsellerProduct } from "@/lib/constants";
 
 export function BestsellerSection() {
+  const products = BESTSELLER_PRODUCTS;
   return (
     <section className="bg-white py-12 lg:py-20">
       <div className="container mx-auto max-w-6xl px-6 md:px-16">
@@ -95,7 +64,7 @@ function BestsellerCard({
   delay = 0,
   isMobile = false,
 }: {
-  product: (typeof products)[0];
+  product: BestsellerProduct;
   index: number;
   className?: string;
   delay?: number;

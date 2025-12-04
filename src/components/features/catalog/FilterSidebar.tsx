@@ -3,8 +3,7 @@
 import { Check } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const categoryOptions = ["Curtains", "Blinds", "Sheers", "Shades"];
+import { CATEGORY_OPTIONS } from "@/lib/constants";
 
 interface FilterSidebarProps {
   selectedFilters: string[];
@@ -96,7 +95,7 @@ export function FilterSidebar({
                           transition={{ duration: 0.2 }}
                           className="absolute top-full left-0 right-0 mt-2 z-50 rounded-lg border-2 border-[#e0e0e0] bg-white shadow-lg"
                         >
-                          {categoryOptions.map((option) => (
+                          {CATEGORY_OPTIONS.map((option) => (
                             <button
                               key={option}
                               onClick={() => {
