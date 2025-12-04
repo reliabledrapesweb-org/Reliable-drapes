@@ -2,11 +2,13 @@
 
 import { Eye, EyeOff, Loader } from "lucide-react";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { loginAction, signupAction } from "@/lib/actions/auth";
 import { useAuthStore } from "@/lib/store";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
+import { supabaseClient } from "@/lib/supabase/client";
 
 export interface AuthFormProps {
   mode: "login" | "signup";
@@ -15,6 +17,7 @@ export interface AuthFormProps {
 }
 
 export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -55,45 +58,80 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
       setStoreError(null);
       setLoading(true);
 
-      const formData = {
-        email,
-        password,
-        ...(mode === "signup" && { full_name: fullName }),
-      };
-
-      const action = isLogin ? loginAction : signupAction;
-      const result = await action(formData);
-
-      if (!result.success) {
-        addToast(result.error || "Authentication failed", "error");
-        setStoreError(result.error || null);
-        setLoading(false);
-        return;
-      }
-
-      // Update store on successful auth
-      if (result.user) {
-        setUser(result.user);
-      }
-      if (result.session) {
-        setSession(result.session);
-      }
-      setLoading(false);
-
-      // Show success message
-      addToast(
-        isLogin ? "Logged in successfully!" : "Account created successfully!",
-        "success",
-      );
-
-      // Redirect on success
-      setTimeout(() => {
+      try {
         if (isLogin) {
-          window.location.href = "/";
+          // LOGIN: Use client-side Supabase for session persistence
+          const { data: authData, error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+          if (error) {
+            addToast("Login failed", "error");
+            setStoreError(error.message);
+            setLoading(false);
+            return;
+          }
+
+          // Update store on successful login
+          if (authData.user) {
+            setUser({
+              id: authData.user.id,
+              email: authData.user.email || '',
+              full_name: (authData.user.user_metadata?.full_name as string) || undefined,
+            });
+          }
+          if (authData.session) {
+            setSession({
+              access_token: authData.session.access_token,
+              refresh_token: authData.session.refresh_token || '',
+              expires_at: authData.session.expires_at,
+              user: authData.user ? {
+                id: authData.user.id,
+                email: authData.user.email || '',
+                full_name: (authData.user.user_metadata?.full_name as string) || undefined,
+              } : {
+                id: '',
+                email: '',
+              },
+            });
+          }
+          setLoading(false);
+          addToast("Logged in successfully!", "success");
+          router.push("/");
         } else {
-          window.location.href = "/login?signup=success";
+          // SIGNUP: Use server action (no session persistence needed)
+          const formData = {
+            email,
+            password,
+            full_name: fullName,
+          };
+
+          const result = await signupAction(formData);
+
+          if (!result.success) {
+            addToast(result.error || "Signup failed", "error");
+            setStoreError(result.error || null);
+            setLoading(false);
+            return;
+          }
+
+          // Update store on successful signup
+          if (result.user) {
+            setUser(result.user);
+          }
+          if (result.session) {
+            setSession(result.session);
+          }
+          setLoading(false);
+          addToast("Account created successfully!", "success");
+          router.push("/");
         }
-      }, 500);
+      } catch (error) {
+        console.error("Auth error:", error);
+        addToast("Authentication failed", "error");
+        setLoading(false);
+      }
     });
   };
 

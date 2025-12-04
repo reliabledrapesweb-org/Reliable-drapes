@@ -149,8 +149,9 @@ export async function loginAction(
     };
   }
 
-  const anon = getAnonSupabase();
-  const { data: authData, error } = await anon.auth.signInWithPassword({
+  // Use browser client for login to persist session
+  const { supabaseClient } = await import("@/lib/supabase/client");
+  const { data: authData, error } = await supabaseClient.auth.signInWithPassword({
     email: parse.data.email,
     password: parse.data.password,
   });

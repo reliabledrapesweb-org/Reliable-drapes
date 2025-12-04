@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useScrollPosition } from "@/lib/hooks";
 import { useAuthStore } from "@/lib/store";
 import { NAV_LINKS } from "@/lib/constants";
+import { supabaseClient } from "@/lib/supabase/client";
 
 export function Header() {
     const pathname = usePathname();
@@ -72,8 +73,9 @@ export function Header() {
                     <div className="hidden items-center gap-6 lg:flex xl:gap-8">
                         <div className="flex items-center gap-4 xl:gap-6">
                             <motion.button
-                                className={`${shouldUseWhiteText ? "text-white" : "text-black"
-                                    } cursor-pointer`}
+                                className={`${
+                                    shouldUseWhiteText ? "text-white" : "text-black"
+                                } cursor-pointer`}
                                 aria-label="Search"
                                 whileHover={{ scale: 1.1, opacity: 0.8 }}
                                 transition={{ duration: 0.2 }}
@@ -82,26 +84,18 @@ export function Header() {
                             </motion.button>
 
                             <motion.button
-                                className={`${shouldUseWhiteText ? "text-white" : "text-black"
-                                    } cursor-pointer`}
-                                aria-label="Account"
-                                whileHover={{ scale: 1.1, opacity: 0.8 }}
-                                transition={{ duration: 0.2 }}
-                            >
-                                <User className="h-4 w-4 xl:h-5 xl:w-5" />
-                            </motion.button>
-
-                            <motion.button
-                                className={`${shouldUseWhiteText ? "text-white" : "text-black"
-                                    } relative cursor-pointer`}
+                                className={`${
+                                    shouldUseWhiteText ? "text-white" : "text-black"
+                                } relative cursor-pointer`}
                                 aria-label="Cart"
                                 whileHover={{ scale: 1.1, opacity: 0.8 }}
                                 transition={{ duration: 0.2 }}
                             >
                                 <ShoppingCart className="h-4 w-4 xl:h-5 xl:w-5" />
                                 <span
-                                    className={`absolute -top-2 -right-2 bg-[#2f2581] ${shouldUseWhiteText ? "text-white" : "text-black"
-                                        } flex h-4 w-4 items-center justify-center rounded-full text-xs`}
+                                    className={`absolute -top-2 -right-2 bg-[#2f2581] ${
+                                        shouldUseWhiteText ? "text-white" : "text-black"
+                                    } flex h-4 w-4 items-center justify-center rounded-full text-xs`}
                                 >
                                     2
                                 </span>
@@ -113,28 +107,39 @@ export function Header() {
                             <div className="relative">
                                 <motion.button
                                     onClick={() => setShowUserMenu(!showUserMenu)}
-                                    className={`${shouldUseWhiteText ? "text-white" : "text-black"
-                                        } flex items-center gap-2 text-sm tracking-tight xl:text-base`}
-                                    whileHover={{ scale: 1.05, opacity: 0.8 }}
+                                    className={`${
+                                        shouldUseWhiteText ? "text-white" : "text-black"
+                                    } cursor-pointer`}
+                                    aria-label="User account menu"
+                                    whileHover={{ scale: 1.1, opacity: 0.8 }}
                                     transition={{ duration: 0.2 }}
                                 >
-                                    <User className="h-4 w-4" />
-                                    <span className="capitalize">{user.full_name || user.email.split('@')[0]}</span>
+                                    <User className="h-5 w-5 xl:h-6 xl:w-6" />
                                 </motion.button>
 
                                 {showUserMenu && (
                                     <motion.div
-                                        initial={{ opacity: 0, y: -10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
-                                        className="absolute right-0 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg"
+                                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="absolute right-0 mt-3 w-56 rounded-lg border border-gray-200 bg-white shadow-xl overflow-hidden"
                                     >
+                                        {/* User Info Header */}
+                                        <div className="border-b border-gray-100 px-4 py-3 bg-gray-50">
+                                            <p className="text-sm font-semibold text-gray-900">
+                                                {user.full_name || user.email.split('@')[0]}
+                                            </p>
+                                            <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                                        </div>
+
                                         <button
-                                            onClick={() => {
+                                            onClick={async () => {
+                                                await supabaseClient.auth.signOut();
                                                 logout();
                                                 setShowUserMenu(false);
                                             }}
-                                            className="flex w-full items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100"
+                                            className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
                                         >
                                             <LogOut className="h-4 w-4" />
                                             Log Out
@@ -145,8 +150,9 @@ export function Header() {
                         ) : (
                             <motion.a
                                 href="/login"
-                                className={`${shouldUseWhiteText ? "text-white" : "text-black"
-                                    } cursor-pointer text-sm tracking-tight xl:text-base`}
+                                className={`${
+                                    shouldUseWhiteText ? "text-white" : "text-black"
+                                } cursor-pointer text-sm tracking-tight xl:text-base`}
                                 whileHover={{ scale: 1.05, opacity: 0.8 }}
                                 transition={{ duration: 0.2 }}
                             >

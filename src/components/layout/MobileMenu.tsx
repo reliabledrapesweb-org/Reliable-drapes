@@ -4,6 +4,7 @@ import { motion, AnimatePresence, Variants } from "motion/react";
 import { X, ArrowRight, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useAuthStore } from "@/lib/store";
+import { supabaseClient } from "@/lib/supabase/client";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -129,12 +130,12 @@ export function MobileMenu({ isOpen, setIsOpen, navLinks }: MobileMenuProps) {
               </motion.div>
             ))}
 
-            {/* USER MENU OR LOGIN BUTTON */}
-            <motion.div
-              variants={linkVariants}
-              className="pt-8"
-            >
-              {user ? (
+            {/* USER MENU ONLY (No Login Button on Mobile) */}
+            {user && (
+              <motion.div
+                variants={linkVariants}
+                className="pt-8"
+              >
                 <div className="relative">
                   <motion.button
                     onClick={() => setShowUserMenu(!showUserMenu)}
@@ -152,13 +153,22 @@ export function MobileMenu({ isOpen, setIsOpen, navLinks }: MobileMenuProps) {
                       exit={{ opacity: 0, y: -10 }}
                       className="absolute right-0 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg z-10"
                     >
+                      {/* User Info Header */}
+                      <div className="border-b border-gray-100 px-4 py-3 bg-gray-50">
+                        <p className="text-sm font-semibold text-gray-900">
+                          {user.full_name || user.email.split('@')[0]}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                      </div>
+
                       <button
-                        onClick={() => {
+                        onClick={async () => {
+                          await supabaseClient.auth.signOut();
                           logout();
                           setShowUserMenu(false);
                           setIsOpen(false);
                         }}
-                        className="flex w-full items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-100"
+                        className="flex w-full items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
                       >
                         <LogOut className="h-4 w-4" />
                         Log Out
@@ -166,16 +176,8 @@ export function MobileMenu({ isOpen, setIsOpen, navLinks }: MobileMenuProps) {
                     </motion.div>
                   )}
                 </div>
-              ) : (
-                <a
-                  href="/login"
-                  onClick={() => setIsOpen(false)}
-                  className="inline-block transform cursor-pointer rounded-full bg-white px-8 py-3 text-lg font-medium text-black shadow-lg transition-all hover:-translate-y-1 hover:bg-gray-100 hover:shadow-xl active:translate-y-0 md:px-10 md:py-4 md:text-xl"
-                >
-                  Trader Log In
-                </a>
-              )}
-            </motion.div>
+              </motion.div>
+            )}
           </motion.div>
 
           {/* Background Decorative Elements */}

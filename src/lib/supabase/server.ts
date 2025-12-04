@@ -20,6 +20,16 @@ export async function supabaseServer() {
         getAll() {
           return cookieStore.getAll();
         },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          } catch (error) {
+            // Ignore cookie setting errors in server context
+            console.error('Failed to set cookies:', error);
+          }
+        },
       },
     }
   );
