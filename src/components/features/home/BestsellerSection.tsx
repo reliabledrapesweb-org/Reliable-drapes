@@ -107,7 +107,10 @@ function BestsellerCard({
       initial={isMobile ? { opacity: 0, x: -30 } : { opacity: 0, scale: 0.9 }}
       whileInView={isMobile ? { opacity: 1, x: 0 } : { opacity: 1, scale: 1 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: delay + index * 0.1 }}
+      transition={{
+        default: { duration: 0.5, delay: delay + index * 0.1 },
+        scale: { duration: 0.3 },
+      }}
       whileHover={!isMobile ? { scale: 1.03 } : undefined}
       whileTap={isMobile ? { scale: 0.98 } : undefined}
     >

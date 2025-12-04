@@ -358,7 +358,10 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                 className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
+                transition={{
+                  default: { duration: 0.5, delay: 0.4 },
+                  scale: { duration: 0.3 },
+                }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -398,7 +401,10 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                 className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.45 }}
+                transition={{
+                  default: { duration: 0.5, delay: 0.45 },
+                  scale: { duration: 0.3 },
+                }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
