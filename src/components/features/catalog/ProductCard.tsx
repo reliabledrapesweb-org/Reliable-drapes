@@ -9,6 +9,7 @@ interface ProductCardProps {
   discountValue?: string;
   isVisible?: boolean;
   animationDelay?: number;
+  onDownload?: (productName: string) => void;
 }
 
 export function ProductCard({
@@ -19,7 +20,11 @@ export function ProductCard({
   discountValue = "-30%",
   isVisible = true,
   animationDelay = 0,
+  onDownload,
 }: ProductCardProps) {
+  const handleClick = () => {
+    onDownload?.(title);
+  };
   return (
     <motion.article
       initial={{ opacity: 0, y: 30 }}
@@ -30,7 +35,8 @@ export function ProductCard({
         ease: [0.22, 1, 0.36, 1],
       }}
       whileHover={{ y: -8 }}
-      className="group flex w-full flex-col gap-4"
+      onClick={handleClick}
+      className="group flex w-full cursor-pointer flex-col gap-4"
     >
       <motion.div
         className="relative aspect-square overflow-hidden rounded-2xl bg-gradient-to-b from-gray-300 to-gray-700 shadow-md"
