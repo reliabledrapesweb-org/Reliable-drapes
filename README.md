@@ -314,14 +314,6 @@ npm run build
 # Follow Cloudflare Pages deployment instructions
 ```
 
-## 📋 Development Standards
-
-This project follows the **CLAUDE.md** development guidelines:
-
-- **C-1 to C-9**: Code organization, naming conventions, and structure
-- **T-1 to T-6**: Testing best practices and coverage expectations
-- See `CLAUDE.md` for detailed guidelines
-
 ### Commit Message Format
 
 ```

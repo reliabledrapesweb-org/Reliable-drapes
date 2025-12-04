@@ -1,8 +1,10 @@
 "use client";
 
-import { Check, Filter } from "lucide-react";
+import { Check } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
+const categoryOptions = ["Curtains", "Blinds", "Sheers", "Shades"];
 
 interface FilterSidebarProps {
   selectedFilters: string[];
@@ -17,6 +19,7 @@ export function FilterSidebar({
 }: FilterSidebarProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>("Curtains");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const toggleFilter = (category: string) => {
     if (selectedFilters.includes(category)) {
@@ -68,14 +71,53 @@ export function FilterSidebar({
                 <div>
                   <div className="relative">
                     <button
-                      onClick={() => {}}
-                      className="flex w-full items-center justify-between rounded-lg border-2 border-[#e0e0e0] bg-white px-4 py-3 text-left font-medium text-[#161616] hover:border-[#d0d0d0]"
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      className="flex w-full items-center justify-between rounded-lg border-2 border-[#e0e0e0] bg-white px-4 py-3 text-left font-medium text-[#161616] hover:border-[#d0d0d0] transition-colors"
                     >
                       <span className="text-[16px] md:text-[18px]">{selectedCategory}</span>
-                      <svg className="h-4 w-4 text-[#161616]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <motion.svg
+                        animate={{ rotate: isDropdownOpen ? 180 : 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="h-4 w-4 text-[#161616]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                      </svg>
+                      </motion.svg>
                     </button>
+
+                    <AnimatePresence>
+                      {isDropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute top-full left-0 right-0 mt-2 z-50 rounded-lg border-2 border-[#e0e0e0] bg-white shadow-lg"
+                        >
+                          {categoryOptions.map((option) => (
+                            <button
+                              key={option}
+                              onClick={() => {
+                                setSelectedCategory(option);
+                                setIsDropdownOpen(false);
+                              }}
+                              className={`flex w-full items-center justify-between px-4 py-3 text-left text-[16px] md:text-[18px] transition-colors ${
+                                selectedCategory === option
+                                  ? "bg-[#f5f5f5] text-[#2f2582] font-medium"
+                                  : "text-[#575757] hover:bg-[#f9f9f9]"
+                              }`}
+                            >
+                              <span>{option}</span>
+                              {selectedCategory === option && (
+                                <Check className="h-4 w-4 text-[#2f2582]" />
+                              )}
+                            </button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
 

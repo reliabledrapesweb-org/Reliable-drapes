@@ -4,6 +4,7 @@ import { Breadcrumb, SearchBar, PageHero } from "@/components/shared";
 import {
   FilterSidebar,
   ProductGrid,
+  BrandPDFSection,
 } from "@/components/features/catalog";
 import { products } from "@/components/features/catalog/ProductGrid";
 import { useMemo, useState } from "react";
@@ -80,6 +81,9 @@ export default function App() {
               <ProductGrid filteredProducts={filteredProducts} />
             </div>
           </div>
+
+          {/* Brand PDFs Section */}
+          <BrandPDFSection />
         </div>
       </div>
     </main>

@@ -5,3 +5,4 @@
 export { FilterSidebar } from './FilterSidebar';
 export { ProductCard } from './ProductCard';
 export { ProductGrid } from './ProductGrid';
+export { BrandPDFSection } from './BrandPDFSection';
