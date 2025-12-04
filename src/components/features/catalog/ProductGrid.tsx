@@ -199,34 +199,36 @@ export function ProductGrid({ filteredProducts }: ProductGridProps) {
   }
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-2 xl:grid-cols-3 2xl:gap-8"
-    >
-      {filteredProducts.map((product, index) => (
-        <div
-          key={product.id}
-          ref={(el) => {
-            if (el) cardRefs.current.set(product.id, el);
-          }}
-          data-product-id={product.id}
-        >
-          <ProductCard
-            title={product.title}
-            subtitle={product.subtitle}
-            imageSrc={product.imageSrc}
-            badge={product.badge}
-            isVisible={visibleCards.has(product.id)}
-            animationDelay={(index % 3) * 100}
-            onDownload={handleProductClick}
-          />
-        </div>
-      ))}
-    </motion.div>
+    <>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-2 xl:grid-cols-3 2xl:gap-8"
+      >
+        {filteredProducts.map((product, index) => (
+          <div
+            key={product.id}
+            ref={(el) => {
+              if (el) cardRefs.current.set(product.id, el);
+            }}
+            data-product-id={product.id}
+          >
+            <ProductCard
+              title={product.title}
+              subtitle={product.subtitle}
+              imageSrc={product.imageSrc}
+              badge={product.badge}
+              isVisible={visibleCards.has(product.id)}
+              animationDelay={(index % 3) * 100}
+              onDownload={handleProductClick}
+            />
+          </div>
+        ))}
+      </motion.div>
 
-    {/* Toast Container */}
-    <ToastContainer toasts={toasts} removeToast={removeToast} />
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+    </>
   );
 }
