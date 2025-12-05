@@ -5,7 +5,9 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { loginAction, signupAction, googleOAuthAction, appleOAuthAction } from "@/lib/actions/auth";
+import { loginAction, signupAction } from "@/lib/actions/auth";
+// OAuth temporarily disabled
+// import { loginAction, signupAction, googleOAuthAction, appleOAuthAction } from "@/lib/actions/auth";
 import { useAuthStore } from "@/lib/store";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { supabaseClient } from "@/lib/supabase/client";
@@ -137,55 +139,63 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
   };
 
   const handleGoogleLogin = async () => {
-    setStoreError(null);
-    setIsOAuthLoading(true);
+    // OAuth functionality temporarily disabled
+    addToast("Google sign-in coming soon", "info");
+    return;
+    
+    // setStoreError(null);
+    // setIsOAuthLoading(true);
 
-    try {
-      const result = await googleOAuthAction();
+    // try {
+    //   const result = await googleOAuthAction();
 
-      if (result.error) {
-        addToast(result.error, "error");
-        setStoreError(result.error);
-        setIsOAuthLoading(false);
-        return;
-      }
+    //   if (result.error) {
+    //     addToast(result.error, "error");
+    //     setStoreError(result.error);
+    //     setIsOAuthLoading(false);
+    //     return;
+    //   }
 
-      if (result.url) {
-        // Redirect to Google OAuth consent screen
-        window.location.href = result.url;
-        // Don't reset loading - page will redirect
-      }
-    } catch (error) {
-      console.error("Google OAuth error:", error);
-      addToast("Failed to initiate Google sign-in", "error");
-      setIsOAuthLoading(false);
-    }
+    //   if (result.url) {
+    //     // Redirect to Google OAuth consent screen
+    //     window.location.href = result.url;
+    //     // Don't reset loading - page will redirect
+    //   }
+    // } catch (error) {
+    //   console.error("Google OAuth error:", error);
+    //   addToast("Failed to initiate Google sign-in", "error");
+    //   setIsOAuthLoading(false);
+    // }
   };
 
   const handleAppleLogin = async () => {
-    setStoreError(null);
-    setIsOAuthLoading(true);
+    // OAuth functionality temporarily disabled
+    addToast("Apple sign-in coming soon", "info");
+    return;
+    
+    // setStoreError(null);
+    // setIsOAuthLoading(true);
 
-    try {
-      const result = await appleOAuthAction();
+    // try {
+    //   const result = await appleOAuthAction();
 
-      if (result.error) {
-        addToast(result.error, "error");
-        setStoreError(result.error);
-        setIsOAuthLoading(false);
-        return;
-      }
+    //   if (result.error) {
+    //     addToast(result.error, "error");
+    //     setStoreError(result.error);
+    //     setIsOAuthLoading(false);
+    //     return;
+    //   }
 
-      if (result.url) {
-        // Redirect to Apple OAuth consent screen
-        window.location.href = result.url;
-        // Don't reset loading - page will redirect
-      }
-    } catch (error) {
-      console.error("Apple OAuth error:", error);
-      addToast("Failed to initiate Apple sign-in", "error");
-      setIsOAuthLoading(false);
-    }
+    //   if (result.url) {
+    //     // Redirect to Apple OAuth consent screen
+    //     window.location.href = result.url;
+    //     // Don't reset loading - page will redirect
+    //   }
+    // } catch (error) {
+    //   console.error("Apple OAuth error:", error);
+    //   addToast("Failed to initiate Apple sign-in", "error");
+    //   setIsOAuthLoading(false);
+    // }
   };
 
   return (
