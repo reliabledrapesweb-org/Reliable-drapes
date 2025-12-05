@@ -2,6 +2,7 @@
 
 import { getAdminSupabase } from "@/lib/supabase/admin";
 import { getAnonSupabase } from "@/lib/supabase/anon";
+import { supabaseClient } from "@/lib/supabase/client";
 import { authSignupSchema, authLoginSchema } from "@/lib/validators";
 import type { AuthResponse } from "@/lib/types";
 import { redirect } from "next/navigation";
@@ -132,7 +133,67 @@ export async function resetPasswordAction(
     message: "Password reset successfully",
   };
 }
-export async function loginAction(
+export async function googleOAuthAction(): Promise<{ url?: string; error?: string }> {
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      console.error("Google OAuth error:", error);
+      return {
+        error: error.message || "Failed to initiate Google sign-in",
+      };
+    }
+
+    if (data.url) {
+      return { url: data.url };
+    }
+
+    return {
+      error: "No OAuth URL returned",
+    };
+  } catch (error) {
+    console.error("Google OAuth exception:", error);
+    return {
+      error: "An unexpected error occurred",
+    };
+  }
+}
+
+export async function appleOAuthAction(): Promise<{ url?: string; error?: string }> {
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "apple",
+      options: {
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      console.error("Apple OAuth error:", error);
+      return {
+        error: error.message || "Failed to initiate Apple sign-in",
+      };
+    }
+
+    if (data.url) {
+      return { url: data.url };
+    }
+
+    return {
+      error: "No OAuth URL returned",
+    };
+  } catch (error) {
+    console.error("Apple OAuth exception:", error);
+    return {
+      error: "An unexpected error occurred",
+    };
+  }
+}export async function loginAction(
   formData: FormData | { email: string; password: string },
 ): Promise<AuthResponse> {
   // Extract data from FormData or object

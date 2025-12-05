@@ -17,14 +17,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         // Client-side session check is reliable because browser has cookies
         const { data, error } = await supabaseClient.auth.getSession();
-        console.log("AuthProvider - Client session check:", { hasSession: !!data?.session, error: error?.message });
 
         if (!error && data.session) {
           const session = data.session;
           const user = session.user;
 
           if (user) {
-            console.log("AuthProvider - Restoring user:", user.email);
             setUser({
               id: user.id,
               email: user.email || "",

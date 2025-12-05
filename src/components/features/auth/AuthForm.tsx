@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { loginAction, signupAction } from "@/lib/actions/auth";
+import { loginAction, signupAction, googleOAuthAction, appleOAuthAction } from "@/lib/actions/auth";
 import { useAuthStore } from "@/lib/store";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { supabaseClient } from "@/lib/supabase/client";
@@ -25,6 +25,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [isOAuthLoading, setIsOAuthLoading] = useState(false);
   const { toasts, addToast, removeToast } = useToast();
 
   const { setUser, setSession, setLoading, setError: setStoreError } = useAuthStore();
@@ -136,25 +137,55 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
   };
 
   const handleGoogleLogin = async () => {
-    startTransition(async () => {
-      setStoreError(null);
-      setLoading(true);
+    setStoreError(null);
+    setIsOAuthLoading(true);
 
-      // TODO: Implement OAuth with Supabase
-      console.log("Google OAuth not yet configured");
-      setLoading(false);
-    });
+    try {
+      const result = await googleOAuthAction();
+
+      if (result.error) {
+        addToast(result.error, "error");
+        setStoreError(result.error);
+        setIsOAuthLoading(false);
+        return;
+      }
+
+      if (result.url) {
+        // Redirect to Google OAuth consent screen
+        window.location.href = result.url;
+        // Don't reset loading - page will redirect
+      }
+    } catch (error) {
+      console.error("Google OAuth error:", error);
+      addToast("Failed to initiate Google sign-in", "error");
+      setIsOAuthLoading(false);
+    }
   };
 
   const handleAppleLogin = async () => {
-    startTransition(async () => {
-      setStoreError(null);
-      setLoading(true);
+    setStoreError(null);
+    setIsOAuthLoading(true);
 
-      // TODO: Implement OAuth with Supabase
-      console.log("Apple OAuth not yet configured");
-      setLoading(false);
-    });
+    try {
+      const result = await appleOAuthAction();
+
+      if (result.error) {
+        addToast(result.error, "error");
+        setStoreError(result.error);
+        setIsOAuthLoading(false);
+        return;
+      }
+
+      if (result.url) {
+        // Redirect to Apple OAuth consent screen
+        window.location.href = result.url;
+        // Don't reset loading - page will redirect
+      }
+    } catch (error) {
+      console.error("Apple OAuth error:", error);
+      addToast("Failed to initiate Apple sign-in", "error");
+      setIsOAuthLoading(false);
+    }
   };
 
   return (
@@ -392,8 +423,8 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
               <motion.button
                 type="button"
                 onClick={handleGoogleLogin}
-                disabled={isPending}
-                className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50"
+                disabled={isOAuthLoading || isPending}
+                className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
@@ -403,40 +434,44 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <svg className="h-5 w-5" viewBox="0 0 18 18" fill="none">
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
-                    fill="#4285F4"
-                  />
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
-                    fill="#34A853"
-                  />
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"
-                    fill="#FBBC05"
-                  />
-                  <path
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
-                    fill="#EA4335"
-                  />
-                </svg>
+                {isOAuthLoading ? (
+                  <Loader className="h-5 w-5 animate-spin" />
+                ) : (
+                  <svg className="h-5 w-5" viewBox="0 0 18 18" fill="none">
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
+                      fill="#4285F4"
+                    />
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
+                      fill="#34A853"
+                    />
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"
+                      fill="#FBBC05"
+                    />
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"
+                      fill="#EA4335"
+                    />
+                  </svg>
+                )}
                 <span className="text-gray-900">Continue with Google</span>
               </motion.button>
 
               <motion.button
                 type="button"
                 onClick={handleAppleLogin}
-                disabled={isPending}
-                className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50"
+                disabled={isOAuthLoading || isPending}
+                className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
@@ -446,12 +481,16 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <svg className="h-5 w-4" viewBox="0 0 16 20" fill="none">
-                  <path
-                    d="M15.665 15.586c-.276.677-.618 1.325-1.022 1.934-.537.806-.976 1.364-1.315 1.674-.525.509-1.088.769-1.69.784-.434 0-.955-.13-1.563-.393-.609-.262-1.169-.391-1.681-.391-.537 0-1.113.13-1.729.391-.617.263-1.114.4-1.494.413-.578.026-1.154-.242-1.729-.805-.367-.337-.826-.915-1.376-1.733C.476 16.587-.009 15.573-.389 14.417c-.407-1.247-.611-2.456-.611-3.626 0-1.34.275-2.497.826-3.465a5.083 5.083 0 0 1 1.73-1.843A4.68 4.68 0 0 1 4.895 4.788c.459 0 1.061.15 1.809.443.745.295 1.224.445 1.434.445.157 0 .689-.175 1.591-.524.853-.323 1.573-.457 2.163-.404 1.598.136 2.798.8 3.597 1.994-1.43.912-2.136 2.19-2.122 3.827.013 1.277.452 2.339 1.316 3.182.392.391.83.694 1.316.906-.105.323-.217.631-.335.927v-.001zM12 .401c0 1-.348 1.934-1.039 2.798-.835 1.028-1.845 1.622-2.94 1.528a3.023 3.023 0 0 1-.022-.38c0-.96.396-1.987 1.101-2.827A4.26 4.26 0 0 1 10.443.459C10.986.18 11.498.027 11.98 0c.013.134.02.268.02.4z"
-                    fill="#0E0E0E"
-                  />
-                </svg>
+                {isOAuthLoading ? (
+                  <Loader className="h-5 w-5 animate-spin" />
+                ) : (
+                  <svg className="h-5 w-4" viewBox="0 0 16 20" fill="none">
+                    <path
+                      d="M15.665 15.586c-.276.677-.618 1.325-1.022 1.934-.537.806-.976 1.364-1.315 1.674-.525.509-1.088.769-1.69.784-.434 0-.955-.13-1.563-.393-.609-.262-1.169-.391-1.681-.391-.537 0-1.113.13-1.729.391-.617.263-1.114.4-1.494.413-.578.026-1.154-.242-1.729-.805-.367-.337-.826-.915-1.376-1.733C.476 16.587-.009 15.573-.389 14.417c-.407-1.247-.611-2.456-.611-3.626 0-1.34.275-2.497.826-3.465a5.083 5.083 0 0 1 1.73-1.843A4.68 4.68 0 0 1 4.895 4.788c.459 0 1.061.15 1.809.443.745.295 1.224.445 1.434.445.157 0 .689-.175 1.591-.524.853-.323 1.573-.457 2.163-.404 1.598.136 2.798.8 3.597 1.994-1.43.912-2.136 2.19-2.122 3.827.013 1.277.452 2.339 1.316 3.182.392.391.83.694 1.316.906-.105.323-.217.631-.335.927v-.001zM12 .401c0 1-.348 1.934-1.039 2.798-.835 1.028-1.845 1.622-2.94 1.528a3.023 3.023 0 0 1-.022-.38c0-.96.396-1.987 1.101-2.827A4.26 4.26 0 0 1 10.443.459C10.986.18 11.498.027 11.98 0c.013.134.02.268.02.4z"
+                      fill="#0E0E0E"
+                    />
+                  </svg>
+                )}
                 <span className="text-gray-900">Continue with Apple</span>
               </motion.button>
             </motion.div>

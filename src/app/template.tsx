@@ -16,6 +16,8 @@ export default function Template({ children }: { children: React.ReactNode }) {
     const waitForAssets = async () => {
       // Minimum wait time to ensure content renders
       const minWaitTime = 500;
+      // Maximum timeout to prevent indefinite loading (12 seconds)
+      const maxWaitTime = 12000;
       const startTime = Date.now();
 
       // Wait for all images and fonts to load
@@ -51,8 +53,17 @@ export default function Template({ children }: { children: React.ReactNode }) {
         }
       });
 
-      // Wait for all images and document to load
-      await Promise.all([...imageLoadPromises, documentReadyPromise]);
+      // Race between all assets loading and maximum timeout
+      try {
+        await Promise.race([
+          Promise.all([...imageLoadPromises, documentReadyPromise]),
+          new Promise<void>((_, reject) =>
+            setTimeout(() => reject(new Error("Load timeout")), maxWaitTime)
+          ),
+        ]);
+      } catch (error) {
+        // Timeout reached or error occurred, proceed anyway
+      }
 
       // Ensure minimum wait time has passed
       const elapsedTime = Date.now() - startTime;
