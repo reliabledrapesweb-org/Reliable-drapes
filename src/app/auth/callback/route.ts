@@ -1,3 +1,10 @@
+import { NextResponse } from "next/server";
+
+// OAuth functionality temporarily disabled - placeholder route
+export async function GET() {
+  return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"));
+}
+
 // OAuth functionality temporarily disabled
 // import { getAnonSupabase } from "@/lib/supabase/anon";
 // import { NextRequest, NextResponse } from "next/server";
@@ -26,7 +33,7 @@
 //       console.error("OAuth callback error:", error);
 //       return NextResponse.redirect(
 //         new URL("/login?error=Authentication failed", requestUrl.origin)
-//       );
+//         );
 //     }
 //   }
 
