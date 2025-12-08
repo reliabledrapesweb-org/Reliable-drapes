@@ -2,7 +2,6 @@
 
 import { getAdminSupabase } from "@/lib/supabase/admin";
 import { getAnonSupabase } from "@/lib/supabase/anon";
-import { supabaseClient } from "@/lib/supabase/client";
 import { authSignupSchema, authLoginSchema } from "@/lib/validators";
 import type { AuthResponse } from "@/lib/types";
 import { redirect } from "next/navigation";
@@ -134,37 +133,37 @@ export async function resetPasswordAction(
   };
 }
 
-// OAuth functionality temporarily disabled
-// export async function googleOAuthAction(): Promise<{ url?: string; error?: string }> {
-//   try {
-//     const { data, error } = await supabaseClient.auth.signInWithOAuth({
-//       provider: "google",
-//       options: {
-//         redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/callback`,
-//       },
-//     });
+export async function googleOAuthAction(): Promise<{ url?: string; error?: string }> {
+  try {
+    const supabase = getAnonSupabase();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/callback`,
+      },
+    });
 
-//     if (error) {
-//       console.error("Google OAuth error:", error);
-//       return {
-//         error: error.message || "Failed to initiate Google sign-in",
-//       };
-//     }
+    if (error) {
+      console.error("Google OAuth error:", error);
+      return {
+        error: error.message || "Failed to initiate Google sign-in",
+      };
+    }
 
-//     if (data.url) {
-//       return { url: data.url };
-//     }
+    if (data.url) {
+      return { url: data.url };
+    }
 
-//     return {
-//       error: "No OAuth URL returned",
-//     };
-//   } catch (error) {
-//     console.error("Google OAuth exception:", error);
-//     return {
-//       error: "An unexpected error occurred",
-//     };
-//   }
-// }
+    return {
+      error: "No OAuth URL returned",
+    };
+  } catch (error) {
+    console.error("Google OAuth exception:", error);
+    return {
+      error: "An unexpected error occurred",
+    };
+  }
+}
 
 // export async function appleOAuthAction(): Promise<{ url?: string; error?: string }> {
 //   try {

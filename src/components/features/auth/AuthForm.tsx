@@ -5,9 +5,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { loginAction, signupAction } from "@/lib/actions/auth";
-// OAuth temporarily disabled
-// import { loginAction, signupAction, googleOAuthAction, appleOAuthAction } from "@/lib/actions/auth";
+import { loginAction, signupAction, googleOAuthAction } from "@/lib/actions/auth";
 import { useAuthStore } from "@/lib/store";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { supabaseClient } from "@/lib/supabase/client";
@@ -27,7 +25,8 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [isPending, startTransition] = useTransition();
-  const [isOAuthLoading, setIsOAuthLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isAppleLoading, setIsAppleLoading] = useState(false);
   const { toasts, addToast, removeToast } = useToast();
 
   const { setUser, setSession, setLoading, setError: setStoreError } = useAuthStore();
@@ -139,63 +138,31 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
   };
 
   const handleGoogleLogin = async () => {
-    // OAuth functionality temporarily disabled
-    addToast("Google sign-in coming soon", "info");
-    return;
-    
-    // setStoreError(null);
-    // setIsOAuthLoading(true);
+    setStoreError(null);
+    setIsGoogleLoading(true);
 
-    // try {
-    //   const result = await googleOAuthAction();
+    try {
+      const result = await googleOAuthAction();
 
-    //   if (result.error) {
-    //     addToast(result.error, "error");
-    //     setStoreError(result.error);
-    //     setIsOAuthLoading(false);
-    //     return;
-    //   }
+      if (result.error) {
+        addToast(result.error, "error");
+        setStoreError(result.error);
+        setIsGoogleLoading(false);
+        return;
+      }
 
-    //   if (result.url) {
-    //     // Redirect to Google OAuth consent screen
-    //     window.location.href = result.url;
-    //     // Don't reset loading - page will redirect
-    //   }
-    // } catch (error) {
-    //   console.error("Google OAuth error:", error);
-    //   addToast("Failed to initiate Google sign-in", "error");
-    //   setIsOAuthLoading(false);
-    // }
+      if (result.url) {
+        window.location.href = result.url;
+      }
+    } catch (error) {
+      console.error("Google OAuth error:", error);
+      addToast("Failed to initiate Google sign-in", "error");
+      setIsGoogleLoading(false);
+    }
   };
 
   const handleAppleLogin = async () => {
-    // OAuth functionality temporarily disabled
     addToast("Apple sign-in coming soon", "info");
-    return;
-    
-    // setStoreError(null);
-    // setIsOAuthLoading(true);
-
-    // try {
-    //   const result = await appleOAuthAction();
-
-    //   if (result.error) {
-    //     addToast(result.error, "error");
-    //     setStoreError(result.error);
-    //     setIsOAuthLoading(false);
-    //     return;
-    //   }
-
-    //   if (result.url) {
-    //     // Redirect to Apple OAuth consent screen
-    //     window.location.href = result.url;
-    //     // Don't reset loading - page will redirect
-    //   }
-    // } catch (error) {
-    //   console.error("Apple OAuth error:", error);
-    //   addToast("Failed to initiate Apple sign-in", "error");
-    //   setIsOAuthLoading(false);
-    // }
   };
 
   return (
@@ -433,7 +400,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
               <motion.button
                 type="button"
                 onClick={handleGoogleLogin}
-                disabled={isOAuthLoading || isPending}
+                disabled={isGoogleLoading || isPending}
                 className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -444,7 +411,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                {isOAuthLoading ? (
+                {isGoogleLoading ? (
                   <Loader className="h-5 w-5 animate-spin" />
                 ) : (
                   <svg className="h-5 w-5" viewBox="0 0 18 18" fill="none">
@@ -480,7 +447,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
               <motion.button
                 type="button"
                 onClick={handleAppleLogin}
-                disabled={isOAuthLoading || isPending}
+                disabled={isAppleLoading || isPending}
                 className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -491,7 +458,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                {isOAuthLoading ? (
+                {isAppleLoading ? (
                   <Loader className="h-5 w-5 animate-spin" />
                 ) : (
                   <svg className="h-5 w-4" viewBox="0 0 16 20" fill="none">
