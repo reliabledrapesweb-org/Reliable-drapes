@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { loginAction, signupAction, googleOAuthAction } from "@/lib/actions/auth";
+import { loginAction, signupAction } from "@/lib/actions/auth";
 import { useAuthStore } from "@/lib/store";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { supabaseClient } from "@/lib/supabase/client";
@@ -142,18 +142,23 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
     setIsGoogleLoading(true);
 
     try {
-      const result = await googleOAuthAction();
+      // Call Supabase OAuth directly from client
+      const { data, error } = await supabaseClient.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/callback`,
+        },
+      });
 
-      if (result.error) {
-        addToast(result.error, "error");
-        setStoreError(result.error);
+      if (error) {
+        addToast(error.message || "Failed to initiate Google sign-in", "error");
+        setStoreError(error.message);
         setIsGoogleLoading(false);
         return;
       }
 
-      if (result.url) {
-        window.location.href = result.url;
-      }
+      // OAuth redirect happens automatically, no need to manually redirect
+      // Don't reset loading state - page will redirect
     } catch (error) {
       console.error("Google OAuth error:", error);
       addToast("Failed to initiate Google sign-in", "error");
