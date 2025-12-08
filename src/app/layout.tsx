@@ -12,6 +12,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   title: "Reliable Drapes - Luxury Home Furnishings",
   description: "Discover premium quality drapes and home furnishings. Shop our exclusive collection of luxury curtains, blinds, and interior decor. Fast delivery, premium materials, and exceptional customer service.",
   keywords: [
