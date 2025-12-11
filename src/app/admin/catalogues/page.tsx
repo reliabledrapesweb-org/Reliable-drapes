@@ -372,12 +372,6 @@ export default function CataloguesPage() {
                         {catalogue.download_count}
                       </div>
                     </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <div className="flex items-center gap-1 text-sm text-gray-900">
-                        <Download className="h-3 w-3" />
-                        {catalogue.download_count}
-                      </div>
-                    </TableCell>
                     <TableCell>
                       <Button
                         variant="ghost"
