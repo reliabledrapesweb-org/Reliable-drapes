@@ -3,15 +3,22 @@ import { Search, X } from "lucide-react";
 interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
+  className?: string;
 }
 
-export function SearchBar({ value, onChange }: SearchBarProps) {
+export function SearchBar({ 
+  value, 
+  onChange, 
+  placeholder = "Search...",
+  className = ""
+}: SearchBarProps) {
   return (
-    <div className="w-full">
+    <div className={`w-full ${className}`}>
       <div className="group relative flex items-center justify-between border-b-2 border-[#d0d0d0] pb-3 transition-colors focus-within:border-[#2f2582]">
         <input
           type="text"
-          placeholder="Search products..."
+          placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="flex-1 bg-transparent text-[15px] text-[#0e0e0e] outline-none placeholder:text-[#a0a0a0] md:text-[16px]"

@@ -1,6 +1,6 @@
 "use client";
 
-import { Breadcrumb, SearchBar, PageHero } from "@/components/shared";
+import { Breadcrumb, PageHero, PageHeader } from "@/components/shared";
 import {
   FilterSidebar,
   ProductGrid,
@@ -88,30 +88,19 @@ export default function CataloguePage() {
       <div className="w-full py-12 md:py-16 lg:py-20">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
           {/* Header Section */}
-          <div className="mb-12 md:mb-16 lg:mb-20">
-            <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-              <div className="flex flex-col gap-4">
-                <p className="text-xs font-medium tracking-[6px] text-[#575757] uppercase md:text-sm md:tracking-[8px]">
-                  E-catalogue
-                </p>
-                <h1 className="text-2xl leading-tight font-bold text-[#161616] md:text-[32px]">
-                  All About Catalogue
-                </h1>
-                <p className="mt-2 text-base text-[#898989] md:text-lg">
-                  {isLoading ? "Loading..." : `Showing ${filteredProducts.length} of ${products.length} products`}
-                </p>
-              </div>
-
-              <div className="w-full lg:w-auto lg:min-w-[420px]">
-                <SearchBar value={searchQuery} onChange={setSearchQuery} />
-              </div>
-            </div>
-          </div>
+          <PageHeader
+            category="E-catalogue"
+            title="All About Catalogue"
+            description={isLoading ? "Loading..." : `Showing ${filteredProducts.length} of ${products.length} products`}
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Search"
+          />
 
           {/* Content Section */}
           <div className="flex flex-col gap-8 md:gap-12 lg:flex-row lg:gap-16">
             {/* Filter Sidebar - Sticky on desktop */}
-            <div className="lg:sticky lg:top-24 lg:self-start lg:w-64 lg:flex-shrink-0">
+            <div className="lg:sticky lg:top-24 lg:self-start lg:w-64 lg:shrink-0">
               <FilterSidebar
                 selectedFilters={selectedFilters}
                 onFilterChange={setSelectedFilters}
