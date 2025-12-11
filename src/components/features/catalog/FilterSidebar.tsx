@@ -33,19 +33,19 @@ export function FilterSidebar({
   };
 
   return (
-    <aside className="w-full flex-shrink-0 lg:w-[260px]">
+    <aside className="w-full shrink-0">
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md md:p-6"
+        className="p-0"
       >
         {/* Header */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex w-full items-center justify-between border-b border-[#d0d0d0] pb-4"
+          className="flex w-full items-center justify-between border-b border-[#d0d0d0] pb-3"
         >
-          <h2 className="text-[18px] font-medium text-[#161616] md:text-[20px]">
+          <h2 className="text-[18px] font-bold text-[#161616] md:text-[20px]">
             Filter By
           </h2>
           <motion.div
@@ -65,7 +65,7 @@ export function FilterSidebar({
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="overflow-hidden"
             >
-              <div className="mt-6 space-y-4 md:mt-8 md:space-y-5">
+              <div className="mt-4 space-y-3 md:mt-5 md:space-y-4">
                 {/* Category Dropdown */}
                 <div>
                   <div className="relative">
@@ -121,7 +121,7 @@ export function FilterSidebar({
                 </div>
 
                 {/* Filter Options */}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {["Main Curtains", "Sheer Curtains", "Blackout Curtains"].map((item) => {
                     const isChecked = selectedFilters.includes(item);
                     return (
@@ -131,7 +131,7 @@ export function FilterSidebar({
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.3 }}
                         whileHover={{ x: 4 }}
-                        className="flex cursor-pointer items-center justify-between py-1"
+                        className="flex cursor-pointer items-center justify-between py-0.5"
                       >
                         <span className="text-[16px] text-[#575757] transition-colors hover:text-[#2f2582] md:text-[18px]">
                           {item}
@@ -175,7 +175,7 @@ export function FilterSidebar({
                   disabled={selectedFilters.length === 0}
                   whileHover={{ scale: selectedFilters.length > 0 ? 1.02 : 1 }}
                   whileTap={{ scale: selectedFilters.length > 0 ? 0.98 : 1 }}
-                  className="mt-8 w-full rounded-full bg-[#2f2582] px-6 py-3 text-[14px] font-medium tracking-[2px] text-white uppercase transition-all hover:bg-[#241c66] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[#2f2582] disabled:hover:shadow-none md:text-[16px]"
+                  className="mt-5 w-full rounded-full bg-[#2f2582] px-6 py-2.5 text-[14px] font-medium tracking-[2px] text-white uppercase transition-all hover:bg-[#241c66] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[#2f2582] disabled:hover:shadow-none md:text-[16px]"
                 >
                   Reset Filters
                 </motion.button>

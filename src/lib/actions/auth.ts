@@ -148,12 +148,17 @@ export async function googleOAuthAction(): Promise<{ url?: string; error?: strin
     
     // Get the correct base URL for different environments
     const getBaseUrl = () => {
+      // Always prioritize the environment variable
       if (process.env.NEXT_PUBLIC_APP_URL) {
         return process.env.NEXT_PUBLIC_APP_URL;
       }
-      if (typeof window !== 'undefined') {
-        return window.location.origin;
+      
+      // Check for Vercel environment
+      if (process.env.VERCEL_URL) {
+        return `https://${process.env.VERCEL_URL}`;
       }
+      
+      // Fallback to localhost for development
       return "http://localhost:3000";
     };
 
@@ -192,12 +197,17 @@ export async function appleOAuthAction(): Promise<{ url?: string; error?: string
     
     // Get the correct base URL for different environments
     const getBaseUrl = () => {
+      // Always prioritize the environment variable
       if (process.env.NEXT_PUBLIC_APP_URL) {
         return process.env.NEXT_PUBLIC_APP_URL;
       }
-      if (typeof window !== 'undefined') {
-        return window.location.origin;
+      
+      // Check for Vercel environment
+      if (process.env.VERCEL_URL) {
+        return `https://${process.env.VERCEL_URL}`;
       }
+      
+      // Fallback to localhost for development
       return "http://localhost:3000";
     };
 

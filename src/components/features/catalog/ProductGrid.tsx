@@ -111,7 +111,7 @@ export function ProductGrid({ filteredProducts }: ProductGridProps) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3"
+        className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 lg:gap-10 xl:gap-12"
       >
         {filteredProducts.map((product, index) => {
           const numericId = typeof product.id === 'string' ? parseInt(product.id.slice(0, 8), 16) : product.id;

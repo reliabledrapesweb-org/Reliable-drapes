@@ -85,19 +85,19 @@ export default function App() {
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
       <PageHero heading="E-catalogue" />
       <Breadcrumb />
-      <div className="w-full py-8 md:py-12 lg:py-16">
+      <div className="w-full py-12 md:py-16 lg:py-20">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
           {/* Header Section */}
-          <div className="mb-8 md:mb-10 lg:mb-12">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-              <div className="flex flex-col gap-3">
-                <p className="text-[12px] font-medium tracking-[6px] text-[#575757] uppercase md:text-[14px] md:tracking-[8px]">
+          <div className="mb-12 md:mb-16 lg:mb-20">
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+              <div className="flex flex-col gap-4">
+                <p className="text-xs font-medium tracking-[6px] text-[#575757] uppercase md:text-sm md:tracking-[8px]">
                   E-catalogue
                 </p>
-                <h1 className="text-[28px] leading-tight font-medium text-[#161616] md:text-[32px] lg:text-[36px]">
+                <h1 className="text-2xl leading-tight font-bold text-[#161616] md:text-[32px]">
                   All About Catalogue
                 </h1>
-                <p className="mt-1 text-sm text-[#898989] md:text-base">
+                <p className="mt-2 text-base text-[#898989] md:text-lg">
                   {isLoading ? "Loading..." : `Showing ${filteredProducts.length} of ${products.length} products`}
                 </p>
               </div>
@@ -109,9 +109,9 @@ export default function App() {
           </div>
 
           {/* Content Section */}
-          <div className="flex flex-col gap-6 md:gap-8 lg:flex-row lg:gap-8">
+          <div className="flex flex-col gap-8 md:gap-12 lg:flex-row lg:gap-16">
             {/* Filter Sidebar - Sticky on desktop */}
-            <div className="lg:sticky lg:top-24 lg:self-start">
+            <div className="lg:sticky lg:top-24 lg:self-start lg:w-64 lg:flex-shrink-0">
               <FilterSidebar
                 selectedFilters={selectedFilters}
                 onFilterChange={setSelectedFilters}

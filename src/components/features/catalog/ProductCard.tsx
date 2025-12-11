@@ -69,16 +69,16 @@ export function ProductCard({
           ease: [0.22, 1, 0.36, 1],
         }}
         onClick={handleClick}
-        className="group flex w-full cursor-pointer flex-col gap-4"
+        className="group flex w-full cursor-pointer flex-col gap-5 transition-transform duration-300 hover:scale-[1.02]"
       >
-        <div className="relative aspect-square overflow-hidden rounded-2xl bg-gradient-to-b from-gray-300 to-gray-700 shadow-md">
+        <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-b from-gray-200 to-gray-400 shadow-lg transition-shadow duration-300 group-hover:shadow-xl">
           <div className="h-full w-full">
             <Image
               width={500}
               height={500}
               src={imageError ? fallbackImage : imageSrc}
               alt={title}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
               onError={() => {
                 console.error("Image failed to load:", imageSrc);
@@ -90,32 +90,35 @@ export function ProductCard({
             />
           </div>
 
-
+          {/* Overlay gradient for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
           {/* Badge */}
           {badge && (
-            <div className="absolute top-3 right-3">
+            <div className="absolute top-4 right-4">
               {badge === "discount" && (
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e97171] shadow-lg">
-                  <span className="text-[16px] font-medium text-white">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#e97171] shadow-lg backdrop-blur-sm">
+                  <span className="text-sm font-semibold text-white">
                     {discountValue}
                   </span>
                 </div>
               )}
               {badge === "new" && (
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#2f2582] shadow-lg">
-                  <span className="text-[16px] font-medium text-white">New</span>
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#2f2582] shadow-lg backdrop-blur-sm">
+                  <span className="text-sm font-semibold text-white">New</span>
                 </div>
               )}
             </div>
           )}
         </div>
 
-        <div className="flex flex-col gap-1">
-          <h3 className="text-[24px] font-semibold text-[#2a2a2a] leading-tight">
+        <div className="flex flex-col gap-2 px-1">
+          <h3 className="text-xl font-semibold text-[#2a2a2a] leading-tight transition-colors duration-200 group-hover:text-[#2f2582] lg:text-2xl">
             {title}
           </h3>
-          <p className="text-[16px] font-light text-[#9a9a9a] leading-relaxed">{subtitle}</p>
+          <p className="text-sm font-normal text-[#898989] leading-relaxed lg:text-base">
+            {subtitle}
+          </p>
         </div>
       </motion.article>
 
