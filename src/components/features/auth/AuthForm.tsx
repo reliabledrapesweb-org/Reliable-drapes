@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { loginAction, signupAction } from "@/lib/actions/auth";
+import { signupAction } from "@/lib/actions/auth";
 import { useAuthStore } from "@/lib/store";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { supabaseClient } from "@/lib/supabase/client";
@@ -33,9 +33,6 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
 
   const isLogin = mode === "login";
   const defaultTitle = isLogin ? "Log into Reliable" : "Create Account";
-  const defaultSubtitle = isLogin
-    ? "Welcome back"
-    : "Join us to get started";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

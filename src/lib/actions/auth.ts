@@ -4,6 +4,7 @@ import { getAdminSupabase } from "@/lib/supabase/admin";
 import { getAnonSupabase } from "@/lib/supabase/anon";
 import { authSignupSchema, authLoginSchema } from "@/lib/validators";
 import type { AuthResponse } from "@/lib/types";
+import { supabaseServer } from "../supabase";
 
 
 export async function signupAction(
@@ -232,48 +233,6 @@ export async function appleOAuthAction(): Promise<{ url?: string; error?: string
 /**
  * Handle OAuth signup - create profile and promote to admin if needed
  */
-export async function handleOAuthSignup(userId: string, email: string) {
-  try {
-    const supabase = await supabaseServer();
-    
-    // Check if profile already exists
-    const { data: existingProfile } = await supabase
-      .from("profiles")
-      .select("id, role")
-      .eq("id", userId)
-      .single();
-
-    if (existingProfile) {
-      // Profile already exists, no need to create
-      return { success: true };
-    }
-
-    // Check if user should be admin
-    const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim().toLowerCase()) || [];
-    const userEmail = email.toLowerCase();
-    const shouldBeAdmin = adminEmails.includes(userEmail);
-
-    // Create profile with appropriate role
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .insert({
-        id: userId,
-        role: shouldBeAdmin ? "admin" : "customer",
-        full_name: null, // Will be updated from user metadata if available
-      });
-
-    if (profileError) {
-      console.error("Error creating OAuth profile:", profileError);
-      return { success: false, error: profileError.message };
-    }
-
-    console.log(`OAuth profile created for ${email} with role: ${shouldBeAdmin ? "admin" : "customer"}`);
-    return { success: true };
-  } catch (error) {
-    console.error("handleOAuthSignup error:", error);
-    return { success: false, error: "Failed to handle OAuth signup" };
-  }
-}
 export async function handleOAuthSignup(
   userId: string,
   email: string,
@@ -358,7 +317,7 @@ export async function loginAction(
     session: authData.session ? {
       access_token: authData.session.access_token,
       refresh_token: authData.session.refresh_token || '',
-      expires_at: authData.session.expires_token || '',
+      expires_at: authData.session.expires_at,
       user: authData.user ? {
         id: authData.user.id,
         email: authData.user.email || '',
