@@ -91,7 +91,34 @@ export async function getUserStats() {
 export async function updateUser(input: UpdateUserInput) {
   const supabase = await supabaseServer();
 
+  // Verify current user is admin
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  
+  if (authError || !user) {
+    console.error("Authentication error:", authError);
+    return { success: false, error: "Authentication required", data: null };
+  }
+
+  // Check if current user is admin
+  const { data: currentUserProfile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError) {
+    console.error("Error fetching current user profile:", profileError);
+    return { success: false, error: "Failed to verify admin status", data: null };
+  }
+
+  if (currentUserProfile?.role !== "admin") {
+    console.error("Non-admin user attempted to update user:", user.id);
+    return { success: false, error: "Admin privileges required", data: null };
+  }
+
   const { id, ...updateData } = input;
+
+  console.log("Updating user:", id, "with data:", updateData);
 
   const { data, error } = await supabase
     .from("profiles")
@@ -104,6 +131,8 @@ export async function updateUser(input: UpdateUserInput) {
     console.error("Error updating user:", error);
     return { success: false, error: error.message, data: null };
   }
+
+  console.log("User updated successfully:", data);
 
   revalidatePath("/admin/customers");
 

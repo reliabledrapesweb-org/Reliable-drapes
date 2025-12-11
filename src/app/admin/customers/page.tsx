@@ -151,7 +151,10 @@ export default function CustomersPage() {
     setActionLoading(prev => ({ ...prev, update: "update" }));
 
     try {
+      console.log("Attempting to update user with data:", confirmAction.data);
       const result = await updateUser(confirmAction.data);
+      console.log("Update result:", result);
+      
       if (result.success) {
         addToast("User updated successfully", "success");
         fetchUsers();
@@ -159,9 +162,14 @@ export default function CustomersPage() {
         handleCloseModal();
         setConfirmAction({ type: null });
       } else {
+        console.error("Update failed:", result.error);
         addToast(result.error || "Failed to update user", "error");
         setConfirmAction({ type: null });
       }
+    } catch (error) {
+      console.error("Update error:", error);
+      addToast("An unexpected error occurred", "error");
+      setConfirmAction({ type: null });
     } finally {
       setActionLoading(prev => ({ ...prev, update: null }));
     }
