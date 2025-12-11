@@ -330,7 +330,7 @@ export default function CataloguesPage() {
                         <div className="flex-shrink-0">
                           {(catalogue.thumbnail_url || catalogue.image_url) ? (
                             <img
-                              src={catalogue.thumbnail_url || catalogue.image_url}
+                              src={catalogue.thumbnail_url || catalogue.image_url || ""}
                               alt={catalogue.title}
                               className="h-10 w-10 rounded-lg object-cover"
                             />
