@@ -195,7 +195,32 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
   };
 
   const handleAppleLogin = async () => {
-    addToast("Apple sign-in coming soon", "info");
+    setStoreError(null);
+    setIsAppleLoading(true);
+
+    try {
+      // Call Supabase OAuth directly from client
+      const { data, error } = await supabaseClient.auth.signInWithOAuth({
+        provider: "apple",
+        options: {
+          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        addToast(error.message || "Failed to initiate Apple sign-in", "error");
+        setStoreError(error.message);
+        setIsAppleLoading(false);
+        return;
+      }
+
+      // OAuth redirect happens automatically, no need to manually redirect
+      // Don't reset loading state - page will redirect
+    } catch (error) {
+      console.error("Apple OAuth error:", error);
+      addToast("Failed to initiate Apple sign-in", "error");
+      setIsAppleLoading(false);
+    }
   };
 
   return (

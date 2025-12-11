@@ -185,36 +185,49 @@ export async function googleOAuthAction(): Promise<{ url?: string; error?: strin
   }
 }
 
-// export async function appleOAuthAction(): Promise<{ url?: string; error?: string }> {
-//   try {
-//     const { data, error } = await supabaseClient.auth.signInWithOAuth({
-//       provider: "apple",
-//       options: {
-//         redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/callback`,
-//       },
-//     });
+export async function appleOAuthAction(): Promise<{ url?: string; error?: string }> {
+  try {
+    const supabase = getAnonSupabase();
+    
+    // Get the correct base URL for different environments
+    const getBaseUrl = () => {
+      if (process.env.NEXT_PUBLIC_APP_URL) {
+        return process.env.NEXT_PUBLIC_APP_URL;
+      }
+      if (typeof window !== 'undefined') {
+        return window.location.origin;
+      }
+      return "http://localhost:3000";
+    };
 
-//     if (error) {
-//       console.error("Apple OAuth error:", error);
-//       return {
-//         error: error.message || "Failed to initiate Apple sign-in",
-//       };
-//     }
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "apple",
+      options: {
+        redirectTo: `${getBaseUrl()}/auth/callback`,
+      },
+    });
 
-//     if (data.url) {
-//       return { url: data.url };
-//     }
+    if (error) {
+      console.error("Apple OAuth error:", error);
+      return {
+        error: error.message || "Failed to initiate Apple sign-in",
+      };
+    }
 
-//     return {
-//       error: "No OAuth URL returned",
-//     };
-//   } catch (error) {
-//     console.error("Apple OAuth exception:", error);
-//     return {
-//       error: "An unexpected error occurred",
-//     };
-//   }
-// }
+    if (data.url) {
+      return { url: data.url };
+    }
+
+    return {
+      error: "No OAuth URL returned",
+    };
+  } catch (error) {
+    console.error("Apple OAuth exception:", error);
+    return {
+      error: "An unexpected error occurred",
+    };
+  }
+}
 export async function loginAction(
   formData: FormData | { email: string; password: string },
 ): Promise<AuthResponse> {
