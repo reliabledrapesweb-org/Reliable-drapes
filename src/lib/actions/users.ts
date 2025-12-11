@@ -24,6 +24,31 @@ export interface UpdateUserInput {
 export async function getAllUsers() {
   const supabase = await supabaseServer();
 
+  // Verify current user is admin first
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  
+  if (authError || !user) {
+    console.error("Authentication error:", authError);
+    return { success: false, error: "Authentication required", data: null };
+  }
+
+  // Check if current user is admin
+  const { data: currentUserProfile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError) {
+    console.error("Error fetching current user profile:", profileError);
+    return { success: false, error: "Failed to verify admin status", data: null };
+  }
+
+  if (currentUserProfile?.role !== "admin") {
+    console.error("Non-admin user attempted to fetch all users:", user.id);
+    return { success: false, error: "Admin privileges required", data: null };
+  }
+
   // Get profiles
   const { data: profiles, error: profilesError } = await supabase
     .from("profiles")
@@ -35,11 +60,24 @@ export async function getAllUsers() {
     return { success: false, error: profilesError.message, data: null };
   }
 
-  // Get auth users to get email and last sign in
-  const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
+  // Create admin client with service role key for auth data
+  const { createClient } = await import("@supabase/supabase-js");
+  const adminSupabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  );
 
-  if (authError) {
-    console.error("Error fetching auth users:", authError);
+  // Get auth users to get email and last sign in
+  const { data: authData, error: authError2 } = await adminSupabase.auth.admin.listUsers();
+
+  if (authError2) {
+    console.error("Error fetching auth users:", authError2);
     // Return profiles without auth data
     return { success: true, data: profiles, error: null };
   }
@@ -146,8 +184,46 @@ export async function updateUser(input: UpdateUserInput) {
 export async function deleteUser(userId: string) {
   const supabase = await supabaseServer();
 
+  // Verify current user is admin first
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  
+  if (authError || !user) {
+    console.error("Authentication error:", authError);
+    return { success: false, error: "Authentication required" };
+  }
+
+  // Check if current user is admin
+  const { data: currentUserProfile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError) {
+    console.error("Error fetching current user profile:", profileError);
+    return { success: false, error: "Failed to verify admin status" };
+  }
+
+  if (currentUserProfile?.role !== "admin") {
+    console.error("Non-admin user attempted to delete user:", user.id);
+    return { success: false, error: "Admin privileges required" };
+  }
+
+  // Create admin client with service role key for user deletion
+  const { createClient } = await import("@supabase/supabase-js");
+  const adminSupabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  );
+
   // Delete from auth.users (this will cascade to profiles)
-  const { error } = await supabase.auth.admin.deleteUser(userId);
+  const { error } = await adminSupabase.auth.admin.deleteUser(userId);
 
   if (error) {
     console.error("Error deleting user:", error);
