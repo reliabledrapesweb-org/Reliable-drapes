@@ -144,10 +144,22 @@ export async function resetPasswordAction(
 export async function googleOAuthAction(): Promise<{ url?: string; error?: string }> {
   try {
     const supabase = getAnonSupabase();
+    
+    // Get the correct base URL for different environments
+    const getBaseUrl = () => {
+      if (process.env.NEXT_PUBLIC_APP_URL) {
+        return process.env.NEXT_PUBLIC_APP_URL;
+      }
+      if (typeof window !== 'undefined') {
+        return window.location.origin;
+      }
+      return "http://localhost:3000";
+    };
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/callback`,
+        redirectTo: `${getBaseUrl()}/auth/callback`,
       },
     });
 
