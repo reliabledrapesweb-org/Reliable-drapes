@@ -24,7 +24,7 @@ function transformCatalogueToProduct(catalogue: Catalogue) {
   };
 }
 
-export default function App() {
+export default function CataloguePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);

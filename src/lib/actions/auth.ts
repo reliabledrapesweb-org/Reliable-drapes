@@ -153,7 +153,7 @@ export async function googleOAuthAction(): Promise<{ url?: string; error?: strin
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${baseUrl}/`,
+        redirectTo: `${baseUrl}/auth/callback`,
       },
     });
 
@@ -189,7 +189,7 @@ export async function appleOAuthAction(): Promise<{ url?: string; error?: string
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "apple",
       options: {
-        redirectTo: `${baseUrl}/`,
+        redirectTo: `${baseUrl}/auth/callback`,
       },
     });
 
