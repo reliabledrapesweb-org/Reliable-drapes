@@ -19,12 +19,70 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         // Check if we have OAuth callback parameters in URL
         const urlParams = new URLSearchParams(window.location.search);
-        const hasOAuthParams = urlParams.has('code') || urlParams.has('error');
+        const code = urlParams.get('code');
+        const error = urlParams.get('error');
 
-        // Client-side session check is reliable because browser has cookies
-        const { data, error } = await supabaseClient.auth.getSession();
+        // If we have an OAuth code, exchange it for a session
+        if (code) {
+          console.log("AuthProvider - Processing OAuth code");
+          try {
+            const { data: sessionData, error: exchangeError } = await supabaseClient.auth.exchangeCodeForSession(code);
+            
+            if (exchangeError) {
+              console.error("AuthProvider - OAuth code exchange failed:", exchangeError);
+              // Clean up the URL and continue with normal session check
+              router.replace(window.location.pathname);
+            } else if (sessionData.session) {
+              console.log("AuthProvider - OAuth session established");
+              const session = sessionData.session;
+              const user = session.user;
 
-        if (!error && data.session) {
+              setUser({
+                id: user.id,
+                email: user.email || "",
+                full_name: (user.user_metadata?.full_name as string) || undefined,
+              });
+
+              setSession({
+                access_token: session.access_token,
+                refresh_token: session.refresh_token || "",
+                expires_at: session.expires_at,
+                user: {
+                  id: user.id,
+                  email: user.email || "",
+                  full_name: (user.user_metadata?.full_name as string) || undefined,
+                },
+              });
+
+              // Call server action to handle admin promotion if needed
+              try {
+                const { handleOAuthSignup } = await import("@/lib/actions/auth");
+                await handleOAuthSignup(user.id, user.email || "");
+              } catch (error) {
+                console.error("AuthProvider - Failed to handle OAuth signup:", error);
+              }
+
+              // Clean up OAuth parameters from URL
+              router.replace(window.location.pathname);
+              return; // Exit early since we've handled the OAuth flow
+            }
+          } catch (oauthError) {
+            console.error("AuthProvider - OAuth processing error:", oauthError);
+            router.replace(window.location.pathname);
+          }
+        }
+
+        // Handle OAuth errors
+        if (error) {
+          console.error("AuthProvider - OAuth error:", error);
+          router.replace(window.location.pathname);
+          return;
+        }
+
+        // Normal session check for non-OAuth cases
+        const { data, error: sessionError } = await supabaseClient.auth.getSession();
+
+        if (!sessionError && data.session) {
           const session = data.session;
           const user = session.user;
 
@@ -48,21 +106,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   undefined,
               },
             });
-
-            // Clean up OAuth parameters from URL after successful authentication
-            if (hasOAuthParams) {
-              const cleanUrl = window.location.pathname;
-              router.replace(cleanUrl);
-            }
           }
         } else {
           console.log("AuthProvider - No session found");
-          
-          // If we have OAuth error parameters, clean them up
-          if (hasOAuthParams && urlParams.has('error')) {
-            const cleanUrl = window.location.pathname;
-            router.replace(cleanUrl);
-          }
         }
       } catch (error) {
         console.error("AuthProvider - Failed to restore session:", error);
