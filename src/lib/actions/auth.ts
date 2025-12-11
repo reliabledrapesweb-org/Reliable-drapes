@@ -5,6 +5,7 @@ import { getAnonSupabase } from "@/lib/supabase/anon";
 import { authSignupSchema, authLoginSchema } from "@/lib/validators";
 import type { AuthResponse } from "@/lib/types";
 import { supabaseServer } from "../supabase";
+import { getBaseUrl } from "@/lib/utils/url";
 
 
 export async function signupAction(
@@ -102,7 +103,7 @@ export async function forgotPasswordAction(
   const anon = getAnonSupabase();
 
   const { error } = await anon.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password`,
+    redirectTo: `${getBaseUrl()}/auth/reset-password`,
   });
 
   if (error) {
@@ -145,27 +146,14 @@ export async function resetPasswordAction(
 export async function googleOAuthAction(): Promise<{ url?: string; error?: string }> {
   try {
     const supabase = getAnonSupabase();
+    const baseUrl = getBaseUrl();
     
-    // Get the correct base URL for different environments
-    const getBaseUrl = () => {
-      // Always prioritize the environment variable
-      if (process.env.NEXT_PUBLIC_APP_URL) {
-        return process.env.NEXT_PUBLIC_APP_URL;
-      }
-      
-      // Check for Vercel environment
-      if (process.env.VERCEL_URL) {
-        return `https://${process.env.VERCEL_URL}`;
-      }
-      
-      // Fallback to localhost for development
-      return "http://localhost:3000";
-    };
+    console.log("Google OAuth redirectTo URL:", `${baseUrl}/`);
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${getBaseUrl()}/`,
+        redirectTo: `${baseUrl}/`,
       },
     });
 
@@ -194,27 +182,14 @@ export async function googleOAuthAction(): Promise<{ url?: string; error?: strin
 export async function appleOAuthAction(): Promise<{ url?: string; error?: string }> {
   try {
     const supabase = getAnonSupabase();
+    const baseUrl = getBaseUrl();
     
-    // Get the correct base URL for different environments
-    const getBaseUrl = () => {
-      // Always prioritize the environment variable
-      if (process.env.NEXT_PUBLIC_APP_URL) {
-        return process.env.NEXT_PUBLIC_APP_URL;
-      }
-      
-      // Check for Vercel environment
-      if (process.env.VERCEL_URL) {
-        return `https://${process.env.VERCEL_URL}`;
-      }
-      
-      // Fallback to localhost for development
-      return "http://localhost:3000";
-    };
+    console.log("Apple OAuth redirectTo URL:", `${baseUrl}/`);
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "apple",
       options: {
-        redirectTo: `${getBaseUrl()}/`,
+        redirectTo: `${baseUrl}/`,
       },
     });
 
