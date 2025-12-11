@@ -34,9 +34,7 @@ import {
   Trash2, 
   X,
   FileText,
-  Image as ImageIcon,
-  Tag,
-  MoreVertical
+  Tag
 } from "lucide-react";
 
 export default function CataloguesPage() {
@@ -299,7 +297,6 @@ export default function CataloguesPage() {
                 <TableHead>Catalogue</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead className="hidden sm:table-cell">Downloads</TableHead>
-                <TableHead className="hidden md:table-cell">Downloads</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -307,7 +304,7 @@ export default function CataloguesPage() {
             <TableBody>
               {catalogues.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
+                  <TableCell colSpan={5} className="h-24 text-center">
                     <div className="flex flex-col items-center justify-center py-8">
                       <BookOpen className="h-12 w-12 text-gray-400" />
                       <h3 className="mt-4 text-lg font-medium text-gray-900">No catalogues yet</h3>

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { getUserStats } from "@/lib/actions/users";
-import { getAllCatalogues } from "@/lib/actions/catalogues";
+import { useAuthStore } from "@/lib/store";
 
 interface StatCardProps {
   title: string;
@@ -80,55 +80,42 @@ function QuickAction({ title, description, href, icon }: QuickActionProps) {
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({
-    customers: 0,
-    catalogues: 0,
-    totalDownloads: 0,
-  });
+  const { user } = useAuthStore();
+  const [customerCount, setCustomerCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchStats() {
+    async function fetchCustomerStats() {
       try {
-        const [userStatsResult, cataloguesResult] = await Promise.all([
-          getUserStats(),
-          getAllCatalogues(),
-        ]);
-
-        const customerCount = userStatsResult.success ? userStatsResult.data?.customers || 0 : 0;
-        const catalogueCount = cataloguesResult.success ? cataloguesResult.data?.length || 0 : 0;
-        const totalDownloads = cataloguesResult.success 
-          ? cataloguesResult.data?.reduce((sum, cat) => sum + (cat.download_count || 0), 0) || 0 
-          : 0;
-
-        setStats({
-          customers: customerCount,
-          catalogues: catalogueCount,
-          totalDownloads,
-        });
+        const userStatsResult = await getUserStats();
+        const customers = userStatsResult.success ? userStatsResult.data?.customers || 0 : 0;
+        setCustomerCount(customers);
       } catch (error) {
-        console.error("Failed to fetch dashboard stats:", error);
+        console.error("Failed to fetch customer stats:", error);
       } finally {
         setIsLoading(false);
       }
     }
 
-    fetchStats();
+    fetchCustomerStats();
   }, []);
+
+  // Get first name from user data
+  const firstName = user?.full_name?.split(' ')[0] || 'Admin';
 
   const dashboardStats = [
     {
-      title: "Total Catalogues",
-      value: isLoading ? "..." : stats.catalogues.toString(),
-      change: "+12%",
+      title: "Total Products",
+      value: "156*",
+      change: "+12%*",
       trend: "up" as const,
       icon: <Package className="h-6 w-6 text-white" />,
       color: "bg-blue-500",
     },
     {
-      title: "Total Downloads",
-      value: isLoading ? "..." : stats.totalDownloads.toString(),
-      change: "+23%",
+      title: "Total Orders",
+      value: "342*",
+      change: "+23%*",
       trend: "up" as const,
       icon: <ShoppingCart className="h-6 w-6 text-white" />,
       color: "bg-green-500",
@@ -143,7 +130,7 @@ export default function AdminDashboard() {
     },
     {
       title: "Customers",
-      value: isLoading ? "..." : stats.customers.toString(),
+      value: isLoading ? "..." : customerCount.toString(),
       change: "+8%",
       trend: "up" as const,
       icon: <Users className="h-6 w-6 text-white" />,
@@ -177,7 +164,7 @@ export default function AdminDashboard() {
       {/* Page Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">
-          Welcome back, Admin!
+          Welcome back, {firstName}!
         </h1>
         <p className="mt-2 text-gray-600">
           Here's what's happening with your store today.
