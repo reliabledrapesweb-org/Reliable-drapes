@@ -4,11 +4,16 @@ import { ProductCard } from "./ProductCard";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
-import { CATALOG_PRODUCTS } from "@/lib/constants";
 
-export type Product = typeof CATALOG_PRODUCTS[number];
-
-export const products = CATALOG_PRODUCTS;
+export interface Product {
+  id: string | number;
+  title: string;
+  subtitle: string;
+  imageSrc: string;
+  pdfUrl?: string;
+  badge?: "new" | "discount" | null;
+  category: string;
+}
 
 interface ProductGridProps {
   filteredProducts: Product[];
@@ -30,9 +35,19 @@ export function ProductGrid({ filteredProducts }: ProductGridProps) {
   const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const { toasts, addToast, removeToast } = useToast();
 
-  const handleProductClick = (productName: string) => {
-    // Simulate PDF download
+  const handleProductClick = async (productName: string, catalogueId?: string) => {
+    // Show download toast
     addToast(`${productName} catalogue is being downloaded...`, "success", 3000);
+    
+    // Increment download count if catalogue ID exists
+    if (catalogueId) {
+      try {
+        const { incrementDownloadCount } = await import("@/lib/actions/catalogues");
+        await incrementDownloadCount(catalogueId);
+      } catch (error) {
+        console.error("Failed to increment download count:", error);
+      }
+    }
   };
 
   useEffect(() => {
@@ -96,27 +111,32 @@ export function ProductGrid({ filteredProducts }: ProductGridProps) {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-2 xl:grid-cols-3 2xl:gap-8"
+        className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3"
       >
-        {filteredProducts.map((product, index) => (
-          <div
-            key={product.id}
-            ref={(el) => {
-              if (el) cardRefs.current.set(product.id, el);
-            }}
-            data-product-id={product.id}
-          >
-            <ProductCard
-              title={product.title}
-              subtitle={product.subtitle}
-              imageSrc={product.imageSrc}
-              badge={product.badge}
-              isVisible={visibleCards.has(product.id)}
-              animationDelay={(index % 3) * 100}
-              onDownload={handleProductClick}
-            />
-          </div>
-        ))}
+        {filteredProducts.map((product, index) => {
+          const numericId = typeof product.id === 'string' ? parseInt(product.id.slice(0, 8), 16) : product.id;
+          return (
+            <div
+              key={product.id}
+              ref={(el) => {
+                if (el) cardRefs.current.set(numericId, el);
+              }}
+              data-product-id={numericId}
+            >
+              <ProductCard
+                id={typeof product.id === 'string' ? product.id : undefined}
+                title={product.title}
+                subtitle={product.subtitle}
+                imageSrc={product.imageSrc}
+                pdfUrl={product.pdfUrl}
+                badge={product.badge}
+                isVisible={visibleCards.has(numericId)}
+                animationDelay={(index % 3) * 100}
+                onDownload={handleProductClick}
+              />
+            </div>
+          );
+        })}
       </motion.div>
 
       {/* Toast Container */}

@@ -62,10 +62,18 @@ export async function signupAction(
 
   console.log("User created successfully with ID:", userId);
 
-  // Upsert profile row
+  // Check if user should be promoted to admin based on environment variable
+  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim().toLowerCase()) || [];
+  const isAdminEmail = adminEmails.includes(email.toLowerCase());
+
+  // Upsert profile row with admin role if applicable
   const { error: upsertErr } = await admin
     .from("profiles")
-    .upsert({ id: userId, full_name: full_name ?? null }, { onConflict: "id" });
+    .upsert({ 
+      id: userId, 
+      full_name: full_name ?? null,
+      role: isAdminEmail ? 'admin' : 'customer'
+    }, { onConflict: "id" });
 
   if (upsertErr) {
     // Log but don't fail - profile creation is not critical

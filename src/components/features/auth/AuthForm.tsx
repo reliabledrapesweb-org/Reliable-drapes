@@ -122,12 +122,40 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
           if (result.user) {
             setUser(result.user);
           }
-          if (result.session) {
-            setSession(result.session);
+          
+          // Auto-login to persist session
+          const { data: loginData, error: loginError } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+          if (loginError) {
+             console.error("Auto-login failed:", loginError);
+             // We still consider signup successful, just need to login manually
+             addToast("Account created! Please log in.", "success");
+          } else if (loginData.session) {
+             setSession({
+              access_token: loginData.session.access_token,
+              refresh_token: loginData.session.refresh_token || '',
+              expires_at: loginData.session.expires_at,
+              user: loginData.user ? {
+                id: loginData.user.id,
+                email: loginData.user.email || '',
+                full_name: (loginData.user.user_metadata?.full_name as string) || undefined,
+              } : {
+                id: '',
+                email: '',
+              },
+            });
+            addToast("Account created successfully!", "success");
+            router.push("/");
+          } else {
+             // Fallback if no session returned (unlikely with auto confirm)
+             addToast("Account created! Please log in.", "success");
+             router.push("/login");
           }
+          
           setLoading(false);
-          addToast("Account created successfully!", "success");
-          router.push("/");
         }
       } catch (error) {
         console.error("Auth error:", error);

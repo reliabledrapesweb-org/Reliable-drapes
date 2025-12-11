@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "@/app/globals.css";
-import { Header, Footer } from "@/components/layout";
-import { CTASection } from "@/components/shared";
 import { AuthProvider } from "@/components/providers";
+import { LayoutContent } from "@/components/layout";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -75,14 +74,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${dmSans.variable} antialiased`}>
         <AuthProvider>
-          <div className="min-h-screen bg-white">
-            <Header />
-
-            {children}
-
-            <CTASection />
-            <Footer />
-          </div>
+          <LayoutContent>{children}</LayoutContent>
         </AuthProvider>
       </body>
     </html>

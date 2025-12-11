@@ -5,18 +5,63 @@ import {
   FilterSidebar,
   ProductGrid,
 } from "@/components/features/catalog";
-import { products } from "@/components/features/catalog/ProductGrid";
-import { useMemo, useState } from "react";
+import { ProductGridSkeleton } from "@/components/features/catalog/ProductGridSkeleton";
+import { useMemo, useState, useEffect } from "react";
+import { getCatalogues, type Catalogue } from "@/lib/actions/catalogues";
+
+// Transform database catalogue to product format
+function transformCatalogueToProduct(catalogue: Catalogue) {
+  const fallbackImage = "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center";
+  
+  return {
+    id: catalogue.id,
+    title: catalogue.title,
+    subtitle: catalogue.description || catalogue.subtitle || "", // Use description first, fallback to subtitle
+    imageSrc: catalogue.thumbnail_url || catalogue.image_url || fallbackImage, // Use thumbnail_url first
+    pdfUrl: catalogue.file_url || catalogue.pdf_url, // Use file_url first
+    badge: catalogue.badge,
+    category: catalogue.category,
+  };
+}
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch catalogues from database
+  useEffect(() => {
+    async function fetchCatalogues() {
+      setIsLoading(true);
+      try {
+        const result = await getCatalogues();
+        if (result.success && result.data) {
+          setCatalogues(result.data);
+        } else {
+          console.error("Failed to fetch catalogues:", result.error);
+          setCatalogues([]); // Set empty array instead of mock data
+        }
+      } catch (error) {
+        console.error("Network error fetching catalogues:", error);
+        setCatalogues([]); // Set empty array instead of mock data
+      }
+      setIsLoading(false);
+    }
+
+    fetchCatalogues();
+  }, []);
+
+  // Transform catalogues to products
+  const products = useMemo(() => {
+    return catalogues.map(transformCatalogueToProduct);
+  }, [catalogues]);
 
   // Get unique categories from products
   const availableCategories = useMemo(() => {
     const categories = products.map((p) => p.category);
     return Array.from(new Set(categories)).sort();
-  }, []);
+  }, [products]);
 
   // Filter products based on search and selected filters
   const filteredProducts = useMemo(() => {
@@ -34,7 +79,7 @@ export default function App() {
 
       return matchesSearch && matchesFilter;
     });
-  }, [searchQuery, selectedFilters]);
+  }, [products, searchQuery, selectedFilters]);
 
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
@@ -53,8 +98,7 @@ export default function App() {
                   All About Catalogue
                 </h1>
                 <p className="mt-1 text-sm text-[#898989] md:text-base">
-                  Showing {filteredProducts.length} of {products.length}{" "}
-                  products
+                  {isLoading ? "Loading..." : `Showing ${filteredProducts.length} of ${products.length} products`}
                 </p>
               </div>
 
@@ -65,7 +109,7 @@ export default function App() {
           </div>
 
           {/* Content Section */}
-          <div className="flex flex-col gap-6 md:gap-8 lg:flex-row lg:gap-10 xl:gap-12">
+          <div className="flex flex-col gap-6 md:gap-8 lg:flex-row lg:gap-8">
             {/* Filter Sidebar - Sticky on desktop */}
             <div className="lg:sticky lg:top-24 lg:self-start">
               <FilterSidebar
@@ -77,7 +121,11 @@ export default function App() {
 
             {/* Product Grid */}
             <div className="min-w-0 flex-1">
-              <ProductGrid filteredProducts={filteredProducts} />
+              {isLoading ? (
+                <ProductGridSkeleton />
+              ) : (
+                <ProductGrid filteredProducts={filteredProducts} />
+              )}
             </div>
           </div>
         </div>
