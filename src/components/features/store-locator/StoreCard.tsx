@@ -1,5 +1,6 @@
-import { Phone } from "lucide-react";
+import { Phone, Mail, Clock } from "lucide-react";
 import { motion } from "framer-motion";
+import type { Store } from "@/lib/actions/stores";
 
 // Custom MapPin icon with proper filled design
 const MapPinIcon = ({ className }: { className?: string }) => (
@@ -12,15 +13,6 @@ const MapPinIcon = ({ className }: { className?: string }) => (
     <path d="M127.99414,15.9971a88.1046,88.1046,0,0,0-88,88c0,75.29688,80,132.17188,83.40625,134.55469a8.023,8.023,0,0,0,9.1875,0c3.40625-2.38281,83.40625-59.25781,83.40625-134.55469A88.10459,88.10459,0,0,0,127.99414,15.9971ZM128,72a32,32,0,1,1-32,32A31.99909,31.99909,0,0,1,128,72Z"></path>
   </svg>
 );
-
-interface Store {
-  id: string;
-  name: string;
-  address: string;
-  phone: string;
-  city: string;
-  state: string;
-}
 
 interface StoreCardProps {
   store: Store;
@@ -49,12 +41,39 @@ export function StoreCard({ store, onLocateStore }: StoreCardProps) {
       </div>
 
       {/* Phone */}
-      <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-        <Phone className="h-4 w-4 md:h-5 md:w-5 text-[#2a2a2a] flex-shrink-0" fill="currentColor" />
-        <p className="text-xs md:text-sm text-[#6a6a6a]">
-          {store.phone}
-        </p>
-      </div>
+      {store.phone && (
+        <div className="flex items-center gap-3 md:gap-4 mb-2 md:mb-3">
+          <Phone className="h-4 w-4 md:h-5 md:w-5 text-[#2a2a2a] flex-shrink-0" fill="currentColor" />
+          <p className="text-xs md:text-sm text-[#6a6a6a]">
+            {store.phone}
+          </p>
+        </div>
+      )}
+
+      {/* Email */}
+      {store.email && (
+        <div className="flex items-center gap-3 md:gap-4 mb-2 md:mb-3">
+          <Mail className="h-4 w-4 md:h-5 md:w-5 text-[#2a2a2a] flex-shrink-0" fill="currentColor" />
+          <p className="text-xs md:text-sm text-[#6a6a6a]">
+            {store.email}
+          </p>
+        </div>
+      )}
+
+      {/* Hours (if available) */}
+      {store.hours && (
+        <div className="flex items-start gap-3 md:gap-4 mb-4 md:mb-6">
+          <Clock className="h-4 w-4 md:h-5 md:w-5 text-[#2a2a2a] mt-0.5 flex-shrink-0" />
+          <div className="text-xs md:text-sm text-[#6a6a6a]">
+            <p className="font-medium mb-1">Hours:</p>
+            {typeof store.hours === 'object' && (
+              <p className="text-xs">
+                {store.hours.monday || 'Closed'}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Locate Store Button */}
       <button

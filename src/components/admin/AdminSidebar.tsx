@@ -16,6 +16,7 @@ import {
   ChevronDown,
   X,
   BookOpen,
+  MapPin,
 } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
@@ -81,6 +82,11 @@ const navItems: NavItem[] = [
       { name: "Job Listings", href: "/admin/careers" },
       { name: "Applications", href: "/admin/careers/applications" },
     ],
+  },
+  {
+    name: "Stores",
+    href: "/admin/stores",
+    icon: MapPin,
   },
   {
     name: "Media",

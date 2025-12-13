@@ -1,14 +1,6 @@
 import { motion } from "framer-motion";
 import { StoreCard } from "./StoreCard";
-
-interface Store {
-  id: string;
-  name: string;
-  address: string;
-  phone: string;
-  city: string;
-  state: string;
-}
+import type { Store } from "@/lib/actions/stores";
 
 interface StoreGridProps {
   stores: Store[];

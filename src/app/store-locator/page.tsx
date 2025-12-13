@@ -1,98 +1,61 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Breadcrumb, PageHero, PageHeader } from "@/components/shared";
 import { StoreGrid } from "@/components/features/store-locator";
-
-// Mock store data
-const mockStores = [
-  {
-    id: "1",
-    name: "Reliable Drapes, Panipat Store",
-    address: "Plot no 140-141 sector 25 part-1 huda panipat-132103 (Haryana)",
-    phone: "+91 70156 80991",
-    city: "Panipat",
-    state: "Haryana",
-  },
-  {
-    id: "2",
-    name: "Reliable Drapes, Delhi Store",
-    address: "Plot no 140-141 sector 25 part-1 huda panipat-132103 (Haryana)",
-    phone: "+91 70156 80991",
-    city: "Delhi",
-    state: "Delhi",
-  },
-  {
-    id: "3",
-    name: "Reliable Drapes, Delhi Store",
-    address: "Plot no 140-141 sector 25 part-1 huda panipat-132103 (Haryana)",
-    phone: "+91 70156 80991",
-    city: "Delhi",
-    state: "Delhi",
-  },
-  {
-    id: "4",
-    name: "Reliable Drapes, Delhi Store",
-    address: "Plot no 140-141 sector 25 part-1 huda panipat-132103 (Haryana)",
-    phone: "+91 70156 80991",
-    city: "Delhi",
-    state: "Delhi",
-  },
-  {
-    id: "5",
-    name: "Reliable Drapes, Mumbai Store",
-    address: "Shop no 45-46, Ground Floor, Phoenix Mills Compound, Lower Parel, Mumbai-400013 (Maharashtra)",
-    phone: "+91 22 4567 8901",
-    city: "Mumbai",
-    state: "Maharashtra",
-  },
-  {
-    id: "6",
-    name: "Reliable Drapes, Bangalore Store",
-    address: "No. 123, Brigade Road, Bangalore-560001 (Karnataka)",
-    phone: "+91 80 2345 6789",
-    city: "Bangalore",
-    state: "Karnataka",
-  },
-  {
-    id: "7",
-    name: "Reliable Drapes, Chennai Store",
-    address: "No. 456, Anna Salai, Chennai-600002 (Tamil Nadu)",
-    phone: "+91 44 3456 7890",
-    city: "Chennai",
-    state: "Tamil Nadu",
-  },
-  {
-    id: "8",
-    name: "Reliable Drapes, Kolkata Store",
-    address: "789, Park Street, Kolkata-700016 (West Bengal)",
-    phone: "+91 33 4567 8901",
-    city: "Kolkata",
-    state: "West Bengal",
-  },
-];
+import { getStores, type Store } from "@/lib/actions/stores";
 
 export default function StoreLocatorPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [stores, setStores] = useState<Store[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch stores on mount
+  useEffect(() => {
+    const fetchStores = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      const result = await getStores();
+      
+      if (result.success && result.stores) {
+        setStores(result.stores);
+      } else {
+        setError(result.error || "Failed to load stores");
+      }
+      
+      setIsLoading(false);
+    };
+
+    fetchStores();
+  }, []);
 
   // Filter stores based on search query
   const filteredStores = useMemo(() => {
-    if (!searchQuery) return mockStores;
+    if (!searchQuery) return stores;
     
-    return mockStores.filter((store) =>
-      store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      store.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      store.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      store.address.toLowerCase().includes(searchQuery.toLowerCase())
+    const query = searchQuery.toLowerCase();
+    return stores.filter((store) =>
+      store.name.toLowerCase().includes(query) ||
+      store.city.toLowerCase().includes(query) ||
+      (store.state && store.state.toLowerCase().includes(query)) ||
+      store.address.toLowerCase().includes(query) ||
+      store.country.toLowerCase().includes(query)
     );
-  }, [searchQuery]);
+  }, [searchQuery, stores]);
 
-  const handleLocateStore = (store: typeof mockStores[0]) => {
-    // Handle store location action (e.g., open in maps)
-    console.log("Locating store:", store);
-    // You can implement Google Maps integration here
-    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.address)}`;
-    window.open(mapsUrl, '_blank');
+  const handleLocateStore = (store: Store) => {
+    // Open store location in Google Maps
+    if (store.latitude && store.longitude) {
+      // If we have coordinates, use them for precise location
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${store.latitude},${store.longitude}`;
+      window.open(mapsUrl, '_blank');
+    } else {
+      // Otherwise, search by address
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.address)}`;
+      window.open(mapsUrl, '_blank');
+    }
   };
 
   return (
@@ -104,8 +67,14 @@ export default function StoreLocatorPage() {
           {/* Header Section */}
           <PageHeader
             category="Store Locator"
-            title="All Across India"
-            description={`Find our stores near you - ${filteredStores.length} stores available`}
+            title="Find Our Stores"
+            description={
+              error 
+                ? error
+                : isLoading
+                ? "Loading stores..."
+                : `Find our stores near you - ${filteredStores.length} store${filteredStores.length !== 1 ? 's' : ''} available`
+            }
             searchValue={searchQuery}
             onSearchChange={setSearchQuery}
             searchPlaceholder="Search by city, state, or store name..."
@@ -113,10 +82,41 @@ export default function StoreLocatorPage() {
 
           {/* Store Grid Section */}
           <div className="flex flex-col gap-8 md:gap-12">
-            <StoreGrid
-              stores={filteredStores}
-              onLocateStore={handleLocateStore}
-            />
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#2f2581] border-r-transparent"></div>
+                  <p className="mt-4 text-gray-600">Loading stores...</p>
+                </div>
+              </div>
+            ) : error ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <p className="text-red-600">{error}</p>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="mt-4 rounded-lg bg-[#2f2581] px-6 py-2 text-white hover:bg-[#221a5f]"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            ) : filteredStores.length === 0 ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center">
+                  <p className="text-gray-600">
+                    {searchQuery
+                      ? `No stores found matching "${searchQuery}"`
+                      : "No stores available at the moment"}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <StoreGrid
+                stores={filteredStores}
+                onLocateStore={handleLocateStore}
+              />
+            )}
           </div>
         </div>
       </div>
