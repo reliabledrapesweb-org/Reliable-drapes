@@ -92,25 +92,24 @@ export function StoreMapModal({ isOpen, onClose, store }: StoreMapModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="relative z-10 w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden"
+            className="relative z-10 w-full max-w-4xl max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="bg-[#2f2582] text-white p-4 md:p-6">
+            <div className="bg-[#2f2582] text-white p-4 md:p-5 flex-shrink-0">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <MapPin className="h-5 w-5 md:h-6 md:w-6 flex-shrink-0" fill="currentColor" />
-                    <h2 className="text-lg md:text-xl font-bold">{store.name}</h2>
+                  <div className="flex items-center gap-2 md:gap-3 mb-1 md:mb-2">
+                    <MapPin className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" fill="currentColor" />
+                    <h2 className="text-base md:text-lg font-bold line-clamp-1">{store.name}</h2>
                   </div>
-                  <p className="text-sm md:text-base text-white/90">
+                  <p className="text-xs md:text-sm text-white/90 line-clamp-1">
                     {store.address}
                   </p>
-                  <p className="text-xs md:text-sm text-white/80 mt-1">
+                  <p className="text-xs text-white/80 mt-0.5">
                     {store.city}
                     {store.state && `, ${store.state}`}
                     {`, ${store.country}`}
-                    {store.postal_code && ` ${store.postal_code}`}
                   </p>
                 </div>
                 
@@ -126,7 +125,7 @@ export function StoreMapModal({ isOpen, onClose, store }: StoreMapModalProps) {
             </div>
 
             {/* Map Container */}
-            <div className="relative w-full h-[300px] md:h-[400px] bg-gray-200">
+            <div className="relative w-full h-[250px] md:h-[350px] bg-gray-200 flex-shrink-0">
               <iframe
                 src={getMapEmbedUrl()}
                 width="100%"
@@ -141,32 +140,32 @@ export function StoreMapModal({ isOpen, onClose, store }: StoreMapModalProps) {
             </div>
 
             {/* Actions Footer */}
-            <div className="p-4 md:p-6 bg-gray-50 border-t border-gray-200">
-              <div className="flex flex-col sm:flex-row gap-3">
+            <div className="p-4 md:p-5 bg-gray-50 border-t border-gray-200 overflow-y-auto flex-1">
+              <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
                 {/* Phone Call Button */}
                 {store.phone && (
                   <button
                     onClick={handlePhoneCall}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg font-medium transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-lg font-medium text-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                   >
-                    <Phone className="h-5 w-5" fill="currentColor" />
-                    <span className="text-sm md:text-base">Call Store</span>
+                    <Phone className="h-4 w-4" fill="currentColor" />
+                    <span>Call Store</span>
                   </button>
                 )}
 
                 {/* Get Directions Button */}
                 <button
                   onClick={openInGoogleMaps}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[#2f2582] text-white rounded-lg font-medium transition-colors hover:bg-[#251e66] focus:outline-none focus:ring-2 focus:ring-[#2f2582] focus:ring-offset-2"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#2f2582] text-white rounded-lg font-medium text-sm transition-colors hover:bg-[#251e66] focus:outline-none focus:ring-2 focus:ring-[#2f2582] focus:ring-offset-2"
                 >
-                  <Navigation className="h-5 w-5" />
-                  <span className="text-sm md:text-base">Get Directions</span>
+                  <Navigation className="h-4 w-4" />
+                  <span>Get Directions</span>
                 </button>
               </div>
 
               {/* Store Info */}
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 text-sm">
                   {store.phone && (
                     <div>
                       <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Phone</p>
@@ -183,10 +182,10 @@ export function StoreMapModal({ isOpen, onClose, store }: StoreMapModalProps) {
 
                 {/* Operating Hours */}
                 {store.hours && typeof store.hours === "object" && (
-                  <div className="mt-4">
-                    <p className="text-gray-500 text-xs uppercase tracking-wide mb-2">Operating Hours</p>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      {Object.entries(store.hours).map(([day, hours]) => (
+                  <div className="mt-3">
+                    <p className="text-gray-500 text-xs uppercase tracking-wide mb-1.5">Operating Hours</p>
+                    <div className="grid grid-cols-1 gap-1 text-xs">
+                      {Object.entries(store.hours).slice(0, 7).map(([day, hours]) => (
                         <div key={day} className="flex justify-between">
                           <span className="text-gray-600 capitalize">{day}:</span>
                           <span className="text-gray-900 font-medium">{hours}</span>

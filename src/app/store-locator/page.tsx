@@ -46,16 +46,8 @@ export default function StoreLocatorPage() {
   }, [searchQuery, stores]);
 
   const handleLocateStore = (store: Store) => {
-    // Open store location in Google Maps
-    if (store.latitude && store.longitude) {
-      // If we have coordinates, use them for precise location
-      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${store.latitude},${store.longitude}`;
-      window.open(mapsUrl, '_blank');
-    } else {
-      // Otherwise, search by address
-      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.address)}`;
-      window.open(mapsUrl, '_blank');
-    }
+    // Just pass the store, the modal will handle everything
+    // No external navigation needed
   };
 
   return (
