@@ -39,15 +39,15 @@ export function StoreMapModal({ isOpen, onClose, store }: StoreMapModalProps) {
 
   if (!isOpen) return null;
 
-  // Build Google Maps embed URL
+  // Build Google Maps embed URL (using standard embed without API key)
   const getMapEmbedUrl = () => {
     if (store.latitude && store.longitude) {
-      // Use coordinates if available
-      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${store.latitude},${store.longitude}&zoom=15`;
+      // Use coordinates if available - standard Google Maps embed
+      return `https://maps.google.com/maps?q=${store.latitude},${store.longitude}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
     } else {
-      // Fallback to address
+      // Fallback to address - standard Google Maps embed
       const query = encodeURIComponent(`${store.address}, ${store.city}, ${store.country}`);
-      return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${query}&zoom=15`;
+      return `https://maps.google.com/maps?q=${query}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
     }
   };
 
