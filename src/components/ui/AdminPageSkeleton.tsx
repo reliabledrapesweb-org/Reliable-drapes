@@ -1,64 +1,101 @@
-export function AdminPageSkeleton() {
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+interface AdminPageSkeletonProps {
+  rows?: number;
+  columns?: number;
+  statsCount?: number;
+  hasFilter?: boolean;
+}
+
+export function AdminPageSkeleton({ 
+  rows = 5, 
+  columns = 6, 
+  statsCount = 3,
+  hasFilter = false 
+}: AdminPageSkeletonProps) {
   return (
     <div className="space-y-6">
       {/* Header Skeleton */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
-          <div className="mt-2 h-4 w-64 animate-pulse rounded bg-gray-200" />
+        <div className="space-y-2">
+          <div className="h-8 bg-gray-200 rounded animate-pulse w-48" />
+          <div className="h-4 bg-gray-200 rounded animate-pulse w-64" />
         </div>
-        <div className="h-10 w-32 animate-pulse rounded bg-gray-200" />
+        <div className="h-10 bg-gray-200 rounded animate-pulse w-32" />
       </div>
 
       {/* Stats Cards Skeleton */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="rounded-lg border border-gray-200 bg-white p-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-2">
-                <div className="h-4 w-20 animate-pulse rounded bg-gray-200" />
-                <div className="h-8 w-12 animate-pulse rounded bg-gray-200" />
+      <div className={`grid gap-4 sm:grid-cols-2 ${statsCount === 3 ? 'lg:grid-cols-3' : statsCount === 5 ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
+        {Array.from({ length: statsCount }).map((_, i) => (
+          <Card key={i}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-2 flex-1">
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-20" />
+                  <div className="h-8 bg-gray-200 rounded animate-pulse w-16" />
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 animate-pulse" />
               </div>
-              <div className="h-12 w-12 animate-pulse rounded-full bg-gray-200" />
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
-      {/* Table Skeleton */}
-      <div className="rounded-lg border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 p-6">
-          <div className="h-6 w-32 animate-pulse rounded bg-gray-200" />
-        </div>
-        <div className="p-0">
-          {/* Table Header */}
-          <div className="border-b border-gray-200 bg-gray-50 px-6 py-3">
-            <div className="flex">
-              <div className="h-4 w-20 animate-pulse rounded bg-gray-200" />
-              <div className="ml-auto h-4 w-16 animate-pulse rounded bg-gray-200" />
-            </div>
-          </div>
-          {/* Table Rows */}
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="border-b border-gray-200 px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="h-10 w-10 animate-pulse rounded-full bg-gray-200" />
-                  <div className="space-y-1">
-                    <div className="h-4 w-32 animate-pulse rounded bg-gray-200" />
-                    <div className="h-3 w-24 animate-pulse rounded bg-gray-200" />
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <div className="h-8 w-8 animate-pulse rounded bg-gray-200" />
-                  <div className="h-8 w-8 animate-pulse rounded bg-gray-200" />
-                  <div className="h-8 w-8 animate-pulse rounded bg-gray-200" />
-                </div>
+      {/* Filter Skeleton (optional) */}
+      {hasFilter && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex-1 max-w-md">
+                <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
               </div>
+              <div className="h-10 bg-gray-200 rounded-lg animate-pulse w-40" />
             </div>
-          ))}
-        </div>
-      </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Table Skeleton */}
+      <Card>
+        <CardHeader>
+          <div className="h-6 bg-gray-200 rounded animate-pulse w-32" />
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {Array.from({ length: columns }).map((_, i) => (
+                  <TableHead key={i}>
+                    <div className="h-4 bg-gray-200 rounded animate-pulse w-24" />
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: rows }).map((_, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  {Array.from({ length: columns }).map((_, colIndex) => (
+                    <TableCell key={colIndex}>
+                      <div 
+                        className="h-4 bg-gray-100 rounded animate-pulse" 
+                        style={{ width: `${60 + Math.random() * 40}%` }} 
+                      />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 }

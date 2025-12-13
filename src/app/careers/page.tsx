@@ -1,81 +1,58 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Breadcrumb, PageHero, PageHeader } from "@/components/shared";
 import { JobGrid } from "@/components/features/careers";
-
-// Mock job data based on the Figma design
-const mockJobs = [
-  {
-    id: "1",
-    title: "Senior Sales Advisor/ Sales Advisor",
-    experience: "2 - 4 yrs",
-    location: "Mumbai(Andheri), Bangalore and Delhi",
-    type: "Store",
-    description: "Responsible for individual targets, to follow SOP's & VM standards in the store Customer service, Customer acquisition & retention Follow up with backend team and customers for timely execution of orders and receivables"
-  },
-  {
-    id: "2",
-    title: "Stylist (Freelance Stylists)",
-    experience: "2 - 4 yrs",
-    location: "Mumbai, Chennai, Bangalore, Delhi, Pune, Hyderabad",
-    type: "Store",
-    description: "Exceptional designer with strong conceptual skills"
-  },
-  {
-    id: "3",
-    title: "Senior Sales Advisor/ Sales Advisor",
-    experience: "2 - 4 yrs",
-    location: "Mumbai(Andheri), Bangalore and Delhi",
-    type: "Store",
-    description: "Responsible for individual targets, to follow SOP's & VM standards in the store Customer service, Customer acquisition & retention Follow up with backend team and customers for timely execution of orders and receivables"
-  },
-  {
-    id: "4",
-    title: "Stylist (Freelance Stylists)",
-    experience: "2 - 4 yrs",
-    location: "Mumbai, Chennai, Bangalore, Delhi, Pune, Hyderabad",
-    type: "Store",
-    description: "Exceptional designer with strong conceptual skills"
-  },
-  {
-    id: "5",
-    title: "Marketing Manager",
-    experience: "3 - 6 yrs",
-    location: "Mumbai, Delhi",
-    type: "Corporate",
-    description: "Lead marketing campaigns and brand strategy initiatives. Develop and execute comprehensive marketing plans to drive brand awareness and customer engagement."
-  },
-  {
-    id: "6",
-    title: "Interior Designer",
-    experience: "2 - 5 yrs",
-    location: "All Major Cities",
-    type: "Design",
-    description: "Create stunning interior designs for residential and commercial spaces. Work closely with clients to understand their vision and deliver exceptional design solutions."
-  }
-];
+import { JobGridSkeleton } from "@/components/features/careers/JobGridSkeleton";
+import { JobApplicationModal } from "@/components/features/careers/JobApplicationModal";
+import { getActiveJobs, type Job } from "@/lib/actions/jobs";
 
 export default function CareersPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch jobs from database
+  useEffect(() => {
+    async function fetchJobs() {
+      try {
+        setIsLoading(true);
+        const result = await getActiveJobs();
+        
+        if (!result.success || !result.data) {
+          throw new Error(result.error || "Failed to fetch jobs");
+        }
+        
+        setJobs(result.data);
+      } catch (error) {
+        console.error("Error fetching jobs:", error);
+        setError(error instanceof Error ? error.message : "Failed to load jobs");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchJobs();
+  }, []);
 
   // Filter jobs based on search query
   const filteredJobs = useMemo(() => {
-    if (!searchQuery) return mockJobs;
+    if (!searchQuery) return jobs;
     
-    return mockJobs.filter((job) =>
+    return jobs.filter((job) =>
       job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [searchQuery]);
+  }, [searchQuery, jobs]);
 
-  const handleApply = (job: typeof mockJobs[0]) => {
-    // Handle job application (e.g., open application form, redirect to application page)
-    console.log("Applying for job:", job);
-    // You can implement application form modal or redirect to application page
-    alert(`Thank you for your interest in the ${job.title} position! We'll redirect you to the application form.`);
+  const handleApply = (job: Job) => {
+    setSelectedJob(job);
+    setIsModalOpen(true);
   };
 
   return (
@@ -110,13 +87,35 @@ export default function CareersPage() {
 
           {/* Jobs Section */}
           <div className="flex flex-col gap-8 md:gap-12">
-            <JobGrid
-              jobs={filteredJobs}
-              onApply={handleApply}
-            />
+            {isLoading ? (
+              <JobGridSkeleton />
+            ) : error ? (
+              <div className="text-center py-20">
+                <p className="text-red-600">{error}</p>
+              </div>
+            ) : filteredJobs.length === 0 ? (
+              <div className="text-center py-20">
+                <p className="text-[#6a6a6a] text-lg">No job openings found.</p>
+              </div>
+            ) : (
+              <JobGrid
+                jobs={filteredJobs}
+                onApply={handleApply}
+              />
+            )}
           </div>
         </div>
       </div>
+
+      {/* Job Application Modal */}
+      <JobApplicationModal
+        job={selectedJob}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedJob(null);
+        }}
+      />
     </main>
   );
 }

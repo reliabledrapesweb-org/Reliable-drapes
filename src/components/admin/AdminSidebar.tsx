@@ -78,7 +78,7 @@ const navItems: NavItem[] = [
     href: "/admin/careers",
     icon: Briefcase,
     children: [
-      { name: "Job Openings", href: "/admin/careers/jobs" },
+      { name: "Job Listings", href: "/admin/careers" },
       { name: "Applications", href: "/admin/careers/applications" },
     ],
   },

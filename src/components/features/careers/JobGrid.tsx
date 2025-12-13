@@ -1,14 +1,6 @@
 import { motion } from "framer-motion";
 import { JobCard } from "./JobCard";
-
-interface Job {
-  id: string;
-  title: string;
-  experience: string;
-  location: string;
-  description: string;
-  type: string;
-}
+import type { Job } from "@/lib/actions/jobs";
 
 interface JobGridProps {
   jobs: Job[];

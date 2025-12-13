@@ -3,9 +3,10 @@ import { motion } from "motion/react";
 
 interface PageHeroProps {
   heading: string;
+  backgroundImage?: string;
 }
 
-export function PageHero({ heading }: PageHeroProps) {
+export function PageHero({ heading, backgroundImage = "/images/abouthero.png" }: PageHeroProps) {
   return (
     <section className="relative flex h-[350px] items-center overflow-hidden md:h-[450px] lg:h-[500px]">
       {/* Background Image with Overlays */}
@@ -13,7 +14,7 @@ export function PageHero({ heading }: PageHeroProps) {
         <Image
           width={1920}
           height={1080}
-          src="/images/abouthero.png"
+          src={backgroundImage}
           alt="Luxury home furnishings"
           className="h-full w-full object-cover"
           priority
