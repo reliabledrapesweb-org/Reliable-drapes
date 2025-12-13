@@ -74,7 +74,7 @@ export function StoreCard({ store, onLocateStore }: StoreCardProps) {
         {/* Locate Store Button */}
         <button
           onClick={handleLocateStore}
-          className="w-full md:w-auto cursor-pointer rounded-full bg-[#2f2582] px-6 md:px-8 py-3 md:py-4 text-sm md:text-base font-semibold tracking-[1.5px] md:tracking-[2px] text-white uppercase transition-all hover:bg-[#251e66] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#2f2582]/20"
+          className="w-full md:w-auto cursor-pointer rounded-full bg-[#2f2582] px-6 py-3 text-sm md:text-base font-semibold tracking-[1.5px] md:tracking-[2px] text-white uppercase transition-all hover:bg-[#251e66] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#2f2582]/20"
         >
           Locate Store
         </button>

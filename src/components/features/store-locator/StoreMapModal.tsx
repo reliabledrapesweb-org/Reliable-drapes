@@ -1,8 +1,8 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, MapPin, Phone, Navigation } from "lucide-react";
-import { useEffect } from "react";
+import { X, MapPin, Phone, Navigation, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import type { Store } from "@/lib/actions/stores";
 
 interface StoreMapModalProps {
@@ -12,6 +12,15 @@ interface StoreMapModalProps {
 }
 
 export function StoreMapModal({ isOpen, onClose, store }: StoreMapModalProps) {
+  const [isMapLoading, setIsMapLoading] = useState(true);
+
+  // Reset loading state when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsMapLoading(true);
+    }
+  }, [isOpen]);
+
   // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -126,6 +135,14 @@ export function StoreMapModal({ isOpen, onClose, store }: StoreMapModalProps) {
 
             {/* Map Container */}
             <div className="relative w-full h-[250px] md:h-[350px] bg-gray-200 flex-shrink-0">
+              {/* Loading Overlay */}
+              {isMapLoading && (
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gray-100">
+                  <Loader2 className="h-8 w-8 md:h-10 md:w-10 text-[#2f2582] animate-spin mb-3" />
+                  <p className="text-sm md:text-base text-gray-600 font-medium">Loading map...</p>
+                </div>
+              )}
+              
               <iframe
                 src={getMapEmbedUrl()}
                 width="100%"
@@ -136,6 +153,7 @@ export function StoreMapModal({ isOpen, onClose, store }: StoreMapModalProps) {
                 referrerPolicy="no-referrer-when-downgrade"
                 title={`Map location of ${store.name}`}
                 className="w-full h-full"
+                onLoad={() => setIsMapLoading(false)}
               />
             </div>
 

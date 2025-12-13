@@ -4,11 +4,12 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import { Menu, Search, User, ShoppingCart, LogOut } from "lucide-react";
 import { MobileMenu } from "./MobileMenu";
+import { SearchModal } from "./SearchModal";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useScrollPosition } from "@/lib/hooks";
-import { useAuthStore } from "@/lib/store";
+import { useAuthStore, useCartStore } from "@/lib/store";
 import { NAV_LINKS } from "@/lib/constants";
 import { supabaseClient } from "@/lib/supabase/client";
 
@@ -17,9 +18,12 @@ export function Header() {
     const isHome = pathname === "/";
     const [isOpen, setIsOpen] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
+    const [showSearchModal, setShowSearchModal] = useState(false);
     const isScrolled = useScrollPosition(50);
 
     const { user, logout } = useAuthStore();
+    const { getTotalItems, toggleCart } = useCartStore();
+    const totalItems = getTotalItems();
     const shouldUseWhiteText = isHome || isScrolled;
 
     return (
@@ -73,6 +77,7 @@ export function Header() {
                     <div className="hidden items-center gap-6 lg:flex xl:gap-8">
                         <div className="flex items-center gap-4 xl:gap-6">
                             <motion.button
+                                onClick={() => setShowSearchModal(true)}
                                 className={`${
                                     shouldUseWhiteText ? "text-white" : "text-black"
                                 } cursor-pointer`}
@@ -84,6 +89,7 @@ export function Header() {
                             </motion.button>
 
                             <motion.button
+                                onClick={toggleCart}
                                 className={`${
                                     shouldUseWhiteText ? "text-white" : "text-black"
                                 } relative cursor-pointer`}
@@ -92,13 +98,13 @@ export function Header() {
                                 transition={{ duration: 0.2 }}
                             >
                                 <ShoppingCart className="h-4 w-4 xl:h-5 xl:w-5" />
-                                <span
-                                    className={`absolute -top-2 -right-2 bg-[#2f2581] ${
-                                        shouldUseWhiteText ? "text-white" : "text-black"
-                                    } flex h-4 w-4 items-center justify-center rounded-full text-xs`}
-                                >
-                                    2
-                                </span>
+                                {totalItems > 0 && (
+                                    <span
+                                        className="absolute -top-2 -right-2 bg-[#2f2581] text-white flex h-4 w-4 items-center justify-center rounded-full text-xs"
+                                    >
+                                        {totalItems}
+                                    </span>
+                                )}
                             </motion.button>
                         </div>
 
@@ -164,6 +170,7 @@ export function Header() {
                     {/* MOBILE/TABLET ACTIONS */}
                     <div className="flex items-center gap-3 md:gap-4 lg:hidden">
                         <motion.button
+                            onClick={() => setShowSearchModal(true)}
                             className={`${shouldUseWhiteText ? "text-white" : "text-black"
                                 } cursor-pointer`}
                             aria-label="Search"
@@ -174,6 +181,7 @@ export function Header() {
                         </motion.button>
 
                         <motion.button
+                            onClick={toggleCart}
                             className={`${shouldUseWhiteText ? "text-white" : "text-black"
                                 } relative cursor-pointer`}
                             aria-label="Cart"
@@ -181,12 +189,13 @@ export function Header() {
                             transition={{ duration: 0.2 }}
                         >
                             <ShoppingCart className="h-4 w-4 md:h-5 md:w-5" />
-                            <span
-                                className={`absolute -top-1.5 -right-1.5 bg-[#2f2581] ${shouldUseWhiteText ? "text-white" : "text-black"
-                                    } flex h-3.5 w-3.5 items-center justify-center rounded-full text-[10px] md:h-4 md:w-4 md:text-xs`}
-                            >
-                                2
-                            </span>
+                            {totalItems > 0 && (
+                                <span
+                                    className="absolute -top-1.5 -right-1.5 bg-[#2f2581] text-white flex h-3.5 w-3.5 items-center justify-center rounded-full text-[10px] md:h-4 md:w-4 md:text-xs"
+                                >
+                                    {totalItems}
+                                </span>
+                            )}
                         </motion.button>
 
                         {/* MENU BUTTON */}
@@ -211,6 +220,9 @@ export function Header() {
             </nav>
 
             <MobileMenu isOpen={isOpen} setIsOpen={setIsOpen} navLinks={NAV_LINKS} />
+
+            {/* SEARCH MODAL */}
+            <SearchModal isOpen={showSearchModal} onClose={() => setShowSearchModal(false)} />
         </header>
     );
 }

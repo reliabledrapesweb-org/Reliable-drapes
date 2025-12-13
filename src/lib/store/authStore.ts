@@ -11,7 +11,6 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
 
-  // Actions
   setUser: (user: AuthUser | null) => void;
   setSession: (session: AuthSession | null) => void;
   setLoading: (loading: boolean) => void;

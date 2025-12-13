@@ -32,8 +32,7 @@ import {
   Users, 
   UserCheck, 
   Crown,
-  Filter,
-  Plus
+  Filter
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -230,10 +229,7 @@ export default function CustomersPage() {
           <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Customer Management</h1>
           <p className="mt-1 text-sm text-gray-600 sm:text-base">Manage users, roles, and permissions</p>
         </div>
-        <Button className="bg-[#2F2582] hover:bg-[#251e66] sm:w-auto cursor-pointer">
-          <Plus className="h-4 w-4" />
-          Add User
-        </Button>
+
       </div>
 
       {/* Stats Cards */}
