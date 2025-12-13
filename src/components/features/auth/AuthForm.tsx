@@ -167,25 +167,37 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
     setIsGoogleLoading(true);
 
     try {
-      // Call Supabase OAuth directly from client
+      // Use dynamic redirect URL based on current environment
+      const redirectUrl = typeof window !== 'undefined'
+        ? `${window.location.origin}/auth/callback`
+        : `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`;
+
+      console.log("Initiating Google OAuth with redirect:", redirectUrl);
+
       const { data, error } = await supabaseClient.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
       });
 
       if (error) {
+        console.error("Google OAuth error:", error);
         addToast(error.message || "Failed to initiate Google sign-in", "error");
         setStoreError(error.message);
         setIsGoogleLoading(false);
         return;
       }
 
-      // OAuth redirect happens automatically, no need to manually redirect
-      // Don't reset loading state - page will redirect
+      // OAuth redirect will happen automatically
+      // Keep loading state until redirect occurs
+      console.log("Google OAuth initiated successfully");
     } catch (error) {
-      console.error("Google OAuth error:", error);
+      console.error("Google OAuth exception:", error);
       addToast("Failed to initiate Google sign-in", "error");
       setIsGoogleLoading(false);
     }
@@ -196,25 +208,32 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
     setIsAppleLoading(true);
 
     try {
-      // Call Supabase OAuth directly from client
+      // Use dynamic redirect URL based on current environment
+      const redirectUrl = typeof window !== 'undefined'
+        ? `${window.location.origin}/auth/callback`
+        : `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`;
+
+      console.log("Initiating Apple OAuth with redirect:", redirectUrl);
+
       const { data, error } = await supabaseClient.auth.signInWithOAuth({
         provider: "apple",
         options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
         },
       });
 
       if (error) {
+        console.error("Apple OAuth error:", error);
         addToast(error.message || "Failed to initiate Apple sign-in", "error");
         setStoreError(error.message);
         setIsAppleLoading(false);
         return;
       }
 
-      // OAuth redirect happens automatically, no need to manually redirect
-      // Don't reset loading state - page will redirect
+      // OAuth redirect will happen automatically
+      console.log("Apple OAuth initiated successfully");
     } catch (error) {
-      console.error("Apple OAuth error:", error);
+      console.error("Apple OAuth exception:", error);
       addToast("Failed to initiate Apple sign-in", "error");
       setIsAppleLoading(false);
     }
