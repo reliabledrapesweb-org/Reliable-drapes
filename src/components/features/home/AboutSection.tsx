@@ -3,14 +3,14 @@ import { motion } from "motion/react";
 
 export function AboutSection() {
   return (
-    <section className="bg-white py-12 md:py-16 lg:py-20">
+    <section className="bg-white py-12 md:py-16 lg:py-20 overflow-x-hidden">
       <div className="container mx-auto px-6">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-8 lg:flex-row">
           {/* Content */}
           <motion.div
             className="order-2 max-w-lg flex-1 lg:order-1"
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
@@ -36,8 +36,8 @@ export function AboutSection() {
           {/* Images */}
           <motion.div
             className="order-1 w-full flex-1 lg:order-2"
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
