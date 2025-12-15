@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Breadcrumb, PageHero, PageHeader } from "@/components/shared";
 import { StoreGrid } from "@/components/features/store-locator";
+import { StoreGridSkeleton } from "@/components/features/store-locator/StoreGridSkeleton";
 import { getStores, type Store } from "@/lib/actions/stores";
 
 export default function StoreLocatorPage() {
@@ -75,12 +76,7 @@ export default function StoreLocatorPage() {
           {/* Store Grid Section */}
           <div className="flex flex-col gap-8 md:gap-12">
             {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="text-center">
-                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#2f2581] border-r-transparent"></div>
-                  <p className="mt-4 text-gray-600">Loading stores...</p>
-                </div>
-              </div>
+              <StoreGridSkeleton />
             ) : error ? (
               <div className="flex items-center justify-center py-12">
                 <div className="text-center">
