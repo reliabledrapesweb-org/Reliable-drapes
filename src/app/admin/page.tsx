@@ -28,26 +28,33 @@ function StatCard({ title, value, change, trend, icon, color }: StatCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4 }}
-      className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+      whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" }}
+      className="group relative overflow-hidden rounded-2xl border-2 border-gray-100 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-md transition-all duration-300 hover:border-gray-200"
     >
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <h3 className="mt-2 text-3xl font-bold text-gray-900">{value}</h3>
-          <div className="mt-2 flex items-center gap-1">
+      {/* Subtle gradient overlay */}
+      <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-gradient-to-br from-gray-100/50 to-transparent opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
+      
+      <div className="relative flex items-start justify-between">
+        <div className="flex-1">
+          <p className="text-sm font-semibold uppercase tracking-wider text-gray-500">{title}</p>
+          <h3 className="mt-3 text-4xl font-bold text-gray-900 transition-colors duration-300 group-hover:text-gray-800">
+            {value}
+          </h3>
+          <div className="mt-3 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-green-50 to-emerald-50 px-3 py-1.5 w-fit">
             <TrendingUp
-              className={`h-4 w-4 ${trend === "up" ? "text-green-500" : "text-red-500 rotate-180"}`}
+              className={`h-4 w-4 ${trend === "up" ? "text-green-600" : "text-red-600 rotate-180"}`}
             />
             <span
-              className={`text-sm font-medium ${trend === "up" ? "text-green-600" : "text-red-600"}`}
+              className={`text-sm font-bold ${trend === "up" ? "text-green-700" : "text-red-700"}`}
             >
               {change}
             </span>
-            <span className="text-sm text-gray-500">vs last month</span>
+            <span className="text-xs font-medium text-gray-600">vs last month</span>
           </div>
         </div>
-        <div className={`rounded-lg ${color} p-3`}>{icon}</div>
+        <div className={`flex h-16 w-16 items-center justify-center rounded-2xl ${color} shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:shadow-xl`}>
+          {icon}
+        </div>
       </div>
     </motion.div>
   );

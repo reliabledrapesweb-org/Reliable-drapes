@@ -27,13 +27,13 @@ export default function CartPage() {
   const totalItems = getTotalItems();
   const subtotal = getTotalPrice();
   const shipping = totalItems > 0 ? 0 : 0; // Free shipping for now
-  const tax = subtotal * 0.075; // 7.5% VAT
+  const tax = subtotal * 0.18; // 18% GST (India)
   const total = subtotal + shipping + tax;
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-NG", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "NGN",
+      currency: "INR",
       minimumFractionDigits: 0,
     }).format(price);
   };

@@ -24,10 +24,10 @@ export function ShopProductCard({
   const fallbackImage = "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center";
   const imageSrc = imageError || !product.image_url ? fallbackImage : product.image_url;
 
-  // Format price
-  const formattedPrice = new Intl.NumberFormat("en-NG", {
+  // Format price in Indian Rupees
+  const formattedPrice = new Intl.NumberFormat("en-IN", {
     style: "currency",
-    currency: "NGN",
+    currency: "INR",
     minimumFractionDigits: 0,
   }).format(product.price);
 

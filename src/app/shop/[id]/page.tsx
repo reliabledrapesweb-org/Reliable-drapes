@@ -78,9 +78,9 @@ export default function ProductDetailPage() {
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-NG", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "NGN",
+      currency: "INR",
       minimumFractionDigits: 0,
     }).format(price);
   };

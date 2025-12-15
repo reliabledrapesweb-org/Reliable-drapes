@@ -13,6 +13,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ConfirmationModal } from "@/components/shared";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import {
@@ -229,17 +236,18 @@ export default function AdminApplicationsPage() {
         <CardContent className="p-4">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-gray-500" />
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
-            >
-              <option value="all">All Applications</option>
-              <option value="pending">Pending</option>
-              <option value="reviewed">Reviewed</option>
-              <option value="shortlisted">Shortlisted</option>
-              <option value="rejected">Rejected</option>
-            </select>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Filter applications" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Applications</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="reviewed">Reviewed</SelectItem>
+                <SelectItem value="shortlisted">Shortlisted</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -299,18 +307,20 @@ export default function AdminApplicationsPage() {
                       <span className="text-sm text-gray-500">{application.phone}</span>
                     </TableCell>
                     <TableCell>
-                      <select
+                      <Select
                         value={application.status}
-                        onChange={(e) => handleStatusChange(application.id, e.target.value)}
-                        className={`text-xs font-medium rounded-full px-2.5 py-1 border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 ${getStatusColor(
-                          application.status
-                        )}`}
+                        onValueChange={(value) => handleStatusChange(application.id, value)}
                       >
-                        <option value="pending">Pending</option>
-                        <option value="reviewed">Reviewed</option>
-                        <option value="shortlisted">Shortlisted</option>
-                        <option value="rejected">Rejected</option>
-                      </select>
+                        <SelectTrigger className={`w-[130px] text-xs font-medium rounded-full px-2.5 py-1 h-7 ${getStatusColor(application.status)}`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="reviewed">Reviewed</SelectItem>
+                          <SelectItem value="shortlisted">Shortlisted</SelectItem>
+                          <SelectItem value="rejected">Rejected</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       <span className="text-sm text-gray-500">

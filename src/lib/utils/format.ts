@@ -3,15 +3,16 @@
  */
 
 /**
- * Formats a number as currency
+ * Formats a number as currency in Indian Rupees
  * @param amount - The amount to format
- * @param currency - Currency code (default: USD)
+ * @param currency - Currency code (default: INR)
  * @returns Formatted currency string
  */
-export function formatCurrency(amount: number, currency: string = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
+export function formatCurrency(amount: number, currency: string = 'INR'): string {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency,
+    minimumFractionDigits: 0,
   }).format(amount);
 }
 

@@ -14,6 +14,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ConfirmationModal } from "@/components/shared";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import {
@@ -427,22 +434,23 @@ export default function AdminCareersPage() {
                       <label className="mb-2 block text-sm font-medium text-gray-700">
                         Type *
                       </label>
-                      <select
+                      <Select
                         required
                         value={formData.type}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            type: e.target.value as typeof formData.type,
-                          })
+                        onValueChange={(value: typeof formData.type) =>
+                          setFormData({ ...formData, type: value })
                         }
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
                       >
-                        <option value="Store">Store</option>
-                        <option value="Corporate">Corporate</option>
-                        <option value="Design">Design</option>
-                        <option value="Warehouse">Warehouse</option>
-                      </select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Store">Store</SelectItem>
+                          <SelectItem value="Corporate">Corporate</SelectItem>
+                          <SelectItem value="Design">Design</SelectItem>
+                          <SelectItem value="Warehouse">Warehouse</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div>

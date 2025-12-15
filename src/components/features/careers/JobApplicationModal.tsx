@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { X, Upload, Loader2 } from "lucide-react";
+import { X, Upload, Loader2, CheckCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { submitJobApplication } from "@/lib/actions/job-applications";
 import type { Job } from "@/lib/actions/jobs";
 import { supabaseClient } from "@/lib/supabase/client";
+import { useToast, ToastContainer } from "@/components/ui/Toast";
 
 interface JobApplicationModalProps {
   job: Job | null;
@@ -24,6 +25,8 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const { toasts, addToast, removeToast } = useToast();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -53,51 +56,70 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
   const uploadResume = async (file: File): Promise<string | null> => {
     try {
       setIsUploading(true);
+      setUploadProgress(10);
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `resumes/${fileName}`;
 
-      const supabase = supabaseClient();
-      const { error: uploadError } = await supabase.storage
+      setUploadProgress(30);
+      const { error: uploadError } = await supabaseClient.storage
         .from('job-applications')
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        throw new Error(uploadError.message || "Failed to upload resume");
+      }
 
+      setUploadProgress(70);
       // Get public URL
-      const { data } = supabase.storage
+      const { data } = supabaseClient.storage
         .from('job-applications')
         .getPublicUrl(filePath);
 
+      setUploadProgress(100);
       return data.publicUrl;
     } catch (error) {
       console.error("Error uploading resume:", error);
+      setError(error instanceof Error ? error.message : "Failed to upload resume. Please try again.");
       return null;
     } finally {
       setIsUploading(false);
+      setUploadProgress(0);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!job) return;
+    console.log("[JobApplicationModal] Form submitted", { job: job?.id, resumeFile: resumeFile?.name });
+    
+    if (!job) {
+      console.error("[JobApplicationModal] No job selected");
+      return;
+    }
     if (!resumeFile) {
+      console.error("[JobApplicationModal] No resume file selected");
       setError("Please upload your resume");
       return;
     }
 
+    console.log("[JobApplicationModal] Starting submission process...");
     setIsSubmitting(true);
     setError(null);
 
     try {
-      // Upload resume
+      // Upload resume first
+      console.log("[JobApplicationModal] Uploading resume...");
       const resumeUrl = await uploadResume(resumeFile);
       
       if (!resumeUrl) {
-        throw new Error("Failed to upload resume");
+        throw new Error("Failed to upload resume. Please try again.");
       }
 
+      console.log("[JobApplicationModal] Resume uploaded successfully:", resumeUrl);
+      console.log("[JobApplicationModal] Submitting application to database...");
+      
       // Submit application
       const result = await submitJobApplication({
         job_id: job.id,
@@ -108,18 +130,29 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
         cover_letter: formData.cover_letter || undefined,
       });
 
+      console.log("[JobApplicationModal] Application submission result:", result);
+
       if (!result.success) {
         throw new Error(result.error || "Failed to submit application");
       }
 
-      // Success - close modal and reset form
-      alert("Application submitted successfully! We'll review your application and get back to you soon.");
-      handleClose();
+      // Success - show success message and close modal
+      console.log("[JobApplicationModal] Application submitted successfully!");
+      setError(null);
+      
+      // Show success toast
+      addToast("Application submitted successfully! We'll review your application and get back to you soon.", "success");
+      
+      // Small delay before closing modal
+      setTimeout(() => {
+        handleClose();
+      }, 500);
     } catch (error) {
-      console.error("Error submitting application:", error);
-      setError(error instanceof Error ? error.message : "Failed to submit application");
+      console.error("[JobApplicationModal] Error submitting application:", error);
+      setError(error instanceof Error ? error.message : "Failed to submit application. Please try again.");
     } finally {
       setIsSubmitting(false);
+      console.log("[JobApplicationModal] Submission process completed");
     }
   };
 
@@ -132,6 +165,7 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
     });
     setResumeFile(null);
     setError(null);
+    setUploadProgress(0);
     onClose();
   };
 
@@ -259,13 +293,40 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
                     />
                     <label
                       htmlFor="resume"
-                      className="flex items-center justify-center gap-2 w-full px-3 md:px-4 py-2.5 md:py-3 text-sm rounded-lg md:rounded-xl border-2 border-dashed border-gray-300 hover:border-[#2f2582] cursor-pointer transition-colors"
+                      className={`flex items-center justify-center gap-2 w-full px-3 md:px-4 py-2.5 md:py-3 text-sm rounded-lg md:rounded-xl border-2 border-dashed transition-colors ${
+                        resumeFile 
+                          ? "border-green-500 bg-green-50" 
+                          : "border-gray-300 hover:border-[#2f2582] bg-white"
+                      } cursor-pointer`}
                     >
-                      <Upload className="h-4 w-4 md:h-5 md:w-5 text-gray-400" />
-                      <span className="text-xs md:text-sm text-gray-600 truncate">
-                        {resumeFile ? resumeFile.name : "Upload resume (PDF, max 5MB)"}
-                      </span>
+                      {resumeFile ? (
+                        <>
+                          <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-600" />
+                          <span className="text-xs md:text-sm text-green-700 truncate font-medium">
+                            {resumeFile.name}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-4 w-4 md:h-5 md:w-5 text-gray-400" />
+                          <span className="text-xs md:text-sm text-gray-600 truncate">
+                            Upload resume (PDF, max 5MB)
+                          </span>
+                        </>
+                      )}
                     </label>
+                    {/* Upload Progress */}
+                    {isUploading && uploadProgress > 0 && (
+                      <div className="mt-2">
+                        <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-[#2f2582] transition-all duration-300"
+                            style={{ width: `${uploadProgress}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1 text-center">Uploading... {uploadProgress}%</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -297,15 +358,19 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
                   <button
                     type="submit"
                     disabled={isSubmitting || isUploading}
-                    className="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base rounded-full bg-[#2f2582] text-white font-semibold hover:bg-[#251e66] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base rounded-full bg-[#2f2582] text-white font-semibold hover:bg-[#251e66] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 relative overflow-hidden"
                   >
                     {isSubmitting || isUploading ? (
                       <>
                         <Loader2 className="h-4 w-4 md:h-5 md:w-5 animate-spin" />
-                        {isUploading ? "Uploading..." : "Submitting..."}
+                        <span className="font-semibold">
+                          {isUploading ? "Uploading Resume..." : "Submitting Application..."}
+                        </span>
                       </>
                     ) : (
-                      "Submit Application"
+                      <>
+                        <span className="font-semibold">Submit Application</span>
+                      </>
                     )}
                   </button>
                 </div>
@@ -313,6 +378,9 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
               </div>
             </motion.div>
           </div>
+
+          {/* Toast Container */}
+          <ToastContainer toasts={toasts} removeToast={removeToast} />
         </>
       )}
     </AnimatePresence>

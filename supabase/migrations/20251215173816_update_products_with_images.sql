@@ -1,4 +1,13 @@
--- Seed products with Indian home furnishing items and prices in INR
+-- Delete order items first (to avoid foreign key constraint violations)
+DELETE FROM order_items;
+
+-- Delete all orders
+DELETE FROM orders;
+
+-- Delete all existing products with NULL image_urls
+DELETE FROM products;
+
+-- Insert new products with proper image URLs and Indian Rupee pricing
 INSERT INTO products (name, description, image_url, price, visible_to)
 VALUES
   -- Curtains & Drapes
