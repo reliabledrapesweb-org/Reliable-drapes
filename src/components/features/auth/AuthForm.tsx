@@ -99,7 +99,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
           addToast("Logged in successfully!", "success");
           router.push("/");
         } else {
-          // SIGNUP: Use server action (no session persistence needed)
+          // SIGNUP: Use server action to create user and send OTP
           const formData = {
             email,
             password,
@@ -115,44 +115,17 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
             return;
           }
 
-          // Update store on successful signup
-          if (result.user) {
-            setUser(result.user);
+          // Redirect to OTP verification page
+          if (result.requiresVerification) {
+            addToast("Verification code sent to your email!", "success");
+            setLoading(false);
+            router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
+            return;
           }
-          
-          // Auto-login to persist session
-          const { data: loginData, error: loginError } = await supabaseClient.auth.signInWithPassword({
-            email,
-            password,
-          });
 
-          if (loginError) {
-             console.error("Auto-login failed:", loginError);
-             // We still consider signup successful, just need to login manually
-             addToast("Account created! Please log in.", "success");
-          } else if (loginData.session) {
-             setSession({
-              access_token: loginData.session.access_token,
-              refresh_token: loginData.session.refresh_token || '',
-              expires_at: loginData.session.expires_at,
-              user: loginData.user ? {
-                id: loginData.user.id,
-                email: loginData.user.email || '',
-                full_name: (loginData.user.user_metadata?.full_name as string) || undefined,
-              } : {
-                id: '',
-                email: '',
-              },
-            });
-            addToast("Account created successfully!", "success");
-            router.push("/");
-          } else {
-             // Fallback if no session returned (unlikely with auto confirm)
-             addToast("Account created! Please log in.", "success");
-             router.push("/login");
-          }
-          
+          // Fallback for any other case
           setLoading(false);
+          addToast("Account created! Please check your email.", "success");
         }
       } catch (error) {
         console.error("Auth error:", error);

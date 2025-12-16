@@ -68,7 +68,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm text-[#7e7e7e] md:text-base">
               <li>
                 <motion.a
-                  href="#"
+                  href="/shop"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
@@ -78,7 +78,7 @@ export function Footer() {
               </li>
               <li>
                 <motion.a
-                  href="#"
+                  href="/shop?category=curtains"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
@@ -88,7 +88,7 @@ export function Footer() {
               </li>
               <li>
                 <motion.a
-                  href="#"
+                  href="/shop?category=upholstery"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
@@ -98,7 +98,7 @@ export function Footer() {
               </li>
               <li>
                 <motion.a
-                  href="#"
+                  href="/shop?category=sheers"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
@@ -108,7 +108,7 @@ export function Footer() {
               </li>
               <li>
                 <motion.a
-                  href="#"
+                  href="/shop?category=bed-sheets"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
@@ -127,7 +127,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm text-[#7e7e7e] md:text-base">
               <li>
                 <motion.a
-                  href="#"
+                  href="/store-locator"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
@@ -137,7 +137,7 @@ export function Footer() {
               </li>
               <li>
                 <motion.a
-                  href="#"
+                  href="/terms-of-service"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
@@ -147,7 +147,7 @@ export function Footer() {
               </li>
               <li>
                 <motion.a
-                  href="#"
+                  href="/terms-of-service"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
@@ -157,7 +157,7 @@ export function Footer() {
               </li>
               <li>
                 <motion.a
-                  href="#"
+                  href="/terms-of-service"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
@@ -176,7 +176,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm text-[#7e7e7e] md:text-base">
               <li>
                 <motion.a
-                  href="#"
+                  href="/about"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
@@ -186,7 +186,7 @@ export function Footer() {
               </li>
               <li>
                 <motion.a
-                  href="#"
+                  href="/careers"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
@@ -196,12 +196,12 @@ export function Footer() {
               </li>
               <li>
                 <motion.a
-                  href="#"
+                  href="/e-catalogue"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
                 >
-                  Wholesale
+                  E-Catalogue
                 </motion.a>
               </li>
             </ul>
@@ -304,7 +304,7 @@ export function Footer() {
               </p>
               <div className="flex items-center gap-3 text-sm md:gap-4 md:text-base">
                 <motion.a
-                  href="#"
+                  href="/privacy-policy"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff" }}
                   transition={{ duration: 0.2 }}
@@ -312,7 +312,7 @@ export function Footer() {
                   Privacy Policy
                 </motion.a>
                 <motion.a
-                  href="#"
+                  href="/terms-of-service"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff" }}
                   transition={{ duration: 0.2 }}

@@ -7,6 +7,7 @@ import { forgotPasswordAction } from "@/lib/actions/auth";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
+  const [submittedEmail, setSubmittedEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -28,6 +29,7 @@ export default function ForgotPasswordPage() {
         return;
       }
 
+      setSubmittedEmail(email);
       setSuccess(true);
       setEmail("");
     });
@@ -45,7 +47,7 @@ export default function ForgotPasswordPage() {
 
         {error && (
           <div className="mb-6 flex gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
-            <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-600" />
+            <AlertCircle className="h-5 w-5 shrink-0 text-red-600" />
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
@@ -53,11 +55,11 @@ export default function ForgotPasswordPage() {
         {success && (
           <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4">
             <div className="flex gap-3">
-              <CheckCircle className="h-5 w-5 flex-shrink-0 text-green-600" />
+              <CheckCircle className="h-5 w-5 shrink-0 text-green-600" />
               <div>
                 <p className="font-semibold text-green-900">Check your email</p>
                 <p className="mt-1 text-sm text-green-700">
-                  We've sent a password reset link to <strong>{email}</strong>. 
+                  We&apos;ve sent a password reset link to <strong>{submittedEmail}</strong>. 
                   Click the link to create a new password.
                 </p>
               </div>

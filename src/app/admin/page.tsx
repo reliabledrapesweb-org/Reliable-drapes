@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 import {
   Package,
   ShoppingCart,
-  DollarSign,
   Users,
   TrendingUp,
   ArrowRight,
+  IndianRupeeIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { getUserStats } from "@/lib/actions/users";
@@ -129,10 +129,10 @@ export default function AdminDashboard() {
     },
     {
       title: "Revenue",
-      value: "$45,231*",
+      value: "45,231*",
       change: "+18%*",
       trend: "up" as const,
-      icon: <DollarSign className="h-6 w-6 text-white" />,
+      icon: <IndianRupeeIcon className="h-6 w-6 text-white" />,
       color: "bg-purple-500",
     },
     {

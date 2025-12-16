@@ -30,15 +30,16 @@ export async function signupAction(
   console.log("Creating user with email:", email);
   const admin = getAdminSupabase();
 
-  // Create user via admin API
-  const { data: created, error: createErr } = await admin.auth.admin.createUser(
-    {
-      email,
-      password,
-      user_metadata: { full_name },
-      email_confirm: true,
+  // Create user via anon client to trigger OTP email
+  const anon = getAnonSupabase();
+  const { data: created, error: createErr } = await anon.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { full_name },
+      emailRedirectTo: undefined, // Don't use magic link, use OTP
     },
-  );
+  });
 
   if (createErr) {
     console.error("Failed to create user:", {
@@ -68,7 +69,7 @@ export async function signupAction(
   const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim().toLowerCase()) || [];
   const isAdminEmail = adminEmails.includes(email.toLowerCase());
 
-  // Upsert profile row with admin role if applicable
+  // Upsert profile row with admin role if applicable (using admin client for this)
   const { error: upsertErr } = await admin
     .from("profiles")
     .upsert({ 
@@ -87,8 +88,9 @@ export async function signupAction(
 
   return {
     success: true,
-    message: "User created successfully",
+    message: "Verification code sent to your email",
     userId,
+    requiresVerification: true,
     user: created.user ? {
       id: created.user.id,
       email: created.user.email || '',
@@ -103,13 +105,14 @@ export async function forgotPasswordAction(
   const anon = getAnonSupabase();
 
   const { error } = await anon.auth.resetPasswordForEmail(email, {
-    redirectTo: `${getBaseUrl()}/auth/reset-password`,
+    redirectTo: `${getBaseUrl()}/auth/callback?type=recovery`,
   });
 
   if (error) {
+    console.error("Password reset email error:", error);
     return {
       success: false,
-      error: "Failed to send reset email",
+      error: error.message || "Failed to send reset email",
       details: error.message,
     };
   }

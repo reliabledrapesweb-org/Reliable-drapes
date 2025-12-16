@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
+  const type = requestUrl.searchParams.get("type");
 
   if (code) {
     const cookieStore = await cookies();
@@ -31,10 +32,15 @@ export async function GET(request: NextRequest) {
       const { data, error } = await supabase.auth.exchangeCodeForSession(code);
       
       if (error) {
-        console.error("OAuth session exchange error:", error);
+        console.error("Auth session exchange error:", error);
         return NextResponse.redirect(
           new URL(`/login?error=${encodeURIComponent(error.message)}`, requestUrl.origin)
         );
+      }
+
+      // If this is a password recovery flow, redirect to reset password page
+      if (type === "recovery") {
+        return NextResponse.redirect(new URL("/reset-password", requestUrl.origin));
       }
 
       // Handle admin promotion for OAuth users
@@ -60,13 +66,15 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.redirect(new URL("/", requestUrl.origin));
     } catch (error) {
-      console.error("OAuth callback error:", error);
+      console.error("Auth callback error:", error);
       return NextResponse.redirect(
         new URL("/login?error=Authentication failed", requestUrl.origin)
-        );
+      );
     }
   }
 
+  // Handle hash fragments (Supabase sometimes uses these for recovery)
+  // The client-side will handle this case
   return NextResponse.redirect(
     new URL("/login?error=No authentication code provided", requestUrl.origin)
   );

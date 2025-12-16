@@ -35,7 +35,8 @@ export function CTASection() {
           Imagination
         </h2>
 
-        <motion.button
+        <motion.a
+          href="/shop"
           className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[rgba(255,255,255,0.15)] bg-[rgba(0,0,0,0.1)] px-5 py-2.5 text-white backdrop-blur-[6px] md:px-7 md:py-3.5 lg:px-9"
           whileHover={{ scale: 1.05, backgroundColor: "rgba(0,0,0,0.2)" }}
           whileTap={{ scale: 0.98 }}
@@ -50,7 +51,7 @@ export function CTASection() {
           >
             <ArrowRight className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" />
           </motion.div>
-        </motion.button>
+        </motion.a>
       </motion.div>
     </section>
   );

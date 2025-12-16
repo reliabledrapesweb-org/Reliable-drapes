@@ -29,8 +29,9 @@ export interface AuthResponse {
   success: boolean;
   message?: string;
   error?: string;
-  details?: any;
+  details?: unknown;
   user?: AuthUser;
   session?: AuthSession;
   userId?: string;
+  requiresVerification?: boolean;
 }

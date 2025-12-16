@@ -1,5 +1,10 @@
 -- Add admin policies for user management
 
+-- Drop existing policies if they exist (from previous migrations)
+DROP POLICY IF EXISTS "Admins can view all profiles" ON profiles;
+DROP POLICY IF EXISTS "Admins can update any profile" ON profiles;
+DROP POLICY IF EXISTS "Admins can delete profiles" ON profiles;
+
 -- Allow admins to view all profiles
 CREATE POLICY "Admins can view all profiles"
   ON profiles FOR SELECT

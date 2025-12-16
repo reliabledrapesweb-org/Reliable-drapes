@@ -1,18 +1,30 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff, AlertCircle, Loader, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import { resetPasswordAction } from "@/lib/actions/auth";
+import { useRouter } from "next/navigation";
+import { supabaseClient } from "@/lib/supabase/client";
 
 export default function ResetPasswordPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
+  const [isValidSession, setIsValidSession] = useState<boolean | null>(null);
+
+  // Check if user has a valid recovery session
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      setIsValidSession(!!session);
+    };
+    checkSession();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,17 +45,62 @@ export default function ResetPasswordPage() {
       return;
     }
 
-    startTransition(async () => {
-      const result = await resetPasswordAction(password);
+    setIsPending(true);
 
-      if (!result.success) {
-        setError(result.error || "Failed to reset password");
+    try {
+      const { error: updateError } = await supabaseClient.auth.updateUser({
+        password: password,
+      });
+
+      if (updateError) {
+        setError(updateError.message || "Failed to reset password");
+        setIsPending(false);
         return;
       }
 
+      // Sign out after password reset so user can log in fresh
+      await supabaseClient.auth.signOut();
       setSuccess(true);
-    });
+    } catch (err) {
+      console.error("Password reset error:", err);
+      setError("An unexpected error occurred");
+    } finally {
+      setIsPending(false);
+    }
   };
+
+  // Show loading while checking session
+  if (isValidSession === null) {
+    return (
+      <section className="mx-auto w-full max-w-7xl px-4 py-8 md:px-8 md:py-16">
+        <div className="mx-auto max-w-md text-center">
+          <Loader className="mx-auto h-8 w-8 animate-spin text-gray-400" />
+          <p className="mt-4 text-gray-500">Loading...</p>
+        </div>
+      </section>
+    );
+  }
+
+  // Show error if no valid session
+  if (isValidSession === false) {
+    return (
+      <section className="mx-auto w-full max-w-7xl px-4 py-8 md:px-8 md:py-16">
+        <div className="mx-auto max-w-md text-center">
+          <AlertCircle className="mx-auto mb-6 h-16 w-16 text-red-500" />
+          <h1 className="mb-4 text-3xl font-semibold text-gray-900">Invalid or Expired Link</h1>
+          <p className="mb-8 text-gray-500">
+            This password reset link is invalid or has expired. Please request a new one.
+          </p>
+          <Link
+            href="/forgot-password"
+            className="inline-block rounded bg-gray-200 px-6 py-3 text-sm tracking-wider text-gray-600 uppercase hover:bg-gray-300"
+          >
+            Request New Link
+          </Link>
+        </div>
+      </section>
+    );
+  }
 
   if (success) {
     return (
@@ -55,8 +112,8 @@ export default function ResetPasswordPage() {
             Your password has been reset successfully. You can now log in with your new password.
           </p>
           <Link
-            href="/auth/login"
-            className="inline-block rounded bg-gray-200 px-6 py-3 text-sm tracking-wider text-gray-500 uppercase hover:bg-gray-300"
+            href="/login"
+            className="inline-block rounded bg-gray-200 px-6 py-3 text-sm tracking-wider text-gray-600 uppercase hover:bg-gray-300"
           >
             Go to Login
           </Link>
