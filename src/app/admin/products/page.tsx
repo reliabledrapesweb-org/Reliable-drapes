@@ -10,7 +10,12 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  getCategories,
+  getProductCategoryMappings,
+  assignProductToCategory,
+  removeProductFromCategory,
   type Product,
+  type Category,
 } from "@/lib/actions/products";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { ConfirmationModal } from "@/components/shared";
@@ -33,6 +38,8 @@ export default function AdminProductsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [productCategories, setProductCategories] = useState<Record<string, string[]>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -52,12 +59,14 @@ export default function AdminProductsPage() {
     description: "",
     image_url: "",
     price: 0,
+    categoryIds: [] as string[],
   });
 
-  // Fetch products on admin access
+  // Fetch products and categories on admin access
   useEffect(() => {
     if (isAdmin) {
       fetchProducts();
+      fetchCategories();
     }
   }, [isAdmin]);
 
@@ -66,10 +75,26 @@ export default function AdminProductsPage() {
     const result = await getProducts();
     if (result.success && result.data) {
       setProducts(result.data);
+      // Fetch product-category associations
+      await fetchProductCategories(result.data.map(p => p.id));
     } else {
       addToast(result.error || "Failed to fetch products", "error");
     }
     setIsLoading(false);
+  };
+
+  const fetchCategories = async () => {
+    const result = await getCategories();
+    if (result.success && result.data) {
+      setCategories(result.data);
+    }
+  };
+
+  const fetchProductCategories = async (productIds: string[]) => {
+    const result = await getProductCategoryMappings(productIds);
+    if (result.success && result.data) {
+      setProductCategories(result.data);
+    }
   };
 
   // Open modal for adding/editing
@@ -81,6 +106,7 @@ export default function AdminProductsPage() {
         description: product.description || "",
         image_url: product.image_url || "",
         price: product.price,
+        categoryIds: productCategories[product.id] || [],
       });
     } else {
       setEditingProduct(null);
@@ -89,6 +115,7 @@ export default function AdminProductsPage() {
         description: "",
         image_url: "",
         price: 0,
+        categoryIds: [],
       });
     }
     setShowModal(true);
@@ -102,8 +129,15 @@ export default function AdminProductsPage() {
 
     try {
       if (editingProduct) {
-        const result = await updateProduct(editingProduct.id, formData);
+        const result = await updateProduct(editingProduct.id, {
+          name: formData.name,
+          description: formData.description,
+          image_url: formData.image_url,
+          price: formData.price,
+        });
         if (result.success) {
+          // Update category associations
+          await updateProductCategories(editingProduct.id, formData.categoryIds);
           addToast("Product updated successfully", "success");
           fetchProducts();
           setShowModal(false);
@@ -111,8 +145,17 @@ export default function AdminProductsPage() {
           addToast(result.error || "Failed to update product", "error");
         }
       } else {
-        const result = await createProduct(formData);
-        if (result.success) {
+        const result = await createProduct({
+          name: formData.name,
+          description: formData.description,
+          image_url: formData.image_url,
+          price: formData.price,
+        });
+        if (result.success && result.data) {
+          // Add category associations for new product
+          for (const categoryId of formData.categoryIds) {
+            await assignProductToCategory(result.data.id, categoryId, formData.categoryIds[0] === categoryId);
+          }
           addToast("Product created successfully", "success");
           fetchProducts();
           setShowModal(false);
@@ -125,6 +168,25 @@ export default function AdminProductsPage() {
       addToast("An unexpected error occurred", "error");
     } finally {
       setActionLoading(prev => ({ ...prev, [actionKey]: null }));
+    }
+  };
+
+  // Update product categories
+  const updateProductCategories = async (productId: string, newCategoryIds: string[]) => {
+    const currentCategoryIds = productCategories[productId] || [];
+    
+    // Remove categories that are no longer selected
+    for (const categoryId of currentCategoryIds) {
+      if (!newCategoryIds.includes(categoryId)) {
+        await removeProductFromCategory(productId, categoryId);
+      }
+    }
+    
+    // Add new categories
+    for (const categoryId of newCategoryIds) {
+      if (!currentCategoryIds.includes(categoryId)) {
+        await assignProductToCategory(productId, categoryId, newCategoryIds[0] === categoryId);
+      }
     }
   };
 
@@ -176,6 +238,7 @@ export default function AdminProductsPage() {
           description: row.description || row.Description || "",
           image_url: row.image_url || row.Image_URL || row.image || "",
           price: parseFloat(row.price || row.Price || 0),
+          categories: row.categories || row.Categories || row.category || "",
         })).filter(item => item.name && item.price > 0);
 
         if (validatedData.length === 0) {
@@ -208,8 +271,25 @@ export default function AdminProductsPage() {
       let failCount = 0;
 
       for (const productData of importPreview) {
-        const result = await createProduct(productData);
-        if (result.success) {
+        const result = await createProduct({
+          name: productData.name,
+          description: productData.description,
+          image_url: productData.image_url,
+          price: productData.price,
+        });
+        if (result.success && result.data) {
+          // Assign categories if provided
+          if (productData.categories) {
+            const categoryNames = productData.categories.split(",").map((c: string) => c.trim().toLowerCase());
+            for (const catName of categoryNames) {
+              const matchedCategory = categories.find(
+                (c) => c.name.toLowerCase() === catName || c.slug === catName
+              );
+              if (matchedCategory) {
+                await assignProductToCategory(result.data.id, matchedCategory.id);
+              }
+            }
+          }
           successCount++;
         } else {
           failCount++;
@@ -237,13 +317,23 @@ export default function AdminProductsPage() {
 
   // Export products to Excel
   const handleExportToExcel = () => {
-    const exportData = products.map(p => ({
-      name: p.name,
-      description: p.description || "",
-      image_url: p.image_url || "",
-      price: p.price,
-      created_at: new Date(p.created_at).toLocaleDateString(),
-    }));
+    const exportData = products.map(p => {
+      // Get category names for this product
+      const productCatIds = productCategories[p.id] || [];
+      const categoryNames = productCatIds
+        .map(catId => categories.find(c => c.id === catId)?.name)
+        .filter(Boolean)
+        .join(", ");
+
+      return {
+        name: p.name,
+        description: p.description || "",
+        image_url: p.image_url || "",
+        price: p.price,
+        categories: categoryNames,
+        created_at: new Date(p.created_at).toLocaleDateString(),
+      };
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
@@ -254,22 +344,31 @@ export default function AdminProductsPage() {
 
   // Download template
   const handleDownloadTemplate = () => {
+    // Get available category names for the template
+    const availableCategories = categories.map(c => c.name).join(", ");
+    
     const templateData = [
       {
         name: "Sample Product 1",
         description: "Sample product description",
         image_url: "https://example.com/image.jpg",
         price: 1299,
+        categories: "Curtains, Sheers",
       },
       {
         name: "Sample Product 2",
         description: "Another sample description",
         image_url: "https://example.com/image2.jpg",
         price: 2499,
+        categories: "Upholstery",
       },
     ];
 
     const worksheet = XLSX.utils.json_to_sheet(templateData);
+    
+    // Add a note about available categories
+    XLSX.utils.sheet_add_aoa(worksheet, [[`Available categories: ${availableCategories || "None"}`]], { origin: "A5" });
+    
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Products");
     XLSX.writeFile(workbook, "products_import_template.xlsx");
@@ -433,6 +532,7 @@ export default function AdminProductsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Product</TableHead>
+                <TableHead>Category</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead>Created</TableHead>
@@ -442,7 +542,7 @@ export default function AdminProductsPage() {
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-32 text-center">
+                  <TableCell colSpan={6} className="h-32 text-center">
                     <div className="flex items-center justify-center">
                       <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2F2582] border-t-transparent"></div>
                     </div>
@@ -450,7 +550,7 @@ export default function AdminProductsPage() {
                 </TableRow>
               ) : filteredProducts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-32 text-center text-gray-500">
+                  <TableCell colSpan={6} className="h-32 text-center text-gray-500">
                     {searchQuery ? "No products found" : "No products yet. Add your first product!"}
                   </TableCell>
                 </TableRow>
@@ -471,6 +571,25 @@ export default function AdminProductsPage() {
                         <div className="font-medium text-gray-900">
                           {product.name}
                         </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {productCategories[product.id]?.length > 0 ? (
+                          productCategories[product.id].map((catId) => {
+                            const cat = categories.find((c) => c.id === catId);
+                            return cat ? (
+                              <span
+                                key={catId}
+                                className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800"
+                              >
+                                {cat.name}
+                              </span>
+                            ) : null;
+                          })
+                        ) : (
+                          <span className="text-xs text-gray-400">No category</span>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -518,93 +637,197 @@ export default function AdminProductsPage() {
       {/* Add/Edit Product Modal */}
       <AnimatePresence>
         {showModal && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
+          <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-2xl rounded-2xl border-2 border-gray-100 bg-white p-6 shadow-2xl"
+              className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border-2 border-gray-100 bg-white shadow-2xl"
             >
-              <h2 className="mb-6 text-2xl font-bold text-gray-900">
-                {editingProduct ? "Edit Product" : "Add New Product"}
-              </h2>
+              {/* Modal Header */}
+              <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-6 py-4">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {editingProduct ? "Edit Product" : "Add New Product"}
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  {editingProduct ? "Update the product details below" : "Fill in the details to create a new product"}
+                </p>
+              </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Product Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
-                    placeholder="Enter product name"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Description
-                  </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    rows={3}
-                    className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
-                    placeholder="Enter product description"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Image URL
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.image_url}
-                    onChange={(e) =>
-                      setFormData({ ...formData, image_url: e.target.value })
-                    }
-                    className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
-                    placeholder="https://example.com/image.jpg"
-                  />
-                  {formData.image_url && (
-                    <div className="mt-3 relative h-32 w-32 overflow-hidden rounded-lg border-2 border-gray-200">
-                      <Image
-                        src={formData.image_url}
-                        alt="Preview"
-                        fill
-                        className="object-cover"
+              <form onSubmit={handleSubmit} className="p-6">
+                {/* Two Column Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Left Column - Main Info */}
+                  <div className="lg:col-span-2 space-y-5">
+                    {/* Product Name */}
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-gray-700">
+                        Product Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.name}
+                        onChange={(e) =>
+                          setFormData({ ...formData, name: e.target.value })
+                        }
+                        className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                        placeholder="Enter product name"
                       />
                     </div>
-                  )}
+
+                    {/* Description */}
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-gray-700">
+                        Description
+                      </label>
+                      <textarea
+                        value={formData.description}
+                        onChange={(e) =>
+                          setFormData({ ...formData, description: e.target.value })
+                        }
+                        rows={4}
+                        className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20 resize-none"
+                        placeholder="Enter product description"
+                      />
+                    </div>
+
+                    {/* Price and Image URL Row */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-gray-700">
+                          Price (₹ INR) <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">₹</span>
+                          <input
+                            type="number"
+                            required
+                            min="0"
+                            step="0.01"
+                            value={formData.price}
+                            onChange={(e) =>
+                              setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })
+                            }
+                            className="w-full rounded-lg border-2 border-gray-200 pl-8 pr-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                            placeholder="0.00"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-gray-700">
+                          Image URL
+                        </label>
+                        <input
+                          type="url"
+                          value={formData.image_url}
+                          onChange={(e) =>
+                            setFormData({ ...formData, image_url: e.target.value })
+                          }
+                          className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                          placeholder="https://example.com/image.jpg"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Categories */}
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-gray-700">
+                        Categories
+                      </label>
+                      <div className="rounded-lg border-2 border-gray-200 p-4">
+                        {categories.length === 0 ? (
+                          <p className="text-sm text-gray-500 text-center py-2">No categories available</p>
+                        ) : (
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {categories.map((category) => {
+                              const isSelected = formData.categoryIds.includes(category.id);
+                              return (
+                                <label
+                                  key={category.id}
+                                  className={`flex items-center gap-2 cursor-pointer rounded-lg border-2 p-3 transition-all ${
+                                    isSelected
+                                      ? "border-[#2F2582] bg-[#2F2582]/5"
+                                      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                                  }`}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setFormData({
+                                          ...formData,
+                                          categoryIds: [...formData.categoryIds, category.id],
+                                        });
+                                      } else {
+                                        setFormData({
+                                          ...formData,
+                                          categoryIds: formData.categoryIds.filter((id) => id !== category.id),
+                                        });
+                                      }
+                                    }}
+                                    className="h-4 w-4 rounded border-gray-300 text-[#2F2582] focus:ring-[#2F2582]"
+                                  />
+                                  <span className={`text-sm ${isSelected ? "font-medium text-[#2F2582]" : "text-gray-700"}`}>
+                                    {category.name}
+                                  </span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        )}
+                        {formData.categoryIds.length > 0 && (
+                          <p className="mt-3 text-xs text-[#2F2582] font-medium">
+                            {formData.categoryIds.length} category(ies) selected
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column - Image Preview */}
+                  <div className="lg:col-span-1">
+                    <label className="mb-2 block text-sm font-semibold text-gray-700">
+                      Image Preview
+                    </label>
+                    <div className="rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 p-4">
+                      {formData.image_url ? (
+                        <div className="relative aspect-square w-full overflow-hidden rounded-lg border-2 border-gray-200 bg-white">
+                          <Image
+                            src={formData.image_url}
+                            alt="Preview"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex aspect-square w-full flex-col items-center justify-center rounded-lg bg-gray-100 text-gray-400">
+                          <Package className="h-12 w-12 mb-2" />
+                          <span className="text-sm">No image</span>
+                        </div>
+                      )}
+                      <p className="mt-3 text-xs text-gray-500 text-center">
+                        Enter an image URL to see preview
+                      </p>
+                    </div>
+
+                    {/* Quick Stats for Edit Mode */}
+                    {editingProduct && (
+                      <div className="mt-4 rounded-lg bg-gray-50 p-4">
+                        <h4 className="text-sm font-semibold text-gray-700 mb-2">Product Info</h4>
+                        <div className="space-y-2 text-xs text-gray-500">
+                          <p>Created: {new Date(editingProduct.created_at).toLocaleDateString()}</p>
+                          <p>ID: {editingProduct.id.slice(0, 8)}...</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Price (₹ INR) *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={(e) =>
-                      setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })
-                    }
-                    className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
-                    placeholder="0.00"
-                  />
-                </div>
-
-                <div className="flex gap-3 pt-4">
+                {/* Action Buttons */}
+                <div className="flex gap-3 pt-6 mt-6 border-t border-gray-100">
                   <Button
                     type="button"
                     variant="outline"
@@ -684,7 +907,7 @@ export default function AdminProductsPage() {
                         Name
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Description
+                        Categories
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                         Price (₹)
@@ -698,10 +921,26 @@ export default function AdminProductsPage() {
                     {importPreview.map((item, index) => (
                       <tr key={index} className="hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                          {item.name}
+                          <div>{item.name}</div>
+                          {item.description && (
+                            <div className="text-xs text-gray-500 truncate max-w-xs">{item.description}</div>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-500">
-                          <div className="max-w-xs truncate">{item.description}</div>
+                          {item.categories ? (
+                            <div className="flex flex-wrap gap-1">
+                              {item.categories.split(",").map((cat: string, i: number) => (
+                                <span
+                                  key={i}
+                                  className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800"
+                                >
+                                  {cat.trim()}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">—</span>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-sm font-semibold text-gray-900">
                           {formatPrice(item.price)}
@@ -718,12 +957,13 @@ export default function AdminProductsPage() {
               {/* Help Text */}
               <div className="mb-4 rounded-lg bg-blue-50 p-4">
                 <div className="flex items-start gap-3">
-                  <Upload className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <Upload className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
                   <div className="text-sm text-blue-800">
                     <p className="font-semibold mb-1">Import Instructions:</p>
                     <ul className="list-disc list-inside space-y-1 text-blue-700">
                       <li>Products with missing names or invalid prices will be skipped</li>
-                      <li>Click "Download Template" to get the correct format</li>
+                      <li>Categories should be comma-separated (e.g., &quot;Curtains, Sheers&quot;)</li>
+                      <li>Click &quot;Download Template&quot; to get the correct format with available categories</li>
                       <li>Supported formats: Excel (.xlsx, .xls) and CSV (.csv)</li>
                     </ul>
                   </div>

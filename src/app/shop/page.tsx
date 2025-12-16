@@ -2,60 +2,114 @@
 
 import { Breadcrumb, PageHero, PageHeader } from "@/components/shared";
 import { ShopProductGrid, ShopFilterSidebar } from "@/components/features/shop";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { getProducts, getCategories, type Product, type Category } from "@/lib/actions/products";
+import { getProducts, getCategories, getProductsByCategory, type Product, type Category } from "@/lib/actions/products";
 
 export default function ShopPage() {
   const searchParams = useSearchParams();
   const urlSearchQuery = searchParams.get("search") || "";
+  const urlCategory = searchParams.get("category") || "";
   
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    urlCategory ? [urlCategory] : []
+  );
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [sortBy, setSortBy] = useState<string>("newest");
   const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Update search query when URL params change
+  // Update search query and category when URL params change
   useEffect(() => {
     if (urlSearchQuery) {
       setSearchQuery(urlSearchQuery);
     }
-  }, [urlSearchQuery]);
+    if (urlCategory) {
+      setSelectedCategories([urlCategory]);
+    }
+  }, [urlSearchQuery, urlCategory]);
 
-  // Fetch products and categories from database
+  // Fetch categories on mount
   useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true);
+    async function fetchCategories() {
       try {
-        const [productsResult, categoriesResult] = await Promise.all([
-          getProducts(),
-          getCategories(),
-        ]);
-
-        if (productsResult.success && productsResult.data) {
-          setProducts(productsResult.data);
-        } else {
-          console.error("Failed to fetch products:", productsResult.error);
-        }
-
+        const categoriesResult = await getCategories();
         if (categoriesResult.success && categoriesResult.data) {
           setCategories(categoriesResult.data);
-        } else {
-          console.error("Failed to fetch categories:", categoriesResult.error);
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching categories:", error);
       }
-      setIsLoading(false);
     }
-
-    fetchData();
+    fetchCategories();
   }, []);
 
-  // Filter and sort products
+  // Fetch products based on selected categories
+  const fetchProducts = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      if (selectedCategories.length === 1) {
+        // Fetch products for the selected category
+        const result = await getProductsByCategory(selectedCategories[0]);
+        if (result.success && result.data) {
+          setProducts(result.data);
+        } else {
+          setProducts([]);
+        }
+      } else if (selectedCategories.length > 1) {
+        // Fetch products for multiple categories and combine
+        const results = await Promise.all(
+          selectedCategories.map((slug) => getProductsByCategory(slug))
+        );
+        const combinedProducts: Product[] = [];
+        const seenIds = new Set<string>();
+        
+        results.forEach((result) => {
+          if (result.success && result.data) {
+            result.data.forEach((product) => {
+              if (!seenIds.has(product.id)) {
+                seenIds.add(product.id);
+                combinedProducts.push(product);
+              }
+            });
+          }
+        });
+        setProducts(combinedProducts);
+      } else {
+        // No category selected, fetch all products
+        const result = await getProducts();
+        if (result.success && result.data) {
+          setProducts(result.data);
+          setAllProducts(result.data);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setProducts([]);
+    }
+    setIsLoading(false);
+  }, [selectedCategories]);
+
+  // Fetch all products on mount for total count
+  useEffect(() => {
+    async function fetchAllProducts() {
+      const result = await getProducts();
+      if (result.success && result.data) {
+        setAllProducts(result.data);
+      }
+    }
+    fetchAllProducts();
+  }, []);
+
+  // Fetch products when categories change
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  // Filter and sort products (client-side filtering for search and price)
   const filteredProducts = useMemo(() => {
     let filtered = products;
 
@@ -67,15 +121,6 @@ export default function ShopPage() {
           product.description?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
-    // Filter by categories
-    // TODO: When we have product-category associations, filter by them
-    // For now, skip category filtering since we don't have the junction data
-    // if (selectedCategories.length > 0) {
-    //   filtered = filtered.filter((product) =>
-    //     selectedCategories.some((cat) => product.categories?.includes(cat))
-    //   );
-    // }
 
     // Filter by price range
     filtered = filtered.filter(
@@ -104,7 +149,7 @@ export default function ShopPage() {
     }
 
     return filtered;
-  }, [products, searchQuery, selectedCategories, priceRange, sortBy]);
+  }, [products, searchQuery, priceRange, sortBy]);
 
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
@@ -119,7 +164,7 @@ export default function ShopPage() {
             description={
               isLoading
                 ? "Loading..."
-                : `Showing ${filteredProducts.length} of ${products.length} products`
+                : `Showing ${filteredProducts.length} of ${allProducts.length} products`
             }
             searchValue={searchQuery}
             onSearchChange={setSearchQuery}

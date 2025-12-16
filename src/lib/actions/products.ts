@@ -505,3 +505,704 @@ export async function deleteProduct(id: string): Promise<{
     };
   }
 }
+
+
+/**
+ * Get product-category mappings for multiple products
+ */
+export async function getProductCategoryMappings(productIds: string[]): Promise<{
+  success: boolean;
+  data?: Record<string, string[]>;
+  error?: string;
+}> {
+  try {
+    if (productIds.length === 0) {
+      return { success: true, data: {} };
+    }
+
+    const supabase = getAnonSupabase();
+    const { data, error } = await supabase
+      .from("product_categories")
+      .select("product_id, category_id")
+      .in("product_id", productIds);
+
+    if (error) {
+      console.error("Error fetching product categories:", error);
+      return { success: false, error: "Failed to fetch product categories" };
+    }
+
+    const mapping: Record<string, string[]> = {};
+    (data || []).forEach((pc: { product_id: string; category_id: string }) => {
+      if (!mapping[pc.product_id]) {
+        mapping[pc.product_id] = [];
+      }
+      mapping[pc.product_id].push(pc.category_id);
+    });
+
+    return { success: true, data: mapping };
+  } catch (error) {
+    console.error("Get product category mappings exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+// ============================================
+// Category Management Actions (Admin)
+// ============================================
+
+export interface CategoryFull {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  image_url: string | null;
+  parent_id: string | null;
+  sort_order: number;
+  is_featured: boolean;
+  published: boolean;
+  created_at: string;
+  product_count?: number;
+}
+
+interface CategoryResponse {
+  success: boolean;
+  data?: CategoryFull;
+  error?: string;
+}
+
+interface CategoriesResponse {
+  success: boolean;
+  data?: CategoryFull[];
+  error?: string;
+}
+
+/**
+ * Get all categories with full details (Admin)
+ */
+export async function getAllCategories(): Promise<CategoriesResponse> {
+  try {
+    const supabase = getAdminSupabase();
+
+    const { data, error } = await supabase
+      .from("categories")
+      .select("*")
+      .order("sort_order")
+      .order("name");
+
+    if (error) {
+      console.error("Error fetching all categories:", error);
+      return { success: false, error: "Failed to fetch categories" };
+    }
+
+    // Get product counts for each category
+    const categoriesWithCounts = await Promise.all(
+      (data || []).map(async (category) => {
+        const { count } = await supabase
+          .from("product_categories")
+          .select("*", { count: "exact", head: true })
+          .eq("category_id", category.id);
+
+        return {
+          ...category,
+          product_count: count || 0,
+        };
+      })
+    );
+
+    return { success: true, data: categoriesWithCounts as CategoryFull[] };
+  } catch (error) {
+    console.error("Get all categories exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Get featured categories for homepage
+ */
+export async function getFeaturedCategories(): Promise<CategoriesResponse> {
+  try {
+    const supabase = getAnonSupabase();
+
+    const { data, error } = await supabase
+      .from("categories")
+      .select("*")
+      .eq("published", true)
+      .eq("is_featured", true)
+      .order("sort_order")
+      .limit(8);
+
+    if (error) {
+      console.error("Error fetching featured categories:", error);
+      return { success: false, error: "Failed to fetch categories" };
+    }
+
+    return { success: true, data: data as CategoryFull[] };
+  } catch (error) {
+    console.error("Get featured categories exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Create a new category (Admin only)
+ */
+export async function createCategory(
+  categoryData: Omit<CategoryFull, "id" | "created_at" | "product_count">
+): Promise<CategoryResponse> {
+  try {
+    const supabase = getAdminSupabase();
+
+    // Generate slug from name if not provided
+    const slug = categoryData.slug || categoryData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+
+    const { data, error } = await supabase
+      .from("categories")
+      .insert([{
+        name: categoryData.name,
+        slug,
+        description: categoryData.description,
+        image_url: categoryData.image_url,
+        parent_id: categoryData.parent_id,
+        sort_order: categoryData.sort_order || 0,
+        is_featured: categoryData.is_featured || false,
+        published: categoryData.published ?? true,
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating category:", error);
+      return { success: false, error: error.message || "Failed to create category" };
+    }
+
+    return { success: true, data: data as CategoryFull };
+  } catch (error) {
+    console.error("Create category exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Update an existing category (Admin only)
+ */
+export async function updateCategory(
+  id: string,
+  categoryData: Partial<Omit<CategoryFull, "id" | "created_at" | "product_count">>
+): Promise<CategoryResponse> {
+  try {
+    const supabase = getAdminSupabase();
+
+    const updateData: Record<string, unknown> = {};
+    if (categoryData.name !== undefined) updateData.name = categoryData.name;
+    if (categoryData.slug !== undefined) updateData.slug = categoryData.slug;
+    if (categoryData.description !== undefined) updateData.description = categoryData.description;
+    if (categoryData.image_url !== undefined) updateData.image_url = categoryData.image_url;
+    if (categoryData.parent_id !== undefined) updateData.parent_id = categoryData.parent_id;
+    if (categoryData.sort_order !== undefined) updateData.sort_order = categoryData.sort_order;
+    if (categoryData.is_featured !== undefined) updateData.is_featured = categoryData.is_featured;
+    if (categoryData.published !== undefined) updateData.published = categoryData.published;
+
+    const { data, error } = await supabase
+      .from("categories")
+      .update(updateData)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating category:", error);
+      return { success: false, error: error.message || "Failed to update category" };
+    }
+
+    return { success: true, data: data as CategoryFull };
+  } catch (error) {
+    console.error("Update category exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Delete a category (Admin only)
+ */
+export async function deleteCategory(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = getAdminSupabase();
+
+    // Delete product-category associations first
+    await supabase.from("product_categories").delete().eq("category_id", id);
+
+    // Delete the category
+    const { error } = await supabase.from("categories").delete().eq("id", id);
+
+    if (error) {
+      console.error("Error deleting category:", error);
+      return { success: false, error: "Failed to delete category" };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Delete category exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Assign a product to a category
+ */
+export async function assignProductToCategory(
+  productId: string,
+  categoryId: string,
+  isPrimary: boolean = false
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = getAdminSupabase();
+
+    const { error } = await supabase
+      .from("product_categories")
+      .upsert({
+        product_id: productId,
+        category_id: categoryId,
+        is_primary: isPrimary,
+      }, { onConflict: "product_id,category_id" });
+
+    if (error) {
+      console.error("Error assigning product to category:", error);
+      return { success: false, error: "Failed to assign product to category" };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Assign product to category exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Remove a product from a category
+ */
+export async function removeProductFromCategory(
+  productId: string,
+  categoryId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = getAdminSupabase();
+
+    const { error } = await supabase
+      .from("product_categories")
+      .delete()
+      .eq("product_id", productId)
+      .eq("category_id", categoryId);
+
+    if (error) {
+      console.error("Error removing product from category:", error);
+      return { success: false, error: "Failed to remove product from category" };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Remove product from category exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+
+// ============================================
+// Collections Management Actions
+// ============================================
+
+export interface Collection {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  image_url: string | null;
+  banner_url: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  product_count?: number;
+}
+
+interface CollectionResponse {
+  success: boolean;
+  data?: Collection;
+  error?: string;
+}
+
+interface CollectionsResponse {
+  success: boolean;
+  data?: Collection[];
+  error?: string;
+}
+
+/**
+ * Get all collections (Admin)
+ */
+export async function getAllCollections(): Promise<CollectionsResponse> {
+  try {
+    const supabase = getAdminSupabase();
+
+    const { data, error } = await supabase
+      .from("collections")
+      .select("*")
+      .order("sort_order")
+      .order("name");
+
+    if (error) {
+      console.error("Error fetching collections:", error);
+      return { success: false, error: "Failed to fetch collections" };
+    }
+
+    // Get product counts for each collection
+    const collectionsWithCounts = await Promise.all(
+      (data || []).map(async (collection) => {
+        const { count } = await supabase
+          .from("product_collections")
+          .select("*", { count: "exact", head: true })
+          .eq("collection_id", collection.id);
+
+        return {
+          ...collection,
+          product_count: count || 0,
+        };
+      })
+    );
+
+    return { success: true, data: collectionsWithCounts as Collection[] };
+  } catch (error) {
+    console.error("Get all collections exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Get active collections for public display
+ */
+export async function getActiveCollections(): Promise<CollectionsResponse> {
+  try {
+    const supabase = getAnonSupabase();
+
+    const { data, error } = await supabase
+      .from("collections")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order")
+      .order("name");
+
+    if (error) {
+      console.error("Error fetching active collections:", error);
+      return { success: false, error: "Failed to fetch collections" };
+    }
+
+    return { success: true, data: data as Collection[] };
+  } catch (error) {
+    console.error("Get active collections exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Get products in a collection
+ */
+export async function getCollectionProducts(collectionSlug: string): Promise<ProductsResponse> {
+  try {
+    const supabase = getAnonSupabase();
+
+    // Get collection
+    const { data: collection, error: collectionError } = await supabase
+      .from("collections")
+      .select("id")
+      .eq("slug", collectionSlug)
+      .eq("is_active", true)
+      .single();
+
+    if (collectionError || !collection) {
+      return { success: false, error: "Collection not found" };
+    }
+
+    // Get product IDs in this collection
+    const { data: productCollections, error: pcError } = await supabase
+      .from("product_collections")
+      .select("product_id, featured_order")
+      .eq("collection_id", collection.id)
+      .order("featured_order", { nullsFirst: false });
+
+    if (pcError) {
+      return { success: false, error: "Failed to fetch collection products" };
+    }
+
+    const productIds = productCollections.map((pc) => pc.product_id);
+
+    if (productIds.length === 0) {
+      return { success: true, data: [], total: 0 };
+    }
+
+    // Get products
+    const { data, error, count } = await supabase
+      .from("products")
+      .select("*", { count: "exact" })
+      .in("id", productIds);
+
+    if (error) {
+      console.error("Error fetching collection products:", error);
+      return { success: false, error: "Failed to fetch products" };
+    }
+
+    // Sort by featured_order
+    const sortedData = (data || []).sort((a, b) => {
+      const orderA = productCollections.find((pc) => pc.product_id === a.id)?.featured_order || 999;
+      const orderB = productCollections.find((pc) => pc.product_id === b.id)?.featured_order || 999;
+      return orderA - orderB;
+    });
+
+    return { success: true, data: sortedData as Product[], total: count || 0 };
+  } catch (error) {
+    console.error("Get collection products exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Create a collection (Admin only)
+ */
+export async function createCollection(
+  collectionData: Omit<Collection, "id" | "created_at" | "product_count">
+): Promise<CollectionResponse> {
+  try {
+    const supabase = getAdminSupabase();
+
+    const slug = collectionData.slug || collectionData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+
+    const { data, error } = await supabase
+      .from("collections")
+      .insert([{
+        name: collectionData.name,
+        slug,
+        description: collectionData.description,
+        image_url: collectionData.image_url,
+        banner_url: collectionData.banner_url,
+        start_date: collectionData.start_date,
+        end_date: collectionData.end_date,
+        is_active: collectionData.is_active ?? true,
+        sort_order: collectionData.sort_order || 0,
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating collection:", error);
+      return { success: false, error: error.message || "Failed to create collection" };
+    }
+
+    return { success: true, data: data as Collection };
+  } catch (error) {
+    console.error("Create collection exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Update a collection (Admin only)
+ */
+export async function updateCollection(
+  id: string,
+  collectionData: Partial<Omit<Collection, "id" | "created_at" | "product_count">>
+): Promise<CollectionResponse> {
+  try {
+    const supabase = getAdminSupabase();
+
+    const updateData: Record<string, unknown> = {};
+    if (collectionData.name !== undefined) updateData.name = collectionData.name;
+    if (collectionData.slug !== undefined) updateData.slug = collectionData.slug;
+    if (collectionData.description !== undefined) updateData.description = collectionData.description;
+    if (collectionData.image_url !== undefined) updateData.image_url = collectionData.image_url;
+    if (collectionData.banner_url !== undefined) updateData.banner_url = collectionData.banner_url;
+    if (collectionData.start_date !== undefined) updateData.start_date = collectionData.start_date;
+    if (collectionData.end_date !== undefined) updateData.end_date = collectionData.end_date;
+    if (collectionData.is_active !== undefined) updateData.is_active = collectionData.is_active;
+    if (collectionData.sort_order !== undefined) updateData.sort_order = collectionData.sort_order;
+
+    const { data, error } = await supabase
+      .from("collections")
+      .update(updateData)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating collection:", error);
+      return { success: false, error: error.message || "Failed to update collection" };
+    }
+
+    return { success: true, data: data as Collection };
+  } catch (error) {
+    console.error("Update collection exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Delete a collection (Admin only)
+ */
+export async function deleteCollection(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = getAdminSupabase();
+
+    // Delete product-collection associations first
+    await supabase.from("product_collections").delete().eq("collection_id", id);
+
+    // Delete the collection
+    const { error } = await supabase.from("collections").delete().eq("id", id);
+
+    if (error) {
+      console.error("Error deleting collection:", error);
+      return { success: false, error: "Failed to delete collection" };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Delete collection exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Add product to collection
+ */
+export async function addProductToCollection(
+  productId: string,
+  collectionId: string,
+  featuredOrder?: number
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = getAdminSupabase();
+
+    const { error } = await supabase
+      .from("product_collections")
+      .upsert({
+        product_id: productId,
+        collection_id: collectionId,
+        featured_order: featuredOrder,
+      }, { onConflict: "product_id,collection_id" });
+
+    if (error) {
+      console.error("Error adding product to collection:", error);
+      return { success: false, error: "Failed to add product to collection" };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Add product to collection exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Remove product from collection
+ */
+export async function removeProductFromCollection(
+  productId: string,
+  collectionId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = getAdminSupabase();
+
+    const { error } = await supabase
+      .from("product_collections")
+      .delete()
+      .eq("product_id", productId)
+      .eq("collection_id", collectionId);
+
+    if (error) {
+      console.error("Error removing product from collection:", error);
+      return { success: false, error: "Failed to remove product from collection" };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Remove product from collection exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Get product-collection mappings for multiple products
+ * Returns mapping of product_id -> collection_id[]
+ */
+export async function getProductCollectionMappings(productIds: string[]): Promise<{
+  success: boolean;
+  data?: Record<string, string[]>;
+  error?: string;
+}> {
+  try {
+    if (productIds.length === 0) {
+      return { success: true, data: {} };
+    }
+
+    const supabase = getAnonSupabase();
+    const { data, error } = await supabase
+      .from("product_collections")
+      .select("product_id, collection_id")
+      .in("product_id", productIds);
+
+    if (error) {
+      console.error("Error fetching product collections:", error);
+      return { success: false, error: "Failed to fetch product collections" };
+    }
+
+    const mapping: Record<string, string[]> = {};
+    (data || []).forEach((pc: { product_id: string; collection_id: string }) => {
+      if (!mapping[pc.product_id]) {
+        mapping[pc.product_id] = [];
+      }
+      mapping[pc.product_id].push(pc.collection_id);
+    });
+
+    return { success: true, data: mapping };
+  } catch (error) {
+    console.error("Get product collection mappings exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Get collection-product mappings for multiple collections
+ * Returns mapping of collection_id -> product_id[]
+ */
+export async function getCollectionProductMappings(collectionIds: string[]): Promise<{
+  success: boolean;
+  data?: Record<string, string[]>;
+  error?: string;
+}> {
+  try {
+    if (collectionIds.length === 0) {
+      return { success: true, data: {} };
+    }
+
+    const supabase = getAnonSupabase();
+    const { data, error } = await supabase
+      .from("product_collections")
+      .select("product_id, collection_id")
+      .in("collection_id", collectionIds);
+
+    if (error) {
+      console.error("Error fetching collection products:", error);
+      return { success: false, error: "Failed to fetch collection products" };
+    }
+
+    const mapping: Record<string, string[]> = {};
+    (data || []).forEach((pc: { product_id: string; collection_id: string }) => {
+      if (!mapping[pc.collection_id]) {
+        mapping[pc.collection_id] = [];
+      }
+      mapping[pc.collection_id].push(pc.product_id);
+    });
+
+    return { success: true, data: mapping };
+  } catch (error) {
+    console.error("Get collection product mappings exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}

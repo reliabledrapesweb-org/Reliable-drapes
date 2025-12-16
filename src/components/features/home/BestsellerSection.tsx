@@ -1,10 +1,48 @@
 "use client";
 import { motion } from "motion/react";
 import Image from "next/image";
-import { BESTSELLER_PRODUCTS, type BestsellerProduct } from "@/lib/constants";
+import { useEffect, useState } from "react";
+import { getCollectionProducts, type Product } from "@/lib/actions/products";
 
 export function BestsellerSection() {
-  const products = BESTSELLER_PRODUCTS;
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchBestsellers() {
+      try {
+        const result = await getCollectionProducts("best-sellers");
+        if (result.success && result.data) {
+          setProducts(result.data.slice(0, 5)); // Take first 5 products
+        }
+      } catch (error) {
+        console.error("Error fetching bestsellers:", error);
+      }
+      setIsLoading(false);
+    }
+    fetchBestsellers();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <section className="bg-white py-12 lg:py-20">
+        <div className="container mx-auto max-w-6xl px-6 md:px-16">
+          <h2 className="mb-12 text-[28px] font-medium tracking-[-2px] text-black lg:text-[36px]">
+            Season&apos;s Bestseller
+          </h2>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="aspect-square animate-pulse rounded-2xl bg-gray-200" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (products.length === 0) {
+    return null;
+  }
   return (
     <section className="bg-white py-12 lg:py-20">
       <div className="container mx-auto max-w-6xl px-6 md:px-16">
@@ -64,7 +102,7 @@ function BestsellerCard({
   delay = 0,
   isMobile = false,
 }: {
-  product: BestsellerProduct;
+  product: Product;
   index: number;
   className?: string;
   delay?: number;
@@ -86,24 +124,24 @@ function BestsellerCard({
       <Image
         width={800}
         height={800}
-        src={product.image}
-        alt={product.title}
+        src={product.image_url || "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=800&fit=crop"}
+        alt={product.name}
         className="h-full w-full object-cover"
         sizes="(max-width: 1024px) 100vw, 50vw"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[46%] to-black/80" />
+      <div className="absolute inset-0 bg-linear-to-b from-transparent from-46% to-black/80" />
       <div className="absolute bottom-6 left-6 z-20">
         {isMobile ? (
           <h3 className="mb-2 tracking-widest text-white uppercase">
-            {product.title}
+            {product.name}
           </h3>
         ) : (
           <>
             <div className="w-fit">
               <h3 className="text-xl font-medium tracking-widest text-white uppercase">
-                {product.title}
+                {product.name}
               </h3>
-              <div className="h-[1px] w-0 bg-white transition-all duration-300 group-hover:w-full" />
+              <div className="h-px w-0 bg-white transition-all duration-300 group-hover:w-full" />
             </div>
             <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 group-hover:grid-rows-[1fr]">
               <div className="overflow-hidden">

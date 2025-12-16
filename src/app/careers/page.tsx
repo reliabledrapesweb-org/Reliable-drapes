@@ -67,7 +67,7 @@ export default function CareersPage() {
             title="At Reliable"
             searchValue={searchQuery}
             onSearchChange={setSearchQuery}
-            searchPlaceholder="Search Your City"
+            searchPlaceholder="Search jobs by title, location, or type..."
           />
 
           {/* Open Positions Section */}
