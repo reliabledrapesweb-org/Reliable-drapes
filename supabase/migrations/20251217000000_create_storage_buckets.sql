@@ -1,7 +1,8 @@
--- Create storage buckets for catalogues
+-- Create storage buckets for catalogues and products
 INSERT INTO storage.buckets (id, name, public)
 VALUES 
-  ('catalogues', 'catalogues', true)
+  ('catalogues', 'catalogues', true),
+  ('products', 'products', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Set up storage policies for catalogues bucket
@@ -28,3 +29,28 @@ CREATE POLICY "Authenticated users can delete catalogues"
 ON storage.objects FOR DELETE
 TO authenticated
 USING (bucket_id = 'catalogues');
+
+-- Set up storage policies for products bucket
+-- Allow public read access
+CREATE POLICY "Public Access for products"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'products');
+
+-- Allow authenticated users to upload
+CREATE POLICY "Authenticated users can upload products"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (bucket_id = 'products');
+
+-- Allow authenticated users to update their uploads
+CREATE POLICY "Authenticated users can update products"
+ON storage.objects FOR UPDATE
+TO authenticated
+USING (bucket_id = 'products');
+
+-- Allow authenticated users to delete their uploads
+CREATE POLICY "Authenticated users can delete products"
+ON storage.objects FOR DELETE
+TO authenticated
+USING (bucket_id = 'products');

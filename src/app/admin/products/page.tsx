@@ -5,6 +5,7 @@ import { Plus, Edit, Trash2, Search, Package, Upload, Download } from "lucide-re
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import * as XLSX from "xlsx";
+import { FileUpload } from "@/components/admin/FileUpload";
 import {
   getProducts,
   createProduct,
@@ -559,7 +560,7 @@ export default function AdminProductsPage() {
                   <TableRow key={product.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-gray-100">
                           <Image
                             src={product.image_url || fallbackImage}
                             alt={product.name}
@@ -715,19 +716,37 @@ export default function AdminProductsPage() {
                         </div>
                       </div>
 
-                      <div>
-                        <label className="mb-2 block text-sm font-semibold text-gray-700">
-                          Image URL
-                        </label>
-                        <input
-                          type="url"
-                          value={formData.image_url}
-                          onChange={(e) =>
-                            setFormData({ ...formData, image_url: e.target.value })
-                          }
-                          className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
-                          placeholder="https://example.com/image.jpg"
+                      <div className="space-y-3">
+                        <FileUpload
+                          label="Product Image"
+                          accept="image/*"
+                          bucket="products"
+                          folder="images"
+                          currentUrl={formData.image_url}
+                          onUploadComplete={(url) => setFormData({ ...formData, image_url: url })}
+                          onRemove={() => setFormData({ ...formData, image_url: "" })}
+                          maxSizeMB={5}
+                          allowedTypes={["image/jpeg", "image/png", "image/webp", "image/jpg"]}
+                          previewType="image"
                         />
+                        
+                        {/* Manual URL input as alternative */}
+                        {!formData.image_url && (
+                          <div>
+                            <label className="mb-2 block text-xs font-medium text-gray-600">
+                              Or enter Image URL manually
+                            </label>
+                            <input
+                              type="url"
+                              value={formData.image_url}
+                              onChange={(e) =>
+                                setFormData({ ...formData, image_url: e.target.value })
+                              }
+                              className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                              placeholder="https://example.com/image.jpg"
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -870,7 +889,7 @@ export default function AdminProductsPage() {
       {/* Import Preview Modal */}
       <AnimatePresence>
         {showImportModal && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
+          <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
