@@ -64,15 +64,15 @@ export function BestsellerSection() {
             ))}
           </div>
 
-          {/* Bottom Row - 2 wider items */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Bottom Row - 2 wider items with same height as top row */}
+          <div className="grid grid-cols-2 gap-4 [&>*]:h-[calc((100vw-8rem-1rem)/3)] [&>*]:max-h-[calc((1280px-8rem-1rem)/3)]">
             {products.slice(3, 5).map((product, index) => (
               <BestsellerCard
                 key={index}
                 product={product}
                 index={index}
                 delay={0.3} // Offset for bottom row
-                className="aspect-auto"
+                className=""
               />
             ))}
           </div>
@@ -137,7 +137,7 @@ function BestsellerCard({
           </h3>
         ) : (
           <>
-            <div className="w-fit">
+            <div className="inline-block">
               <h3 className="text-xl font-medium tracking-widest text-white uppercase">
                 {product.name}
               </h3>
