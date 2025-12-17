@@ -43,6 +43,7 @@ import {
   FileText,
   Tag
 } from "lucide-react";
+import { FileUpload } from "@/components/admin/FileUpload";
 
 export default function CataloguesPage() {
   const { isAdmin, isLoading: adminLoading } = useAdmin();
@@ -236,9 +237,9 @@ export default function CataloguesPage() {
         </div>
         <Button 
           onClick={() => handleOpenModal()}
-          className="bg-[#2F2582] hover:bg-[#251e66] sm:w-auto cursor-pointer"
+          className="bg-[#2F2582] hover:bg-[#251e66] sm:w-auto"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="mr-2 h-4 w-4" />
           Add Catalogue
         </Button>
       </div>
@@ -318,9 +319,9 @@ export default function CataloguesPage() {
                       <p className="mt-2 text-sm text-gray-500">Get started by creating your first catalogue.</p>
                       <Button 
                         onClick={() => handleOpenModal()}
-                        className="mt-4 bg-[#2F2582] hover:bg-[#251e66] cursor-pointer"
+                        className="mt-4 bg-[#2F2582] hover:bg-[#251e66]"
                       >
-                        <Plus className="h-4 w-4" />
+                        <Plus className="mr-2 h-4 w-4" />
                         Add Catalogue
                       </Button>
                     </div>
@@ -331,7 +332,7 @@ export default function CataloguesPage() {
                   <TableRow key={catalogue.id}>
                     <TableCell>
                       <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                           {(catalogue.thumbnail_url || catalogue.image_url) ? (
                             <img
                               src={catalogue.thumbnail_url || catalogue.image_url || ""}
@@ -519,35 +520,72 @@ export default function CataloguesPage() {
                     />
                   </div>
 
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">
-                      File URL *
-                    </label>
-                    <input
-                      type="url"
-                      required
-                      value={formData.file_url}
-                      onChange={(e) =>
-                        setFormData({ ...formData, file_url: e.target.value })
-                      }
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
-                      placeholder="https://example.com/catalogue.pdf"
+                  {/* File Upload */}
+                  <div className="space-y-4">
+                    <FileUpload
+                      label="Catalogue File (PDF) *"
+                      accept=".pdf,application/pdf"
+                      bucket="catalogues"
+                      folder="files"
+                      currentUrl={formData.file_url}
+                      onUploadComplete={(url) => setFormData({ ...formData, file_url: url })}
+                      onRemove={() => setFormData({ ...formData, file_url: "" })}
+                      maxSizeMB={50}
+                      allowedTypes={["application/pdf"]}
+                      previewType="file"
                     />
+                    
+                    {/* Manual URL input as alternative */}
+                    {!formData.file_url && (
+                      <div>
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                          Or enter File URL manually
+                        </label>
+                        <input
+                          type="url"
+                          value={formData.file_url}
+                          onChange={(e) =>
+                            setFormData({ ...formData, file_url: e.target.value })
+                          }
+                          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                          placeholder="https://example.com/catalogue.pdf"
+                        />
+                      </div>
+                    )}
                   </div>
 
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">
-                      Thumbnail URL
-                    </label>
-                    <input
-                      type="url"
-                      value={formData.thumbnail_url}
-                      onChange={(e) =>
-                        setFormData({ ...formData, thumbnail_url: e.target.value })
-                      }
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
-                      placeholder="https://example.com/thumbnail.jpg"
+                  {/* Thumbnail Upload */}
+                  <div className="space-y-4">
+                    <FileUpload
+                      label="Thumbnail Image"
+                      accept="image/*"
+                      bucket="catalogues"
+                      folder="thumbnails"
+                      currentUrl={formData.thumbnail_url}
+                      onUploadComplete={(url) => setFormData({ ...formData, thumbnail_url: url })}
+                      onRemove={() => setFormData({ ...formData, thumbnail_url: "" })}
+                      maxSizeMB={5}
+                      allowedTypes={["image/jpeg", "image/png", "image/webp", "image/jpg"]}
+                      previewType="image"
                     />
+                    
+                    {/* Manual URL input as alternative */}
+                    {!formData.thumbnail_url && (
+                      <div>
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                          Or enter Thumbnail URL manually
+                        </label>
+                        <input
+                          type="url"
+                          value={formData.thumbnail_url}
+                          onChange={(e) =>
+                            setFormData({ ...formData, thumbnail_url: e.target.value })
+                          }
+                          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                          placeholder="https://example.com/thumbnail.jpg"
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -556,11 +594,11 @@ export default function CataloguesPage() {
                         Badge
                       </label>
                       <Select
-                        value={formData.badge || ""}
+                        value={formData.badge || "none"}
                         onValueChange={(value) =>
                           setFormData({
                             ...formData,
-                            badge: value === "" ? null : (value as "new" | "discount"),
+                            badge: value === "none" ? null : (value as "new" | "discount"),
                           })
                         }
                       >
@@ -568,7 +606,7 @@ export default function CataloguesPage() {
                           <SelectValue placeholder="Select badge" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">None</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
                           <SelectItem value="new">New</SelectItem>
                           <SelectItem value="discount">Discount</SelectItem>
                         </SelectContent>
