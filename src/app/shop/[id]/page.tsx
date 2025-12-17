@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Image from "next/image";
-import { ChevronLeft, ShoppingCart, Minus, Plus, Check } from "lucide-react";
+import { ChevronLeft, ShoppingCart, Minus, Plus, Check, ZoomIn, X } from "lucide-react";
 import { Breadcrumb } from "@/components/shared";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { useCartStore } from "@/lib/store";
@@ -22,6 +22,7 @@ export default function ProductDetailPage() {
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [imageError, setImageError] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   const productId = params.id as string;
 
@@ -87,20 +88,28 @@ export default function ProductDetailPage() {
 
   const fallbackImage = "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center";
 
-  // Get all images including main product image
+  // Get all images - prioritize product_images table, fallback to main image_url
   const allImages = product
-    ? [
-        {
-          url: product.image_url || fallbackImage,
-          alt: product.name,
-          isPrimary: true,
-        },
-        ...(product.images?.map((img) => ({
-          url: img.image_url,
-          alt: img.alt_text || product.name,
-          isPrimary: img.is_primary,
-        })) || []),
-      ]
+    ? product.images && product.images.length > 0
+      ? product.images
+          .sort((a, b) => {
+            // Sort by primary first, then by sort_order
+            if (a.is_primary && !b.is_primary) return -1;
+            if (!a.is_primary && b.is_primary) return 1;
+            return a.sort_order - b.sort_order;
+          })
+          .map((img) => ({
+            url: img.image_url,
+            alt: img.alt_text || product.name,
+            isPrimary: img.is_primary,
+          }))
+      : [
+          {
+            url: product.image_url || fallbackImage,
+            alt: product.name,
+            isPrimary: true,
+          },
+        ]
     : [];
 
   const currentImage = allImages[selectedImage]?.url || fallbackImage;
@@ -150,38 +159,54 @@ export default function ProductDetailPage() {
           <span className="text-sm font-medium">Back to Products</span>
         </button>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-16">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-16">
           {/* Image Gallery */}
-          <div className="space-y-4">
+          <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
             {/* Main Image */}
             <motion.div
               key={selectedImage}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
-              className="relative aspect-square w-full overflow-hidden rounded-xl bg-gradient-to-b from-gray-200 to-gray-400 shadow-lg"
+              className="group relative aspect-square w-full overflow-hidden rounded-2xl bg-linear-to-b from-gray-100 to-gray-200 shadow-xl"
             >
               <Image
                 src={imageError ? fallbackImage : currentImage}
-                alt={product.name}
+                alt={allImages[selectedImage]?.alt || product.name}
                 fill
-                className="object-cover"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
                 priority
                 onError={() => setImageError(true)}
               />
+              
+              {/* Zoom Button */}
+              <button
+                onClick={() => setIsZoomed(true)}
+                className="absolute right-4 top-4 rounded-full bg-white/90 p-3 shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
+                aria-label="Zoom image"
+              >
+                <ZoomIn className="h-5 w-5 text-[#2f2582]" />
+              </button>
+
+              {/* Image Counter */}
+              {allImages.length > 1 && (
+                <div className="absolute bottom-4 right-4 rounded-full bg-black/60 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm">
+                  {selectedImage + 1} / {allImages.length}
+                </div>
+              )}
             </motion.div>
 
             {/* Thumbnail Grid */}
             {allImages.length > 1 && (
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-5 gap-3">
                 {allImages.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
                     className={`relative aspect-square overflow-hidden rounded-lg transition-all ${
                       selectedImage === index
-                        ? "ring-2 ring-[#2f2582] ring-offset-2"
-                        : "opacity-60 hover:opacity-100"
+                        ? "ring-3 ring-[#2f2582] ring-offset-2 opacity-100"
+                        : "opacity-50 hover:opacity-100 hover:ring-2 hover:ring-gray-300"
                     }`}
                   >
                     <Image
@@ -189,7 +214,7 @@ export default function ProductDetailPage() {
                       alt={image.alt}
                       fill
                       className="object-cover"
-                      sizes="(max-width: 768px) 25vw, 15vw"
+                      sizes="(max-width: 768px) 20vw, 10vw"
                     />
                   </button>
                 ))}
@@ -198,21 +223,41 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Product Info */}
-          <div className="space-y-6">
-            {/* Title and Price */}
-            <div>
-              <h1 className="text-3xl font-bold text-[#2a2a2a] lg:text-4xl">
+          <div className="space-y-8">
+            {/* Title, Categories and Price */}
+            <div className="space-y-4">
+              {/* Categories */}
+              {product.categories && product.categories.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {product.categories.map((category) => (
+                    <span
+                      key={category.id}
+                      className="rounded-full bg-[#2f2582]/10 px-3 py-1 text-xs font-semibold text-[#2f2582] uppercase tracking-wide"
+                    >
+                      {category.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <h1 className="text-3xl font-bold leading-tight text-[#2a2a2a] lg:text-4xl xl:text-5xl">
                 {product.name}
               </h1>
-              <p className="mt-3 text-3xl font-bold text-[#2f2582] lg:text-4xl">
-                {formatPrice(product.price)}
-              </p>
+              
+              <div className="flex items-baseline gap-3">
+                <p className="text-4xl font-bold text-[#2f2582] lg:text-5xl">
+                  {formatPrice(product.price)}
+                </p>
+                {product.variants && product.variants.length > 0 && (
+                  <span className="text-sm text-[#575757]">+ options</span>
+                )}
+              </div>
             </div>
 
             {/* Description */}
             {product.description && (
-              <div className="border-t border-[#d0d0d0] pt-6">
-                <h2 className="mb-3 text-lg font-semibold text-[#161616]">
+              <div className="rounded-xl bg-gray-50 p-6">
+                <h2 className="mb-3 text-base font-bold uppercase tracking-wide text-[#161616]">
                   Description
                 </h2>
                 <p className="text-base leading-relaxed text-[#575757]">
@@ -223,34 +268,36 @@ export default function ProductDetailPage() {
 
             {/* Variants */}
             {product.variants && product.variants.length > 0 && (
-              <div className="border-t border-[#d0d0d0] pt-6">
-                <h2 className="mb-3 text-lg font-semibold text-[#161616]">
-                  Options
+              <div className="space-y-4">
+                <h2 className="text-base font-bold uppercase tracking-wide text-[#161616]">
+                  Select Options
                 </h2>
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {product.variants.map((variant) => (
                     <button
                       key={variant.id}
                       onClick={() => setSelectedVariant(variant.id)}
-                      className={`flex w-full items-center justify-between rounded-lg border-2 px-4 py-3 text-left transition-all ${
+                      className={`flex items-center justify-between rounded-xl border-2 px-5 py-4 text-left transition-all ${
                         selectedVariant === variant.id
-                          ? "border-[#2f2582] bg-[#f5f5f5]"
-                          : "border-[#e0e0e0] hover:border-[#d0d0d0]"
+                          ? "border-[#2f2582] bg-[#2f2582]/5 shadow-md"
+                          : "border-gray-200 hover:border-[#2f2582]/50 hover:bg-gray-50"
                       }`}
                     >
                       <div>
-                        <p className="font-medium text-[#161616]">
+                        <p className="font-semibold text-[#161616]">
                           {variant.name}
                         </p>
                         {variant.price_adjustment !== 0 && (
-                          <p className="text-sm text-[#575757]">
+                          <p className="text-sm font-medium text-[#2f2582]">
                             {variant.price_adjustment > 0 ? "+" : ""}
                             {formatPrice(variant.price_adjustment)}
                           </p>
                         )}
                       </div>
                       {selectedVariant === variant.id && (
-                        <Check className="h-5 w-5 text-[#2f2582]" />
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#2f2582]">
+                          <Check className="h-4 w-4 text-white" />
+                        </div>
                       )}
                     </button>
                   ))}
@@ -258,62 +305,63 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {/* Quantity Selector */}
-            <div className="border-t border-[#d0d0d0] pt-6">
-              <h2 className="mb-3 text-lg font-semibold text-[#161616]">
-                Quantity
-              </h2>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center rounded-lg border-2 border-[#e0e0e0]">
+            {/* Quantity and Add to Cart */}
+            <div className="space-y-4 rounded-xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-bold uppercase tracking-wide text-[#161616]">
+                  Quantity
+                </h2>
+                <div className="flex items-center rounded-xl border-2 border-gray-200 bg-gray-50">
                   <button
                     onClick={() => handleQuantityChange(-1)}
-                    className="px-4 py-3 text-[#575757] transition-colors hover:bg-gray-50"
+                    className="px-5 py-3 text-[#575757] transition-colors hover:bg-gray-100 disabled:opacity-50"
                     disabled={quantity <= 1}
                   >
                     <Minus className="h-5 w-5" />
                   </button>
-                  <span className="min-w-[3rem] text-center text-lg font-semibold text-[#161616]">
+                  <span className="min-w-12 text-center text-xl font-bold text-[#161616]">
                     {quantity}
                   </span>
                   <button
                     onClick={() => handleQuantityChange(1)}
-                    className="px-4 py-3 text-[#575757] transition-colors hover:bg-gray-50"
+                    className="px-5 py-3 text-[#575757] transition-colors hover:bg-gray-100"
                   >
                     <Plus className="h-5 w-5" />
                   </button>
                 </div>
               </div>
-            </div>
 
-            {/* Add to Cart Button */}
-            <div className="border-t border-[#d0d0d0] pt-6">
               <motion.button
                 onClick={handleAddToCart}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex w-full items-center justify-center gap-3 rounded-full bg-[#2f2582] px-8 py-4 text-base font-semibold tracking-[2px] text-white uppercase transition-all hover:bg-[#241c66] hover:shadow-lg md:text-lg"
+                className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#2f2582] px-8 py-5 text-lg font-bold tracking-wide text-white uppercase transition-all hover:bg-[#241c66] hover:shadow-xl"
               >
-                <ShoppingCart className="h-5 w-5" />
+                <ShoppingCart className="h-6 w-6" />
                 Add to Cart
               </motion.button>
+
+              <p className="text-center text-sm text-[#575757]">
+                Free shipping on orders over ₹5,000
+              </p>
             </div>
 
             {/* Specifications */}
             {product.specifications && product.specifications.length > 0 && (
-              <div className="border-t border-[#d0d0d0] pt-6">
-                <h2 className="mb-4 text-lg font-semibold text-[#161616]">
+              <div className="space-y-4">
+                <h2 className="text-base font-bold uppercase tracking-wide text-[#161616]">
                   Specifications
                 </h2>
-                <div className="space-y-3">
+                <div className="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white">
                   {product.specifications.map((spec) => (
                     <div
                       key={spec.id}
-                      className="flex items-start justify-between rounded-lg bg-gray-50 p-3"
+                      className="flex items-center justify-between px-5 py-4"
                     >
                       <span className="text-sm font-medium text-[#575757]">
                         {spec.spec_name}
                       </span>
-                      <span className="text-sm text-[#161616]">
+                      <span className="text-sm font-semibold text-[#161616]">
                         {spec.spec_value}
                       </span>
                     </div>
@@ -321,28 +369,57 @@ export default function ProductDetailPage() {
                 </div>
               </div>
             )}
-
-            {/* Categories */}
-            {product.categories && product.categories.length > 0 && (
-              <div className="border-t border-[#d0d0d0] pt-6">
-                <h2 className="mb-3 text-lg font-semibold text-[#161616]">
-                  Categories
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {product.categories.map((category) => (
-                    <span
-                      key={category.id}
-                      className="rounded-full bg-[#f5f5f5] px-4 py-2 text-sm font-medium text-[#575757]"
-                    >
-                      {category.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
+
+      {/* Image Zoom Modal */}
+      {isZoomed && (
+        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/95 p-4">
+          <button
+            onClick={() => setIsZoomed(false)}
+            className="absolute right-4 top-4 rounded-full bg-white/10 p-3 backdrop-blur-sm transition-all hover:bg-white/20"
+            aria-label="Close zoom"
+          >
+            <X className="h-6 w-6 text-white" />
+          </button>
+
+          <div className="relative h-full w-full max-w-6xl">
+            <Image
+              src={imageError ? fallbackImage : currentImage}
+              alt={allImages[selectedImage]?.alt || product.name}
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+
+          {/* Navigation Arrows */}
+          {allImages.length > 1 && (
+            <>
+              <button
+                onClick={() => setSelectedImage((prev) => (prev > 0 ? prev - 1 : allImages.length - 1))}
+                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-4 backdrop-blur-sm transition-all hover:bg-white/20"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="h-6 w-6 text-white" />
+              </button>
+              <button
+                onClick={() => setSelectedImage((prev) => (prev < allImages.length - 1 ? prev + 1 : 0))}
+                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-4 backdrop-blur-sm transition-all hover:bg-white/20"
+                aria-label="Next image"
+              >
+                <ChevronLeft className="h-6 w-6 rotate-180 text-white" />
+              </button>
+
+              {/* Image Counter */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm">
+                {selectedImage + 1} / {allImages.length}
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </main>

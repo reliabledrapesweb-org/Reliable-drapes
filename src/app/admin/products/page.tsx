@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Plus, Edit, Trash2, Search, Package, Upload, Download } from "lucide-react";
+import { Plus, Edit, Trash2, Search, Package, Upload, Download, X, GripVertical, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import * as XLSX from "xlsx";
@@ -15,8 +15,14 @@ import {
   getProductCategoryMappings,
   assignProductToCategory,
   removeProductFromCategory,
+  getProductImages,
+  addProductImage,
+  updateProductImage,
+  deleteProductImage,
+  reorderProductImages,
   type Product,
   type Category,
+  type ProductImage,
 } from "@/lib/actions/products";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { ConfirmationModal } from "@/components/shared";
@@ -63,6 +69,11 @@ export default function AdminProductsPage() {
     categoryIds: [] as string[],
   });
 
+  // Product images state
+  const [productImages, setProductImages] = useState<ProductImage[]>([]);
+  const [newImages, setNewImages] = useState<Array<{ url: string; alt_text: string; is_primary: boolean }>>([]);
+  const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
+
   // Fetch products and categories on admin access
   useEffect(() => {
     if (isAdmin) {
@@ -99,7 +110,7 @@ export default function AdminProductsPage() {
   };
 
   // Open modal for adding/editing
-  const handleOpenModal = (product?: Product) => {
+  const handleOpenModal = async (product?: Product) => {
     if (product) {
       setEditingProduct(product);
       setFormData({
@@ -109,6 +120,14 @@ export default function AdminProductsPage() {
         price: product.price,
         categoryIds: productCategories[product.id] || [],
       });
+      
+      // Fetch existing product images
+      const imagesResult = await getProductImages(product.id);
+      if (imagesResult.success && imagesResult.data) {
+        setProductImages(imagesResult.data);
+      } else {
+        setProductImages([]);
+      }
     } else {
       setEditingProduct(null);
       setFormData({
@@ -118,7 +137,9 @@ export default function AdminProductsPage() {
         price: 0,
         categoryIds: [],
       });
+      setProductImages([]);
     }
+    setNewImages([]);
     setShowModal(true);
   };
 
@@ -139,6 +160,10 @@ export default function AdminProductsPage() {
         if (result.success) {
           // Update category associations
           await updateProductCategories(editingProduct.id, formData.categoryIds);
+          
+          // Handle product images updates
+          await handleProductImagesUpdate(editingProduct.id);
+          
           addToast("Product updated successfully", "success");
           fetchProducts();
           setShowModal(false);
@@ -157,6 +182,10 @@ export default function AdminProductsPage() {
           for (const categoryId of formData.categoryIds) {
             await assignProductToCategory(result.data.id, categoryId, formData.categoryIds[0] === categoryId);
           }
+          
+          // Add new product images
+          await handleProductImagesUpdate(result.data.id);
+          
           addToast("Product created successfully", "success");
           fetchProducts();
           setShowModal(false);
@@ -169,6 +198,21 @@ export default function AdminProductsPage() {
       addToast("An unexpected error occurred", "error");
     } finally {
       setActionLoading(prev => ({ ...prev, [actionKey]: null }));
+    }
+  };
+
+  // Handle product images update
+  const handleProductImagesUpdate = async (productId: string) => {
+    // Add new images
+    for (let i = 0; i < newImages.length; i++) {
+      const img = newImages[i];
+      await addProductImage({
+        product_id: productId,
+        image_url: img.url,
+        alt_text: img.alt_text,
+        is_primary: img.is_primary,
+        sort_order: productImages.length + i,
+      });
     }
   };
 
@@ -189,6 +233,98 @@ export default function AdminProductsPage() {
         await assignProductToCategory(productId, categoryId, newCategoryIds[0] === categoryId);
       }
     }
+  };
+
+  // Add new image to the list
+  const handleAddNewImage = (url: string) => {
+    setNewImages([...newImages, { url, alt_text: "", is_primary: false }]);
+  };
+
+  // Remove new image from the list
+  const handleRemoveNewImage = (index: number) => {
+    setNewImages(newImages.filter((_, i) => i !== index));
+  };
+
+  // Update new image alt text
+  const handleUpdateNewImageAlt = (index: number, alt_text: string) => {
+    const updated = [...newImages];
+    updated[index].alt_text = alt_text;
+    setNewImages(updated);
+  };
+
+  // Set new image as primary
+  const handleSetNewImagePrimary = (index: number) => {
+    const updated = newImages.map((img, i) => ({
+      ...img,
+      is_primary: i === index,
+    }));
+    setNewImages(updated);
+  };
+
+  // Delete existing product image
+  const handleDeleteProductImage = async (imageId: string) => {
+    const result = await deleteProductImage(imageId);
+    if (result.success) {
+      setProductImages(productImages.filter(img => img.id !== imageId));
+      addToast("Image deleted successfully", "success");
+    } else {
+      addToast(result.error || "Failed to delete image", "error");
+    }
+  };
+
+  // Set existing image as primary
+  const handleSetExistingImagePrimary = async (imageId: string) => {
+    const result = await updateProductImage(imageId, { is_primary: true });
+    if (result.success) {
+      setProductImages(productImages.map(img => ({
+        ...img,
+        is_primary: img.id === imageId,
+      })));
+      addToast("Primary image updated", "success");
+    } else {
+      addToast(result.error || "Failed to update image", "error");
+    }
+  };
+
+  // Update existing image alt text
+  const handleUpdateExistingImageAlt = async (imageId: string, alt_text: string) => {
+    const result = await updateProductImage(imageId, { alt_text });
+    if (result.success) {
+      setProductImages(productImages.map(img =>
+        img.id === imageId ? { ...img, alt_text } : img
+      ));
+    }
+  };
+
+  // Handle drag and drop for reordering
+  const handleDragStart = (index: number) => {
+    setDraggedImageIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedImageIndex === null || draggedImageIndex === index) return;
+
+    const reordered = [...productImages];
+    const draggedItem = reordered[draggedImageIndex];
+    reordered.splice(draggedImageIndex, 1);
+    reordered.splice(index, 0, draggedItem);
+
+    setProductImages(reordered);
+    setDraggedImageIndex(index);
+  };
+
+  const handleDragEnd = async () => {
+    if (draggedImageIndex === null) return;
+
+    // Update sort orders in database
+    const imageOrders = productImages.map((img, index) => ({
+      id: img.id,
+      sort_order: index,
+    }));
+
+    await reorderProductImages(imageOrders);
+    setDraggedImageIndex(null);
   };
 
   // Handle delete
@@ -802,6 +938,155 @@ export default function AdminProductsPage() {
                             {formData.categoryIds.length} category(ies) selected
                           </p>
                         )}
+                      </div>
+                    </div>
+
+                    {/* Product Images Gallery */}
+                    <div className="border-t border-gray-200 pt-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <label className="block text-sm font-semibold text-gray-700">
+                          Product Images Gallery
+                        </label>
+                        <span className="text-xs text-gray-500">
+                          {productImages.length + newImages.length} image(s)
+                        </span>
+                      </div>
+
+                      {/* Existing Images */}
+                      {productImages.length > 0 && (
+                        <div className="mb-4">
+                          <p className="text-xs font-medium text-gray-600 mb-2">Existing Images</p>
+                          <div className="space-y-3">
+                            {productImages.map((img, index) => (
+                              <div
+                                key={img.id}
+                                draggable
+                                onDragStart={() => handleDragStart(index)}
+                                onDragOver={(e) => handleDragOver(e, index)}
+                                onDragEnd={handleDragEnd}
+                                className="flex items-start gap-3 rounded-lg border-2 border-gray-200 bg-white p-3 cursor-move hover:border-[#2F2582] transition-colors"
+                              >
+                                <GripVertical className="h-5 w-5 text-gray-400 shrink-0 mt-1" />
+                                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                  <Image
+                                    src={img.image_url}
+                                    alt={img.alt_text || "Product image"}
+                                    fill
+                                    className="object-cover"
+                                    sizes="64px"
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0 space-y-2">
+                                  <input
+                                    type="text"
+                                    value={img.alt_text || ""}
+                                    onChange={(e) => handleUpdateExistingImageAlt(img.id, e.target.value)}
+                                    placeholder="Alt text (optional)"
+                                    className="w-full rounded border border-gray-200 px-2 py-1 text-sm focus:border-[#2F2582] focus:outline-none"
+                                  />
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSetExistingImagePrimary(img.id)}
+                                      className={`flex items-center gap-1 text-xs ${
+                                        img.is_primary
+                                          ? "text-yellow-600 font-semibold"
+                                          : "text-gray-500 hover:text-yellow-600"
+                                      }`}
+                                    >
+                                      <Star className={`h-3 w-3 ${img.is_primary ? "fill-yellow-600" : ""}`} />
+                                      {img.is_primary ? "Primary" : "Set as primary"}
+                                    </button>
+                                  </div>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteProductImage(img.id)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 shrink-0"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* New Images */}
+                      {newImages.length > 0 && (
+                        <div className="mb-4">
+                          <p className="text-xs font-medium text-gray-600 mb-2">New Images (will be added on save)</p>
+                          <div className="space-y-3">
+                            {newImages.map((img, index) => (
+                              <div
+                                key={index}
+                                className="flex items-start gap-3 rounded-lg border-2 border-green-200 bg-green-50 p-3"
+                              >
+                                <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                  <Image
+                                    src={img.url}
+                                    alt={img.alt_text || "New product image"}
+                                    fill
+                                    className="object-cover"
+                                    sizes="64px"
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0 space-y-2">
+                                  <input
+                                    type="text"
+                                    value={img.alt_text}
+                                    onChange={(e) => handleUpdateNewImageAlt(index, e.target.value)}
+                                    placeholder="Alt text (optional)"
+                                    className="w-full rounded border border-gray-200 px-2 py-1 text-sm focus:border-[#2F2582] focus:outline-none"
+                                  />
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSetNewImagePrimary(index)}
+                                      className={`flex items-center gap-1 text-xs ${
+                                        img.is_primary
+                                          ? "text-yellow-600 font-semibold"
+                                          : "text-gray-500 hover:text-yellow-600"
+                                      }`}
+                                    >
+                                      <Star className={`h-3 w-3 ${img.is_primary ? "fill-yellow-600" : ""}`} />
+                                      {img.is_primary ? "Primary" : "Set as primary"}
+                                    </button>
+                                  </div>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleRemoveNewImage(index)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50 shrink-0"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Add New Image */}
+                      <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-4">
+                        <FileUpload
+                          label="Add Product Image"
+                          accept="image/*"
+                          bucket="products"
+                          folder="gallery"
+                          currentUrl=""
+                          onUploadComplete={handleAddNewImage}
+                          maxSizeMB={5}
+                          allowedTypes={["image/jpeg", "image/png", "image/webp", "image/jpg"]}
+                          previewType="image"
+                        />
+                        <p className="mt-2 text-xs text-gray-500">
+                          Upload multiple images to create a gallery. Drag to reorder existing images.
+                        </p>
                       </div>
                     </div>
                   </div>

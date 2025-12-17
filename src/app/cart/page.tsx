@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Breadcrumb } from "@/components/shared";
 import { useCartStore } from "@/lib/store";
-import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft, ArrowRight } from "lucide-react";
+import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft, ArrowRight, Tag, ChevronRight } from "lucide-react";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 
 export default function CartPage() {
@@ -23,12 +23,14 @@ export default function CartPage() {
   } = useCartStore();
 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discount: number } | null>(null);
 
   const totalItems = getTotalItems();
   const subtotal = getTotalPrice();
-  const shipping = totalItems > 0 ? 0 : 0; // Free shipping for now
-  const tax = subtotal * 0.18; // 18% GST (India)
-  const total = subtotal + shipping + tax;
+  const discount = appliedPromo ? subtotal * (appliedPromo.discount / 100) : 0;
+  const shipping = totalItems > 0 ? (subtotal > 5000 ? 0 : 50) : 0; // Free shipping over ₹5000
+  const total = subtotal - discount + shipping;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-IN", {
@@ -54,23 +56,40 @@ export default function CartPage() {
     addToast("Checkout functionality coming soon!", "info", 3000);
   };
 
+  const handleApplyPromo = () => {
+    if (!promoCode.trim()) {
+      addToast("Please enter a promo code", "error", 2000);
+      return;
+    }
+
+    // Mock promo codes for demo
+    const promoCodes: Record<string, number> = {
+      "SAVE10": 10,
+      "SAVE20": 20,
+      "WELCOME": 15,
+    };
+
+    const discount = promoCodes[promoCode.toUpperCase()];
+    if (discount) {
+      setAppliedPromo({ code: promoCode.toUpperCase(), discount });
+      addToast(`Promo code applied! ${discount}% off`, "success", 3000);
+    } else {
+      addToast("Invalid promo code", "error", 2000);
+    }
+  };
+
   const fallbackImage = "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=200&fit=crop&crop=center";
 
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
       <Breadcrumb />
 
-      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-8 md:py-12 lg:py-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* Header */}
-        <div className="mb-8 md:mb-12">
-          <h1 className="text-3xl font-bold text-[#161616] md:text-4xl lg:text-5xl">
-            Shopping Cart
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-[#161616] md:text-4xl">
+            YOUR CART
           </h1>
-          <p className="mt-2 text-base text-[#575757] md:text-lg">
-            {totalItems === 0
-              ? "Your cart is empty"
-              : `${totalItems} ${totalItems === 1 ? "item" : "items"} in your cart`}
-          </p>
         </div>
 
         {items.length === 0 ? (
@@ -94,189 +113,198 @@ export default function CartPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:gap-12">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-5 lg:gap-10">
             {/* Cart Items */}
-            <div className="lg:col-span-2">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-[#161616] md:text-2xl">
-                  Cart Items
-                </h2>
-                <button
-                  onClick={() => setShowClearConfirm(true)}
-                  className="text-sm font-medium text-red-600 transition-colors hover:text-red-700 hover:underline"
-                >
-                  Clear Cart
-                </button>
-              </div>
-
-              <div className="space-y-4">
+            <div className="lg:col-span-3">
+              <div className="space-y-5">
                 {items.map((item, index) => (
                   <motion.div
                     key={item.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="flex gap-4 rounded-xl border-2 border-[#e0e0e0] p-4 transition-all hover:border-[#d0d0d0] md:gap-6 md:p-6"
+                    className="flex gap-4 rounded-2xl bg-[#F0F0F0] p-5 transition-all hover:bg-[#E8E8E8]"
                   >
                     {/* Product Image */}
-                    <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100 md:h-32 md:w-32">
+                    <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-white">
                       {item.image ? (
                         <Image
                           src={item.image}
                           alt={item.name}
                           fill
                           className="object-cover"
-                          sizes="(max-width: 768px) 96px, 128px"
+                          sizes="96px"
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center">
-                          <ShoppingCart className="h-10 w-10 text-gray-400 md:h-12 md:w-12" />
+                          <ShoppingCart className="h-10 w-10 text-gray-300" />
                         </div>
                       )}
                     </div>
 
                     {/* Product Info */}
                     <div className="flex flex-1 flex-col justify-between">
-                      <div>
-                        <h3 className="text-base font-bold text-[#161616] md:text-lg">
-                          {item.name}
-                        </h3>
-                        {item.variantName && (
-                          <p className="mt-1 text-sm text-[#575757]">
-                            Variant: {item.variantName}
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="text-base font-bold text-[#000000]">
+                            {item.name}
+                          </h3>
+                          {item.variantName && (
+                            <p className="mt-1 text-sm text-[#00000099]">
+                              Size: {item.variantName}
+                            </p>
+                          )}
+                          <p className="mt-1 text-sm text-[#00000099]">
+                            Color: {item.variantName || "Default"}
                           </p>
-                        )}
-                        <p className="mt-2 text-lg font-bold text-[#2f2582] md:text-xl">
-                          {formatPrice(item.price)}
-                        </p>
-                      </div>
-
-                      {/* Quantity and Actions */}
-                      <div className="mt-4 flex items-center justify-between">
-                        {/* Quantity Controls */}
-                        <div className="flex items-center rounded-lg border-2 border-[#e0e0e0]">
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="px-3 py-2 text-[#575757] transition-colors hover:bg-gray-50 md:px-4"
-                            disabled={item.quantity <= 1}
-                            aria-label="Decrease quantity"
-                          >
-                            <Minus className="h-4 w-4" />
-                          </button>
-                          <span className="min-w-[3rem] text-center text-base font-semibold text-[#161616]">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="px-3 py-2 text-[#575757] transition-colors hover:bg-gray-50 md:px-4"
-                            aria-label="Increase quantity"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </button>
                         </div>
 
                         {/* Remove Button */}
                         <button
                           onClick={() => handleRemoveItem(item.id, item.name)}
-                          className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                          className="rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50"
+                          aria-label="Remove item"
                         >
-                          <Trash2 className="h-4 w-4" />
-                          <span className="hidden md:inline">Remove</span>
+                          <Trash2 className="h-5 w-5" />
                         </button>
                       </div>
 
-                      {/* Subtotal */}
-                      <div className="mt-3 text-right">
-                        <p className="text-sm text-[#575757]">Subtotal:</p>
-                        <p className="text-lg font-bold text-[#161616] md:text-xl">
-                          {formatPrice(item.price * item.quantity)}
+                      {/* Price and Quantity */}
+                      <div className="flex items-center justify-between">
+                        <p className="text-xl font-bold text-[#000000]">
+                          {formatPrice(item.price)}
                         </p>
+
+                        {/* Quantity Controls */}
+                        <div className="flex items-center gap-4 rounded-full bg-[#F0F0F0] px-5 py-2.5">
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            className="text-[#000000] transition-opacity hover:opacity-70 disabled:opacity-30"
+                            disabled={item.quantity <= 1}
+                            aria-label="Decrease quantity"
+                          >
+                            <Minus className="h-4 w-4" />
+                          </button>
+                          <span className="min-w-6 text-center text-sm font-medium text-[#000000]">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            className="text-[#000000] transition-opacity hover:opacity-70"
+                            aria-label="Increase quantity"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
                 ))}
               </div>
-
-              {/* Continue Shopping */}
-              <Link
-                href="/shop"
-                className="mt-6 flex items-center gap-2 text-sm font-medium text-[#2f2582] transition-colors hover:text-[#241c66] hover:underline"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Continue Shopping
-              </Link>
             </div>
 
             {/* Order Summary */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-24 rounded-xl border-2 border-[#e0e0e0] bg-gray-50 p-6">
-                <h2 className="mb-6 text-xl font-bold text-[#161616] md:text-2xl">
-                  Order Summary
-                </h2>
+            <div className="lg:col-span-2">
+              <div className="sticky top-24 space-y-6">
+                <div className="rounded-2xl border border-[#00000010] bg-white p-6">
+                  <h2 className="mb-6 text-xl font-bold text-[#000000]">
+                    Order Summary
+                  </h2>
 
-                <div className="space-y-4 border-b border-[#d0d0d0] pb-6">
-                  <div className="flex items-center justify-between">
-                    <span className="text-base text-[#575757]">
-                      Subtotal ({totalItems} {totalItems === 1 ? "item" : "items"})
-                    </span>
-                    <span className="text-base font-semibold text-[#161616]">
-                      {formatPrice(subtotal)}
-                    </span>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between text-base">
+                      <span className="text-[#00000099]">Subtotal</span>
+                      <span className="font-semibold text-[#000000]">
+                        {formatPrice(subtotal)}
+                      </span>
+                    </div>
+
+                    {appliedPromo && (
+                      <div className="flex items-center justify-between text-base">
+                        <span className="text-[#00000099]">
+                          Discount (-{appliedPromo.discount}%)
+                        </span>
+                        <span className="font-semibold text-red-600">
+                          -{formatPrice(discount)}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between text-base">
+                      <span className="text-[#00000099]">Delivery Fee</span>
+                      <span className="font-semibold text-[#000000]">
+                        {shipping === 0 ? (
+                          <span className="text-green-600">Free</span>
+                        ) : (
+                          formatPrice(shipping)
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="border-t border-[#00000010] pt-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-base font-medium text-[#000000]">Total</span>
+                        <span className="text-2xl font-bold text-[#000000]">
+                          {formatPrice(total)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-base text-[#575757]">Shipping</span>
-                    <span className="text-base font-semibold text-green-600">
-                      {shipping === 0 ? "FREE" : formatPrice(shipping)}
-                    </span>
+                  {/* Promo Code */}
+                  <div className="mt-6">
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex-1">
+                        <Tag className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#00000066]" />
+                        <input
+                          type="text"
+                          value={promoCode}
+                          onChange={(e) => setPromoCode(e.target.value)}
+                          placeholder="Add promo code"
+                          disabled={!!appliedPromo}
+                          className="w-full rounded-full border border-[#00000010] bg-[#F0F0F0] py-3 pl-11 pr-4 text-sm text-[#000000] placeholder:text-[#00000066] focus:border-[#2f2582] focus:outline-none focus:ring-2 focus:ring-[#2f2582]/20 disabled:opacity-50"
+                        />
+                      </div>
+                      <button
+                        onClick={handleApplyPromo}
+                        disabled={!!appliedPromo}
+                        className="shrink-0 rounded-full bg-[#2f2582] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#241c66] disabled:opacity-50 disabled:hover:bg-[#2f2582]"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                    {appliedPromo && (
+                      <p className="mt-2 text-xs text-green-600">
+                        ✓ Promo code "{appliedPromo.code}" applied
+                      </p>
+                    )}
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-base text-[#575757]">Tax (7.5%)</span>
-                    <span className="text-base font-semibold text-[#161616]">
-                      {formatPrice(tax)}
-                    </span>
-                  </div>
+                  {/* Checkout Button */}
+                  <button
+                    onClick={handleCheckout}
+                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#2f2582] px-6 py-4 text-base font-semibold text-white transition-all hover:bg-[#241c66] hover:shadow-lg"
+                  >
+                    Go to Checkout
+                    <ArrowRight className="h-5 w-5" />
+                  </button>
+
+                  {/* Free Shipping Notice */}
+                  {shipping > 0 && (
+                    <p className="mt-4 text-center text-xs text-[#00000099]">
+                      Add {formatPrice(5000 - subtotal)} more for free shipping
+                    </p>
+                  )}
                 </div>
 
-                <div className="mt-6 flex items-center justify-between">
-                  <span className="text-lg font-bold text-[#161616]">Total</span>
-                  <span className="text-2xl font-bold text-[#2f2582]">
-                    {formatPrice(total)}
-                  </span>
-                </div>
-
-                {/* Checkout Button */}
-                <button
-                  onClick={handleCheckout}
-                  className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#2f2582] px-6 py-4 text-base font-semibold tracking-[2px] text-white uppercase transition-all hover:bg-[#241c66] hover:shadow-lg"
+                {/* Continue Shopping Link */}
+                <Link
+                  href="/shop"
+                  className="flex items-center justify-center gap-2 text-sm font-medium text-[#000000] transition-colors hover:text-[#2f2582]"
                 >
-                  Proceed to Checkout
-                  <ArrowRight className="h-5 w-5" />
-                </button>
-
-                {/* Payment Methods */}
-                <div className="mt-6 text-center">
-                  <p className="mb-3 text-xs text-[#898989] uppercase tracking-wider">
-                    We Accept
-                  </p>
-                  <div className="flex items-center justify-center gap-3">
-                    <div className="flex h-8 w-12 items-center justify-center rounded bg-white text-[10px] font-bold text-gray-600 shadow">
-                      VISA
-                    </div>
-                    <div className="flex h-8 w-12 items-center justify-center rounded bg-white text-[10px] font-bold text-gray-600 shadow">
-                      MC
-                    </div>
-                    <div className="flex h-8 w-12 items-center justify-center rounded bg-white text-[10px] font-bold text-gray-600 shadow">
-                      VERVE
-                    </div>
-                  </div>
-                </div>
-
-                {/* Security Note */}
-                <p className="mt-6 text-center text-xs text-[#898989]">
-                  Your payment information is processed securely. We do not store credit card details.
-                </p>
+                  <ArrowLeft className="h-4 w-4" />
+                  Continue Shopping
+                </Link>
               </div>
             </div>
           </div>
@@ -285,7 +313,7 @@ export default function CartPage() {
 
       {/* Clear Cart Confirmation Modal */}
       {showClearConfirm && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
