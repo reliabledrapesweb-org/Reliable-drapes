@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { useAdmin } from "@/lib/hooks/useAdmin";
 import {
   getAllUsers,
@@ -13,7 +12,6 @@ import {
 } from "@/lib/actions/users";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { ConfirmationModal } from "@/components/shared";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AdminPageSkeleton } from "@/components/ui/AdminPageSkeleton";
 import {
@@ -32,16 +30,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { 
-  Search, 
   Trash2, 
   Edit, 
-  X, 
   Users, 
   UserCheck, 
   Crown,
   Filter
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { AdminPageLayout, AdminModal, FormField, TextInput, SelectInput as FormSelectInput } from "@/components/admin";
 
 export default function CustomersPage() {
   const { isAdmin, isLoading: adminLoading } = useAdmin();
@@ -229,99 +226,35 @@ export default function CustomersPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Customer Management</h1>
-          <p className="mt-1 text-sm text-gray-600 sm:text-base">Manage users, roles, and permissions</p>
+    <>
+      <AdminPageLayout
+      title="Customer Management"
+      description="Manage users, roles, and permissions"
+      stats={[
+        { title: "Total Users", value: stats.total, icon: Users, iconColor: "text-blue-600" },
+        { title: "Customers", value: stats.customers, icon: UserCheck, iconColor: "text-green-600" },
+        { title: "Admins", value: stats.admins, icon: Crown, iconColor: "text-purple-600" },
+      ]}
+      searchPlaceholder="Search by name or email..."
+      searchValue={searchQuery}
+      onSearchChange={setSearchQuery}
+      filters={
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4 text-gray-500" />
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Filter by role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="customer">Customers</SelectItem>
+              <SelectItem value="admin">Admins</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-                <Users className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Customers</p>
-                <p className="text-2xl font-bold text-blue-600">{stats.customers}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-                <UserCheck className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="sm:col-span-2 lg:col-span-1">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Admins</p>
-                <p className="text-2xl font-bold text-[#2F2582]">{stats.admins}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
-                <Crown className="h-6 w-6 text-[#2F2582]" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by name or email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-gray-500" />
-              <Select value={roleFilter} onValueChange={setRoleFilter}>
-                <SelectTrigger className="w-[150px]">
-                  <SelectValue placeholder="Filter by role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="customer">Customers</SelectItem>
-                  <SelectItem value="admin">Admins</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Users Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Users ({filteredUsers.length})</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
+      }
+    >
+      <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>User</TableHead>
@@ -407,111 +340,53 @@ export default function CustomersPage() {
               )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </AdminPageLayout>
 
       {/* Edit Modal */}
-      {showEditModal && editingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-md rounded-xl bg-white shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+      <AdminModal
+        isOpen={showEditModal}
+        onClose={handleCloseModal}
+        title="Edit User"
+        subtitle={editingUser ? `Update information for ${editingUser.full_name || editingUser.email}` : undefined}
+        onSubmit={handleSubmit}
+        submitLabel="Update User"
+        isSubmitting={!!actionLoading.update}
+        maxWidth="md"
+      >
+        <FormField label="Full Name">
+          <TextInput
+            value={formData.full_name}
+            onChange={(value) => setFormData({ ...formData, full_name: value })}
+            placeholder="Enter full name"
+          />
+        </FormField>
+
+        <FormField label="Email (Read-only)">
+          <TextInput
+            value={editingUser?.email || ""}
+            onChange={() => {}}
+            disabled
+          />
+        </FormField>
+
+        <FormField label="Role" required>
+          <Select
+            value={formData.role}
+            onValueChange={(value: "customer" | "admin") =>
+              setFormData({ ...formData, role: value })
+            }
           >
-            <Card className="border-0 shadow-none">
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl font-semibold">Edit User</CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={handleCloseModal}
-                    className="h-8 w-8"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.full_name}
-                      onChange={(e) =>
-                        setFormData({ ...formData, full_name: e.target.value })
-                      }
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
-                      placeholder="Enter full name"
-                    />
-                  </div>
+            <SelectTrigger>
+              <SelectValue placeholder="Select role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="customer">Customer</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+            </SelectContent>
+          </Select>
+        </FormField>
+      </AdminModal>
 
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">
-                      Email (Read-only)
-                    </label>
-                    <input
-                      type="email"
-                      value={editingUser.email || ""}
-                      disabled
-                      className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">
-                      Role
-                    </label>
-                    <Select
-                      value={formData.role}
-                      onValueChange={(value: "customer" | "admin") =>
-                        setFormData({ ...formData, role: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="customer">Customer</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex gap-3 pt-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleCloseModal}
-                      className="flex-1"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={!!actionLoading.update}
-                      className="flex-1 bg-[#2F2582] hover:bg-[#251e66] disabled:opacity-50 cursor-pointer"
-                    >
-                      {actionLoading.update ? (
-                        <div className="flex items-center gap-2">
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                          Updating...
-                        </div>
-                      ) : (
-                        "Update User"
-                      )}
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-      )}
       <ToastContainer toasts={toasts} removeToast={removeToast} />
 
       {/* Confirmation Modals */}
@@ -526,8 +401,6 @@ export default function CustomersPage() {
         onCancel={() => setConfirmAction({ type: null })}
       />
 
-
-
       <ConfirmationModal
         isOpen={confirmAction.type === "update"}
         title="Update User"
@@ -537,6 +410,6 @@ export default function CustomersPage() {
         onConfirm={executeUpdate}
         onCancel={() => setConfirmAction({ type: null })}
       />
-    </div>
+    </>
   );
 }
