@@ -1206,3 +1206,194 @@ export async function getCollectionProductMappings(collectionIds: string[]): Pro
     return { success: false, error: "An unexpected error occurred" };
   }
 }
+
+
+// ============================================
+// Product Images Management Actions
+// ============================================
+
+export interface ProductImageInput {
+  product_id: string;
+  image_url: string;
+  alt_text?: string;
+  is_primary?: boolean;
+  sort_order?: number;
+}
+
+/**
+ * Get all images for a product
+ */
+export async function getProductImages(productId: string): Promise<{
+  success: boolean;
+  data?: ProductImage[];
+  error?: string;
+}> {
+  try {
+    const supabase = getAnonSupabase();
+    const { data, error } = await supabase
+      .from("product_images")
+      .select("*")
+      .eq("product_id", productId)
+      .order("sort_order")
+      .order("created_at");
+
+    if (error) {
+      console.error("Error fetching product images:", error);
+      return { success: false, error: "Failed to fetch product images" };
+    }
+
+    return { success: true, data: data as ProductImage[] };
+  } catch (error) {
+    console.error("Get product images exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Add an image to a product
+ */
+export async function addProductImage(imageData: ProductImageInput): Promise<{
+  success: boolean;
+  data?: ProductImage;
+  error?: string;
+}> {
+  try {
+    const supabase = getAdminSupabase();
+
+    // If this is set as primary, unset other primary images
+    if (imageData.is_primary) {
+      await supabase
+        .from("product_images")
+        .update({ is_primary: false })
+        .eq("product_id", imageData.product_id);
+    }
+
+    const { data, error } = await supabase
+      .from("product_images")
+      .insert([{
+        product_id: imageData.product_id,
+        image_url: imageData.image_url,
+        alt_text: imageData.alt_text || null,
+        is_primary: imageData.is_primary || false,
+        sort_order: imageData.sort_order || 0,
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error adding product image:", error);
+      return { success: false, error: "Failed to add product image" };
+    }
+
+    return { success: true, data: data as ProductImage };
+  } catch (error) {
+    console.error("Add product image exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Update a product image
+ */
+export async function updateProductImage(
+  imageId: string,
+  updates: Partial<ProductImageInput>
+): Promise<{
+  success: boolean;
+  data?: ProductImage;
+  error?: string;
+}> {
+  try {
+    const supabase = getAdminSupabase();
+
+    // If setting as primary, unset other primary images for this product
+    if (updates.is_primary) {
+      // First get the product_id for this image
+      const { data: imageData } = await supabase
+        .from("product_images")
+        .select("product_id")
+        .eq("id", imageId)
+        .single();
+
+      if (imageData) {
+        await supabase
+          .from("product_images")
+          .update({ is_primary: false })
+          .eq("product_id", imageData.product_id);
+      }
+    }
+
+    const { data, error } = await supabase
+      .from("product_images")
+      .update(updates)
+      .eq("id", imageId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error updating product image:", error);
+      return { success: false, error: "Failed to update product image" };
+    }
+
+    return { success: true, data: data as ProductImage };
+  } catch (error) {
+    console.error("Update product image exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Delete a product image
+ */
+export async function deleteProductImage(imageId: string): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    const supabase = getAdminSupabase();
+
+    const { error } = await supabase
+      .from("product_images")
+      .delete()
+      .eq("id", imageId);
+
+    if (error) {
+      console.error("Error deleting product image:", error);
+      return { success: false, error: "Failed to delete product image" };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Delete product image exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Reorder product images
+ */
+export async function reorderProductImages(
+  imageOrders: { id: string; sort_order: number }[]
+): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    const supabase = getAdminSupabase();
+
+    // Update each image's sort_order
+    const updates = imageOrders.map((item) =>
+      supabase
+        .from("product_images")
+        .update({ sort_order: item.sort_order })
+        .eq("id", item.id)
+    );
+
+    await Promise.all(updates);
+
+    return { success: true };
+  } catch (error) {
+    console.error("Reorder product images exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
