@@ -168,7 +168,7 @@ export default function ProductDetailPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
-              className="group relative aspect-square w-full overflow-hidden rounded-2xl bg-linear-to-b from-gray-100 to-gray-200 shadow-xl"
+              className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-linear-to-b from-gray-100 to-gray-200 shadow-xl"
             >
               <Image
                 src={imageError ? fallbackImage : currentImage}

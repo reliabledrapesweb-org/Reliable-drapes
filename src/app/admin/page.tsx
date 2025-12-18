@@ -73,7 +73,7 @@ function QuickAction({ title, description, href, icon }: QuickActionProps) {
       <motion.div
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        className="group flex items-start gap-4 rounded-lg border border-gray-200 bg-white p-4 transition-all hover:border-[#2F2582] hover:shadow-md"
+        className="group flex h-full items-start gap-4 rounded-lg border border-gray-200 bg-white p-4 transition-all hover:border-[#2F2582] hover:shadow-md"
       >
         <div className="rounded-lg bg-[#2F2582]/10 p-3 text-[#2F2582]">{icon}</div>
         <div className="flex-1">

@@ -17,6 +17,7 @@ import {
   X,
   BookOpen,
   MapPin,
+  Bell,
 } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
@@ -86,6 +87,11 @@ const navItems: NavItem[] = [
     name: "Stores",
     href: "/admin/stores",
     icon: MapPin,
+  },
+  {
+    name: "Notifications",
+    href: "/admin/notifications",
+    icon: Bell,
   },
   {
     name: "Media",

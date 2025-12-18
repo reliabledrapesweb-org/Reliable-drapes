@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { submitJobApplication } from "@/lib/actions/job-applications";
 import type { Job } from "@/lib/actions/jobs";
 import { supabaseClient } from "@/lib/supabase/client";
-import { useToast, ToastContainer } from "@/components/ui/Toast";
+import { useToast } from "@/components/ui/Toast";
 
 interface JobApplicationModalProps {
   job: Job | null;
@@ -379,8 +379,55 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
             </motion.div>
           </div>
 
-          {/* Toast Container */}
-          <ToastContainer toasts={toasts} removeToast={removeToast} />
+          {/* Toast Container - Higher z-index to appear above modal */}
+          <div className="fixed bottom-4 left-4 right-4 z-[10000] flex max-w-md flex-col gap-2 md:left-auto md:right-4">
+            <AnimatePresence>
+              {toasts.map((toast) => {
+                const icons = {
+                  success: CheckCircle,
+                  error: X,
+                  warning: X,
+                  info: X,
+                };
+                const bgColors = {
+                  success: "bg-green-50 border-green-200",
+                  error: "bg-red-50 border-red-200",
+                  warning: "bg-yellow-50 border-yellow-200",
+                  info: "bg-blue-50 border-blue-200",
+                };
+                const textColors = {
+                  success: "text-green-600",
+                  error: "text-red-600",
+                  warning: "text-yellow-600",
+                  info: "text-blue-600",
+                };
+                
+                const Icon = icons[toast.type as keyof typeof icons];
+                const bgColor = bgColors[toast.type as keyof typeof bgColors];
+                const textColor = textColors[toast.type as keyof typeof textColors];
+
+                return (
+                  <motion.div
+                    key={toast.id}
+                    initial={{ opacity: 0, y: 20, x: 0 }}
+                    animate={{ opacity: 1, y: 0, x: 0 }}
+                    exit={{ opacity: 0, y: 20, x: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className={`flex items-start gap-3 rounded-lg border ${bgColor} p-4 shadow-lg`}
+                  >
+                    <Icon className={`h-5 w-5 flex-shrink-0 ${textColor}`} />
+                    <p className={`flex-1 text-sm ${textColor}`}>{toast.message}</p>
+                    <button
+                      onClick={() => removeToast(toast.id)}
+                      className={`flex-shrink-0 transition-colors hover:opacity-70`}
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
         </>
       )}
     </AnimatePresence>

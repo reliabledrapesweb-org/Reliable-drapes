@@ -1,11 +1,12 @@
 "use client";
 
-import { Menu, Bell, User, LogOut } from "lucide-react";
+import { Menu, User, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { useAuthStore } from "@/lib/store";
 import { supabaseClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { NotificationDropdown } from "./NotificationDropdown";
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
@@ -41,15 +42,7 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
       {/* Right: Notifications + User Menu */}
       <div className="flex items-center gap-3 lg:gap-4">
         {/* Notifications */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="relative rounded-lg p-2 hover:bg-gray-100"
-          aria-label="Notifications"
-        >
-          <Bell className="h-5 w-5 text-gray-600 lg:h-6 lg:w-6" />
-          <span className="absolute right-1 top-1 flex h-2 w-2 items-center justify-center rounded-full bg-red-500" />
-        </motion.button>
+        <NotificationDropdown />
 
         {/* User Menu */}
         <div className="relative">

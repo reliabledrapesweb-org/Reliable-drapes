@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "motion/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getCollectionProducts, type Product } from "@/lib/actions/products";
 
@@ -109,52 +110,54 @@ function BestsellerCard({
   isMobile?: boolean;
 }) {
   return (
-    <motion.div
-      className={`group relative cursor-pointer overflow-hidden rounded-2xl ${className}`}
-      initial={isMobile ? { opacity: 0, x: -30 } : { opacity: 0, scale: 0.9 }}
-      whileInView={isMobile ? { opacity: 1, x: 0 } : { opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
-      transition={{
-        default: { duration: 0.5, delay: delay + index * 0.1 },
-        scale: { duration: 0.3 },
-      }}
-      whileHover={!isMobile ? { scale: 1.03 } : undefined}
-      whileTap={isMobile ? { scale: 0.98 } : undefined}
-    >
-      <Image
-        width={800}
-        height={800}
-        src={product.image_url || "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=800&fit=crop"}
-        alt={product.name}
-        className="h-full w-full object-cover"
-        sizes="(max-width: 1024px) 100vw, 50vw"
-      />
-      <div className="absolute inset-0 bg-linear-to-b from-transparent from-46% to-black/80" />
-      <div className="absolute bottom-6 left-6 z-20">
-        {isMobile ? (
-          <h3 className="mb-2 tracking-widest text-white uppercase">
-            {product.name}
-          </h3>
-        ) : (
-          <>
-            <div className="inline-block">
-              <h3 className="text-xl font-medium tracking-widest text-white uppercase">
-                {product.name}
-              </h3>
-              <div className="h-px w-0 bg-white transition-all duration-300 group-hover:w-full" />
-            </div>
-            <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 group-hover:grid-rows-[1fr]">
-              <div className="overflow-hidden">
-                {product.description && (
-                  <p className="mt-2 max-w-xs text-sm text-white opacity-0 transition-opacity delay-100 duration-300 group-hover:opacity-100">
-                    {product.description}
-                  </p>
-                )}
+    <Link href={`/shop/${product.id}`}>
+      <motion.div
+        className={`group relative cursor-pointer overflow-hidden rounded-2xl ${className}`}
+        initial={isMobile ? { opacity: 0, x: -30 } : { opacity: 0, scale: 0.9 }}
+        whileInView={isMobile ? { opacity: 1, x: 0 } : { opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{
+          default: { duration: 0.5, delay: delay + index * 0.1 },
+          scale: { duration: 0.3 },
+        }}
+        whileHover={!isMobile ? { scale: 1.03 } : undefined}
+        whileTap={isMobile ? { scale: 0.98 } : undefined}
+      >
+        <Image
+          width={800}
+          height={800}
+          src={product.image_url || "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=800&fit=crop"}
+          alt={product.name}
+          className="h-full w-full object-cover"
+          sizes="(max-width: 1024px) 100vw, 50vw"
+        />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent from-46% to-black/80" />
+        <div className="absolute bottom-6 left-6 z-20">
+          {isMobile ? (
+            <h3 className="mb-2 tracking-widest text-white uppercase">
+              {product.name}
+            </h3>
+          ) : (
+            <>
+              <div className="inline-block">
+                <h3 className="text-xl font-medium tracking-widest text-white uppercase">
+                  {product.name}
+                </h3>
+                <div className="h-px w-0 bg-white transition-all duration-300 group-hover:w-full" />
               </div>
-            </div>
-          </>
-        )}
-      </div>
-    </motion.div>
+              <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 group-hover:grid-rows-[1fr]">
+                <div className="overflow-hidden">
+                  {product.description && (
+                    <p className="mt-2 max-w-xs text-sm text-white opacity-0 transition-opacity delay-100 duration-300 group-hover:opacity-100">
+                      {product.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </motion.div>
+    </Link>
   );
 }
