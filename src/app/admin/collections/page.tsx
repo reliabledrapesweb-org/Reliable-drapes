@@ -262,7 +262,20 @@ export default function AdminCollectionsPage() {
   const activeCount = collections.filter((c) => c.is_active).length;
 
   if (adminLoading || isLoading) {
-    return <AdminPageSkeleton />;
+    return (
+      <div className="space-y-6">
+        <div>
+          <div className="h-8 w-64 animate-pulse rounded bg-gray-200" />
+          <div className="mt-2 h-4 w-96 animate-pulse rounded bg-gray-200" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-lg bg-gray-200" />
+          ))}
+        </div>
+        <div className="h-96 animate-pulse rounded-xl bg-gray-200" />
+      </div>
+    );
   }
 
   if (!isAdmin) {
@@ -276,32 +289,39 @@ export default function AdminCollectionsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">Collections Management</h1>
-        <p className="mt-2 text-gray-600">Manage product collections and featured sets</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">Collections Management</h1>
+          <p className="mt-1 text-sm text-gray-600">Manage product collections and featured sets</p>
+        </div>
+        <Button onClick={() => handleOpenModal()} className="bg-[#2F2582] hover:bg-[#241c66]">
+          <Plus className="mr-2 h-4 w-4" />
+          Add Collection
+        </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-6 sm:grid-cols-2">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Collections</CardTitle>
-            <FolderHeart className="h-5 w-5 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-gray-900">{totalCollections}</div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Total Collections</p>
+          <p className="mt-1 text-2xl font-bold text-gray-900">{totalCollections}</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Active</p>
+          <p className="mt-1 text-2xl font-bold text-green-600">{activeCount}</p>
+        </div>
+      </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Active</CardTitle>
-            <Eye className="h-5 w-5 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-gray-900">{activeCount}</div>
-          </CardContent>
-        </Card>
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search collections..."
+          className="w-full rounded-lg border border-gray-200 py-2 pl-10 pr-4 text-sm focus:border-[#2F2582] focus:outline-none"
+        />
       </div>
 
       {/* Collections Table Card */}

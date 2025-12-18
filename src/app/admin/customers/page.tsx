@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { useAdmin } from "@/lib/hooks/useAdmin";
 import {
   getAllUsers,
@@ -15,14 +16,6 @@ import { ConfirmationModal } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { AdminPageSkeleton } from "@/components/ui/AdminPageSkeleton";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -35,10 +28,12 @@ import {
   Users, 
   UserCheck, 
   Crown,
-  Filter
+  Mail,
+  Calendar,
+  Eye
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { AdminPageLayout, AdminModal, FormField, TextInput, SelectInput as FormSelectInput } from "@/components/admin";
+import { AdminModal, FormField, TextInput } from "@/components/admin";
 
 export default function CustomersPage() {
   const { isAdmin, isLoading: adminLoading } = useAdmin();
@@ -225,24 +220,63 @@ export default function CustomersPage() {
     return null;
   }
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <div className="h-8 w-64 animate-pulse rounded bg-gray-200" />
+          <div className="mt-2 h-4 w-96 animate-pulse rounded bg-gray-200" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-lg bg-gray-200" />
+          ))}
+        </div>
+        <div className="h-96 animate-pulse rounded-xl bg-gray-200" />
+      </div>
+    );
+  }
+
   return (
     <>
-      <AdminPageLayout
-      title="Customer Management"
-      description="Manage users, roles, and permissions"
-      stats={[
-        { title: "Total Users", value: stats.total, icon: Users, iconColor: "text-blue-600" },
-        { title: "Customers", value: stats.customers, icon: UserCheck, iconColor: "text-green-600" },
-        { title: "Admins", value: stats.admins, icon: Crown, iconColor: "text-purple-600" },
-      ]}
-      searchPlaceholder="Search by name or email..."
-      searchValue={searchQuery}
-      onSearchChange={setSearchQuery}
-      filters={
-        <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-gray-500" />
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">
+            Customer Management
+          </h1>
+          <p className="mt-1 text-sm text-gray-600">
+            Manage users, roles, and permissions
+          </p>
+        </div>
+
+        {/* Stats */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <p className="text-sm font-medium text-gray-600">Total Users</p>
+            <p className="mt-1 text-2xl font-bold text-gray-900">{stats.total}</p>
+          </div>
+          <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <p className="text-sm font-medium text-gray-600">Customers</p>
+            <p className="mt-1 text-2xl font-bold text-green-600">{stats.customers}</p>
+          </div>
+          <div className="rounded-lg border border-gray-200 bg-white p-4">
+            <p className="text-sm font-medium text-gray-600">Admins</p>
+            <p className="mt-1 text-2xl font-bold text-purple-600">{stats.admins}</p>
+          </div>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <input
+            type="text"
+            placeholder="Search by name or email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 rounded-lg border border-gray-200 px-4 py-2 text-sm focus:border-[#2F2582] focus:outline-none"
+          />
           <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-full sm:w-[150px]">
               <SelectValue placeholder="Filter by role" />
             </SelectTrigger>
             <SelectContent>
@@ -252,95 +286,91 @@ export default function CustomersPage() {
             </SelectContent>
           </Select>
         </div>
-      }
-    >
-      <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead className="hidden sm:table-cell">Joined</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredUsers.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
-                    <div className="flex flex-col items-center justify-center py-8">
-                      <Users className="h-12 w-12 text-gray-400" />
-                      <h3 className="mt-4 text-lg font-medium text-gray-900">No users found</h3>
-                      <p className="mt-2 text-sm text-gray-500">Try adjusting your search or filters</p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      <div className="flex items-center space-x-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2F2582] text-white">
-                          <span className="text-sm font-medium">
-                            {(user.full_name || user.email || "U").charAt(0).toUpperCase()}
+
+        {/* Users List */}
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+          {filteredUsers.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Users className="mb-3 h-12 w-12 text-gray-300" />
+              <p className="text-lg font-medium text-gray-900">No users found</p>
+              <p className="mt-1 text-sm text-gray-500">
+                Try adjusting your search or filters
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {filteredUsers.map((user, index) => (
+                <motion.div
+                  key={user.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="p-4 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#2F2582] text-white">
+                        <span className="text-sm font-medium">
+                          {(user.full_name || user.email || "U").charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-gray-900 truncate">
+                            {user.full_name || "No name"}
+                          </h3>
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${getRoleBadgeColor(user.role)}`}
+                          >
+                            {user.role === "admin" && <Crown className="h-3 w-3" />}
+                            {user.role}
                           </span>
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-gray-900">
-                            {user.full_name || "No name"}
-                          </p>
-                          <p className="truncate text-xs text-gray-500">{user.email}</p>
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            {user.email}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {formatDistanceToNow(new Date(user.created_at), {
+                              addSuffix: true,
+                            })}
+                          </span>
                         </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getRoleBadgeColor(user.role)}`}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleOpenEditModal(user)}
+                        disabled={Object.values(actionLoading).some(loading => loading !== null)}
+                        className="rounded-lg border border-gray-200 bg-white p-2 text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
+                        title="Edit user"
                       >
-                        {user.role === "admin" && <Crown className="mr-1 h-3 w-3" />}
-                        {user.role}
-                      </span>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <span className="text-sm text-gray-500">
-                        {formatDistanceToNow(new Date(user.created_at), {
-                          addSuffix: true,
-                        })}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleOpenEditModal(user)}
-                          disabled={Object.values(actionLoading).some(loading => loading !== null)}
-                          className="h-8 w-8 text-gray-600 hover:text-blue-600 disabled:opacity-50 cursor-pointer"
-                          title="Edit user"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleDelete(user.id, user.full_name || "")}
-                          disabled={!!actionLoading[`delete-${user.id}`]}
-                          className="h-8 w-8 text-gray-600 hover:text-red-600 disabled:opacity-50 cursor-pointer"
-                          title="Delete user"
-                        >
-                          {actionLoading[`delete-${user.id}`] ? (
-                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-600 border-t-transparent" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </AdminPageLayout>
+                        <Edit className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(user.id, user.full_name || user.email || "")}
+                        disabled={!!actionLoading[`delete-${user.id}`]}
+                        className="rounded-lg border border-red-200 bg-white p-2 text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+                        title="Delete user"
+                      >
+                        {actionLoading[`delete-${user.id}`] ? (
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-red-600 border-t-transparent" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Edit Modal */}
       <AdminModal

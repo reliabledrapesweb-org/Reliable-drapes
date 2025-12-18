@@ -86,32 +86,79 @@ export default function CartPage() {
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#161616] md:text-4xl">
-            YOUR CART
-          </h1>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 flex items-center justify-between"
+        >
+          <div>
+            <h1 className="text-3xl font-bold text-[#161616] md:text-4xl">
+              YOUR CART
+            </h1>
+            {items.length > 0 && (
+              <p className="mt-2 text-sm text-[#575757]">
+                {totalItems} {totalItems === 1 ? "item" : "items"} in your cart
+              </p>
+            )}
+          </div>
+          {items.length > 0 && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              onClick={() => setShowClearConfirm(true)}
+              className="text-sm font-medium text-red-600 transition-colors hover:text-red-700"
+            >
+              Clear Cart
+            </motion.button>
+          )}
+        </motion.div>
 
         {items.length === 0 ? (
           /* Empty Cart State */
-          <div className="flex flex-col items-center justify-center py-16 md:py-24">
-            <div className="mb-6 rounded-full bg-gray-100 p-8">
-              <ShoppingCart className="h-16 w-16 text-gray-400 md:h-20 md:w-20" />
-            </div>
-            <h2 className="mb-3 text-2xl font-bold text-[#161616] md:text-3xl">
-              Your cart is empty
-            </h2>
-            <p className="mb-8 text-center text-base text-[#575757] md:text-lg">
-              Looks like you haven't added anything to your cart yet
-            </p>
-            <Link
-              href="/shop"
-              className="flex items-center gap-2 rounded-full bg-[#2f2582] px-8 py-4 text-base font-semibold tracking-[2px] text-white uppercase transition-all hover:bg-[#241c66] hover:shadow-lg"
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-center justify-center py-16 md:py-24"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="mb-6 rounded-full bg-gray-100 p-8"
             >
-              <ShoppingCart className="h-5 w-5" />
-              Continue Shopping
-            </Link>
-          </div>
+              <ShoppingCart className="h-16 w-16 text-gray-400 md:h-20 md:w-20" />
+            </motion.div>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="mb-3 text-2xl font-bold text-[#161616] md:text-3xl"
+            >
+              Your cart is empty
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mb-8 text-center text-base text-[#575757] md:text-lg"
+            >
+              Looks like you haven't added anything to your cart yet
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <Link
+                href="/shop"
+                className="flex items-center gap-2 rounded-full bg-[#2f2582] px-8 py-4 text-base font-semibold tracking-[2px] text-white uppercase transition-all hover:bg-[#241c66] hover:shadow-lg"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                Continue Shopping
+              </Link>
+            </motion.div>
+          </motion.div>
         ) : (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-5 lg:gap-10">
             {/* Cart Items */}
@@ -120,10 +167,12 @@ export default function CartPage() {
                 {items.map((item, index) => (
                   <motion.div
                     key={item.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="flex gap-4 rounded-2xl bg-[#F0F0F0] p-5 transition-all hover:bg-[#E8E8E8]"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ delay: index * 0.05, type: "spring", stiffness: 100 }}
+                    whileHover={{ scale: 1.01 }}
+                    className="flex gap-4 rounded-2xl bg-white border border-gray-200 p-5 shadow-sm transition-all hover:shadow-md"
                   >
                     {/* Product Image */}
                     <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-white">
@@ -205,8 +254,13 @@ export default function CartPage() {
 
             {/* Order Summary */}
             <div className="lg:col-span-2">
-              <div className="sticky top-24 space-y-6">
-                <div className="rounded-2xl border border-[#00000010] bg-white p-6">
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+                className="sticky top-24 space-y-6"
+              >
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
                   <h2 className="mb-6 text-xl font-bold text-[#000000]">
                     Order Summary
                   </h2>
@@ -281,13 +335,15 @@ export default function CartPage() {
                   </div>
 
                   {/* Checkout Button */}
-                  <button
+                  <motion.button
                     onClick={handleCheckout}
-                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#2f2582] px-6 py-4 text-base font-semibold text-white transition-all hover:bg-[#241c66] hover:shadow-lg"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#2f2582] px-6 py-4 text-base font-semibold text-white transition-all hover:bg-[#241c66] hover:shadow-xl"
                   >
                     Go to Checkout
                     <ArrowRight className="h-5 w-5" />
-                  </button>
+                  </motion.button>
 
                   {/* Free Shipping Notice */}
                   {shipping > 0 && (
@@ -298,14 +354,20 @@ export default function CartPage() {
                 </div>
 
                 {/* Continue Shopping Link */}
-                <Link
-                  href="/shop"
-                  className="flex items-center justify-center gap-2 text-sm font-medium text-[#000000] transition-colors hover:text-[#2f2582]"
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
                 >
-                  <ArrowLeft className="h-4 w-4" />
-                  Continue Shopping
-                </Link>
-              </div>
+                  <Link
+                    href="/shop"
+                    className="flex items-center justify-center gap-2 text-sm font-medium text-[#000000] transition-colors hover:text-[#2f2582]"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Continue Shopping
+                  </Link>
+                </motion.div>
+              </motion.div>
             </div>
           </div>
         )}

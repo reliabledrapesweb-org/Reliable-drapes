@@ -8,7 +8,6 @@ import {
   Calendar,
   Trash2,
   Eye,
-  X,
   Check,
   Clock,
   Archive,
@@ -107,6 +106,28 @@ export default function ContactSubmissionsPage() {
     in_progress: submissions.filter((s) => s.status === "in_progress").length,
     resolved: submissions.filter((s) => s.status === "resolved").length,
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <div className="h-8 w-64 animate-pulse rounded bg-gray-200" />
+          <div className="mt-2 h-4 w-96 animate-pulse rounded bg-gray-200" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-lg bg-gray-200" />
+          ))}
+        </div>
+        <div className="flex gap-2">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="h-10 w-24 animate-pulse rounded-lg bg-gray-200" />
+          ))}
+        </div>
+        <div className="h-96 animate-pulse rounded-xl bg-gray-200" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -271,6 +292,13 @@ export default function ContactSubmissionsPage() {
           setSelectedSubmission(null);
         }}
         title="Contact Submission Details"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setIsModalOpen(false);
+          setSelectedSubmission(null);
+        }}
+        submitLabel="Close"
+        cancelLabel="Close"
       >
         {selectedSubmission && (
           <div className="space-y-4">

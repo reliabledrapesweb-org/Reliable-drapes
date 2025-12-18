@@ -218,7 +218,23 @@ export default function CataloguesPage() {
   };
 
   if (adminLoading || isLoading) {
-    return <AdminPageSkeleton />;
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
+            <div className="mt-2 h-4 w-96 animate-pulse rounded bg-gray-200" />
+          </div>
+          <div className="h-10 w-32 animate-pulse rounded-lg bg-gray-200" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-lg bg-gray-200" />
+          ))}
+        </div>
+        <div className="h-96 animate-pulse rounded-xl bg-gray-200" />
+      </div>
+    );
   }
 
   if (!isAdmin) {
@@ -230,8 +246,8 @@ export default function CataloguesPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Catalogues</h1>
-          <p className="mt-1 text-sm text-gray-600 sm:text-base">
+          <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">Catalogues</h1>
+          <p className="mt-1 text-sm text-gray-600">
             Manage your product catalogues and downloads
           </p>
         </div>
@@ -245,52 +261,23 @@ export default function CataloguesPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Catalogues</p>
-                <p className="text-2xl font-bold text-gray-900">{catalogues.length}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-                <BookOpen className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Active</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {catalogues.filter((c) => c.is_active).length}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                <Eye className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="sm:col-span-2 lg:col-span-1">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Downloads</p>
-                <p className="text-2xl font-bold text-[#2F2582]">
-                  {catalogues.reduce((sum, c) => sum + c.download_count, 0)}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
-                <Download className="h-6 w-6 text-[#2F2582]" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Total Catalogues</p>
+          <p className="mt-1 text-2xl font-bold text-gray-900">{catalogues.length}</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Active</p>
+          <p className="mt-1 text-2xl font-bold text-green-600">
+            {catalogues.filter((c) => c.is_active).length}
+          </p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Total Downloads</p>
+          <p className="mt-1 text-2xl font-bold text-[#2F2582]">
+            {catalogues.reduce((sum, c) => sum + c.download_count, 0)}
+          </p>
+        </div>
       </div>
 
       {/* Catalogues Table */}

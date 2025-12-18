@@ -1,18 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ExternalLink, Trash2, Download, FileText, ClipboardList, Clock, CheckCircle, UserCheck, XCircle, Filter } from "lucide-react";
-import { AdminPageSkeleton } from "@/components/ui/AdminPageSkeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { motion } from "framer-motion";
+import { ExternalLink, Trash2, Download, FileText, Mail, Phone, Calendar, Briefcase } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -143,238 +133,183 @@ export default function AdminApplicationsPage() {
   };
 
   if (isLoading) {
-    return <AdminPageSkeleton rows={8} columns={6} statsCount={5} hasFilter />;
+    return (
+      <div className="space-y-6">
+        <div>
+          <div className="h-8 w-64 animate-pulse rounded bg-gray-200" />
+          <div className="mt-2 h-4 w-96 animate-pulse rounded bg-gray-200" />
+        </div>
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-5">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-lg bg-gray-200" />
+          ))}
+        </div>
+        <div className="flex gap-2">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="h-10 w-24 animate-pulse rounded-lg bg-gray-200" />
+          ))}
+        </div>
+        <div className="h-96 animate-pulse rounded-xl bg-gray-200" />
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Job Applications</h1>
-          <p className="mt-1 text-sm text-gray-600 sm:text-base">
-            Review and manage job applications from candidates
-          </p>
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">
+          Job Applications
+        </h1>
+        <p className="mt-1 text-sm text-gray-600">
+          Review and manage job applications from candidates
+        </p>
+      </div>
+
+      {/* Stats */}
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-5">
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Total</p>
+          <p className="mt-1 text-2xl font-bold text-gray-900">{stats.total}</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Pending</p>
+          <p className="mt-1 text-2xl font-bold text-yellow-600">{stats.pending}</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Reviewed</p>
+          <p className="mt-1 text-2xl font-bold text-blue-600">{stats.reviewed}</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Shortlisted</p>
+          <p className="mt-1 text-2xl font-bold text-green-600">{stats.shortlisted}</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Rejected</p>
+          <p className="mt-1 text-2xl font-bold text-red-600">{stats.rejected}</p>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-5">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-                <ClipboardList className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100">
-                <Clock className="h-6 w-6 text-yellow-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Reviewed</p>
-                <p className="text-2xl font-bold text-blue-600">{stats.reviewed}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-                <CheckCircle className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Shortlisted</p>
-                <p className="text-2xl font-bold text-green-600">{stats.shortlisted}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                <UserCheck className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Rejected</p>
-                <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                <XCircle className="h-6 w-6 text-red-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Filters */}
+      <div className="flex gap-2 overflow-x-auto">
+        {["all", "pending", "reviewed", "shortlisted", "rejected"].map((status) => (
+          <button
+            key={status}
+            onClick={() => setFilterStatus(status)}
+            className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              filterStatus === status
+                ? "bg-[#2F2582] text-white"
+                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+            }`}
+          >
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+          </button>
+        ))}
       </div>
 
-      {/* Filter */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-gray-500" />
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Filter applications" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Applications</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="reviewed">Reviewed</SelectItem>
-                <SelectItem value="shortlisted">Shortlisted</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
+      {/* Applications List */}
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+        {filteredApplications.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <FileText className="mb-3 h-12 w-12 text-gray-300" />
+            <p className="text-lg font-medium text-gray-900">No applications found</p>
+            <p className="mt-1 text-sm text-gray-500">
+              {filterStatus !== "all"
+                ? "Try adjusting your filter"
+                : "Applications will appear here once candidates apply"}
+            </p>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Applications Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Applications ({filteredApplications.length})</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Candidate</TableHead>
-                <TableHead>Job Position</TableHead>
-                <TableHead className="hidden sm:table-cell">Contact</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="hidden md:table-cell">Applied On</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredApplications.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    <div className="flex flex-col items-center justify-center py-8">
-                      <FileText className="h-12 w-12 text-gray-400" />
-                      <h3 className="mt-4 text-lg font-medium text-gray-900">No applications found</h3>
-                      <p className="mt-2 text-sm text-gray-500">
-                        {filterStatus !== "all" ? "Try adjusting your filter" : "Applications will appear here once candidates apply"}
-                      </p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredApplications.map((application) => (
-                  <TableRow key={application.id}>
-                    <TableCell>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-gray-900">
-                          {application.full_name}
-                        </p>
-                        <p className="truncate text-xs text-gray-500">{application.email}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-gray-900">
-                          {application.job_title}
-                        </p>
-                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
-                          {application.job_type}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <span className="text-sm text-gray-500">{application.phone}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Select
-                        value={application.status}
-                        onValueChange={(value) => handleStatusChange(application.id, value)}
+        ) : (
+          <div className="divide-y divide-gray-100">
+            {filteredApplications.map((application, index) => (
+              <motion.div
+                key={application.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="p-4 hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-gray-900">
+                        {application.full_name}
+                      </h3>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(application.status)}`}
                       >
-                        <SelectTrigger className={`w-[130px] text-xs font-medium rounded-full px-2.5 py-1 h-7 ${getStatusColor(application.status)}`}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="reviewed">Reviewed</SelectItem>
-                          <SelectItem value="shortlisted">Shortlisted</SelectItem>
-                          <SelectItem value="rejected">Rejected</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <span className="text-sm text-gray-500">
+                        {application.status}
+                      </span>
+                    </div>
+                    <p className="text-sm font-medium text-[#2F2582] mb-2">
+                      {application.job_title}
+                      <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+                        {application.job_type}
+                      </span>
+                    </p>
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <Mail className="h-3 w-3" />
+                        {application.email}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Phone className="h-3 w-3" />
+                        {application.phone}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
                         {new Date(application.created_at).toLocaleDateString()}
                       </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          asChild
-                          className="h-8 w-8 text-gray-600 hover:text-blue-600 cursor-pointer"
-                        >
-                          <a
-                            href={application.resume_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title="View Resume"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          asChild
-                          className="h-8 w-8 text-gray-600 hover:text-green-600 cursor-pointer"
-                        >
-                          <a
-                            href={application.resume_url}
-                            download
-                            title="Download Resume"
-                          >
-                            <Download className="h-4 w-4" />
-                          </a>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleDelete(application.id, application.full_name)}
-                          className="h-8 w-8 text-gray-600 hover:text-red-600 cursor-pointer"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={application.status}
+                      onValueChange={(value) => handleStatusChange(application.id, value)}
+                    >
+                      <SelectTrigger className="w-[130px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="reviewed">Reviewed</SelectItem>
+                        <SelectItem value="shortlisted">Shortlisted</SelectItem>
+                        <SelectItem value="rejected">Rejected</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <a
+                      href={application.resume_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-lg border border-gray-200 bg-white p-2 text-gray-600 transition-colors hover:bg-gray-50"
+                      title="View Resume"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                    <a
+                      href={application.resume_url}
+                      download
+                      className="rounded-lg border border-green-200 bg-white p-2 text-green-600 transition-colors hover:bg-green-50"
+                      title="Download Resume"
+                    >
+                      <Download className="h-4 w-4" />
+                    </a>
+                    <button
+                      onClick={() => handleDelete(application.id, application.full_name)}
+                      className="rounded-lg border border-red-200 bg-white p-2 text-red-600 transition-colors hover:bg-red-50"
+                      title="Delete"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
       <ToastContainer toasts={toasts} removeToast={removeToast} />
 
       {/* Confirmation Modal */}

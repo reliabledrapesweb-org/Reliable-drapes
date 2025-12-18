@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
   Package,
@@ -8,7 +8,14 @@ import {
   Users,
   TrendingUp,
   ArrowRight,
-  IndianRupeeIcon,
+  DollarSign,
+  Briefcase,
+  Mail,
+  FileText,
+  Store,
+  FolderTree,
+  Layers,
+  BookOpen,
 } from "lucide-react";
 import Link from "next/link";
 import { getUserStats } from "@/lib/actions/users";
@@ -17,45 +24,62 @@ import { useAuthStore } from "@/lib/store";
 interface StatCardProps {
   title: string;
   value: string;
-  change: string;
-  trend: "up" | "down";
+  change?: string;
+  trend?: "up" | "down";
   icon: React.ReactNode;
   color: string;
+  href?: string;
 }
 
-function StatCard({ title, value, change, trend, icon, color }: StatCardProps) {
+function StatCard({ title, value, change, trend, icon, color, href }: StatCardProps) {
+  const content = (
+    <div className="relative flex items-start justify-between">
+      <div className="flex-1">
+        <p className="text-sm font-medium text-gray-600">{title}</p>
+        <h3 className="mt-2 text-3xl font-bold text-gray-900">
+          {value}
+        </h3>
+        {change && trend && (
+          <div className="mt-2 flex items-center gap-1">
+            <TrendingUp
+              className={`h-3 w-3 ${trend === "up" ? "text-green-600" : "text-red-600 rotate-180"}`}
+            />
+            <span
+              className={`text-xs font-semibold ${trend === "up" ? "text-green-600" : "text-red-600"}`}
+            >
+              {change}
+            </span>
+            <span className="text-xs text-gray-500">vs last month</span>
+          </div>
+        )}
+      </div>
+      <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${color} transition-transform duration-300 group-hover:scale-110`}>
+        {icon}
+      </div>
+    </div>
+  );
+
+  if (href) {
+    return (
+      <Link href={href}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="group h-full rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-[#2F2582] hover:shadow-md cursor-pointer"
+        >
+          {content}
+        </motion.div>
+      </Link>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4, boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" }}
-      className="group relative overflow-hidden rounded-2xl border-2 border-gray-100 bg-gradient-to-br from-white to-gray-50/50 p-6 shadow-md transition-all duration-300 hover:border-gray-200"
+      className="group h-full rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
     >
-      {/* Subtle gradient overlay */}
-      <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-gradient-to-br from-gray-100/50 to-transparent opacity-0 blur-2xl transition-opacity duration-300 group-hover:opacity-100" />
-      
-      <div className="relative flex items-start justify-between">
-        <div className="flex-1">
-          <p className="text-sm font-semibold uppercase tracking-wider text-gray-500">{title}</p>
-          <h3 className="mt-3 text-4xl font-bold text-gray-900 transition-colors duration-300 group-hover:text-gray-800">
-            {value}
-          </h3>
-          <div className="mt-3 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-green-50 to-emerald-50 px-3 py-1.5 w-fit">
-            <TrendingUp
-              className={`h-4 w-4 ${trend === "up" ? "text-green-600" : "text-red-600 rotate-180"}`}
-            />
-            <span
-              className={`text-sm font-bold ${trend === "up" ? "text-green-700" : "text-red-700"}`}
-            >
-              {change}
-            </span>
-            <span className="text-xs font-medium text-gray-600">vs last month</span>
-          </div>
-        </div>
-        <div className={`flex h-16 w-16 items-center justify-center rounded-2xl ${color} shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:shadow-xl`}>
-          {icon}
-        </div>
-      </div>
+      {content}
     </motion.div>
   );
 }
@@ -65,22 +89,26 @@ interface QuickActionProps {
   description: string;
   href: string;
   icon: React.ReactNode;
+  color: string;
 }
 
-function QuickAction({ title, description, href, icon }: QuickActionProps) {
+function QuickAction({ title, description, href, icon, color }: QuickActionProps) {
   return (
     <Link href={href}>
       <motion.div
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className="group flex h-full items-start gap-4 rounded-lg border border-gray-200 bg-white p-4 transition-all hover:border-[#2F2582] hover:shadow-md"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -2 }}
+        className="group flex h-full items-start gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-[#2F2582] hover:shadow-md cursor-pointer"
       >
-        <div className="rounded-lg bg-[#2F2582]/10 p-3 text-[#2F2582]">{icon}</div>
-        <div className="flex-1">
-          <h4 className="font-semibold text-gray-900">{title}</h4>
+        <div className={`rounded-lg ${color} p-3 transition-transform group-hover:scale-110`}>
+          {icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="font-semibold text-gray-900 group-hover:text-[#2F2582] transition-colors">{title}</h4>
           <p className="mt-1 text-sm text-gray-600">{description}</p>
         </div>
-        <ArrowRight className="h-5 w-5 text-gray-400 transition-transform group-hover:translate-x-1 group-hover:text-[#2F2582]" />
+        <ArrowRight className="h-5 w-5 text-gray-400 transition-all group-hover:translate-x-1 group-hover:text-[#2F2582] shrink-0" />
       </motion.div>
     </Link>
   );
@@ -112,98 +140,264 @@ export default function AdminDashboard() {
 
   const dashboardStats = [
     {
+      title: "Total Customers",
+      value: isLoading ? "..." : customerCount.toString(),
+      change: "+8%",
+      trend: "up" as const,
+      icon: <Users className="h-6 w-6 text-white" />,
+      color: "bg-[#2F2582]",
+      href: "/admin/customers",
+    },
+    {
       title: "Total Products",
       value: "156*",
       change: "+12%*",
       trend: "up" as const,
       icon: <Package className="h-6 w-6 text-white" />,
       color: "bg-blue-500",
+      href: "/admin/products",
     },
     {
-      title: "Total Orders",
-      value: "342*",
-      change: "+23%*",
+      title: "Job Applications",
+      value: "24*",
+      change: "+5%*",
       trend: "up" as const,
-      icon: <ShoppingCart className="h-6 w-6 text-white" />,
+      icon: <Briefcase className="h-6 w-6 text-white" />,
       color: "bg-green-500",
+      href: "/admin/careers/applications",
     },
     {
-      title: "Revenue",
-      value: "45,231*",
-      change: "+18%*",
+      title: "Contact Submissions",
+      value: "89*",
+      change: "+15%*",
       trend: "up" as const,
-      icon: <IndianRupeeIcon className="h-6 w-6 text-white" />,
-      color: "bg-purple-500",
-    },
-    {
-      title: "Customers",
-      value: isLoading ? "..." : customerCount.toString(),
-      change: "+8%",
-      trend: "up" as const,
-      icon: <Users className="h-6 w-6 text-white" />,
+      icon: <Mail className="h-6 w-6 text-white" />,
       color: "bg-orange-500",
+      href: "/admin/communications/contact",
     },
   ];
 
   const quickActions = [
     {
-      title: "Add New Product",
-      description: "Create and publish a new product to your catalog",
-      href: "/admin/products/new",
-      icon: <Package className="h-5 w-5" />,
+      title: "Manage Products",
+      description: "View and manage your product catalog",
+      href: "/admin/products",
+      icon: <Package className="h-5 w-5 text-white" />,
+      color: "bg-blue-500",
     },
     {
-      title: "View Orders",
-      description: "Manage and process customer orders",
-      href: "/admin/orders",
-      icon: <ShoppingCart className="h-5 w-5" />,
-    },
-    {
-      title: "Manage Categories",
+      title: "Categories",
       description: "Organize products with categories",
       href: "/admin/categories",
-      icon: <Package className="h-5 w-5" />,
+      icon: <FolderTree className="h-5 w-5 text-white" />,
+      color: "bg-purple-500",
+    },
+    {
+      title: "Collections",
+      description: "Create and manage product collections",
+      href: "/admin/collections",
+      icon: <Layers className="h-5 w-5 text-white" />,
+      color: "bg-pink-500",
+    },
+    {
+      title: "Catalogues",
+      description: "Upload and manage PDF catalogues",
+      href: "/admin/catalogues",
+      icon: <BookOpen className="h-5 w-5 text-white" />,
+      color: "bg-indigo-500",
+    },
+    {
+      title: "Store Locations",
+      description: "Manage physical store locations",
+      href: "/admin/stores",
+      icon: <Store className="h-5 w-5 text-white" />,
+      color: "bg-teal-500",
+    },
+    {
+      title: "Job Listings",
+      description: "Post and manage career opportunities",
+      href: "/admin/careers",
+      icon: <Briefcase className="h-5 w-5 text-white" />,
+      color: "bg-green-500",
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <div className="h-8 w-64 animate-pulse rounded bg-gray-200" />
+          <div className="mt-2 h-4 w-96 animate-pulse rounded bg-gray-200" />
+        </div>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-32 animate-pulse rounded-xl bg-gray-200" />
+          ))}
+        </div>
+        <div>
+          <div className="mb-4 h-6 w-32 animate-pulse rounded bg-gray-200" />
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-24 animate-pulse rounded-xl bg-gray-200" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
       {/* Page Header */}
-      <div>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
         <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">
-          Welcome back, {firstName}!
+          Welcome back, {firstName}! 👋
         </h1>
         <p className="mt-2 text-gray-600">
-          Here's what's happening with your store today.
+          Here's an overview of your store's performance and quick access to key features.
         </p>
-      </div>
+      </motion.div>
 
       {/* Stats Grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {dashboardStats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
-        ))}
-      </div>
-
-      {/* Quick Actions */}
-      <div>
-        <h2 className="mb-4 text-xl font-semibold text-gray-900">Quick Actions</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {quickActions.map((action, index) => (
-            <QuickAction key={index} {...action} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">Overview</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {dashboardStats.map((stat, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 + index * 0.05, type: "spring", stiffness: 100 }}
+            >
+              <StatCard {...stat} />
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Recent Activity Placeholder */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6">
-        <h2 className="mb-4 text-xl font-semibold text-gray-900">Recent Orders</h2>
-        <div className="flex h-48 items-center justify-center rounded-lg border-2 border-dashed border-gray-200">
-          <p className="text-gray-500">
-            Recent orders will appear here once implemented
-          </p>
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">Quick Actions</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {quickActions.map((action, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 + index * 0.05 }}
+            >
+              <QuickAction {...action} />
+            </motion.div>
+          ))}
         </div>
-      </div>
+      </motion.div>
+
+      {/* Recent Orders */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="rounded-xl border border-gray-200 bg-white shadow-sm"
+      >
+        <div className="border-b border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Recent Orders</h2>
+              <p className="mt-1 text-sm text-gray-600">Latest customer orders and their status</p>
+            </div>
+            <Link href="/admin/orders">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 rounded-lg bg-[#2F2582] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#241c66]"
+              >
+                View All
+                <ArrowRight className="h-4 w-4" />
+              </motion.button>
+            </Link>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          {/* Placeholder for orders table */}
+          <div className="space-y-4">
+            {/* Table Header */}
+            <div className="grid grid-cols-5 gap-4 border-b border-gray-200 pb-3 text-sm font-medium text-gray-600">
+              <div>Order ID</div>
+              <div>Customer</div>
+              <div>Date</div>
+              <div>Total</div>
+              <div>Status</div>
+            </div>
+            
+            {/* Placeholder Rows */}
+            {[...Array(5)].map((_, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 + index * 0.05 }}
+                className="grid grid-cols-5 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm"
+              >
+                <div className="font-mono text-gray-500">#ORD-{1000 + index}</div>
+                <div className="text-gray-700">Customer {index + 1}</div>
+                <div className="text-gray-600">
+                  {new Date(Date.now() - index * 86400000).toLocaleDateString()}
+                </div>
+                <div className="font-semibold text-gray-900">
+                  ${(Math.random() * 500 + 50).toFixed(2)}
+                </div>
+                <div>
+                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    index % 3 === 0 
+                      ? 'bg-green-100 text-green-700' 
+                      : index % 3 === 1 
+                      ? 'bg-yellow-100 text-yellow-700' 
+                      : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {index % 3 === 0 ? 'Delivered' : index % 3 === 1 ? 'Processing' : 'Pending'}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+          
+          {/* Info message */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4 text-center"
+          >
+            <ShoppingCart className="mx-auto h-8 w-8 text-gray-400" />
+            <p className="mt-2 text-sm text-gray-600">
+              This is placeholder data. Real orders will appear here once the orders feature is implemented.
+            </p>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Note about placeholder data */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="rounded-lg border border-blue-200 bg-blue-50 p-4"
+      >
+        <p className="text-sm text-blue-800">
+          <span className="font-semibold">Note:</span> Statistics marked with * are placeholder values and will be replaced with real data once the respective features are implemented.
+        </p>
+      </motion.div>
     </div>
   );
 }

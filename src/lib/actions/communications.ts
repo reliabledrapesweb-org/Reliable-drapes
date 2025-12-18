@@ -23,6 +23,36 @@ export interface ContactSubmission {
   updated_at: string;
 }
 
+export async function createContactSubmission(
+  data: Pick<ContactSubmission, "name" | "email" | "phone" | "subject" | "message">
+): Promise<ActionResult<ContactSubmission>> {
+  try {
+    const supabase = await supabaseServer();
+
+    const { data: submission, error } = await supabase
+      .from("contact_submissions")
+      .insert({
+        ...data,
+        status: "new",
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating contact submission:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: submission };
+  } catch (error) {
+    console.error("Error in createContactSubmission:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
 export async function getContactSubmissions(): Promise<
   ActionResult<ContactSubmission[]>
 > {
@@ -119,6 +149,36 @@ export interface ConsultationRequest {
   updated_at: string;
 }
 
+export async function createConsultationRequest(
+  data: Pick<ConsultationRequest, "name" | "email" | "phone" | "service_type" | "preferred_date" | "preferred_time" | "message">
+): Promise<ActionResult<ConsultationRequest>> {
+  try {
+    const supabase = await supabaseServer();
+
+    const { data: request, error } = await supabase
+      .from("consultation_requests")
+      .insert({
+        ...data,
+        status: "pending",
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating consultation request:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: request };
+  } catch (error) {
+    console.error("Error in createConsultationRequest:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
+}
+
 export async function getConsultationRequests(): Promise<
   ActionResult<ConsultationRequest[]>
 > {
@@ -207,6 +267,63 @@ export interface NewsletterSubscriber {
   status: "active" | "unsubscribed";
   subscribed_at: string;
   unsubscribed_at?: string;
+}
+
+export async function createNewsletterSubscriber(
+  data: Pick<NewsletterSubscriber, "email" | "name">
+): Promise<ActionResult<NewsletterSubscriber>> {
+  try {
+    const supabase = await supabaseServer();
+
+    // Check if email already exists
+    const { data: existing } = await supabase
+      .from("newsletter_subscribers")
+      .select("id, status")
+      .eq("email", data.email)
+      .single();
+
+    if (existing) {
+      if (existing.status === "active") {
+        return { success: false, error: "This email is already subscribed" };
+      } else {
+        // Reactivate unsubscribed email
+        const { data: updated, error } = await supabase
+          .from("newsletter_subscribers")
+          .update({ status: "active", unsubscribed_at: null })
+          .eq("id", existing.id)
+          .select()
+          .single();
+
+        if (error) {
+          return { success: false, error: error.message };
+        }
+
+        return { success: true, data: updated };
+      }
+    }
+
+    const { data: subscriber, error } = await supabase
+      .from("newsletter_subscribers")
+      .insert({
+        ...data,
+        status: "active",
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error creating newsletter subscriber:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, data: subscriber };
+  } catch (error) {
+    console.error("Error in createNewsletterSubscriber:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
 }
 
 export async function getNewsletterSubscribers(): Promise<

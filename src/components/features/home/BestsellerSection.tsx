@@ -66,14 +66,14 @@ export function BestsellerSection() {
           </div>
 
           {/* Bottom Row - 2 wider items with same height as top row */}
-          <div className="grid grid-cols-2 gap-4 [&>*]:h-[calc((100vw-8rem-1rem)/3)] [&>*]:max-h-[calc((1280px-8rem-1rem)/3)]">
+          <div className="grid grid-cols-2 gap-4">
             {products.slice(3, 5).map((product, index) => (
               <BestsellerCard
                 key={index}
                 product={product}
                 index={index}
                 delay={0.3} // Offset for bottom row
-                className=""
+                className="aspect-3/2"
               />
             ))}
           </div>
@@ -132,23 +132,23 @@ function BestsellerCard({
           sizes="(max-width: 1024px) 100vw, 50vw"
         />
         <div className="absolute inset-0 bg-linear-to-b from-transparent from-46% to-black/80" />
-        <div className="absolute bottom-6 left-6 z-20">
+        <div className="absolute bottom-6 left-6 right-6 z-20">
           {isMobile ? (
             <h3 className="mb-2 tracking-widest text-white uppercase">
               {product.name}
             </h3>
           ) : (
             <>
-              <div className="inline-block">
+              <div className="relative">
                 <h3 className="text-xl font-medium tracking-widest text-white uppercase">
                   {product.name}
                 </h3>
-                <div className="h-px w-0 bg-white transition-all duration-300 group-hover:w-full" />
+                <div className="absolute left-0 top-full mt-1 h-px w-0 bg-white transition-all duration-300 group-hover:w-full" />
               </div>
               <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 group-hover:grid-rows-[1fr]">
                 <div className="overflow-hidden">
                   {product.description && (
-                    <p className="mt-2 max-w-xs text-sm text-white opacity-0 transition-opacity delay-100 duration-300 group-hover:opacity-100">
+                    <p className="mt-3 max-w-xs text-sm text-white opacity-0 transition-opacity delay-100 duration-300 group-hover:opacity-100">
                       {product.description}
                     </p>
                   )}

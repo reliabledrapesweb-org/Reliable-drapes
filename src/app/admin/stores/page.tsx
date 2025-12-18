@@ -26,6 +26,7 @@ import {
   type Store,
   type StoreFormData,
 } from "@/lib/actions/stores";
+import { title } from "process";
 
 export default function StoresAdminPage() {
   const { isAdmin, isLoading: adminLoading } = useAdmin();
@@ -218,7 +219,23 @@ export default function StoresAdminPage() {
   };
 
   if (adminLoading || isLoading) {
-    return <AdminPageSkeleton />;
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
+            <div className="mt-2 h-4 w-96 animate-pulse rounded bg-gray-200" />
+          </div>
+          <div className="h-10 w-32 animate-pulse rounded-lg bg-gray-200" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-lg bg-gray-200" />
+          ))}
+        </div>
+        <div className="h-96 animate-pulse rounded-xl bg-gray-200" />
+      </div>
+    );
   }
 
   if (!isAdmin) {
@@ -230,8 +247,8 @@ export default function StoresAdminPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Store Management</h1>
-          <p className="mt-1 text-sm text-gray-600 sm:text-base">
+          <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">Store Management</h1>
+          <p className="mt-1 text-sm text-gray-600">
             Manage your physical store locations
           </p>
         </div>
@@ -245,48 +262,19 @@ export default function StoresAdminPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Stores</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-                <MapPin className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Active Stores</p>
-                <p className="text-2xl font-bold text-green-600">{stats.active}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                <Power className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Inactive Stores</p>
-                <p className="text-2xl font-bold text-gray-600">{stats.inactive}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-                <PowerOff className="h-6 w-6 text-gray-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Total Stores</p>
+          <p className="mt-1 text-2xl font-bold text-gray-900">{stats.total}</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Active Stores</p>
+          <p className="mt-1 text-2xl font-bold text-green-600">{stats.active}</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Inactive Stores</p>
+          <p className="mt-1 text-2xl font-bold text-gray-600">{stats.inactive}</p>
+        </div>
       </div>
 
       {/* Stores Table */}

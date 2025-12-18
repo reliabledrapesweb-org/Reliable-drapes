@@ -116,24 +116,26 @@ export default function ProductDetailPage() {
 
   if (isLoading) {
     return (
-      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+      <main className="mt-14 min-h-screen bg-gray-50 md:mt-16 lg:mt-[72px]">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-16">
+          <div className="mb-6 h-6 w-32 animate-pulse rounded bg-gray-200" />
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
             <div className="space-y-4">
-              <div className="aspect-square w-full animate-pulse rounded-xl bg-gray-200" />
-              <div className="grid grid-cols-4 gap-4">
-                {[...Array(4)].map((_, i) => (
+              <div className="aspect-[4/3] w-full animate-pulse rounded-2xl bg-gray-200" />
+              <div className="grid grid-cols-5 gap-3">
+                {[...Array(5)].map((_, i) => (
                   <div key={i} className="aspect-square animate-pulse rounded-lg bg-gray-200" />
                 ))}
               </div>
             </div>
             <div className="space-y-6">
-              <div className="h-8 w-3/4 animate-pulse rounded bg-gray-200" />
-              <div className="h-6 w-1/4 animate-pulse rounded bg-gray-200" />
-              <div className="space-y-2">
-                <div className="h-4 w-full animate-pulse rounded bg-gray-200" />
-                <div className="h-4 w-5/6 animate-pulse rounded bg-gray-200" />
+              <div className="space-y-3">
+                <div className="h-4 w-24 animate-pulse rounded-full bg-gray-200" />
+                <div className="h-10 w-3/4 animate-pulse rounded bg-gray-200" />
+                <div className="h-12 w-1/3 animate-pulse rounded bg-gray-200" />
               </div>
+              <div className="h-32 w-full animate-pulse rounded-xl bg-gray-200" />
+              <div className="h-48 w-full animate-pulse rounded-xl bg-gray-200" />
             </div>
           </div>
         </div>
@@ -146,68 +148,95 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+    <main className="mt-14 min-h-screen bg-gray-50 md:mt-16 lg:mt-[72px]">
       <Breadcrumb />
       
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* Back Button */}
-        <button
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
           onClick={() => router.back()}
           className="mb-6 flex items-center gap-2 text-[#575757] transition-colors hover:text-[#2f2582]"
         >
           <ChevronLeft className="h-5 w-5" />
           <span className="text-sm font-medium">Back to Products</span>
-        </button>
+        </motion.button>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-16">
           {/* Image Gallery */}
-          <div className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="space-y-4 lg:sticky lg:top-24 lg:self-start"
+          >
             {/* Main Image */}
             <motion.div
               key={selectedImage}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-              className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-linear-to-b from-gray-100 to-gray-200 shadow-xl"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, type: "spring", stiffness: 100 }}
+              className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-white shadow-xl"
             >
               <Image
                 src={imageError ? fallbackImage : currentImage}
                 alt={allImages[selectedImage]?.alt || product.name}
                 fill
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                className="object-cover transition-transform duration-500 group-hover:scale-110"
                 priority
                 onError={() => setImageError(true)}
               />
               
               {/* Zoom Button */}
-              <button
+              <motion.button
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3 }}
                 onClick={() => setIsZoomed(true)}
-                className="absolute right-4 top-4 rounded-full bg-white/90 p-3 shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
+                className="absolute right-4 top-4 rounded-full bg-white/95 p-3 shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
                 aria-label="Zoom image"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <ZoomIn className="h-5 w-5 text-[#2f2582]" />
-              </button>
+              </motion.button>
 
               {/* Image Counter */}
               {allImages.length > 1 && (
-                <div className="absolute bottom-4 right-4 rounded-full bg-black/60 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="absolute bottom-4 right-4 rounded-full bg-black/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm"
+                >
                   {selectedImage + 1} / {allImages.length}
-                </div>
+                </motion.div>
               )}
             </motion.div>
 
             {/* Thumbnail Grid */}
             {allImages.length > 1 && (
-              <div className="grid grid-cols-5 gap-3">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="grid grid-cols-5 gap-3"
+              >
                 {allImages.map((image, index) => (
-                  <button
+                  <motion.button
                     key={index}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3 + index * 0.05 }}
                     onClick={() => setSelectedImage(index)}
                     className={`relative aspect-square overflow-hidden rounded-lg transition-all ${
                       selectedImage === index
-                        ? "ring-3 ring-[#2f2582] ring-offset-2 opacity-100"
-                        : "opacity-50 hover:opacity-100 hover:ring-2 hover:ring-gray-300"
+                        ? "ring-3 ring-[#2f2582] ring-offset-2 opacity-100 scale-105"
+                        : "opacity-60 hover:opacity-100 hover:ring-2 hover:ring-gray-300 hover:scale-105"
                     }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     <Image
                       src={image.url}
@@ -216,72 +245,110 @@ export default function ProductDetailPage() {
                       className="object-cover"
                       sizes="(max-width: 768px) 20vw, 10vw"
                     />
-                  </button>
+                  </motion.button>
                 ))}
-              </div>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
 
           {/* Product Info */}
-          <div className="space-y-8">
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="space-y-8"
+          >
             {/* Title, Categories and Price */}
             <div className="space-y-4">
               {/* Categories */}
               {product.categories && product.categories.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {product.categories.map((category) => (
-                    <span
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="flex flex-wrap gap-2"
+                >
+                  {product.categories.map((category, index) => (
+                    <motion.span
                       key={category.id}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.3 + index * 0.05 }}
                       className="rounded-full bg-[#2f2582]/10 px-3 py-1 text-xs font-semibold text-[#2f2582] uppercase tracking-wide"
                     >
                       {category.name}
-                    </span>
+                    </motion.span>
                   ))}
-                </div>
+                </motion.div>
               )}
 
-              <h1 className="text-3xl font-bold leading-tight text-[#2a2a2a] lg:text-4xl xl:text-5xl">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="text-3xl font-bold leading-tight text-[#2a2a2a] lg:text-4xl xl:text-5xl"
+              >
                 {product.name}
-              </h1>
+              </motion.h1>
               
-              <div className="flex items-baseline gap-3">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="flex items-baseline gap-3"
+              >
                 <p className="text-4xl font-bold text-[#2f2582] lg:text-5xl">
                   {formatPrice(product.price)}
                 </p>
                 {product.variants && product.variants.length > 0 && (
                   <span className="text-sm text-[#575757]">+ options</span>
                 )}
-              </div>
+              </motion.div>
             </div>
 
             {/* Description */}
             {product.description && (
-              <div className="rounded-xl bg-gray-50 p-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="rounded-xl bg-white border border-gray-200 p-6 shadow-sm"
+              >
                 <h2 className="mb-3 text-base font-bold uppercase tracking-wide text-[#161616]">
                   Description
                 </h2>
                 <p className="text-base leading-relaxed text-[#575757]">
                   {product.description}
                 </p>
-              </div>
+              </motion.div>
             )}
 
             {/* Variants */}
             {product.variants && product.variants.length > 0 && (
-              <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+                className="space-y-4"
+              >
                 <h2 className="text-base font-bold uppercase tracking-wide text-[#161616]">
                   Select Options
                 </h2>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {product.variants.map((variant) => (
-                    <button
+                  {product.variants.map((variant, index) => (
+                    <motion.button
                       key={variant.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.7 + index * 0.05 }}
                       onClick={() => setSelectedVariant(variant.id)}
                       className={`flex items-center justify-between rounded-xl border-2 px-5 py-4 text-left transition-all ${
                         selectedVariant === variant.id
-                          ? "border-[#2f2582] bg-[#2f2582]/5 shadow-md"
-                          : "border-gray-200 hover:border-[#2f2582]/50 hover:bg-gray-50"
+                          ? "border-[#2f2582] bg-[#2f2582]/5 shadow-md scale-105"
+                          : "border-gray-200 hover:border-[#2f2582]/50 hover:bg-gray-50 hover:scale-102"
                       }`}
+                      whileHover={{ scale: selectedVariant === variant.id ? 1.05 : 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
                       <div>
                         <p className="font-semibold text-[#161616]">
@@ -295,68 +362,100 @@ export default function ProductDetailPage() {
                         )}
                       </div>
                       {selectedVariant === variant.id && (
-                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#2f2582]">
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 200 }}
+                          className="flex h-6 w-6 items-center justify-center rounded-full bg-[#2f2582]"
+                        >
                           <Check className="h-4 w-4 text-white" />
-                        </div>
+                        </motion.div>
                       )}
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {/* Quantity and Add to Cart */}
-            <div className="space-y-4 rounded-xl border-2 border-gray-200 bg-white p-6 shadow-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+              className="space-y-4 rounded-xl border-2 border-gray-200 bg-white p-6 shadow-lg"
+            >
               <div className="flex items-center justify-between">
                 <h2 className="text-base font-bold uppercase tracking-wide text-[#161616]">
                   Quantity
                 </h2>
                 <div className="flex items-center rounded-xl border-2 border-gray-200 bg-gray-50">
-                  <button
+                  <motion.button
                     onClick={() => handleQuantityChange(-1)}
-                    className="px-5 py-3 text-[#575757] transition-colors hover:bg-gray-100 disabled:opacity-50"
                     disabled={quantity <= 1}
+                    className="px-5 py-3 text-[#575757] transition-colors hover:bg-gray-100 disabled:opacity-50"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                   >
                     <Minus className="h-5 w-5" />
-                  </button>
-                  <span className="min-w-12 text-center text-xl font-bold text-[#161616]">
+                  </motion.button>
+                  <motion.span
+                    key={quantity}
+                    initial={{ scale: 1.2, color: "#2f2582" }}
+                    animate={{ scale: 1, color: "#161616" }}
+                    className="min-w-12 text-center text-xl font-bold"
+                  >
                     {quantity}
-                  </span>
-                  <button
+                  </motion.span>
+                  <motion.button
                     onClick={() => handleQuantityChange(1)}
                     className="px-5 py-3 text-[#575757] transition-colors hover:bg-gray-100"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                   >
                     <Plus className="h-5 w-5" />
-                  </button>
+                  </motion.button>
                 </div>
               </div>
 
               <motion.button
                 onClick={handleAddToCart}
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: 1.02, boxShadow: "0 20px 25px -5px rgba(47, 37, 130, 0.3)" }}
                 whileTap={{ scale: 0.98 }}
-                className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#2f2582] px-8 py-5 text-lg font-bold tracking-wide text-white uppercase transition-all hover:bg-[#241c66] hover:shadow-xl"
+                className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#2f2582] px-8 py-5 text-lg font-bold tracking-wide text-white uppercase transition-all hover:bg-[#241c66] shadow-lg"
               >
                 <ShoppingCart className="h-6 w-6" />
                 Add to Cart
               </motion.button>
 
-              <p className="text-center text-sm text-[#575757]">
-                Free shipping on orders over ₹5,000
-              </p>
-            </div>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}
+                className="text-center text-sm text-[#575757]"
+              >
+                🚚 Free shipping on orders over ₹5,000
+              </motion.p>
+            </motion.div>
 
             {/* Specifications */}
             {product.specifications && product.specifications.length > 0 && (
-              <div className="space-y-4">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9 }}
+                className="space-y-4"
+              >
                 <h2 className="text-base font-bold uppercase tracking-wide text-[#161616]">
                   Specifications
                 </h2>
-                <div className="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white">
-                  {product.specifications.map((spec) => (
-                    <div
+                <div className="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+                  {product.specifications.map((spec, index) => (
+                    <motion.div
                       key={spec.id}
-                      className="flex items-center justify-between px-5 py-4"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.9 + index * 0.05 }}
+                      className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors"
                     >
                       <span className="text-sm font-medium text-[#575757]">
                         {spec.spec_name}
@@ -364,12 +463,12 @@ export default function ProductDetailPage() {
                       <span className="text-sm font-semibold text-[#161616]">
                         {spec.spec_value}
                       </span>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
         </div>
       </div>
 

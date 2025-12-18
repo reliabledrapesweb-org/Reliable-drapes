@@ -204,7 +204,23 @@ export default function AdminCareersPage() {
   };
 
   if (isLoading) {
-    return <AdminPageSkeleton rows={6} columns={6} statsCount={3} />;
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
+            <div className="mt-2 h-4 w-96 animate-pulse rounded bg-gray-200" />
+          </div>
+          <div className="h-10 w-32 animate-pulse rounded-lg bg-gray-200" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-24 animate-pulse rounded-lg bg-gray-200" />
+          ))}
+        </div>
+        <div className="h-96 animate-pulse rounded-xl bg-gray-200" />
+      </div>
+    );
   }
 
   return (
@@ -227,166 +243,131 @@ export default function AdminCareersPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Jobs</p>
-                <p className="text-2xl font-bold text-gray-900">{jobs.length}</p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-                <Briefcase className="h-6 w-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Active Jobs</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {jobs.filter((j) => j.is_active).length}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                <Eye className="h-6 w-6 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="sm:col-span-2 lg:col-span-1">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Inactive Jobs</p>
-                <p className="text-2xl font-bold text-gray-600">
-                  {jobs.filter((j) => !j.is_active).length}
-                </p>
-              </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-                <EyeOff className="h-6 w-6 text-gray-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Total Jobs</p>
+          <p className="mt-1 text-2xl font-bold text-gray-900">{jobs.length}</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Active Jobs</p>
+          <p className="mt-1 text-2xl font-bold text-green-600">
+            {jobs.filter((j) => j.is_active).length}
+          </p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <p className="text-sm font-medium text-gray-600">Inactive Jobs</p>
+          <p className="mt-1 text-2xl font-bold text-gray-600">
+            {jobs.filter((j) => !j.is_active).length}
+          </p>
+        </div>
       </div>
 
-      {/* Jobs Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Jobs ({jobs.length})</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Job Title</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead className="hidden sm:table-cell">Experience</TableHead>
-                <TableHead className="hidden md:table-cell">Location</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {jobs.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    <div className="flex flex-col items-center justify-center py-8">
-                      <Briefcase className="h-12 w-12 text-gray-400" />
-                      <h3 className="mt-4 text-lg font-medium text-gray-900">No job listings yet</h3>
-                      <p className="mt-2 text-sm text-gray-500">Get started by creating your first job listing.</p>
-                      <Button
-                        onClick={handleOpenNewJobModal}
-                        className="mt-4 bg-[#2F2582] hover:bg-[#251e66] cursor-pointer"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Add New Job
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                jobs.map((job) => (
-                  <TableRow key={job.id}>
-                    <TableCell>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-gray-900">
-                          {job.title}
-                        </p>
-                        {job.description && (
-                          <p className="truncate text-xs text-gray-500">
-                            {job.description.substring(0, 50)}{job.description.length > 50 ? '...' : ''}
-                          </p>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+      {/* Jobs List */}
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+        {jobs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <Briefcase className="mb-3 h-12 w-12 text-gray-300" />
+            <p className="text-lg font-medium text-gray-900">No job listings yet</p>
+            <p className="mt-1 text-sm text-gray-500">
+              Get started by creating your first job listing
+            </p>
+            <Button
+              onClick={handleOpenNewJobModal}
+              className="mt-4 bg-[#2F2582] hover:bg-[#251e66] cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              Add New Job
+            </Button>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-100">
+            {jobs.map((job, index) => (
+              <motion.div
+                key={job.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="p-4 hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-gray-900">{job.title}</h3>
+                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
                         {job.type}
                       </span>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <span className="text-sm text-gray-500">{job.experience}</span>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <span className="text-sm text-gray-500">{job.location}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleToggleStatus(job)}
-                        className={`h-8 px-3 cursor-pointer ${
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${
                           job.is_active
-                            ? "bg-green-100 text-green-700 hover:bg-green-200"
-                            : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 text-gray-500"
                         }`}
                       >
                         {job.is_active ? (
                           <>
-                            <Eye className="mr-1 h-3 w-3" />
+                            <Eye className="h-3 w-3" />
                             Active
                           </>
                         ) : (
                           <>
-                            <EyeOff className="mr-1 h-3 w-3" />
+                            <EyeOff className="h-3 w-3" />
                             Inactive
                           </>
                         )}
-                      </Button>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleEdit(job)}
-                          className="h-8 w-8 text-gray-600 hover:text-blue-600 cursor-pointer"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleDelete(job.id, job.title)}
-                          className="h-8 w-8 text-gray-600 hover:text-red-600 cursor-pointer"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                      </span>
+                    </div>
+                    {job.description && (
+                      <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                        {job.description}
+                      </p>
+                    )}
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
+                      <span className="flex items-center gap-1">
+                        <Briefcase className="h-3 w-3" />
+                        {job.experience}
+                      </span>
+                      <span>{job.location}</span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleEdit(job)}
+                      className="rounded-lg border border-gray-200 bg-white p-2 text-gray-600 transition-colors hover:bg-gray-50"
+                      title="Edit job"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleToggleStatus(job)}
+                      className={`rounded-lg border p-2 transition-colors ${
+                        job.is_active
+                          ? "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                          : "border-green-200 bg-white text-green-600 hover:bg-green-50"
+                      }`}
+                      title={job.is_active ? "Deactivate" : "Activate"}
+                    >
+                      {job.is_active ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleDelete(job.id, job.title)}
+                      className="rounded-lg border border-red-200 bg-white p-2 text-red-600 transition-colors hover:bg-red-50"
+                      title="Delete job"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Job Form Modal */}
       {isModalOpen && (
