@@ -303,6 +303,12 @@ export default function ConsultationsPage() {
           setSelectedRequest(null);
         }}
         title="Consultation Request Details"
+        onSubmit={(e) => {
+          e.preventDefault();
+          // This is a view-only modal, no submission needed
+        }}
+        submitLabel="Close"
+        cancelLabel="Close"
       >
         {selectedRequest && (
           <div className="space-y-4">

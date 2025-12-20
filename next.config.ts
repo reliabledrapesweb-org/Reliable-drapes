@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Set explicit turbopack root to silence warning
+  turbopack: {
+    root: process.cwd(),
+  },
   images: {
     remotePatterns: [
       {
