@@ -33,6 +33,8 @@ export function Breadcrumb() {
       items.push({ label: "E-catalogue" });
     } else if (pathname === "/store-locator") {
       items.push({ label: "Store Locator" });
+    } else if (pathname === "/style-expert") {
+      items.push({ label: "Style Expert" });
     } else if (pathname === "/careers") {
       items.push({ label: "Careers" });
     } else if (pathname === "/cart") {
