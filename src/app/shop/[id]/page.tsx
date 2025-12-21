@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { ChevronLeft, ShoppingCart, Minus, Plus, Check, ZoomIn, X } from "lucide-react";
 import { Breadcrumb } from "@/components/shared";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { useCartStore } from "@/lib/store";
-import { getProductById, type ProductWithDetails } from "@/lib/actions/products";
+import { ShopProductCard } from "@/components/features/shop/ShopProductCard";
+import type { Product } from "@/lib/actions/products";
+import { getProductById, getRelatedProducts, type ProductWithDetails } from "@/lib/actions/products";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -17,7 +20,9 @@ export default function ProductDetailPage() {
   const { addItem } = useCartStore();
   
   const [product, setProduct] = useState<ProductWithDetails | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingRelated, setIsLoadingRelated] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -33,6 +38,14 @@ export default function ProductDetailPage() {
         const result = await getProductById(productId);
         if (result.success && result.data) {
           setProduct(result.data);
+          
+          // Fetch related products
+          setIsLoadingRelated(true);
+          const relatedResult = await getRelatedProducts(productId, 4);
+          if (relatedResult.success && relatedResult.data) {
+            setRelatedProducts(relatedResult.data);
+          }
+          setIsLoadingRelated(false);
         } else {
           addToast(result.error || "Product not found", "error");
           router.push("/shop");
@@ -72,6 +85,21 @@ export default function ProductDetailPage() {
     });
 
     addToast(`${product.name} added to cart!`, "success", 3000);
+  };
+
+  const handleRelatedAddToCart = (productId: string, productName: string) => {
+    const relatedProduct = relatedProducts.find(p => p.id === productId);
+    if (!relatedProduct) return;
+
+    addItem({
+      productId: relatedProduct.id,
+      name: relatedProduct.name,
+      price: relatedProduct.price,
+      quantity: 1,
+      image: relatedProduct.image_url,
+    });
+
+    addToast(`${relatedProduct.name} added to cart!`, "success", 3000);
   };
 
   const handleQuantityChange = (delta: number) => {
@@ -471,6 +499,75 @@ export default function ProductDetailPage() {
           </motion.div>
         </div>
       </div>
+
+      {/* Related Products Section */}
+      {relatedProducts.length > 0 && (
+        <section className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-16">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="space-y-8"
+          >
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-[#2a2a2a] lg:text-4xl">
+                You Might Also Like
+              </h2>
+              <p className="mt-3 text-lg text-[#575757]">
+                Discover more products that complement your style
+              </p>
+            </div>
+
+            {isLoadingRelated ? (
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="space-y-4">
+                    <div className="aspect-square w-full animate-pulse rounded-xl bg-gray-200" />
+                    <div className="space-y-2">
+                      <div className="h-6 w-3/4 animate-pulse rounded bg-gray-200" />
+                      <div className="h-5 w-1/2 animate-pulse rounded bg-gray-200" />
+                      <div className="h-4 w-full animate-pulse rounded bg-gray-200" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                {relatedProducts.map((relatedProduct, index) => (
+                  <motion.div
+                    key={relatedProduct.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.3 + index * 0.1 }}
+                  >
+                    <ShopProductCard
+                      product={relatedProduct}
+                      isVisible={true}
+                      animationDelay={0}
+                      onAddToCart={handleRelatedAddToCart}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            )}
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+              className="text-center"
+            >
+              <Link
+                href="/shop"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#2f2582] px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-[#241c66] hover:scale-105 hover:shadow-lg"
+              >
+                View All Products
+                <ChevronLeft className="h-5 w-5 rotate-180" />
+              </Link>
+            </motion.div>
+          </motion.div>
+        </section>
+      )}
 
       {/* Image Zoom Modal */}
       {isZoomed && (

@@ -1370,6 +1370,108 @@ export async function deleteProductImage(imageId: string): Promise<{
 }
 
 /**
+ * Get related products based on shared categories
+ */
+export async function getRelatedProducts(
+  productId: string,
+  limit: number = 4
+): Promise<ProductsResponse> {
+  try {
+    const supabase = getAnonSupabase();
+
+    // Get the current product's categories
+    const { data: productCategories, error: categoriesError } = await supabase
+      .from("product_categories")
+      .select("category_id")
+      .eq("product_id", productId);
+
+    if (categoriesError || !productCategories || productCategories.length === 0) {
+      // If no categories found, return random products
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .neq("id", productId)
+        .limit(limit);
+
+      if (error) {
+        return { success: false, error: "Failed to fetch related products" };
+      }
+
+      return { success: true, data: data as Product[], total: data?.length || 0 };
+    }
+
+    const categoryIds = productCategories.map((pc) => pc.category_id);
+
+    // Find other products that share these categories
+    const { data: relatedProductCategories, error: relatedError } = await supabase
+      .from("product_categories")
+      .select("product_id")
+      .in("category_id", categoryIds)
+      .neq("product_id", productId);
+
+    if (relatedError) {
+      return { success: false, error: "Failed to fetch related products" };
+    }
+
+    if (!relatedProductCategories || relatedProductCategories.length === 0) {
+      // If no related products found, return random products
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .neq("id", productId)
+        .limit(limit);
+
+      if (error) {
+        return { success: false, error: "Failed to fetch related products" };
+      }
+
+      return { success: true, data: data as Product[], total: data?.length || 0 };
+    }
+
+    // Count how many categories each product shares
+    const productCounts: Record<string, number> = {};
+    relatedProductCategories.forEach((rpc) => {
+      productCounts[rpc.product_id] = (productCounts[rpc.product_id] || 0) + 1;
+    });
+
+    // Sort by number of shared categories (most relevant first)
+    const sortedProductIds = Object.entries(productCounts)
+      .sort(([, a], [, b]) => b - a)
+      .map(([productId]) => productId)
+      .slice(0, limit);
+
+    if (sortedProductIds.length === 0) {
+      return { success: true, data: [], total: 0 };
+    }
+
+    // Get the actual product data
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .in("id", sortedProductIds);
+
+    if (error) {
+      console.error("Error fetching related products:", error);
+      return { success: false, error: "Failed to fetch related products" };
+    }
+
+    // Sort the results to match the relevance order
+    const sortedData = sortedProductIds
+      .map((id) => data?.find((p) => p.id === id))
+      .filter(Boolean) as Product[];
+
+    return {
+      success: true,
+      data: sortedData,
+      total: sortedData.length,
+    };
+  } catch (error) {
+    console.error("Get related products exception:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
  * Reorder product images
  */
 export async function reorderProductImages(
