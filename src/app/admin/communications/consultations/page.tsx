@@ -96,6 +96,16 @@ export default function ConsultationsPage() {
     }
   };
 
+  const getServiceTypeDisplay = (serviceType: string) => {
+    const serviceTypes: Record<string, string> = {
+      "interior-design": "Interior Design Consultation",
+      "color-consultation": "Color & Style Consultation", 
+      "space-planning": "Space Planning",
+      "custom-design": "Custom Design Solutions"
+    };
+    return serviceTypes[serviceType] || serviceType;
+  };
+
   const filteredRequests =
     filter === "all" ? requests : requests.filter((r) => r.status === filter);
 
@@ -225,7 +235,7 @@ export default function ConsultationsPage() {
                       </span>
                     </div>
                     <p className="text-sm font-medium text-[#2F2582] mb-2">
-                      {request.service_type}
+                      {getServiceTypeDisplay(request.service_type)}
                     </p>
                     {request.message && (
                       <p className="text-sm text-gray-600 line-clamp-2 mb-2">
@@ -329,7 +339,7 @@ export default function ConsultationsPage() {
                 Service Type
               </label>
               <p className="mt-1 text-gray-900">
-                {selectedRequest.service_type}
+                {getServiceTypeDisplay(selectedRequest.service_type)}
               </p>
             </div>
             {selectedRequest.preferred_date && (
