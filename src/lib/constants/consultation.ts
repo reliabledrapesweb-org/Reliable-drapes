@@ -2,6 +2,43 @@
  * Constants for Style Expert Consultation System
  */
 
+import { Home, Palette, Users, Sparkles } from "lucide-react";
+
+export const serviceTypes = [
+  {
+    id: "interior-design",
+    name: "Interior Design Consultation",
+    description: "Complete room makeover with our expert designers",
+    icon: Home,
+    duration: "2-3 hours",
+    price: "Free"
+  },
+  {
+    id: "color-consultation",
+    name: "Color & Style Consultation",
+    description: "Perfect color schemes and style recommendations",
+    icon: Palette,
+    duration: "1-2 hours",
+    price: "Free"
+  },
+  {
+    id: "space-planning",
+    name: "Space Planning",
+    description: "Optimize your space layout and functionality",
+    icon: Users,
+    duration: "1-2 hours",
+    price: "Free"
+  },
+  {
+    id: "custom-design",
+    name: "Custom Design Solutions",
+    description: "Bespoke design solutions for unique requirements",
+    icon: Sparkles,
+    duration: "3-4 hours",
+    price: "Free"
+  }
+];
+
 export const PROJECT_TYPES = [
   { id: "new_home", label: "New Home", description: "Furnishing a new property" },
   { id: "renovation", label: "Renovation", description: "Updating existing space" },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { 
   Calendar, 
@@ -14,107 +14,151 @@ import {
   Home, 
   CheckCircle,
   ArrowRight,
-  Star,
-  Award,
-  Users,
-  Sparkles
+  ArrowLeft,
+  Sparkles,
+  Building2,
+  IndianRupee,
+  Timer,
+  ImagePlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { createConsultationRequest } from "@/lib/actions/communications";
 import { PageHero, Breadcrumb } from "@/components/shared";
+import { StepIndicator } from "@/components/features/consultation/StepIndicator";
+import { RoomTypeSelector } from "@/components/features/consultation/RoomTypeSelector";
+import { StylePreferenceSelector } from "@/components/features/consultation/StylePreferenceSelector";
+import { 
+  PROJECT_TYPES, 
+  PROPERTY_TYPES, 
+  BUDGET_RANGES, 
+  TIMELINES,
+  serviceTypes 
+} from "@/lib/constants/consultation";
 
 interface FormData {
+  // Step 1: Basic Info
   name: string;
   email: string;
   phone: string;
+  
+  // Step 2: Project Details
   service_type: string;
+  project_type: string;
+  room_types: string[];
+  property_type: string;
+  
+  // Step 3: Budget & Timeline
+  budget_range: string;
+  timeline: string;
+  
+  // Step 4: Style & Preferences
+  style_preferences: string[];
+  current_challenges: string;
+  
+  // Step 5: Schedule
   preferred_date: string;
   preferred_time: string;
   message: string;
 }
-
-const serviceTypes = [
-  {
-    id: "interior-design",
-    name: "Interior Design Consultation",
-    description: "Complete room makeover with our expert designers",
-    icon: Home,
-    duration: "2-3 hours",
-    price: "Free"
-  },
-  {
-    id: "color-consultation",
-    name: "Color & Style Consultation",
-    description: "Perfect color schemes and style recommendations",
-    icon: Palette,
-    duration: "1-2 hours",
-    price: "Free"
-  },
-  {
-    id: "space-planning",
-    name: "Space Planning",
-    description: "Optimize your space layout and functionality",
-    icon: Users,
-    duration: "1-2 hours",
-    price: "Free"
-  },
-  {
-    id: "custom-design",
-    name: "Custom Design Solutions",
-    description: "Bespoke design solutions for unique requirements",
-    icon: Sparkles,
-    duration: "3-4 hours",
-    price: "Free"
-  }
-];
 
 const timeSlots = [
   "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
   "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"
 ];
 
+const STEPS = [
+  { id: 1, title: "Basic Info", description: "Your contact details" },
+  { id: 2, title: "Project", description: "Project details" },
+  { id: 3, title: "Budget", description: "Budget & timeline" },
+  { id: 4, title: "Style", description: "Your preferences" },
+  { id: 5, title: "Schedule", description: "Book consultation" },
+];
+
 export default function StyleExpertPage() {
   const { toasts, addToast, removeToast } = useToast();
+  const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
     phone: "",
     service_type: "",
+    project_type: "",
+    room_types: [],
+    property_type: "",
+    budget_range: "",
+    timeline: "",
+    style_preferences: [],
+    current_challenges: "",
     preferred_date: "",
     preferred_time: "",
-    message: ""
+    message: "",
   });
 
-  const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<FormData> = {};
+  const validateStep = (step: number): boolean => {
+    const newErrors: Partial<Record<keyof FormData, string>> = {};
 
-    if (!formData.name.trim()) newErrors.name = "Name is required";
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email";
+    switch (step) {
+      case 1:
+        if (!formData.name.trim()) newErrors.name = "Name is required";
+        if (!formData.email.trim()) {
+          newErrors.email = "Email is required";
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+          newErrors.email = "Please enter a valid email";
+        }
+        if (!formData.phone.trim()) {
+          newErrors.phone = "Phone number is required";
+        } else if (!/^\+?[\d\s-()]+$/.test(formData.phone)) {
+          newErrors.phone = "Please enter a valid phone number";
+        }
+        break;
+      
+      case 2:
+        if (!formData.service_type) newErrors.service_type = "Please select a service";
+        if (!formData.project_type) newErrors.project_type = "Please select a project type";
+        if (formData.room_types.length === 0) newErrors.room_types = "Please select at least one room";
+        if (!formData.property_type) newErrors.property_type = "Please select a property type";
+        break;
+      
+      case 3:
+        if (!formData.budget_range) newErrors.budget_range = "Please select a budget range";
+        if (!formData.timeline) newErrors.timeline = "Please select a timeline";
+        break;
+      
+      case 4:
+        if (formData.style_preferences.length === 0) {
+          newErrors.style_preferences = "Please select at least one style preference";
+        }
+        break;
     }
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required";
-    } else if (!/^\+?[\d\s-()]+$/.test(formData.phone)) {
-      newErrors.phone = "Please enter a valid phone number";
-    }
-    if (!formData.service_type) newErrors.service_type = "Please select a service";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      addToast("Please fix the errors in the form", "error");
+
+  const handleNext = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep(prev => Math.min(prev + 1, STEPS.length));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      addToast("Please fill in all required fields", "error");
+    }
+  };
+
+  const handleBack = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSubmit = async () => {
+    if (!validateStep(currentStep)) {
+      addToast("Please fill in all required fields", "error");
       return;
     }
 
@@ -126,6 +170,13 @@ export default function StyleExpertPage() {
         email: formData.email,
         phone: formData.phone,
         service_type: formData.service_type,
+        project_type: formData.project_type,
+        room_types: formData.room_types,
+        property_type: formData.property_type,
+        budget_range: formData.budget_range,
+        timeline: formData.timeline,
+        style_preferences: formData.style_preferences,
+        current_challenges: formData.current_challenges || undefined,
         preferred_date: formData.preferred_date || undefined,
         preferred_time: formData.preferred_time || undefined,
         message: formData.message || undefined,
@@ -145,7 +196,7 @@ export default function StyleExpertPage() {
     }
   };
 
-  const handleInputChange = (field: keyof FormData, value: string) => {
+  const handleInputChange = <K extends keyof FormData>(field: K, value: FormData[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
@@ -159,7 +210,7 @@ export default function StyleExpertPage() {
         <Breadcrumb />
         <div className="w-full py-12 md:py-16 lg:py-20">
           <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto max-w-4xl text-center">
+            <div className="mx-auto max-w-2xl text-center">
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -200,25 +251,8 @@ export default function StyleExpertPage() {
                   className="space-y-4"
                 >
                   <Button
-                    onClick={() => {
-                      setIsSubmitted(false);
-                      setFormData({
-                        name: "",
-                        email: "",
-                        phone: "",
-                        service_type: "",
-                        preferred_date: "",
-                        preferred_time: "",
-                        message: ""
-                      });
-                    }}
-                    className="mr-4 bg-[#2f2582] hover:bg-[#241c66]"
-                  >
-                    Submit Another Request
-                  </Button>
-                  <Button
-                    variant="outline"
                     onClick={() => window.location.href = "/"}
+                    className="bg-[#2f2582] hover:bg-[#241c66]"
                   >
                     Back to Home
                   </Button>
@@ -232,105 +266,74 @@ export default function StyleExpertPage() {
     );
   }
 
+
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
       <PageHero heading="Style Expert" />
       <Breadcrumb />
       
       <div className="w-full py-12 md:py-16 lg:py-20">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          {/* Services Section */}
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          {/* Header */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="mb-12 md:mb-16 lg:mb-20"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 text-center"
           >
-            <div className="mb-12 text-center">
-              <p className="mb-4 text-xs font-medium tracking-[6px] text-[#575757] uppercase md:text-sm md:tracking-[8px]">
-                Our Services
-              </p>
-              <h2 className="mb-4 text-3xl font-bold text-[#2a2a2a] md:text-4xl">Choose Your Design Service</h2>
-              <p className="text-lg text-gray-600">Select the perfect consultation service for your needs</p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-              {serviceTypes.map((service, index) => (
-                <motion.div
-                  key={service.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="group cursor-pointer rounded-2xl bg-white p-8 shadow-lg border border-gray-100 transition-all hover:shadow-2xl hover:-translate-y-2"
-                  onClick={() => handleInputChange("service_type", service.id)}
-                >
-                  <div className={`mb-6 inline-flex rounded-2xl p-4 transition-colors ${
-                    formData.service_type === service.id 
-                      ? "bg-[#2f2582] text-white" 
-                      : "bg-gray-100 text-[#2f2582] group-hover:bg-[#2f2582] group-hover:text-white"
-                  }`}>
-                    <service.icon className="h-8 w-8" />
-                  </div>
-                  <h3 className="mb-3 text-xl font-bold text-[#2a2a2a]">{service.name}</h3>
-                  <p className="mb-4 text-gray-600">{service.description}</p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Duration: {service.duration}</span>
-                    <span className="font-semibold text-[#2f2582]">{service.price}</span>
-                  </div>
-                  {formData.service_type === service.id && (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="mt-4 flex items-center justify-center"
-                    >
-                      <CheckCircle className="h-6 w-6 text-[#2f2582]" />
-                    </motion.div>
-                  )}
-                </motion.div>
-              ))}
-            </div>
+            <h1 className="mb-4 text-3xl font-bold text-[#2a2a2a] md:text-4xl">
+              Book Your Design Consultation
+            </h1>
+            <p className="text-lg text-gray-600">
+              Let's create your dream space together. Fill out the form below to get started.
+            </p>
           </motion.div>
 
-          {/* Consultation Form */}
+          {/* Step Indicator */}
+          <StepIndicator 
+            currentStep={currentStep} 
+            totalSteps={STEPS.length} 
+            steps={STEPS}
+          />
+
+          {/* Form Container */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="mb-12 md:mb-16 lg:mb-20"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-3xl bg-white p-8 shadow-2xl border border-gray-100 lg:p-12"
           >
-            <div className="mx-auto max-w-4xl">
-              <div className="rounded-3xl bg-white p-8 shadow-2xl border border-gray-100 lg:p-12">
-                <div className="mb-8 text-center">
-                  <p className="mb-4 text-xs font-medium tracking-[6px] text-[#575757] uppercase md:text-sm md:tracking-[8px]">
-                    Book Now
-                  </p>
-                  <h2 className="mb-4 text-3xl font-bold text-[#2a2a2a]">Schedule Your Consultation</h2>
-                  <p className="text-lg text-gray-600">Fill out the form below and we'll get back to you within 24 hours</p>
-                </div>
+            <AnimatePresence mode="wait">
+              {/* Step 1: Basic Info */}
+              {currentStep === 1 && (
+                <motion.div
+                  key="step1"
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  className="space-y-6"
+                >
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-[#2a2a2a] mb-2">Let's start with your details</h2>
+                    <p className="text-gray-600">We'll use this information to contact you about your consultation.</p>
+                  </div>
 
-                <form onSubmit={handleSubmit} className="space-y-8">
-                  {/* Personal Information */}
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-gray-700">
-                        <User className="mr-2 inline h-4 w-4" />
-                        Full Name *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) => handleInputChange("name", e.target.value)}
-                        className={`w-full rounded-xl border-2 px-4 py-3 transition-colors focus:outline-none focus:ring-2 focus:ring-[#2f2582]/20 ${
-                          errors.name ? "border-red-300 focus:border-red-500" : "border-gray-200 focus:border-[#2f2582]"
-                        }`}
-                        placeholder="Enter your full name"
-                      />
-                      {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
-                    </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700">
+                      <User className="mr-2 inline h-4 w-4" />
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => handleInputChange("name", e.target.value)}
+                      className={`w-full rounded-xl border-2 px-4 py-3 transition-colors focus:outline-none focus:ring-2 focus:ring-[#2f2582]/20 ${
+                        errors.name ? "border-red-300 focus:border-red-500" : "border-gray-200 focus:border-[#2f2582]"
+                      }`}
+                      placeholder="Enter your full name"
+                    />
+                    {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+                  </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-gray-700">
                         <Mail className="mr-2 inline h-4 w-4" />
@@ -343,68 +346,309 @@ export default function StyleExpertPage() {
                         className={`w-full rounded-xl border-2 px-4 py-3 transition-colors focus:outline-none focus:ring-2 focus:ring-[#2f2582]/20 ${
                           errors.email ? "border-red-300 focus:border-red-500" : "border-gray-200 focus:border-[#2f2582]"
                         }`}
-                        placeholder="Enter your email address"
+                        placeholder="your@email.com"
                       />
                       {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
                     </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-gray-700">
+                        <Phone className="mr-2 inline h-4 w-4" />
+                        Phone Number *
+                      </label>
+                      <input
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange("phone", e.target.value)}
+                        className={`w-full rounded-xl border-2 px-4 py-3 transition-colors focus:outline-none focus:ring-2 focus:ring-[#2f2582]/20 ${
+                          errors.phone ? "border-red-300 focus:border-red-500" : "border-gray-200 focus:border-[#2f2582]"
+                        }`}
+                        placeholder="+91 98765 43210"
+                      />
+                      {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+
+              {/* Step 2: Project Details */}
+              {currentStep === 2 && (
+                <motion.div
+                  key="step2"
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  className="space-y-8"
+                >
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-[#2a2a2a] mb-2">Tell us about your project</h2>
+                    <p className="text-gray-600">Help us understand what you're looking to achieve.</p>
                   </div>
 
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700">
-                      <Phone className="mr-2 inline h-4 w-4" />
-                      Phone Number *
-                    </label>
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => handleInputChange("phone", e.target.value)}
-                      className={`w-full rounded-xl border-2 px-4 py-3 transition-colors focus:outline-none focus:ring-2 focus:ring-[#2f2582]/20 ${
-                        errors.phone ? "border-red-300 focus:border-red-500" : "border-gray-200 focus:border-[#2f2582]"
-                      }`}
-                      placeholder="Enter your phone number"
-                    />
-                    {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
-                  </div>
-
-                  {/* Service Selection */}
+                  {/* Service Type */}
                   <div>
                     <label className="mb-4 block text-sm font-semibold text-gray-700">
-                      <Palette className="mr-2 inline h-4 w-4" />
-                      Select Service Type *
+                      <Sparkles className="mr-2 inline h-4 w-4" />
+                      What service do you need? *
                     </label>
                     {errors.service_type && <p className="mb-2 text-sm text-red-600">{errors.service_type}</p>}
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {serviceTypes.map((service) => (
-                        <motion.div
+                        <motion.button
                           key={service.id}
+                          type="button"
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className={`cursor-pointer rounded-xl border-2 p-4 transition-all ${
+                          onClick={() => handleInputChange("service_type", service.id)}
+                          className={`p-4 rounded-xl border-2 text-left transition-all ${
                             formData.service_type === service.id
                               ? "border-[#2f2582] bg-[#2f2582]/5"
                               : "border-gray-200 hover:border-[#2f2582]/50"
                           }`}
-                          onClick={() => handleInputChange("service_type", service.id)}
                         >
-                          <div className="flex items-center gap-3">
-                            <service.icon className={`h-5 w-5 ${
+                          <div className="flex items-start gap-3">
+                            <service.icon className={`h-5 w-5 mt-0.5 ${
                               formData.service_type === service.id ? "text-[#2f2582]" : "text-gray-500"
                             }`} />
                             <div className="flex-1">
-                              <div className="font-semibold text-gray-900">{service.name}</div>
-                              <div className="text-sm text-gray-600">{service.duration}</div>
+                              <h4 className="font-semibold text-gray-900 mb-1">{service.name}</h4>
+                              <p className="text-xs text-gray-600">{service.description}</p>
                             </div>
                             {formData.service_type === service.id && (
                               <CheckCircle className="h-5 w-5 text-[#2f2582]" />
                             )}
                           </div>
-                        </motion.div>
+                        </motion.button>
                       ))}
                     </div>
                   </div>
 
-                  {/* Scheduling */}
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  {/* Project Type */}
+                  <div>
+                    <label className="mb-4 block text-sm font-semibold text-gray-700">
+                      <Home className="mr-2 inline h-4 w-4" />
+                      Project Type *
+                    </label>
+                    {errors.project_type && <p className="mb-2 text-sm text-red-600">{errors.project_type}</p>}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {PROJECT_TYPES.map((type) => (
+                        <motion.button
+                          key={type.id}
+                          type="button"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleInputChange("project_type", type.id)}
+                          className={`p-4 rounded-xl border-2 text-left transition-all ${
+                            formData.project_type === type.id
+                              ? "border-[#2f2582] bg-[#2f2582]/5"
+                              : "border-gray-200 hover:border-[#2f2582]/50"
+                          }`}
+                        >
+                          <h4 className="font-semibold text-gray-900 mb-1">{type.label}</h4>
+                          <p className="text-xs text-gray-600">{type.description}</p>
+                          {formData.project_type === type.id && (
+                            <CheckCircle className="h-4 w-4 text-[#2f2582] mt-2" />
+                          )}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Room Types */}
+                  <div>
+                    <label className="mb-4 block text-sm font-semibold text-gray-700">
+                      Which rooms are you working on? *
+                    </label>
+                    {errors.room_types && <p className="mb-2 text-sm text-red-600">{errors.room_types}</p>}
+                    <RoomTypeSelector
+                      selectedRooms={formData.room_types}
+                      onChange={(rooms) => handleInputChange("room_types", rooms)}
+                    />
+                  </div>
+
+                  {/* Property Type */}
+                  <div>
+                    <label className="mb-4 block text-sm font-semibold text-gray-700">
+                      <Building2 className="mr-2 inline h-4 w-4" />
+                      Property Type *
+                    </label>
+                    {errors.property_type && <p className="mb-2 text-sm text-red-600">{errors.property_type}</p>}
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {PROPERTY_TYPES.map((type) => (
+                        <motion.button
+                          key={type.id}
+                          type="button"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleInputChange("property_type", type.id)}
+                          className={`p-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                            formData.property_type === type.id
+                              ? "border-[#2f2582] bg-[#2f2582]/5 text-[#2f2582]"
+                              : "border-gray-200 text-gray-700 hover:border-[#2f2582]/50"
+                          }`}
+                        >
+                          {type.label}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+
+              {/* Step 3: Budget & Timeline */}
+              {currentStep === 3 && (
+                <motion.div
+                  key="step3"
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  className="space-y-8"
+                >
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-[#2a2a2a] mb-2">Budget & Timeline</h2>
+                    <p className="text-gray-600">This helps us provide the best recommendations for your project.</p>
+                  </div>
+
+                  {/* Budget Range */}
+                  <div>
+                    <label className="mb-4 block text-sm font-semibold text-gray-700">
+                      <IndianRupee className="mr-2 inline h-4 w-4" />
+                      What's your budget range? *
+                    </label>
+                    {errors.budget_range && <p className="mb-2 text-sm text-red-600">{errors.budget_range}</p>}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {BUDGET_RANGES.map((budget) => (
+                        <motion.button
+                          key={budget.id}
+                          type="button"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => handleInputChange("budget_range", budget.id)}
+                          className={`p-4 rounded-xl border-2 text-left transition-all ${
+                            formData.budget_range === budget.id
+                              ? "border-[#2f2582] bg-[#2f2582]/5"
+                              : "border-gray-200 hover:border-[#2f2582]/50"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-semibold text-gray-900">{budget.label}</p>
+                              <p className="text-xs text-gray-500 mt-1">{budget.value}</p>
+                            </div>
+                            {formData.budget_range === budget.id && (
+                              <CheckCircle className="h-5 w-5 text-[#2f2582]" />
+                            )}
+                          </div>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Timeline */}
+                  <div>
+                    <label className="mb-4 block text-sm font-semibold text-gray-700">
+                      <Timer className="mr-2 inline h-4 w-4" />
+                      When do you want to start? *
+                    </label>
+                    {errors.timeline && <p className="mb-2 text-sm text-red-600">{errors.timeline}</p>}
+                    <div className="space-y-3">
+                      {TIMELINES.map((timeline) => (
+                        <motion.button
+                          key={timeline.id}
+                          type="button"
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.99 }}
+                          onClick={() => handleInputChange("timeline", timeline.id)}
+                          className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                            formData.timeline === timeline.id
+                              ? "border-[#2f2582] bg-[#2f2582]/5"
+                              : "border-gray-200 hover:border-[#2f2582]/50"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-2 h-2 rounded-full ${
+                                timeline.urgency === "high" ? "bg-red-500" :
+                                timeline.urgency === "medium" ? "bg-yellow-500" :
+                                "bg-green-500"
+                              }`} />
+                              <span className="font-semibold text-gray-900">{timeline.label}</span>
+                            </div>
+                            {formData.timeline === timeline.id && (
+                              <CheckCircle className="h-5 w-5 text-[#2f2582]" />
+                            )}
+                          </div>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+
+              {/* Step 4: Style & Preferences */}
+              {currentStep === 4 && (
+                <motion.div
+                  key="step4"
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  className="space-y-8"
+                >
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-[#2a2a2a] mb-2">Your Style Preferences</h2>
+                    <p className="text-gray-600">Help us understand your aesthetic preferences.</p>
+                  </div>
+
+                  {/* Style Preferences */}
+                  <div>
+                    <label className="mb-4 block text-sm font-semibold text-gray-700">
+                      <Palette className="mr-2 inline h-4 w-4" />
+                      What styles do you love? *
+                    </label>
+                    {errors.style_preferences && <p className="mb-2 text-sm text-red-600">{errors.style_preferences}</p>}
+                    <StylePreferenceSelector
+                      selectedStyles={formData.style_preferences}
+                      onChange={(styles) => handleInputChange("style_preferences", styles)}
+                      maxSelections={3}
+                    />
+                  </div>
+
+                  {/* Current Challenges */}
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700">
+                      <MessageSquare className="mr-2 inline h-4 w-4" />
+                      What challenges are you facing? (Optional)
+                    </label>
+                    <textarea
+                      value={formData.current_challenges}
+                      onChange={(e) => handleInputChange("current_challenges", e.target.value)}
+                      rows={4}
+                      className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 transition-colors focus:border-[#2f2582] focus:outline-none focus:ring-2 focus:ring-[#2f2582]/20"
+                      placeholder="Tell us about any specific problems you're trying to solve, like lack of storage, poor lighting, or awkward layout..."
+                    />
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Step 5: Schedule */}
+              {currentStep === 5 && (
+                <motion.div
+                  key="step5"
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  className="space-y-8"
+                >
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-[#2a2a2a] mb-2">Schedule Your Consultation</h2>
+                    <p className="text-gray-600">Choose a convenient time for your consultation.</p>
+                  </div>
+
+                  {/* Date & Time */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-gray-700">
                         <Calendar className="mr-2 inline h-4 w-4" />
@@ -437,47 +681,98 @@ export default function StyleExpertPage() {
                     </div>
                   </div>
 
-                  {/* Message */}
+                  {/* Additional Message */}
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-gray-700">
                       <MessageSquare className="mr-2 inline h-4 w-4" />
-                      Additional Message
+                      Additional Notes (Optional)
                     </label>
                     <textarea
                       value={formData.message}
                       onChange={(e) => handleInputChange("message", e.target.value)}
                       rows={4}
                       className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 transition-colors focus:border-[#2f2582] focus:outline-none focus:ring-2 focus:ring-[#2f2582]/20"
-                      placeholder="Tell us about your project, style preferences, or any specific requirements..."
+                      placeholder="Any other details you'd like to share..."
                     />
                   </div>
 
-                  {/* Submit Button */}
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="text-center"
-                  >
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="inline-flex items-center gap-3 rounded-xl bg-[#2f2582] px-12 py-4 text-lg font-semibold text-white transition-all hover:bg-[#241c66] hover:shadow-lg disabled:opacity-50"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                          Submitting...
-                        </>
-                      ) : (
-                        <>
-                          Book Consultation
-                          <ArrowRight className="h-5 w-5" />
-                        </>
-                      )}
-                    </Button>
-                  </motion.div>
-                </form>
-              </div>
+                  {/* Summary */}
+                  <div className="rounded-xl bg-gray-50 p-6 border border-gray-200">
+                    <h3 className="font-semibold text-gray-900 mb-4">Consultation Summary</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Service:</span>
+                        <span className="font-medium text-gray-900">
+                          {serviceTypes.find(s => s.id === formData.service_type)?.name || "-"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Rooms:</span>
+                        <span className="font-medium text-gray-900">{formData.room_types.length} selected</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Budget:</span>
+                        <span className="font-medium text-gray-900">
+                          {BUDGET_RANGES.find(b => b.id === formData.budget_range)?.value || "-"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Timeline:</span>
+                        <span className="font-medium text-gray-900">
+                          {TIMELINES.find(t => t.id === formData.timeline)?.label || "-"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Navigation Buttons */}
+            <div className="mt-8 flex items-center justify-between gap-4">
+              {currentStep > 1 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleBack}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back
+                </Button>
+              )}
+              
+              <div className="flex-1" />
+              
+              {currentStep < STEPS.length ? (
+                <Button
+                  type="button"
+                  onClick={handleNext}
+                  className="flex items-center gap-2 bg-[#2f2582] hover:bg-[#241c66]"
+                >
+                  Next
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="flex items-center gap-2 bg-[#2f2582] hover:bg-[#241c66]"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      Submit Request
+                      <CheckCircle className="h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           </motion.div>
         </div>
