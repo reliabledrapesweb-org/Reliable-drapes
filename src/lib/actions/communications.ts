@@ -132,7 +132,7 @@ export async function deleteContactSubmission(
   }
 }
 
-// ============ CONSULTATION REQUESTS ============
+// ============ CONSULTATION REQUESTS (STYLE EXPERT) ============
 
 export interface ConsultationRequest {
   id: string;
@@ -143,14 +143,39 @@ export interface ConsultationRequest {
   preferred_date?: string;
   preferred_time?: string;
   message?: string;
+  
+  // Enhanced fields for better data collection
+  project_type?: string; // new_home, renovation, single_room, multiple_rooms
+  room_types?: string[]; // living_room, bedroom, kitchen, etc.
+  property_type?: string; // house, apartment, office, commercial
+  budget_range?: string; // under_5k, 5k_10k, 10k_25k, 25k_50k, over_50k
+  timeline?: string; // asap, 1_3_months, 3_6_months, 6plus_months, exploring
+  style_preferences?: string[]; // modern, traditional, contemporary, etc.
+  current_challenges?: string;
+  inspiration_images?: string[];
+  
+  // Workflow management fields
   status: "pending" | "confirmed" | "completed" | "cancelled";
+  priority?: "low" | "medium" | "high" | "urgent";
+  assigned_to?: string;
+  follow_up_date?: string;
+  consultation_date?: string;
+  estimated_value?: number;
+  converted_to_sale?: boolean;
+  sale_amount?: number;
+  source?: string;
+  
   admin_notes?: string;
   created_at: string;
   updated_at: string;
 }
 
 export async function createConsultationRequest(
-  data: Pick<ConsultationRequest, "name" | "email" | "phone" | "service_type" | "preferred_date" | "preferred_time" | "message">
+  data: Pick<ConsultationRequest, 
+    "name" | "email" | "phone" | "service_type" | "preferred_date" | "preferred_time" | "message" |
+    "project_type" | "room_types" | "property_type" | "budget_range" | "timeline" | 
+    "style_preferences" | "current_challenges" | "inspiration_images"
+  >
 ): Promise<ActionResult<ConsultationRequest>> {
   try {
     const supabase = await supabaseServer();
@@ -160,6 +185,8 @@ export async function createConsultationRequest(
       .insert({
         ...data,
         status: "pending",
+        priority: "medium",
+        source: "website",
       })
       .select()
       .single();
@@ -207,7 +234,10 @@ export async function getConsultationRequests(): Promise<
 
 export async function updateConsultationRequest(
   id: string,
-  updates: Partial<Pick<ConsultationRequest, "status" | "admin_notes">>
+  updates: Partial<Pick<ConsultationRequest, 
+    "status" | "admin_notes" | "priority" | "assigned_to" | "follow_up_date" | 
+    "consultation_date" | "estimated_value" | "converted_to_sale" | "sale_amount"
+  >>
 ): Promise<ActionResult> {
   try {
     const supabase = await supabaseServer();
