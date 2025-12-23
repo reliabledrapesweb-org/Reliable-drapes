@@ -106,6 +106,64 @@ export default function ConsultationsPage() {
     return serviceTypes[serviceType] || serviceType;
   };
 
+  const getBudgetDisplay = (budget?: string) => {
+    const budgets: Record<string, string> = {
+      "under_50k": "Under ₹50,000",
+      "50k_1l": "₹50,000 - ₹1,00,000",
+      "1l_2l": "₹1,00,000 - ₹2,00,000",
+      "2l_5l": "₹2,00,000 - ₹5,00,000",
+      "over_5l": "Over ₹5,00,000",
+      "flexible": "Flexible"
+    };
+    return budget ? budgets[budget] || budget : "-";
+  };
+
+  const getTimelineDisplay = (timeline?: string) => {
+    const timelines: Record<string, string> = {
+      "asap": "ASAP",
+      "1_3_months": "1-3 Months",
+      "3_6_months": "3-6 Months",
+      "6plus_months": "6+ Months",
+      "exploring": "Just Exploring"
+    };
+    return timeline ? timelines[timeline] || timeline : "-";
+  };
+
+  const getProjectTypeDisplay = (projectType?: string) => {
+    const types: Record<string, string> = {
+      "new_home": "New Home",
+      "renovation": "Renovation",
+      "single_room": "Single Room",
+      "multiple_rooms": "Multiple Rooms"
+    };
+    return projectType ? types[projectType] || projectType : "-";
+  };
+
+  const getPropertyTypeDisplay = (propertyType?: string) => {
+    const types: Record<string, string> = {
+      "house": "House",
+      "apartment": "Apartment",
+      "office": "Office",
+      "commercial": "Commercial"
+    };
+    return propertyType ? types[propertyType] || propertyType : "-";
+  };
+
+  const getPriorityColor = (priority?: string) => {
+    switch (priority) {
+      case "urgent":
+        return "bg-red-100 text-red-700 border-red-200";
+      case "high":
+        return "bg-orange-100 text-orange-700 border-orange-200";
+      case "medium":
+        return "bg-blue-100 text-blue-700 border-blue-200";
+      case "low":
+        return "bg-gray-100 text-gray-700 border-gray-200";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-200";
+    }
+  };
+
   const filteredRequests =
     filter === "all" ? requests : requests.filter((r) => r.status === filter);
 
@@ -223,7 +281,7 @@ export default function ConsultationsPage() {
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <h3 className="font-semibold text-gray-900">
                         {request.name}
                       </h3>
@@ -233,10 +291,42 @@ export default function ConsultationsPage() {
                         {getStatusIcon(request.status)}
                         {request.status}
                       </span>
+                      {request.priority && request.priority !== "medium" && (
+                        <span className={`inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium ${getPriorityColor(request.priority)}`}>
+                          {request.priority.toUpperCase()}
+                        </span>
+                      )}
+                      {request.converted_to_sale && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
+                          <Check className="h-3 w-3" />
+                          Converted
+                        </span>
+                      )}
                     </div>
                     <p className="text-sm font-medium text-[#2F2582] mb-2">
                       {getServiceTypeDisplay(request.service_type)}
+                      {request.project_type && ` • ${getProjectTypeDisplay(request.project_type)}`}
                     </p>
+                    {request.budget_range && (
+                      <p className="text-xs text-gray-600 mb-2">
+                        Budget: {getBudgetDisplay(request.budget_range)}
+                        {request.timeline && ` • Timeline: ${getTimelineDisplay(request.timeline)}`}
+                      </p>
+                    )}
+                    {request.room_types && request.room_types.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {request.room_types.slice(0, 3).map((room, idx) => (
+                          <span key={idx} className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
+                            {room.replace(/_/g, " ")}
+                          </span>
+                        ))}
+                        {request.room_types.length > 3 && (
+                          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                            +{request.room_types.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    )}
                     {request.message && (
                       <p className="text-sm text-gray-600 line-clamp-2 mb-2">
                         {request.message}
@@ -261,6 +351,11 @@ export default function ConsultationsPage() {
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           {request.preferred_time}
+                        </span>
+                      )}
+                      {request.assigned_to && (
+                        <span className="flex items-center gap-1 text-purple-600">
+                          <span className="font-medium">Assigned:</span> {request.assigned_to}
                         </span>
                       )}
                     </div>
@@ -315,83 +410,226 @@ export default function ConsultationsPage() {
         title="Consultation Request Details"
         onSubmit={(e) => {
           e.preventDefault();
-          // This is a view-only modal, no submission needed
+          setIsModalOpen(false);
         }}
         submitLabel="Close"
-        cancelLabel="Close"
+        cancelLabel=""
+        maxWidth="2xl"
       >
         {selectedRequest && (
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700">Name</label>
-              <p className="mt-1 text-gray-900">{selectedRequest.name}</p>
+          <div className="space-y-6">
+            {/* Contact Information */}
+            <div className="rounded-lg bg-gray-50 p-4">
+              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700">Contact Information</h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="text-xs font-medium text-gray-500">Name</label>
+                  <p className="mt-1 text-sm font-medium text-gray-900">{selectedRequest.name}</p>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500">Email</label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedRequest.email}</p>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500">Phone</label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedRequest.phone}</p>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500">Source</label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedRequest.source || "Website"}</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700">Email</label>
-              <p className="mt-1 text-gray-900">{selectedRequest.email}</p>
+
+            {/* Service & Project Details */}
+            <div className="rounded-lg bg-gray-50 p-4">
+              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700">Project Details</h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="text-xs font-medium text-gray-500">Service Type</label>
+                  <p className="mt-1 text-sm font-medium text-[#2F2582]">
+                    {getServiceTypeDisplay(selectedRequest.service_type)}
+                  </p>
+                </div>
+                {selectedRequest.project_type && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">Project Type</label>
+                    <p className="mt-1 text-sm text-gray-900">{getProjectTypeDisplay(selectedRequest.project_type)}</p>
+                  </div>
+                )}
+                {selectedRequest.property_type && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">Property Type</label>
+                    <p className="mt-1 text-sm text-gray-900">{getPropertyTypeDisplay(selectedRequest.property_type)}</p>
+                  </div>
+                )}
+                {selectedRequest.room_types && selectedRequest.room_types.length > 0 && (
+                  <div className="md:col-span-2">
+                    <label className="text-xs font-medium text-gray-500">Room Types</label>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {selectedRequest.room_types.map((room, idx) => (
+                        <span key={idx} className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
+                          {room.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700">Phone</label>
-              <p className="mt-1 text-gray-900">{selectedRequest.phone}</p>
+
+            {/* Budget & Timeline */}
+            <div className="rounded-lg bg-gray-50 p-4">
+              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700">Budget & Timeline</h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {selectedRequest.budget_range && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">Budget Range</label>
+                    <p className="mt-1 text-sm font-medium text-gray-900">{getBudgetDisplay(selectedRequest.budget_range)}</p>
+                  </div>
+                )}
+                {selectedRequest.timeline && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">Timeline</label>
+                    <p className="mt-1 text-sm text-gray-900">{getTimelineDisplay(selectedRequest.timeline)}</p>
+                  </div>
+                )}
+                {selectedRequest.estimated_value && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">Estimated Value</label>
+                    <p className="mt-1 text-sm font-medium text-green-600">
+                      ₹{selectedRequest.estimated_value.toLocaleString()}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700">
-                Service Type
-              </label>
-              <p className="mt-1 text-gray-900">
-                {getServiceTypeDisplay(selectedRequest.service_type)}
-              </p>
-            </div>
-            {selectedRequest.preferred_date && (
-              <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Preferred Date
-                </label>
-                <p className="mt-1 text-gray-900">
-                  {new Date(selectedRequest.preferred_date).toLocaleDateString()}
-                </p>
+
+            {/* Style Preferences */}
+            {selectedRequest.style_preferences && selectedRequest.style_preferences.length > 0 && (
+              <div className="rounded-lg bg-gray-50 p-4">
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700">Style Preferences</h3>
+                <div className="flex flex-wrap gap-2">
+                  {selectedRequest.style_preferences.map((style, idx) => (
+                    <span key={idx} className="rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-700">
+                      {style.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
-            {selectedRequest.preferred_time && (
-              <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Preferred Time
-                </label>
-                <p className="mt-1 text-gray-900">
-                  {selectedRequest.preferred_time}
-                </p>
+
+            {/* Current Challenges */}
+            {selectedRequest.current_challenges && (
+              <div className="rounded-lg bg-gray-50 p-4">
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700">Current Challenges</h3>
+                <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedRequest.current_challenges}</p>
               </div>
             )}
+
+            {/* Additional Message */}
             {selectedRequest.message && (
-              <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Message
-                </label>
-                <p className="mt-1 text-gray-900 whitespace-pre-wrap">
-                  {selectedRequest.message}
-                </p>
+              <div className="rounded-lg bg-gray-50 p-4">
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700">Additional Message</h3>
+                <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedRequest.message}</p>
               </div>
             )}
-            <div>
-              <label className="text-sm font-medium text-gray-700">
-                Status
-              </label>
-              <p className="mt-1">
-                <span
-                  className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium ${getStatusColor(selectedRequest.status)}`}
-                >
-                  {getStatusIcon(selectedRequest.status)}
-                  {selectedRequest.status}
-                </span>
-              </p>
+
+            {/* Scheduling */}
+            <div className="rounded-lg bg-gray-50 p-4">
+              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700">Scheduling</h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {selectedRequest.preferred_date && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">Preferred Date</label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {new Date(selectedRequest.preferred_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
+                {selectedRequest.preferred_time && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">Preferred Time</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedRequest.preferred_time}</p>
+                  </div>
+                )}
+                {selectedRequest.consultation_date && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">Scheduled Consultation</label>
+                    <p className="mt-1 text-sm font-medium text-green-600">
+                      {new Date(selectedRequest.consultation_date).toLocaleString()}
+                    </p>
+                  </div>
+                )}
+                {selectedRequest.follow_up_date && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">Follow-up Date</label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {new Date(selectedRequest.follow_up_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700">
-                Submitted
-              </label>
-              <p className="mt-1 text-gray-900">
-                {new Date(selectedRequest.created_at).toLocaleString()}
-              </p>
+
+            {/* Status & Management */}
+            <div className="rounded-lg bg-gray-50 p-4">
+              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-700">Status & Management</h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="text-xs font-medium text-gray-500">Status</label>
+                  <p className="mt-1">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(selectedRequest.status)}`}>
+                      {getStatusIcon(selectedRequest.status)}
+                      {selectedRequest.status}
+                    </span>
+                  </p>
+                </div>
+                {selectedRequest.priority && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">Priority</label>
+                    <p className="mt-1">
+                      <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium ${getPriorityColor(selectedRequest.priority)}`}>
+                        {selectedRequest.priority.toUpperCase()}
+                      </span>
+                    </p>
+                  </div>
+                )}
+                {selectedRequest.assigned_to && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">Assigned To</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedRequest.assigned_to}</p>
+                  </div>
+                )}
+                {selectedRequest.converted_to_sale && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">Converted to Sale</label>
+                    <p className="mt-1 text-sm font-medium text-green-600">
+                      Yes {selectedRequest.sale_amount && `- ₹${selectedRequest.sale_amount.toLocaleString()}`}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Admin Notes */}
+            {selectedRequest.admin_notes && (
+              <div className="rounded-lg bg-yellow-50 p-4">
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-yellow-800">Admin Notes</h3>
+                <p className="text-sm text-yellow-900 whitespace-pre-wrap">{selectedRequest.admin_notes}</p>
+              </div>
+            )}
+
+            {/* Timestamps */}
+            <div className="rounded-lg border-t border-gray-200 pt-4">
+              <div className="grid grid-cols-1 gap-2 text-xs text-gray-500 md:grid-cols-2">
+                <div>
+                  <span className="font-medium">Submitted:</span> {new Date(selectedRequest.created_at).toLocaleString()}
+                </div>
+                <div>
+                  <span className="font-medium">Last Updated:</span> {new Date(selectedRequest.updated_at).toLocaleString()}
+                </div>
+              </div>
             </div>
           </div>
         )}
