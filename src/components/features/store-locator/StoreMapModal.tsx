@@ -182,33 +182,49 @@ export function StoreMapModal({ isOpen, onClose, store }: StoreMapModalProps) {
               </div>
 
               {/* Store Info */}
-              <div className="mt-3 pt-3 border-t border-gray-200">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 text-sm">
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   {store.phone && (
-                    <div>
-                      <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Phone</p>
-                      <p className="text-gray-900 font-medium">{store.phone}</p>
+                    <div className="space-y-1">
+                      <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider">Phone</p>
+                      <p className="text-gray-900 font-medium text-base">{store.phone}</p>
                     </div>
                   )}
                   {store.email && (
-                    <div>
-                      <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Email</p>
-                      <p className="text-gray-900 font-medium">{store.email}</p>
+                    <div className="space-y-1">
+                      <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider">Email</p>
+                      <p className="text-gray-900 font-medium text-base break-all">{store.email}</p>
                     </div>
                   )}
                 </div>
 
                 {/* Operating Hours */}
                 {store.hours && typeof store.hours === "object" && (
-                  <div className="mt-3">
-                    <p className="text-gray-500 text-xs uppercase tracking-wide mb-1.5">Operating Hours</p>
-                    <div className="grid grid-cols-1 gap-1 text-xs">
-                      {Object.entries(store.hours).slice(0, 7).map(([day, hours]) => (
-                        <div key={day} className="flex justify-between">
-                          <span className="text-gray-600 capitalize">{day}:</span>
-                          <span className="text-gray-900 font-medium">{hours}</span>
-                        </div>
-                      ))}
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-3">Operating Hours</p>
+                    <div className="grid grid-cols-1 gap-2 text-sm">
+                      {Object.entries(store.hours).slice(0, 7).map(([day, hours]) => {
+                        const isToday = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase() === day.toLowerCase();
+                        return (
+                          <div 
+                            key={day} 
+                            className={`flex justify-between items-center py-1.5 px-2 rounded ${
+                              isToday ? 'bg-green-50 border border-green-200' : ''
+                            }`}
+                          >
+                            <span className={`capitalize font-medium ${
+                              isToday ? 'text-green-900' : 'text-gray-700'
+                            }`}>
+                              {day}:
+                            </span>
+                            <span className={`font-semibold ${
+                              isToday ? 'text-green-700' : 'text-gray-900'
+                            }`}>
+                              {hours}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
