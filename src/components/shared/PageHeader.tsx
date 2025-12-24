@@ -18,8 +18,8 @@ export function PageHeader({
   searchPlaceholder = "Search..."
 }: PageHeaderProps) {
   return (
-    <div className="mb-12 md:mb-16 lg:mb-20">
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+    <div className="mb-8 md:mb-10 lg:mb-12">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="flex flex-col gap-4">
           <p className="text-xs font-medium tracking-[6px] text-[#575757] uppercase md:text-sm md:tracking-[8px]">
             {category}

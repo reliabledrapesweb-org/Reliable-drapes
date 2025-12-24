@@ -59,7 +59,7 @@ export default function CareersPage() {
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
       <PageHero heading="Careers" />
       <Breadcrumb />
-      <div className="w-full py-12 md:py-16 lg:py-20">
+      <div className="w-full py-8 md:py-10 lg:py-12">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
           {/* Header Section */}
           <PageHeader
@@ -71,7 +71,7 @@ export default function CareersPage() {
           />
 
           {/* Open Positions Section */}
-          <div className="mb-12 md:mb-16 lg:mb-20">
+          <div className="mb-8 md:mb-10 lg:mb-12">
             <div className="flex flex-col gap-4">
               <p className="text-xs font-medium tracking-[6px] text-[#575757] uppercase md:text-sm md:tracking-[8px]">
                 Open Positions
@@ -86,7 +86,7 @@ export default function CareersPage() {
           </div>
 
           {/* Jobs Section */}
-          <div className="flex flex-col gap-8 md:gap-12">
+          <div className="flex flex-col gap-6 md:gap-8">
             {isLoading ? (
               <JobGridSkeleton />
             ) : error ? (
