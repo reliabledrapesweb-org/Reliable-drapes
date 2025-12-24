@@ -4,16 +4,16 @@ export function JobGridSkeleton() {
       {[1, 2, 3, 4].map((i) => (
         <div
           key={i}
-          className="rounded-[1.5rem] md:rounded-[2rem] border-2 md:border-4 border-white bg-[#fafafa] p-4 md:p-6 shadow-md animate-pulse"
+          className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm animate-pulse"
         >
           {/* Title and Button Skeleton */}
-          <div className="flex flex-col md:flex-row items-start md:items-start justify-between mb-3 md:mb-4 gap-3 md:gap-0">
+          <div className="flex flex-col md:flex-row items-start md:items-start justify-between mb-4 gap-3 md:gap-0">
             <div className="h-6 md:h-7 bg-gray-200 rounded w-3/4 md:w-2/3" />
-            <div className="h-8 md:h-9 bg-gray-200 rounded-full w-full md:w-24" />
+            <div className="h-9 bg-gray-200 rounded-full w-full md:w-24" />
           </div>
 
           {/* Experience and Location Skeleton */}
-          <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-6 mb-3 md:mb-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-6 mb-4">
             <div className="h-4 bg-gray-200 rounded w-20" />
             <div className="h-4 bg-gray-200 rounded w-48" />
           </div>

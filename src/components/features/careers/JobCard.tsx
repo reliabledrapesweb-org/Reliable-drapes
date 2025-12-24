@@ -12,7 +12,7 @@ export function JobCard({ job, onApply }: JobCardProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="rounded-[1.5rem] md:rounded-[2rem] border-2 md:border-4 border-white bg-[#fafafa] p-4 md:p-6 shadow-md transition-all hover:bg-[#f7f7f7] hover:shadow-lg hover:border-white"
+      className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md hover:border-gray-300"
     >
       {/* Job Title and Apply Button */}
       <div className="flex flex-col md:flex-row items-start md:items-start justify-between mb-3 md:mb-4 gap-3 md:gap-0">
