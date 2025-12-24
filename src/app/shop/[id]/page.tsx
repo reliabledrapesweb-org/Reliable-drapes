@@ -197,86 +197,90 @@ export default function ProductDetailPage() {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="space-y-4 lg:sticky lg:top-24 lg:self-start"
+            className="lg:sticky lg:top-24 lg:self-start"
           >
-            {/* Main Image */}
-            <motion.div
-              key={selectedImage}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, type: "spring", stiffness: 100 }}
-              className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-white shadow-xl"
-            >
-              <Image
-                src={imageError ? fallbackImage : currentImage}
-                alt={allImages[selectedImage]?.alt || product.name}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
-                priority
-                onError={() => setImageError(true)}
-              />
-              
-              {/* Zoom Button */}
-              <motion.button
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 }}
-                onClick={() => setIsZoomed(true)}
-                className="absolute right-4 top-4 rounded-full bg-white/95 p-3 shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
-                aria-label="Zoom image"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <ZoomIn className="h-5 w-5 text-[#2f2582]" />
-              </motion.button>
-
-              {/* Image Counter */}
+            <div className="flex flex-col gap-4 md:flex-row md:gap-4">
+              {/* Thumbnail Grid - Left Side on Desktop, Bottom on Mobile */}
               {allImages.length > 1 && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="absolute bottom-4 right-4 rounded-full bg-black/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm"
+                  transition={{ delay: 0.2 }}
+                  className="order-2 md:order-1 md:w-24 lg:w-28"
                 >
-                  {selectedImage + 1} / {allImages.length}
+                  <div className="flex gap-3 overflow-x-auto md:flex-col md:overflow-visible">
+                    {allImages.map((image, index) => (
+                      <motion.button
+                        key={index}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.3 + index * 0.05 }}
+                        onClick={() => setSelectedImage(index)}
+                        className={`relative aspect-square flex-shrink-0 overflow-hidden rounded-lg transition-all ${
+                          selectedImage === index
+                            ? "ring-3 ring-[#2f2582] ring-offset-2 opacity-100 scale-105"
+                            : "opacity-60 hover:opacity-100 hover:ring-2 hover:ring-gray-300 hover:scale-105"
+                        } w-20 md:w-full`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Image
+                          src={image.url}
+                          alt={image.alt}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 80px, 112px"
+                        />
+                      </motion.button>
+                    ))}
+                  </div>
                 </motion.div>
               )}
-            </motion.div>
 
-            {/* Thumbnail Grid */}
-            {allImages.length > 1 && (
+              {/* Main Image */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="grid grid-cols-5 gap-3"
+                key={selectedImage}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, type: "spring", stiffness: 100 }}
+                className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-white shadow-xl order-1 md:order-2 md:flex-1"
               >
-                {allImages.map((image, index) => (
-                  <motion.button
-                    key={index}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.3 + index * 0.05 }}
-                    onClick={() => setSelectedImage(index)}
-                    className={`relative aspect-square overflow-hidden rounded-lg transition-all ${
-                      selectedImage === index
-                        ? "ring-3 ring-[#2f2582] ring-offset-2 opacity-100 scale-105"
-                        : "opacity-60 hover:opacity-100 hover:ring-2 hover:ring-gray-300 hover:scale-105"
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                <Image
+                  src={imageError ? fallbackImage : currentImage}
+                  alt={allImages[selectedImage]?.alt || product.name}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  priority
+                  onError={() => setImageError(true)}
+                />
+                
+                {/* Zoom Button */}
+                <motion.button
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 }}
+                  onClick={() => setIsZoomed(true)}
+                  className="absolute right-4 top-4 rounded-full bg-white/95 p-3 shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
+                  aria-label="Zoom image"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <ZoomIn className="h-5 w-5 text-[#2f2582]" />
+                </motion.button>
+
+                {/* Image Counter */}
+                {allImages.length > 1 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="absolute bottom-4 right-4 rounded-full bg-black/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm"
                   >
-                    <Image
-                      src={image.url}
-                      alt={image.alt}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 20vw, 10vw"
-                    />
-                  </motion.button>
-                ))}
+                    {selectedImage + 1} / {allImages.length}
+                  </motion.div>
+                )}
               </motion.div>
-            )}
+            </div>
           </motion.div>
 
           {/* Product Info */}
