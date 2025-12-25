@@ -148,14 +148,27 @@ export default function ProductDetailPage() {
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-12">
           <div className="mb-6 h-6 w-32 animate-pulse rounded bg-gray-200" />
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
-            <div className="space-y-4">
-              <div className="aspect-[4/3] w-full animate-pulse rounded-2xl bg-gray-200" />
-              <div className="grid grid-cols-5 gap-3">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="aspect-square animate-pulse rounded-lg bg-gray-200" />
-                ))}
+            {/* Image Gallery Skeleton */}
+            <div>
+              <div className="flex flex-col gap-4 md:flex-row md:gap-4">
+                {/* Thumbnail Skeleton - Left Side on Desktop */}
+                <div className="order-2 md:order-1 md:w-24 lg:w-28">
+                  <div className="flex gap-3 overflow-x-auto md:flex-col md:overflow-visible">
+                    {[...Array(4)].map((_, i) => (
+                      <div 
+                        key={i} 
+                        className="aspect-square w-20 flex-shrink-0 animate-pulse rounded-lg bg-gray-200 md:w-full" 
+                      />
+                    ))}
+                  </div>
+                </div>
+                {/* Main Image Skeleton */}
+                <div className="order-1 md:order-2 md:flex-1">
+                  <div className="aspect-[4/3] w-full animate-pulse rounded-2xl bg-gray-200" />
+                </div>
               </div>
             </div>
+            {/* Product Info Skeleton */}
             <div className="space-y-6">
               <div className="space-y-3">
                 <div className="h-4 w-24 animate-pulse rounded-full bg-gray-200" />
