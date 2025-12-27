@@ -2,7 +2,10 @@
 
 import { CategoryCard } from "./CategoryCard";
 import { useEffect, useRef, useState } from "react";
-import { getFeaturedCategories, type CategoryFull } from "@/lib/actions/products";
+import {
+  getFeaturedCategories,
+  type CategoryFull,
+} from "@/lib/actions/products";
 
 // Fallback categories when no data from database
 const fallbackCategories = [
@@ -10,25 +13,29 @@ const fallbackCategories = [
     id: "1",
     name: "Curtains",
     slug: "curtains",
-    image_url: "https://images.unsplash.com/photo-1651936020103-65154077c003?w=600&h=600&fit=crop",
+    image_url:
+      "https://images.unsplash.com/photo-1651936020103-65154077c003?w=600&h=600&fit=crop",
   },
   {
     id: "2",
     name: "Upholstery",
     slug: "upholstery",
-    image_url: "https://images.unsplash.com/photo-1718587608491-f40ae3b13273?w=600&h=600&fit=crop",
+    image_url:
+      "https://images.unsplash.com/photo-1718587608491-f40ae3b13273?w=600&h=600&fit=crop",
   },
   {
     id: "3",
     name: "Sheers",
     slug: "sheers",
-    image_url: "https://images.unsplash.com/photo-1759517857499-7f27b61aad5d?w=600&h=600&fit=crop",
+    image_url:
+      "https://images.unsplash.com/photo-1759517857499-7f27b61aad5d?w=600&h=600&fit=crop",
   },
   {
     id: "4",
     name: "Bed Sheets",
     slug: "bed-sheets",
-    image_url: "https://images.unsplash.com/photo-1669989657165-d9f8e6cb6366?w=600&h=600&fit=crop",
+    image_url:
+      "https://images.unsplash.com/photo-1669989657165-d9f8e6cb6366?w=600&h=600&fit=crop",
   },
 ];
 
@@ -90,35 +97,40 @@ export function CategoriesSection() {
   const displayCategories = [...categories, ...categories];
 
   return (
-    <section className="py-12 md:py-16 lg:py-20 bg-white">
+    <section className="bg-white py-12 md:py-16 lg:py-20">
       <div>
-        <h2 className="px-6 md:px-16 max-w-6xl mx-auto text-[28px] font-medium lg:text-[36px] tracking-[-2px] mb-12 text-black">
-          Our Categories
-        </h2>
+        <div className="container mx-auto px-6">
+          <h2 className="mx-auto mb-12 max-w-6xl text-[28px] font-medium tracking-[-2px] text-black lg:text-[36px]">
+            Our Categories
+          </h2>
+        </div>
 
         {isLoading ? (
-          <div className="flex gap-4 px-6 md:px-16 overflow-hidden">
+          <div className="flex gap-4 overflow-hidden px-6 md:px-16">
             {[...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="w-[236px] md:w-[280px] aspect-square rounded-2xl bg-gray-200 animate-pulse shrink-0"
+                className="aspect-square w-[236px] shrink-0 animate-pulse rounded-2xl bg-gray-200 md:w-[280px]"
               />
             ))}
           </div>
         ) : (
           <div
             ref={scrollRef}
-            className="overflow-x-auto w-full hide-scrollbar"
+            className="hide-scrollbar w-full overflow-x-auto"
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
             onTouchStart={() => setIsHovering(true)}
             onTouchEnd={() => setIsHovering(false)}
           >
-            <div className="flex gap-4 w-max pb-4 px-6 md:px-16">
+            <div className="flex w-max gap-4 px-6 pb-4 md:px-16">
               {displayCategories.map((category, index) => (
                 <CategoryCard
                   key={`${category.id}-${index}`}
-                  image={category.image_url || "https://images.unsplash.com/photo-1651936020103-65154077c003?w=600&h=600&fit=crop"}
+                  image={
+                    category.image_url ||
+                    "https://images.unsplash.com/photo-1651936020103-65154077c003?w=600&h=600&fit=crop"
+                  }
                   title={category.name}
                   slug={category.slug}
                   className="w-[236px] md:w-[280px]"

@@ -1,9 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
+import { ShoppingCart } from "lucide-react";
 import type { Product } from "@/lib/actions/products";
 
 interface ShopProductCardProps {
@@ -21,8 +22,10 @@ export function ShopProductCard({
 }: ShopProductCardProps) {
   const [imageError, setImageError] = useState(false);
 
-  const fallbackImage = "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center";
-  const imageSrc = imageError || !product.image_url ? fallbackImage : product.image_url;
+  const fallbackImage =
+    "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center";
+  const imageSrc =
+    imageError || !product.image_url ? fallbackImage : product.image_url;
 
   // Format price in Indian Rupees
   const formattedPrice = new Intl.NumberFormat("en-IN", {
@@ -63,31 +66,32 @@ export function ShopProductCard({
           </div>
 
           {/* Overlay gradient for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <div className="absolute inset-0 bg-black/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-          {/* Add to Cart Button - Shows on hover */}
-          <div className="absolute inset-x-0 bottom-0 p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          {/* Add to Cart Button - Circular Top Right */}
+          <div className="absolute top-4 right-4 z-20 -translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
             <button
               onClick={handleAddToCart}
-              className="w-full rounded-full bg-[#2f2582] px-6 py-2.5 text-sm font-medium tracking-[1.5px] text-white uppercase transition-all hover:bg-[#241c66] hover:shadow-lg md:text-base"
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#2f2582] shadow-xl transition-all hover:bg-[#2f2582] hover:text-white active:scale-90"
+              title="Add to Cart"
             >
-              Add to Cart
+              <ShoppingCart className="h-5 w-5" />
             </button>
           </div>
         </div>
 
         <div className="flex flex-col gap-2 px-1">
-          <h3 className="text-xl font-semibold text-[#2a2a2a] leading-tight transition-colors duration-200 group-hover:text-[#2f2582] lg:text-2xl">
+          <h3 className="text-xl leading-tight font-semibold text-[#2a2a2a] transition-colors duration-200 group-hover:text-[#2f2582] lg:text-2xl">
             {product.name}
           </h3>
-          
+
           {/* Price */}
           <p className="text-lg font-bold text-[#2f2582] lg:text-xl">
             {formattedPrice}
           </p>
 
           {product.description && (
-            <p className="text-sm font-normal text-[#898989] leading-relaxed lg:text-base line-clamp-2">
+            <p className="line-clamp-1 text-sm leading-relaxed font-normal text-[#898989] lg:text-base">
               {product.description}
             </p>
           )}

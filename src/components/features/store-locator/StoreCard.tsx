@@ -32,7 +32,7 @@ export function StoreCard({ store, onLocateStore }: StoreCardProps) {
   const handlePhoneCall = () => {
     if (store.phone) {
       // Remove any non-numeric characters except +
-      const cleanPhone = store.phone.replace(/[^0-9+]/g, '');
+      const cleanPhone = store.phone.replace(/[^0-9+]/g, "");
       window.location.href = `tel:${cleanPhone}`;
     }
   };
@@ -43,41 +43,57 @@ export function StoreCard({ store, onLocateStore }: StoreCardProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="rounded-[1.5rem] md:rounded-[2rem] border-2 md:border-4 border-white bg-[#fafafa] p-4 md:p-6 shadow-md transition-all hover:bg-[#f7f7f7] hover:shadow-lg hover:border-white"
+        className="group relative overflow-hidden rounded-[2.5rem] border-[6px] border-white bg-white p-6 shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all hover:shadow-[0_30px_60px_rgba(0,0,0,0.15)] md:p-8"
       >
-        {/* Store Name */}
-        <h3 className="text-lg md:text-xl font-semibold text-[#2a2a2a] mb-3 md:mb-4 leading-tight">
-          {store.name}
-        </h3>
+        {/* Subtle Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white to-[#F3F3F3] opacity-50" />
 
-        {/* Address */}
-        <div className="flex items-start gap-3 md:gap-4 mb-3 md:mb-4">
-          <MapPinIcon className="h-4 w-4 md:h-5 md:w-5 text-[#2a2a2a] mt-0.5 flex-shrink-0" />
-          <p className="text-xs md:text-sm text-[#6a6a6a] leading-relaxed">
-            {store.address}
-          </p>
+        <div className="relative z-10">
+          {/* Store Name */}
+          <h3 className="mb-6 text-xl font-bold tracking-tight text-[#1a1a1a] md:text-2xl">
+            {store.name}
+          </h3>
+
+          <div className="space-y-5">
+            {/* Address */}
+            <div className="flex items-start gap-4">
+              <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center">
+                <MapPinIcon className="h-6 w-6 text-black" />
+              </div>
+              <p className="text-sm leading-relaxed font-medium text-[#666666] md:text-base">
+                {store.address}
+              </p>
+            </div>
+
+            {/* Phone - Clickable */}
+            {store.phone && (
+              <button
+                onClick={handlePhoneCall}
+                className="group/phone flex items-center gap-4 transition-colors hover:text-[#2f2582]"
+              >
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center">
+                  <Phone
+                    className="h-5 w-5 text-black transition-colors group-hover/phone:text-[#2f2582]"
+                    fill="currentColor"
+                  />
+                </div>
+                <p className="text-sm font-medium text-[#666666] transition-colors group-hover/phone:text-[#2f2582] md:text-base">
+                  {store.phone}
+                </p>
+              </button>
+            )}
+          </div>
+
+          {/* Locate Store Button */}
+          <div className="mt-8">
+            <button
+              onClick={handleLocateStore}
+              className="inline-flex cursor-pointer items-center justify-center rounded-[1.5rem] bg-[#2f2582] px-8 py-4 text-xs font-bold tracking-[2px] text-white uppercase transition-all hover:bg-[#251e66] hover:shadow-lg active:scale-95"
+            >
+              Locate Store
+            </button>
+          </div>
         </div>
-
-        {/* Phone - Clickable */}
-        {store.phone && (
-          <button
-            onClick={handlePhoneCall}
-            className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6 w-full text-left group transition-colors hover:text-[#2f2582]"
-          >
-            <Phone className="h-4 w-4 md:h-5 md:w-5 text-[#2a2a2a] flex-shrink-0 group-hover:text-[#2f2582]" fill="currentColor" />
-            <p className="text-xs md:text-sm text-[#6a6a6a] group-hover:text-[#2f2582] underline decoration-dotted underline-offset-2">
-              {store.phone}
-            </p>
-          </button>
-        )}
-
-        {/* Locate Store Button */}
-        <button
-          onClick={handleLocateStore}
-          className="w-full md:w-auto cursor-pointer rounded-full bg-[#2f2582] px-6 py-3 text-sm md:text-base font-semibold tracking-[1.5px] md:tracking-[2px] text-white uppercase transition-all hover:bg-[#251e66] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#2f2582]/20"
-        >
-          Locate Store
-        </button>
       </motion.div>
 
       {/* Map Modal */}

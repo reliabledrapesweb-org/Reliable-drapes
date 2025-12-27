@@ -15,13 +15,13 @@ export function PageHeader({
   description,
   searchValue,
   onSearchChange,
-  searchPlaceholder = "Search..."
+  searchPlaceholder = "Search...",
 }: PageHeaderProps) {
   return (
     <div className="mb-8 md:mb-10 lg:mb-12">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-        <div className="flex flex-col gap-4">
-          <p className="text-xs font-medium tracking-[6px] text-[#575757] uppercase md:text-sm md:tracking-[8px]">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-bold tracking-[6px] text-[#575757] uppercase md:text-sm md:tracking-[8px]">
             {category}
           </p>
           <h1 className="text-2xl leading-tight font-bold text-[#161616] md:text-[32px]">

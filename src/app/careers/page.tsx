@@ -21,15 +21,17 @@ export default function CareersPage() {
       try {
         setIsLoading(true);
         const result = await getActiveJobs();
-        
+
         if (!result.success || !result.data) {
           throw new Error(result.error || "Failed to fetch jobs");
         }
-        
+
         setJobs(result.data);
       } catch (error) {
         console.error("Error fetching jobs:", error);
-        setError(error instanceof Error ? error.message : "Failed to load jobs");
+        setError(
+          error instanceof Error ? error.message : "Failed to load jobs",
+        );
       } finally {
         setIsLoading(false);
       }
@@ -41,12 +43,13 @@ export default function CareersPage() {
   // Filter jobs based on search query
   const filteredJobs = useMemo(() => {
     if (!searchQuery) return jobs;
-    
-    return jobs.filter((job) =>
-      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      job.description.toLowerCase().includes(searchQuery.toLowerCase())
+
+    return jobs.filter(
+      (job) =>
+        job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        job.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        job.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        job.description.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [searchQuery, jobs]);
 
@@ -72,14 +75,14 @@ export default function CareersPage() {
 
           {/* Open Positions Section */}
           <div className="mb-8 md:mb-10 lg:mb-12">
-            <div className="flex flex-col gap-4">
-              <p className="text-xs font-medium tracking-[6px] text-[#575757] uppercase md:text-sm md:tracking-[8px]">
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-bold tracking-[6px] text-[#575757] uppercase md:text-[16px] md:tracking-[8px]">
                 Open Positions
               </p>
               <h2 className="text-2xl leading-tight font-bold text-[#161616] md:text-[32px]">
                 Join our team!
               </h2>
-              <p className="mt-2 text-base text-[#898989] md:text-lg">
+              <p className="text-base text-[#898989] md:text-[24px]">
                 Ready to work with us? Apply for open positions
               </p>
             </div>
@@ -90,18 +93,15 @@ export default function CareersPage() {
             {isLoading ? (
               <JobGridSkeleton />
             ) : error ? (
-              <div className="text-center py-20">
+              <div className="py-20 text-center">
                 <p className="text-red-600">{error}</p>
               </div>
             ) : filteredJobs.length === 0 ? (
-              <div className="text-center py-20">
-                <p className="text-[#6a6a6a] text-lg">No job openings found.</p>
+              <div className="py-20 text-center">
+                <p className="text-lg text-[#6a6a6a]">No job openings found.</p>
               </div>
             ) : (
-              <JobGrid
-                jobs={filteredJobs}
-                onApply={handleApply}
-              />
+              <JobGrid jobs={filteredJobs} onApply={handleApply} />
             )}
           </div>
         </div>

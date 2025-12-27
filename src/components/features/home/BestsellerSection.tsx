@@ -31,9 +31,51 @@ export function BestsellerSection() {
           <h2 className="mb-12 text-[28px] font-medium tracking-[-2px] text-black lg:text-[36px]">
             Season&apos;s Bestseller
           </h2>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="aspect-square animate-pulse rounded-2xl bg-gray-200" />
+
+          {/* Desktop Skeleton Grid */}
+          <div className="mx-auto hidden max-w-7xl flex-col gap-4 lg:flex">
+            <div className="grid grid-cols-3 gap-4">
+              {[...Array(3)].map((_, i) => (
+                <div
+                  key={i}
+                  className="relative aspect-square animate-pulse overflow-hidden rounded-2xl bg-gray-100"
+                >
+                  <div className="absolute inset-0 bg-linear-to-b from-transparent from-46% to-black/5" />
+                  <div className="absolute right-6 bottom-6 left-6 space-y-2">
+                    <div className="h-6 w-3/4 rounded bg-gray-200" />
+                    <div className="h-4 w-1/2 rounded bg-gray-200" />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              {[...Array(2)].map((_, i) => (
+                <div
+                  key={i}
+                  className="relative aspect-3/2 animate-pulse overflow-hidden rounded-2xl bg-gray-100"
+                >
+                  <div className="absolute inset-0 bg-linear-to-b from-transparent from-46% to-black/5" />
+                  <div className="absolute right-6 bottom-6 left-6 space-y-2">
+                    <div className="h-6 w-1/2 rounded bg-gray-200" />
+                    <div className="h-4 w-1/3 rounded bg-gray-200" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Mobile Skeleton List */}
+          <div className="flex flex-col gap-3 lg:hidden">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="relative aspect-square animate-pulse overflow-hidden rounded-2xl bg-gray-100"
+              >
+                <div className="absolute inset-0 bg-linear-to-b from-transparent from-46% to-black/5" />
+                <div className="absolute right-6 bottom-6 left-6 space-y-2">
+                  <div className="h-6 w-3/4 rounded bg-gray-200" />
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -126,13 +168,16 @@ function BestsellerCard({
         <Image
           width={800}
           height={800}
-          src={product.image_url || "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=800&fit=crop"}
+          src={
+            product.image_url ||
+            "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=800&fit=crop"
+          }
           alt={product.name}
           className="h-full w-full object-cover"
           sizes="(max-width: 1024px) 100vw, 50vw"
         />
         <div className="absolute inset-0 bg-linear-to-b from-transparent from-46% to-black/80" />
-        <div className="absolute bottom-6 left-6 right-6 z-20">
+        <div className="absolute right-6 bottom-6 left-6 z-20">
           {isMobile ? (
             <h3 className="mb-2 tracking-widest text-white uppercase">
               {product.name}
@@ -143,7 +188,7 @@ function BestsellerCard({
                 <h3 className="text-xl font-medium tracking-widest text-white uppercase">
                   {product.name}
                 </h3>
-                <div className="absolute left-0 top-full mt-1 h-px w-0 bg-white transition-all duration-300 group-hover:w-full" />
+                <div className="absolute top-full left-0 mt-1 h-px w-0 bg-white transition-all duration-300 group-hover:w-full" />
               </div>
               <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 group-hover:grid-rows-[1fr]">
                 <div className="overflow-hidden">

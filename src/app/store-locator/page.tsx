@@ -17,15 +17,15 @@ export default function StoreLocatorPage() {
     const fetchStores = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       const result = await getStores();
-      
+
       if (result.success && result.stores) {
         setStores(result.stores);
       } else {
         setError(result.error || "Failed to load stores");
       }
-      
+
       setIsLoading(false);
     };
 
@@ -35,14 +35,15 @@ export default function StoreLocatorPage() {
   // Filter stores based on search query
   const filteredStores = useMemo(() => {
     if (!searchQuery) return stores;
-    
+
     const query = searchQuery.toLowerCase();
-    return stores.filter((store) =>
-      store.name.toLowerCase().includes(query) ||
-      store.city.toLowerCase().includes(query) ||
-      (store.state && store.state.toLowerCase().includes(query)) ||
-      store.address.toLowerCase().includes(query) ||
-      store.country.toLowerCase().includes(query)
+    return stores.filter(
+      (store) =>
+        store.name.toLowerCase().includes(query) ||
+        store.city.toLowerCase().includes(query) ||
+        (store.state && store.state.toLowerCase().includes(query)) ||
+        store.address.toLowerCase().includes(query) ||
+        store.country.toLowerCase().includes(query),
     );
   }, [searchQuery, stores]);
 
@@ -60,13 +61,13 @@ export default function StoreLocatorPage() {
           {/* Header Section */}
           <PageHeader
             category="Store Locator"
-            title="Find Our Stores"
+            title="All Across India"
             description={
-              error 
+              error
                 ? error
                 : isLoading
-                ? "Loading stores..."
-                : `Find our stores near you - ${filteredStores.length} store${filteredStores.length !== 1 ? 's' : ''} available`
+                  ? "Loading stores..."
+                  : `Find our stores near you - ${filteredStores.length} store${filteredStores.length !== 1 ? "s" : ""} available`
             }
             searchValue={searchQuery}
             onSearchChange={setSearchQuery}
