@@ -31,18 +31,24 @@ interface StatCardProps {
   href?: string;
 }
 
-function StatCard({ title, value, change, trend, icon, color, href }: StatCardProps) {
+function StatCard({
+  title,
+  value,
+  change,
+  trend,
+  icon,
+  color,
+  href,
+}: StatCardProps) {
   const content = (
     <div className="relative flex items-start justify-between">
       <div className="flex-1">
         <p className="text-sm font-medium text-gray-600">{title}</p>
-        <h3 className="mt-2 text-3xl font-bold text-gray-900">
-          {value}
-        </h3>
+        <h3 className="mt-2 text-3xl font-bold text-gray-900">{value}</h3>
         {change && trend && (
           <div className="mt-2 flex items-center gap-1">
             <TrendingUp
-              className={`h-3 w-3 ${trend === "up" ? "text-green-600" : "text-red-600 rotate-180"}`}
+              className={`h-3 w-3 ${trend === "up" ? "text-green-600" : "rotate-180 text-red-600"}`}
             />
             <span
               className={`text-xs font-semibold ${trend === "up" ? "text-green-600" : "text-red-600"}`}
@@ -53,7 +59,9 @@ function StatCard({ title, value, change, trend, icon, color, href }: StatCardPr
           </div>
         )}
       </div>
-      <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${color} transition-transform duration-300 group-hover:scale-110`}>
+      <div
+        className={`flex h-12 w-12 items-center justify-center rounded-xl ${color} transition-transform duration-300 group-hover:scale-110`}
+      >
         {icon}
       </div>
     </div>
@@ -65,7 +73,7 @@ function StatCard({ title, value, change, trend, icon, color, href }: StatCardPr
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="group h-full rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-[#2F2582] hover:shadow-md cursor-pointer"
+          className="group h-full cursor-pointer rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-[#2F2582] hover:shadow-md"
         >
           {content}
         </motion.div>
@@ -92,23 +100,33 @@ interface QuickActionProps {
   color: string;
 }
 
-function QuickAction({ title, description, href, icon, color }: QuickActionProps) {
+function QuickAction({
+  title,
+  description,
+  href,
+  icon,
+  color,
+}: QuickActionProps) {
   return (
     <Link href={href}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ y: -2 }}
-        className="group flex h-full items-start gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-[#2F2582] hover:shadow-md cursor-pointer"
+        className="group flex h-full cursor-pointer items-start gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-[#2F2582] hover:shadow-md"
       >
-        <div className={`rounded-lg ${color} p-3 transition-transform group-hover:scale-110`}>
+        <div
+          className={`rounded-lg ${color} p-3 transition-transform group-hover:scale-110`}
+        >
           {icon}
         </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="font-semibold text-gray-900 group-hover:text-[#2F2582] transition-colors">{title}</h4>
+        <div className="min-w-0 flex-1">
+          <h4 className="font-semibold text-gray-900 transition-colors group-hover:text-[#2F2582]">
+            {title}
+          </h4>
           <p className="mt-1 text-sm text-gray-600">{description}</p>
         </div>
-        <ArrowRight className="h-5 w-5 text-gray-400 transition-all group-hover:translate-x-1 group-hover:text-[#2F2582] shrink-0" />
+        <ArrowRight className="h-5 w-5 shrink-0 text-gray-400 transition-all group-hover:translate-x-1 group-hover:text-[#2F2582]" />
       </motion.div>
     </Link>
   );
@@ -123,7 +141,9 @@ export default function AdminDashboard() {
     async function fetchCustomerStats() {
       try {
         const userStatsResult = await getUserStats();
-        const customers = userStatsResult.success ? userStatsResult.data?.customers || 0 : 0;
+        const customers = userStatsResult.success
+          ? userStatsResult.data?.customers || 0
+          : 0;
         setCustomerCount(customers);
       } catch (error) {
         console.error("Failed to fetch customer stats:", error);
@@ -136,7 +156,7 @@ export default function AdminDashboard() {
   }, []);
 
   // Get first name from user data
-  const firstName = user?.full_name?.split(' ')[0] || 'Admin';
+  const firstName = user?.full_name?.split(" ")[0] || "Admin";
 
   const dashboardStats = [
     {
@@ -144,8 +164,8 @@ export default function AdminDashboard() {
       value: isLoading ? "..." : customerCount.toString(),
       change: "+8%",
       trend: "up" as const,
-      icon: <Users className="h-6 w-6 text-white" />,
-      color: "bg-[#2F2582]",
+      icon: <Users className="h-6 w-6 text-[#2F2582]" />,
+      color: "bg-[#2F2582]/10",
       href: "/admin/customers",
     },
     {
@@ -153,8 +173,8 @@ export default function AdminDashboard() {
       value: "156*",
       change: "+12%*",
       trend: "up" as const,
-      icon: <Package className="h-6 w-6 text-white" />,
-      color: "bg-blue-500",
+      icon: <Package className="h-6 w-6 text-[#2F2582]" />,
+      color: "bg-[#2F2582]/10",
       href: "/admin/products",
     },
     {
@@ -162,8 +182,8 @@ export default function AdminDashboard() {
       value: "24*",
       change: "+5%*",
       trend: "up" as const,
-      icon: <Briefcase className="h-6 w-6 text-white" />,
-      color: "bg-green-500",
+      icon: <Briefcase className="h-6 w-6 text-[#2F2582]" />,
+      color: "bg-[#2F2582]/10",
       href: "/admin/careers/applications",
     },
     {
@@ -171,8 +191,8 @@ export default function AdminDashboard() {
       value: "89*",
       change: "+15%*",
       trend: "up" as const,
-      icon: <Mail className="h-6 w-6 text-white" />,
-      color: "bg-orange-500",
+      icon: <Mail className="h-6 w-6 text-[#2F2582]" />,
+      color: "bg-[#2F2582]/10",
       href: "/admin/communications/contact",
     },
   ];
@@ -182,43 +202,43 @@ export default function AdminDashboard() {
       title: "Manage Products",
       description: "View and manage your product catalog",
       href: "/admin/products",
-      icon: <Package className="h-5 w-5 text-white" />,
-      color: "bg-blue-500",
+      icon: <Package className="h-5 w-5 text-[#2F2582]" />,
+      color: "bg-[#2F2582]/10",
     },
     {
       title: "Categories",
       description: "Organize products with categories",
       href: "/admin/categories",
-      icon: <FolderTree className="h-5 w-5 text-white" />,
-      color: "bg-purple-500",
+      icon: <FolderTree className="h-5 w-5 text-[#2F2582]" />,
+      color: "bg-[#2F2582]/10",
     },
     {
       title: "Collections",
       description: "Create and manage product collections",
       href: "/admin/collections",
-      icon: <Layers className="h-5 w-5 text-white" />,
-      color: "bg-pink-500",
+      icon: <Layers className="h-5 w-5 text-[#2F2582]" />,
+      color: "bg-[#2F2582]/10",
     },
     {
       title: "Catalogues",
       description: "Upload and manage PDF catalogues",
       href: "/admin/catalogues",
-      icon: <BookOpen className="h-5 w-5 text-white" />,
-      color: "bg-indigo-500",
+      icon: <BookOpen className="h-5 w-5 text-[#2F2582]" />,
+      color: "bg-[#2F2582]/10",
     },
     {
       title: "Store Locations",
       description: "Manage physical store locations",
       href: "/admin/stores",
-      icon: <Store className="h-5 w-5 text-white" />,
-      color: "bg-teal-500",
+      icon: <Store className="h-5 w-5 text-[#2F2582]" />,
+      color: "bg-[#2F2582]/10",
     },
     {
       title: "Job Listings",
       description: "Post and manage career opportunities",
       href: "/admin/careers",
-      icon: <Briefcase className="h-5 w-5 text-white" />,
-      color: "bg-green-500",
+      icon: <Briefcase className="h-5 w-5 text-[#2F2582]" />,
+      color: "bg-[#2F2582]/10",
     },
   ];
 
@@ -231,14 +251,20 @@ export default function AdminDashboard() {
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-32 animate-pulse rounded-xl bg-gray-200" />
+            <div
+              key={i}
+              className="h-32 animate-pulse rounded-xl bg-gray-200"
+            />
           ))}
         </div>
         <div>
           <div className="mb-4 h-6 w-32 animate-pulse rounded bg-gray-200" />
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-24 animate-pulse rounded-xl bg-gray-200" />
+              <div
+                key={i}
+                className="h-24 animate-pulse rounded-xl bg-gray-200"
+              />
             ))}
           </div>
         </div>
@@ -257,7 +283,8 @@ export default function AdminDashboard() {
           Welcome back, {firstName}! 👋
         </h1>
         <p className="mt-2 text-gray-600">
-          Here's an overview of your store's performance and quick access to key features.
+          Here's an overview of your store's performance and quick access to key
+          features.
         </p>
       </motion.div>
 
@@ -274,7 +301,11 @@ export default function AdminDashboard() {
               key={index}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 + index * 0.05, type: "spring", stiffness: 100 }}
+              transition={{
+                delay: 0.1 + index * 0.05,
+                type: "spring",
+                stiffness: 100,
+              }}
             >
               <StatCard {...stat} />
             </motion.div>
@@ -288,7 +319,9 @@ export default function AdminDashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Quick Actions</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+          Quick Actions
+        </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {quickActions.map((action, index) => (
             <motion.div
@@ -313,8 +346,12 @@ export default function AdminDashboard() {
         <div className="border-b border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Recent Orders</h2>
-              <p className="mt-1 text-sm text-gray-600">Latest customer orders and their status</p>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Recent Orders
+              </h2>
+              <p className="mt-1 text-sm text-gray-600">
+                Latest customer orders and their status
+              </p>
             </div>
             <Link href="/admin/orders">
               <motion.button
@@ -328,51 +365,62 @@ export default function AdminDashboard() {
             </Link>
           </div>
         </div>
-        
-        <div className="p-6">
-          {/* Placeholder for orders table */}
-          <div className="space-y-4">
-            {/* Table Header */}
-            <div className="grid grid-cols-5 gap-4 border-b border-gray-200 pb-3 text-sm font-medium text-gray-600">
-              <div>Order ID</div>
-              <div>Customer</div>
-              <div>Date</div>
-              <div>Total</div>
-              <div>Status</div>
+
+        <div className="p-0">
+          <div className="overflow-x-auto">
+            <div className="min-w-[700px] space-y-4 p-6">
+              {/* Table Header */}
+              <div className="grid grid-cols-5 gap-4 border-b border-gray-200 pb-3 text-sm font-medium text-gray-600">
+                <div>Order ID</div>
+                <div>Customer</div>
+                <div>Date</div>
+                <div>Total</div>
+                <div>Status</div>
+              </div>
+
+              {/* Placeholder Rows */}
+              {[...Array(5)].map((_, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 + index * 0.05 }}
+                  className="grid grid-cols-5 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm"
+                >
+                  <div className="font-mono text-gray-500">
+                    #ORD-{1000 + index}
+                  </div>
+                  <div className="text-gray-700">Customer {index + 1}</div>
+                  <div className="text-gray-600">
+                    {new Date(
+                      Date.now() - index * 86400000,
+                    ).toLocaleDateString()}
+                  </div>
+                  <div className="font-semibold text-gray-900">
+                    ${(Math.random() * 500 + 50).toFixed(2)}
+                  </div>
+                  <div>
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        index % 3 === 0
+                          ? "bg-green-100 text-green-700"
+                          : index % 3 === 1
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-blue-100 text-blue-700"
+                      }`}
+                    >
+                      {index % 3 === 0
+                        ? "Delivered"
+                        : index % 3 === 1
+                          ? "Processing"
+                          : "Pending"}
+                    </span>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-            
-            {/* Placeholder Rows */}
-            {[...Array(5)].map((_, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + index * 0.05 }}
-                className="grid grid-cols-5 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm"
-              >
-                <div className="font-mono text-gray-500">#ORD-{1000 + index}</div>
-                <div className="text-gray-700">Customer {index + 1}</div>
-                <div className="text-gray-600">
-                  {new Date(Date.now() - index * 86400000).toLocaleDateString()}
-                </div>
-                <div className="font-semibold text-gray-900">
-                  ${(Math.random() * 500 + 50).toFixed(2)}
-                </div>
-                <div>
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                    index % 3 === 0 
-                      ? 'bg-green-100 text-green-700' 
-                      : index % 3 === 1 
-                      ? 'bg-yellow-100 text-yellow-700' 
-                      : 'bg-blue-100 text-blue-700'
-                  }`}>
-                    {index % 3 === 0 ? 'Delivered' : index % 3 === 1 ? 'Processing' : 'Pending'}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
           </div>
-          
+
           {/* Info message */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -382,7 +430,8 @@ export default function AdminDashboard() {
           >
             <ShoppingCart className="mx-auto h-8 w-8 text-gray-400" />
             <p className="mt-2 text-sm text-gray-600">
-              This is placeholder data. Real orders will appear here once the orders feature is implemented.
+              This is placeholder data. Real orders will appear here once the
+              orders feature is implemented.
             </p>
           </motion.div>
         </div>
@@ -395,7 +444,9 @@ export default function AdminDashboard() {
         className="rounded-lg border border-blue-200 bg-blue-50 p-4"
       >
         <p className="text-sm text-blue-800">
-          <span className="font-semibold">Note:</span> Statistics marked with * are placeholder values and will be replaced with real data once the respective features are implemented.
+          <span className="font-semibold">Note:</span> Statistics marked with *
+          are placeholder values and will be replaced with real data once the
+          respective features are implemented.
         </p>
       </motion.div>
     </div>

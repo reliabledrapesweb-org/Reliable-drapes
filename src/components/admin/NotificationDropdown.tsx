@@ -123,7 +123,7 @@ export function NotificationDropdown() {
       >
         <Bell className="h-5 w-5 text-gray-600 lg:h-6 lg:w-6" />
         {unreadCount > 0 && (
-          <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+          <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -145,7 +145,7 @@ export function NotificationDropdown() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl sm:w-96"
+              className="absolute -right-16 z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl sm:right-0 sm:w-96"
             >
               {/* Header */}
               <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50 px-4 py-3">
@@ -191,7 +191,7 @@ export function NotificationDropdown() {
                       </div>
 
                       {/* Content */}
-                      <div className="flex-1 min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
                           <p className="text-sm font-semibold text-gray-900">
                             {notification.title}
@@ -200,7 +200,7 @@ export function NotificationDropdown() {
                             <span className="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-blue-600" />
                           )}
                         </div>
-                        <p className="mt-0.5 text-xs text-gray-600 line-clamp-2">
+                        <p className="mt-0.5 line-clamp-2 text-xs text-gray-600">
                           {notification.message}
                         </p>
                         <div className="mt-1 flex items-center gap-2">

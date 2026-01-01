@@ -6,6 +6,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import type { Product } from "@/lib/actions/products";
+import { WishlistButton } from "./WishlistButton";
 
 interface ShopProductCardProps {
   product: Product;
@@ -67,6 +68,17 @@ export function ShopProductCard({
 
           {/* Overlay gradient for better text readability */}
           <div className="absolute inset-0 bg-black/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+          {/* Wishlist Button - Top Left */}
+          <div className="absolute top-4 left-4 z-20 -translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+            <WishlistButton
+              productId={product.id}
+              productName={product.name}
+              productPrice={product.price}
+              productImage={product.image_url}
+              size="lg"
+            />
+          </div>
 
           {/* Add to Cart Button - Circular Top Right */}
           <div className="absolute top-4 right-4 z-20 -translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">

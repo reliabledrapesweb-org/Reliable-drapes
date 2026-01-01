@@ -5,20 +5,33 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { ChevronLeft, ShoppingCart, Minus, Plus, Check, ZoomIn, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ShoppingCart,
+  Minus,
+  Plus,
+  Check,
+  ZoomIn,
+  X,
+} from "lucide-react";
 import { Breadcrumb } from "@/components/shared";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { useCartStore } from "@/lib/store";
 import { ShopProductCard } from "@/components/features/shop/ShopProductCard";
 import type { Product } from "@/lib/actions/products";
-import { getProductById, getRelatedProducts, type ProductWithDetails } from "@/lib/actions/products";
+import {
+  getProductById,
+  getRelatedProducts,
+  type ProductWithDetails,
+} from "@/lib/actions/products";
+import { WishlistButton } from "@/components/features/shop/WishlistButton";
 
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { toasts, addToast, removeToast } = useToast();
   const { addItem } = useCartStore();
-  
+
   const [product, setProduct] = useState<ProductWithDetails | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,7 +51,7 @@ export default function ProductDetailPage() {
         const result = await getProductById(productId);
         if (result.success && result.data) {
           setProduct(result.data);
-          
+
           // Fetch related products
           setIsLoadingRelated(true);
           const relatedResult = await getRelatedProducts(productId, 4);
@@ -88,7 +101,7 @@ export default function ProductDetailPage() {
   };
 
   const handleRelatedAddToCart = (productId: string, productName: string) => {
-    const relatedProduct = relatedProducts.find(p => p.id === productId);
+    const relatedProduct = relatedProducts.find((p) => p.id === productId);
     if (!relatedProduct) return;
 
     addItem({
@@ -114,7 +127,8 @@ export default function ProductDetailPage() {
     }).format(price);
   };
 
-  const fallbackImage = "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center";
+  const fallbackImage =
+    "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center";
 
   // Get all images - prioritize product_images table, fallback to main image_url
   const allImages = product
@@ -145,7 +159,7 @@ export default function ProductDetailPage() {
   if (isLoading) {
     return (
       <main className="mt-14 min-h-screen bg-gray-50 md:mt-16 lg:mt-[72px]">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-12">
+        <div className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 lg:px-8">
           <div className="mb-6 h-6 w-32 animate-pulse rounded bg-gray-200" />
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
             {/* Image Gallery Skeleton */}
@@ -155,16 +169,16 @@ export default function ProductDetailPage() {
                 <div className="order-2 md:order-1 md:w-24 lg:w-28">
                   <div className="flex gap-3 overflow-x-auto md:flex-col md:overflow-visible">
                     {[...Array(4)].map((_, i) => (
-                      <div 
-                        key={i} 
-                        className="aspect-square w-20 flex-shrink-0 animate-pulse rounded-lg bg-gray-200 md:w-full" 
+                      <div
+                        key={i}
+                        className="aspect-square w-20 shrink-0 animate-pulse rounded-lg bg-gray-200 md:w-full"
                       />
                     ))}
                   </div>
                 </div>
                 {/* Main Image Skeleton */}
                 <div className="order-1 md:order-2 md:flex-1">
-                  <div className="aspect-[4/3] w-full animate-pulse rounded-2xl bg-gray-200" />
+                  <div className="aspect-4/3 w-full animate-pulse rounded-2xl bg-gray-200" />
                 </div>
               </div>
             </div>
@@ -191,8 +205,8 @@ export default function ProductDetailPage() {
   return (
     <main className="mt-14 min-h-screen bg-gray-50 md:mt-16 lg:mt-[72px]">
       <Breadcrumb />
-      
-      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+      <div className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 md:py-12 lg:px-8">
         {/* Back Button */}
         <motion.button
           initial={{ opacity: 0, x: -20 }}
@@ -229,10 +243,10 @@ export default function ProductDetailPage() {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.3 + index * 0.05 }}
                         onClick={() => setSelectedImage(index)}
-                        className={`relative aspect-square flex-shrink-0 overflow-hidden rounded-lg transition-all ${
+                        className={`relative aspect-square shrink-0 overflow-hidden rounded-lg transition-all ${
                           selectedImage === index
-                            ? "ring-3 ring-[#2f2582] ring-offset-2 opacity-100 scale-105"
-                            : "opacity-60 hover:opacity-100 hover:ring-2 hover:ring-gray-300 hover:scale-105"
+                            ? "scale-105 opacity-100 ring-3 ring-[#2f2582] ring-offset-2"
+                            : "opacity-60 hover:scale-105 hover:opacity-100 hover:ring-2 hover:ring-gray-300"
                         } w-20 md:w-full`}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -256,7 +270,7 @@ export default function ProductDetailPage() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, type: "spring", stiffness: 100 }}
-                className="group relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-white shadow-xl order-1 md:order-2 md:flex-1"
+                className="group relative order-1 aspect-4/3 w-full overflow-hidden rounded-2xl bg-white shadow-xl md:order-2 md:flex-1"
               >
                 <Image
                   src={imageError ? fallbackImage : currentImage}
@@ -266,14 +280,25 @@ export default function ProductDetailPage() {
                   priority
                   onError={() => setImageError(true)}
                 />
-                
+
+                {/* Wishlist Button - Top Left */}
+                <div className="absolute top-4 left-4 z-10">
+                  <WishlistButton
+                    productId={product.id}
+                    productName={product.name}
+                    productPrice={product.price}
+                    productImage={product.image_url}
+                    size="lg"
+                  />
+                </div>
+
                 {/* Zoom Button */}
                 <motion.button
                   initial={{ opacity: 0, scale: 0 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.3 }}
                   onClick={() => setIsZoomed(true)}
-                  className="absolute right-4 top-4 rounded-full bg-white/95 p-3 shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
+                  className="absolute top-4 right-4 rounded-full bg-white/95 p-3 shadow-lg backdrop-blur-sm transition-all hover:scale-110 hover:bg-white"
                   aria-label="Zoom image"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
@@ -287,7 +312,7 @@ export default function ProductDetailPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="absolute bottom-4 right-4 rounded-full bg-black/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm"
+                    className="absolute right-4 bottom-4 rounded-full bg-black/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm"
                   >
                     {selectedImage + 1} / {allImages.length}
                   </motion.div>
@@ -319,7 +344,7 @@ export default function ProductDetailPage() {
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.3 + index * 0.05 }}
-                      className="rounded-full bg-[#2f2582]/10 px-3 py-1 text-xs font-semibold text-[#2f2582] uppercase tracking-wide"
+                      className="rounded-full bg-[#2f2582]/10 px-3 py-1 text-xs font-semibold tracking-wide text-[#2f2582] uppercase"
                     >
                       {category.name}
                     </motion.span>
@@ -331,11 +356,11 @@ export default function ProductDetailPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="text-3xl font-bold leading-tight text-[#2a2a2a] lg:text-4xl xl:text-5xl"
+                className="text-3xl leading-tight font-bold text-[#2a2a2a] lg:text-4xl xl:text-5xl"
               >
                 {product.name}
               </motion.h1>
-              
+
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -357,9 +382,9 @@ export default function ProductDetailPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
-                className="rounded-xl bg-white border border-gray-200 p-6 shadow-sm"
+                className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
               >
-                <h2 className="mb-3 text-base font-bold uppercase tracking-wide text-[#161616]">
+                <h2 className="mb-3 text-base font-bold tracking-wide text-[#161616] uppercase">
                   Description
                 </h2>
                 <p className="text-base leading-relaxed text-[#575757]">
@@ -376,7 +401,7 @@ export default function ProductDetailPage() {
                 transition={{ delay: 0.7 }}
                 className="space-y-4"
               >
-                <h2 className="text-base font-bold uppercase tracking-wide text-[#161616]">
+                <h2 className="text-base font-bold tracking-wide text-[#161616] uppercase">
                   Select Options
                 </h2>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -389,10 +414,12 @@ export default function ProductDetailPage() {
                       onClick={() => setSelectedVariant(variant.id)}
                       className={`flex items-center justify-between rounded-xl border-2 px-5 py-4 text-left transition-all ${
                         selectedVariant === variant.id
-                          ? "border-[#2f2582] bg-[#2f2582]/5 shadow-md scale-105"
-                          : "border-gray-200 hover:border-[#2f2582]/50 hover:bg-gray-50 hover:scale-102"
+                          ? "scale-105 border-[#2f2582] bg-[#2f2582]/5 shadow-md"
+                          : "border-gray-200 hover:scale-102 hover:border-[#2f2582]/50 hover:bg-gray-50"
                       }`}
-                      whileHover={{ scale: selectedVariant === variant.id ? 1.05 : 1.02 }}
+                      whileHover={{
+                        scale: selectedVariant === variant.id ? 1.05 : 1.02,
+                      }}
                       whileTap={{ scale: 0.98 }}
                     >
                       <div>
@@ -430,7 +457,7 @@ export default function ProductDetailPage() {
               className="space-y-4 rounded-xl border-2 border-gray-200 bg-white p-6 shadow-lg"
             >
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-bold uppercase tracking-wide text-[#161616]">
+                <h2 className="text-base font-bold tracking-wide text-[#161616] uppercase">
                   Quantity
                 </h2>
                 <div className="flex items-center rounded-xl border-2 border-gray-200 bg-gray-50">
@@ -464,9 +491,12 @@ export default function ProductDetailPage() {
 
               <motion.button
                 onClick={handleAddToCart}
-                whileHover={{ scale: 1.02, boxShadow: "0 20px 25px -5px rgba(47, 37, 130, 0.3)" }}
+                whileHover={{
+                  scale: 1.02,
+                  boxShadow: "0 20px 25px -5px rgba(47, 37, 130, 0.3)",
+                }}
                 whileTap={{ scale: 0.98 }}
-                className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#2f2582] px-8 py-5 text-lg font-bold tracking-wide text-white uppercase transition-all hover:bg-[#241c66] shadow-lg"
+                className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#2f2582] px-8 py-5 text-lg font-bold tracking-wide text-white uppercase shadow-lg transition-all hover:bg-[#241c66]"
               >
                 <ShoppingCart className="h-6 w-6" />
                 Add to Cart
@@ -490,17 +520,17 @@ export default function ProductDetailPage() {
                 transition={{ delay: 0.9 }}
                 className="space-y-4"
               >
-                <h2 className="text-base font-bold uppercase tracking-wide text-[#161616]">
+                <h2 className="text-base font-bold tracking-wide text-[#161616] uppercase">
                   Specifications
                 </h2>
-                <div className="divide-y divide-gray-200 rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+                <div className="divide-y divide-gray-200 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
                   {product.specifications.map((spec, index) => (
                     <motion.div
                       key={spec.id}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.9 + index * 0.05 }}
-                      className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors"
+                      className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-gray-50"
                     >
                       <span className="text-sm font-medium text-[#575757]">
                         {spec.spec_name}
@@ -519,7 +549,7 @@ export default function ProductDetailPage() {
 
       {/* Related Products Section */}
       {relatedProducts.length > 0 && (
-        <section className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 py-16">
+        <section className="mx-auto max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -576,7 +606,7 @@ export default function ProductDetailPage() {
             >
               <Link
                 href="/shop"
-                className="inline-flex items-center gap-2 rounded-xl bg-[#2f2582] px-8 py-4 text-lg font-semibold text-white transition-all hover:bg-[#241c66] hover:scale-105 hover:shadow-lg"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#2f2582] px-8 py-4 text-lg font-semibold text-white transition-all hover:scale-105 hover:bg-[#241c66] hover:shadow-lg"
               >
                 View All Products
                 <ChevronLeft className="h-5 w-5 rotate-180" />
@@ -591,7 +621,7 @@ export default function ProductDetailPage() {
         <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/95 p-4">
           <button
             onClick={() => setIsZoomed(false)}
-            className="absolute right-4 top-4 rounded-full bg-white/10 p-3 backdrop-blur-sm transition-all hover:bg-white/20"
+            className="absolute top-4 right-4 rounded-full bg-white/10 p-3 backdrop-blur-sm transition-all hover:bg-white/20"
             aria-label="Close zoom"
           >
             <X className="h-6 w-6 text-white" />
@@ -611,15 +641,23 @@ export default function ProductDetailPage() {
           {allImages.length > 1 && (
             <>
               <button
-                onClick={() => setSelectedImage((prev) => (prev > 0 ? prev - 1 : allImages.length - 1))}
-                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-4 backdrop-blur-sm transition-all hover:bg-white/20"
+                onClick={() =>
+                  setSelectedImage((prev) =>
+                    prev > 0 ? prev - 1 : allImages.length - 1,
+                  )
+                }
+                className="absolute top-1/2 left-4 -translate-y-1/2 rounded-full bg-white/10 p-4 backdrop-blur-sm transition-all hover:bg-white/20"
                 aria-label="Previous image"
               >
                 <ChevronLeft className="h-6 w-6 text-white" />
               </button>
               <button
-                onClick={() => setSelectedImage((prev) => (prev < allImages.length - 1 ? prev + 1 : 0))}
-                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-4 backdrop-blur-sm transition-all hover:bg-white/20"
+                onClick={() =>
+                  setSelectedImage((prev) =>
+                    prev < allImages.length - 1 ? prev + 1 : 0,
+                  )
+                }
+                className="absolute top-1/2 right-4 -translate-y-1/2 rounded-full bg-white/10 p-4 backdrop-blur-sm transition-all hover:bg-white/20"
                 aria-label="Next image"
               >
                 <ChevronLeft className="h-6 w-6 rotate-180 text-white" />
