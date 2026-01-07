@@ -139,6 +139,17 @@ export function Header() {
               <p className="truncate text-xs text-gray-500">{user.email}</p>
             </div>
 
+            <div className="p-1">
+              <Link
+                href="/profile"
+                className="flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100"
+                onClick={() => setShowUserMenu(false)}
+              >
+                <User className="h-4 w-4" />
+                Your Profile
+              </Link>
+            </div>
+
             <button
               onClick={async () => {
                 await supabaseClient.auth.signOut();

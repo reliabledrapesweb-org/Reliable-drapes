@@ -53,7 +53,7 @@ export function ShopProductCard({
         }}
         className="group flex w-full cursor-pointer flex-col gap-5 transition-transform duration-300 hover:scale-[1.02]"
       >
-        <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-b from-gray-200 to-gray-400 shadow-lg transition-shadow duration-300 group-hover:shadow-xl">
+        <div className="relative aspect-square overflow-hidden rounded-xl bg-linear-to-b from-gray-200 to-gray-400 shadow-lg transition-shadow duration-300 group-hover:shadow-xl">
           <div className="h-full w-full">
             <Image
               width={500}
@@ -70,7 +70,7 @@ export function ShopProductCard({
           <div className="absolute inset-0 bg-black/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
           {/* Wishlist Button - Top Left */}
-          <div className="absolute top-4 left-4 z-20 -translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+          <div className="absolute top-4 left-4 z-20">
             <WishlistButton
               productId={product.id}
               productName={product.name}

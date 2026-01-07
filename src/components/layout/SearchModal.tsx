@@ -75,14 +75,15 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-NG", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "NGN",
+      currency: "INR",
       minimumFractionDigits: 0,
     }).format(price);
   };
 
-  const fallbackImage = "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=200&fit=crop&crop=center";
+  const fallbackImage =
+    "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=200&fit=crop&crop=center";
 
   return (
     <AnimatePresence>
@@ -133,8 +134,8 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               {/* Search Results */}
               <div className="max-h-[400px] overflow-y-auto">
                 {searchQuery.trim().length < 2 ? (
-                  <div className="flex flex-col items-center justify-center py-12 px-4">
-                    <Search className="h-12 w-12 text-gray-300 mb-3" />
+                  <div className="flex flex-col items-center justify-center px-4 py-12">
+                    <Search className="mb-3 h-12 w-12 text-gray-300" />
                     <p className="text-sm text-[#898989]">
                       Type at least 2 characters to search
                     </p>
@@ -165,16 +166,16 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         </div>
 
                         {/* Product Info */}
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-semibold text-[#161616] line-clamp-1">
+                        <div className="min-w-0 flex-1">
+                          <h4 className="line-clamp-1 text-sm font-semibold text-[#161616]">
                             {product.name}
                           </h4>
                           {product.description && (
-                            <p className="text-xs text-[#898989] line-clamp-1 mt-0.5">
+                            <p className="mt-0.5 line-clamp-1 text-xs text-[#898989]">
                               {product.description}
                             </p>
                           )}
-                          <p className="text-sm font-bold text-[#2f2582] mt-1">
+                          <p className="mt-1 text-sm font-bold text-[#2f2582]">
                             {formatPrice(product.price)}
                           </p>
                         </div>
@@ -200,7 +201,9 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     {searchResults.length === 5 && (
                       <button
                         onClick={() => {
-                          router.push(`/shop?search=${encodeURIComponent(searchQuery)}`);
+                          router.push(
+                            `/shop?search=${encodeURIComponent(searchQuery)}`,
+                          );
                           onClose();
                           setSearchQuery("");
                         }}
@@ -211,14 +214,14 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     )}
                   </div>
                 ) : hasSearched ? (
-                  <div className="flex flex-col items-center justify-center py-12 px-4">
+                  <div className="flex flex-col items-center justify-center px-4 py-12">
                     <div className="mb-4 rounded-full bg-gray-100 p-4">
                       <Search className="h-8 w-8 text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-[#161616] mb-2">
+                    <h3 className="mb-2 text-lg font-semibold text-[#161616]">
                       No products found
                     </h3>
-                    <p className="text-sm text-[#898989] text-center mb-4">
+                    <p className="mb-4 text-center text-sm text-[#898989]">
                       We couldn't find any products matching "{searchQuery}"
                     </p>
                     <button
@@ -239,7 +242,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
               {searchResults.length > 0 && (
                 <div className="border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-[#898989]">
                   <span className="font-medium">Tip:</span> Press{" "}
-                  <kbd className="rounded bg-white px-1.5 py-0.5 font-mono border border-gray-300">
+                  <kbd className="rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono">
                     Enter
                   </kbd>{" "}
                   {searchResults.length === 1 && "to view product"}

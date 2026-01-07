@@ -161,7 +161,7 @@ export default function ProductDetailPage() {
       <main className="mt-14 min-h-screen bg-gray-50 md:mt-16 lg:mt-[72px]">
         <div className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 lg:px-8">
           <div className="mb-6 h-6 w-32 animate-pulse rounded bg-gray-200" />
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-16">
             {/* Image Gallery Skeleton */}
             <div>
               <div className="flex flex-col gap-4 md:flex-row md:gap-4">
@@ -178,7 +178,7 @@ export default function ProductDetailPage() {
                 </div>
                 {/* Main Image Skeleton */}
                 <div className="order-1 md:order-2 md:flex-1">
-                  <div className="aspect-4/3 w-full animate-pulse rounded-2xl bg-gray-200" />
+                  <div className="aspect-square w-full animate-pulse rounded-2xl bg-gray-200" />
                 </div>
               </div>
             </div>
@@ -270,7 +270,7 @@ export default function ProductDetailPage() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, type: "spring", stiffness: 100 }}
-                className="group relative order-1 aspect-4/3 w-full overflow-hidden rounded-2xl bg-white shadow-xl md:order-2 md:flex-1"
+                className="group relative order-1 aspect-square w-full overflow-hidden rounded-2xl bg-white shadow-xl md:order-2 md:flex-1"
               >
                 <Image
                   src={imageError ? fallbackImage : currentImage}
@@ -356,7 +356,7 @@ export default function ProductDetailPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="text-3xl leading-tight font-bold text-[#2a2a2a] lg:text-4xl xl:text-5xl"
+                className="text-2xl leading-tight font-bold text-[#2a2a2a] lg:text-3xl xl:text-4xl"
               >
                 {product.name}
               </motion.h1>
@@ -367,7 +367,7 @@ export default function ProductDetailPage() {
                 transition={{ delay: 0.5 }}
                 className="flex items-baseline gap-3"
               >
-                <p className="text-4xl font-bold text-[#2f2582] lg:text-5xl">
+                <p className="text-2xl font-bold text-[#2f2582] lg:text-3xl">
                   {formatPrice(product.price)}
                 </p>
                 {product.variants && product.variants.length > 0 && (
@@ -496,7 +496,7 @@ export default function ProductDetailPage() {
                   boxShadow: "0 20px 25px -5px rgba(47, 37, 130, 0.3)",
                 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#2f2582] px-8 py-5 text-lg font-bold tracking-wide text-white uppercase shadow-lg transition-all hover:bg-[#241c66]"
+                className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#2f2582] px-6 py-3 text-base font-bold tracking-wide text-white uppercase shadow-lg transition-all hover:bg-[#241c66]"
               >
                 <ShoppingCart className="h-6 w-6" />
                 Add to Cart

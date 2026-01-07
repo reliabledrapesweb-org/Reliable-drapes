@@ -20,7 +20,7 @@ export function Breadcrumb() {
     // Handle different page routes
     if (pathname.startsWith("/shop")) {
       const pathSegments = pathname.split("/").filter(Boolean);
-      
+
       if (pathSegments.length === 1) {
         // /shop
         items.push({ label: "Shop" });
@@ -37,11 +37,13 @@ export function Breadcrumb() {
       items.push({ label: "Style Expert" });
     } else if (pathname === "/careers") {
       items.push({ label: "Careers" });
+    } else if (pathname === "/wishlist") {
+      items.push({ label: "Wishlist" });
     } else if (pathname === "/cart") {
       items.push({ label: "Shopping Cart" });
     } else if (pathname.startsWith("/admin")) {
       items.push({ label: "Admin Dashboard", href: "/admin" });
-      
+
       if (pathname.includes("/catalogues")) {
         items.push({ label: "Catalogues" });
       } else if (pathname.includes("/customers")) {
@@ -76,7 +78,9 @@ export function Breadcrumb() {
                   {crumb.label}
                 </Link>
               ) : (
-                <span className="font-medium text-[#2f2582]">{crumb.label}</span>
+                <span className="font-medium text-[#2f2582]">
+                  {crumb.label}
+                </span>
               )}
             </div>
           ))}

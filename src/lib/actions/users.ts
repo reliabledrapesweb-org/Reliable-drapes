@@ -10,12 +10,32 @@ export interface UserProfile {
   created_at: string;
   email?: string;
   last_sign_in_at?: string;
+  address_line1?: string | null;
+  address_line2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
+  country?: string | null;
+  phone?: string | null;
+  avatar_url?: string | null;
 }
 
 export interface UpdateUserInput {
   id: string;
   full_name?: string;
   role?: "customer" | "admin";
+}
+
+export interface UpdateProfileInput {
+  full_name?: string;
+  address_line1?: string;
+  address_line2?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  country?: string;
+  phone?: string;
+  avatar_url?: string;
 }
 
 /**
@@ -25,8 +45,11 @@ export async function getAllUsers() {
   const supabase = await supabaseServer();
 
   // Verify current user is admin first
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
   if (authError || !user) {
     console.error("Authentication error:", authError);
     return { success: false, error: "Authentication required", data: null };
@@ -41,7 +64,11 @@ export async function getAllUsers() {
 
   if (profileError) {
     console.error("Error fetching current user profile:", profileError);
-    return { success: false, error: "Failed to verify admin status", data: null };
+    return {
+      success: false,
+      error: "Failed to verify admin status",
+      data: null,
+    };
   }
 
   if (currentUserProfile?.role !== "admin") {
@@ -68,13 +95,14 @@ export async function getAllUsers() {
     {
       auth: {
         autoRefreshToken: false,
-        persistSession: false
-      }
-    }
+        persistSession: false,
+      },
+    },
   );
 
   // Get auth users to get email and last sign in
-  const { data: authData, error: authError2 } = await adminSupabase.auth.admin.listUsers();
+  const { data: authData, error: authError2 } =
+    await adminSupabase.auth.admin.listUsers();
 
   if (authError2) {
     console.error("Error fetching auth users:", authError2);
@@ -130,8 +158,11 @@ export async function updateUser(input: UpdateUserInput) {
   const supabase = await supabaseServer();
 
   // Verify current user is admin
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
   if (authError || !user) {
     console.error("Authentication error:", authError);
     return { success: false, error: "Authentication required", data: null };
@@ -146,7 +177,11 @@ export async function updateUser(input: UpdateUserInput) {
 
   if (profileError) {
     console.error("Error fetching current user profile:", profileError);
-    return { success: false, error: "Failed to verify admin status", data: null };
+    return {
+      success: false,
+      error: "Failed to verify admin status",
+      data: null,
+    };
   }
 
   if (currentUserProfile?.role !== "admin") {
@@ -178,6 +213,81 @@ export async function updateUser(input: UpdateUserInput) {
 }
 
 /**
+ * Get own profile (authenticated user)
+ */
+export async function getProfile() {
+  const supabase = await supabaseServer();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { success: false, error: "Authentication required", data: null };
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  if (error) {
+    console.error("Error fetching profile:", error);
+    return { success: false, error: error.message, data: null };
+  }
+
+  // Use profile avatar or fallback to Google avatar from metadata
+  const avatarUrl =
+    data.avatar_url ||
+    user.user_metadata?.avatar_url ||
+    user.user_metadata?.picture;
+
+  return {
+    success: true,
+    data: {
+      ...data,
+      email: user.email,
+      avatar_url: avatarUrl,
+    },
+    error: null,
+  };
+}
+
+/**
+ * Update own profile (authenticated user)
+ */
+export async function updateProfile(input: UpdateProfileInput) {
+  const supabase = await supabaseServer();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { success: false, error: "Authentication required", data: null };
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .update(input)
+    .eq("id", user.id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Error updating profile:", error);
+    return { success: false, error: error.message, data: null };
+  }
+
+  revalidatePath("/profile");
+
+  return { success: true, data, error: null };
+}
+
+/**
  * Delete user (admin only)
  * This will cascade delete the profile due to foreign key constraint
  */
@@ -185,8 +295,11 @@ export async function deleteUser(userId: string) {
   const supabase = await supabaseServer();
 
   // Verify current user is admin first
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
   if (authError || !user) {
     console.error("Authentication error:", authError);
     return { success: false, error: "Authentication required" };
@@ -217,9 +330,9 @@ export async function deleteUser(userId: string) {
     {
       auth: {
         autoRefreshToken: false,
-        persistSession: false
-      }
-    }
+        persistSession: false,
+      },
+    },
   );
 
   // Delete from auth.users (this will cascade to profiles)
@@ -291,7 +404,7 @@ export async function searchUsers(query: string) {
     .from("profiles")
     .select("*")
     .ilike("full_name", `%${query}%`)
-    .order("created_at", { ascending: false});
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error("Error searching users:", error);

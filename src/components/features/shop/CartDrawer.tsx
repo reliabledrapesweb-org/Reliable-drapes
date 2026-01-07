@@ -38,7 +38,7 @@ export function CartDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closeCart}
-            className="fixed inset-0 z-[9998] bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-9998 bg-black/50 backdrop-blur-sm"
           />
 
           {/* Drawer */}
@@ -47,7 +47,7 @@ export function CartDrawer() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 250 }}
-            className="fixed right-0 top-0 z-[9999] h-full w-full max-w-md bg-white shadow-2xl"
+            className="fixed top-0 right-0 z-9999 h-full w-full max-w-md bg-white shadow-2xl"
           >
             <div className="flex h-full flex-col">
               {/* Header */}
@@ -99,7 +99,11 @@ export function CartDrawer() {
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                      transition={{
+                        delay: 0.3,
+                        type: "spring",
+                        stiffness: 200,
+                      }}
                       className="rounded-full bg-gray-100 p-6"
                     >
                       <ShoppingCart className="h-12 w-12 text-gray-400" />
@@ -142,12 +146,16 @@ export function CartDrawer() {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -100 }}
-                        transition={{ delay: index * 0.05, type: "spring", stiffness: 100 }}
+                        transition={{
+                          delay: index * 0.05,
+                          type: "spring",
+                          stiffness: 100,
+                        }}
                         whileHover={{ scale: 1.02 }}
                         className="flex gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
                       >
                         {/* Image */}
-                        <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-gray-100">
                           {item.image ? (
                             <Image
                               src={item.image}
@@ -166,15 +174,15 @@ export function CartDrawer() {
                         {/* Info */}
                         <div className="flex flex-1 flex-col gap-2">
                           <div>
-                            <h4 className="text-sm font-semibold text-[#161616] line-clamp-1">
+                            <h4 className="line-clamp-1 text-lg font-bold text-[#161616]">
                               {item.name}
                             </h4>
                             {item.variantName && (
-                              <p className="text-xs text-[#575757]">
+                              <p className="text-sm text-[#575757]">
                                 {item.variantName}
                               </p>
                             )}
-                            <p className="mt-1 text-sm font-bold text-[#2f2582]">
+                            <p className="mt-1 text-base font-bold text-[#2f2582]">
                               {formatPrice(item.price)}
                             </p>
                           </div>
@@ -191,7 +199,7 @@ export function CartDrawer() {
                               >
                                 <Minus className="h-3 w-3" />
                               </button>
-                              <span className="min-w-[2rem] text-center text-sm font-medium text-[#161616]">
+                              <span className="min-w-8 text-center text-sm font-medium text-[#161616]">
                                 {item.quantity}
                               </span>
                               <button
@@ -230,7 +238,8 @@ export function CartDrawer() {
                   {/* Subtotal */}
                   <div className="mb-4 flex items-center justify-between">
                     <span className="text-base font-medium text-[#575757]">
-                      Subtotal ({totalItems} {totalItems === 1 ? "item" : "items"})
+                      Subtotal ({totalItems}{" "}
+                      {totalItems === 1 ? "item" : "items"})
                     </span>
                     <span className="text-xl font-bold text-[#161616]">
                       {formatPrice(totalPrice)}
@@ -238,11 +247,14 @@ export function CartDrawer() {
                   </div>
 
                   {/* Checkout Button */}
-                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
                     <Link
                       href="/cart"
                       onClick={closeCart}
-                      className="block w-full rounded-full bg-[#2f2582] px-6 py-4 text-center text-base font-semibold tracking-[2px] text-white uppercase transition-all hover:bg-[#241c66] hover:shadow-lg"
+                      className="block w-full rounded-full bg-[#2f2582] px-6 py-4 text-center text-sm font-semibold tracking-[2px] text-white uppercase transition-all hover:bg-[#241c66] hover:shadow-lg"
                     >
                       View Cart & Checkout
                     </Link>
@@ -253,7 +265,7 @@ export function CartDrawer() {
                     onClick={closeCart}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="mt-3 w-full rounded-full border-2 border-gray-300 px-6 py-3 text-center text-sm font-medium text-[#575757] transition-all hover:border-gray-400 hover:bg-white"
+                    className="mt-3 w-full rounded-full border-2 border-gray-300 px-6 py-4 text-center text-sm font-semibold tracking-[2px] text-[#575757] uppercase transition-all hover:border-gray-400 hover:bg-white"
                   >
                     Continue Shopping
                   </motion.button>

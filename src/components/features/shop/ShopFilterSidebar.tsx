@@ -1,7 +1,7 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Category } from "@/lib/actions/products";
 
@@ -29,6 +29,7 @@ export function ShopFilterSidebar({
   const [isExpanded, setIsExpanded] = useState(true);
   const [selectedSort, setSelectedSort] = useState<string>(sortBy);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const toggleCategory = (categorySlug: string) => {
     if (selectedCategories.includes(categorySlug)) {
@@ -59,9 +60,9 @@ export function ShopFilterSidebar({
   ];
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-NG", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
-      currency: "NGN",
+      currency: "INR",
       minimumFractionDigits: 0,
     }).format(price);
   };
@@ -72,7 +73,9 @@ export function ShopFilterSidebar({
     setIsSortDropdownOpen(false);
   };
 
-  const currentSortLabel = sortOptions.find(opt => opt.value === selectedSort)?.label || "Newest First";
+  const currentSortLabel =
+    sortOptions.find((opt) => opt.value === selectedSort)?.label ||
+    "Newest First";
 
   return (
     <aside className="w-full shrink-0">
@@ -101,11 +104,20 @@ export function ShopFilterSidebar({
         <AnimatePresence initial={false}>
           {isExpanded && (
             <motion.div
+              ref={containerRef}
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="overflow-hidden"
+              className={`overflow-hidden ${isExpanded ? "overflow-visible" : ""}`}
+              onAnimationStart={() => {
+                if (containerRef.current)
+                  containerRef.current.style.overflow = "hidden";
+              }}
+              onAnimationComplete={() => {
+                if (containerRef.current && isExpanded)
+                  containerRef.current.style.overflow = "visible";
+              }}
             >
               <div className="mt-4 space-y-5 md:mt-5 md:space-y-6">
                 {/* Sort By Dropdown */}
@@ -113,9 +125,11 @@ export function ShopFilterSidebar({
                   <div className="relative">
                     <button
                       onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                      className="flex w-full items-center justify-between rounded-lg border-2 border-[#e0e0e0] bg-white px-4 py-3 text-left font-medium text-[#161616] hover:border-[#d0d0d0] transition-colors"
+                      className="flex w-full items-center justify-between rounded-lg border-2 border-[#e0e0e0] bg-white px-4 py-3 text-left font-medium text-[#161616] transition-colors hover:border-[#d0d0d0]"
                     >
-                      <span className="text-[16px] md:text-[18px]">{currentSortLabel}</span>
+                      <span className="text-[16px] md:text-[18px]">
+                        {currentSortLabel}
+                      </span>
                       <motion.svg
                         animate={{ rotate: isSortDropdownOpen ? 180 : 0 }}
                         transition={{ duration: 0.3 }}
@@ -124,7 +138,12 @@ export function ShopFilterSidebar({
                         stroke="currentColor"
                         viewBox="0 0 24 24"
                       >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                        />
                       </motion.svg>
                     </button>
 
@@ -135,15 +154,15 @@ export function ShopFilterSidebar({
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -10 }}
                           transition={{ duration: 0.2 }}
-                          className="absolute top-full left-0 right-0 mt-2 z-50 rounded-lg border-2 border-[#e0e0e0] bg-white shadow-lg"
+                          className="absolute top-full right-0 left-0 z-50 mt-2 rounded-lg border-2 border-[#e0e0e0] bg-white shadow-lg"
                         >
                           {sortOptions.map((option) => (
                             <button
                               key={option.value}
                               onClick={() => handleSortChange(option.value)}
-                              className={`flex w-full items-center justify-between px-4 py-3 text-left text-[16px] md:text-[18px] transition-colors ${
+                              className={`flex w-full items-center justify-between px-4 py-3 text-left text-[16px] transition-colors md:text-[18px] ${
                                 selectedSort === option.value
-                                  ? "bg-[#f5f5f5] text-[#2f2582] font-medium"
+                                  ? "bg-[#f5f5f5] font-medium text-[#2f2582]"
                                   : "text-[#575757] hover:bg-[#f9f9f9]"
                               }`}
                             >
@@ -162,11 +181,13 @@ export function ShopFilterSidebar({
                 {/* Categories */}
                 {categories.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-[16px] font-semibold text-[#161616] md:text-[17px] mb-3">
+                    <h3 className="mb-3 text-[16px] font-semibold text-[#161616] md:text-[17px]">
                       Categories
                     </h3>
                     {categories.map((category) => {
-                      const isChecked = selectedCategories.includes(category.slug);
+                      const isChecked = selectedCategories.includes(
+                        category.slug,
+                      );
                       return (
                         <motion.label
                           key={category.id}
@@ -182,7 +203,9 @@ export function ShopFilterSidebar({
                           <motion.div
                             animate={{
                               scale: isChecked ? 1 : 1,
-                              backgroundColor: isChecked ? "#2f2582" : "#e8e8e8",
+                              backgroundColor: isChecked
+                                ? "#2f2582"
+                                : "#e8e8e8",
                               borderColor: isChecked ? "#2f2582" : "#e8e8e8",
                             }}
                             transition={{ duration: 0.2 }}
@@ -231,7 +254,7 @@ export function ShopFilterSidebar({
                             priceRange[1],
                           ])
                         }
-                        className="w-full rounded-lg border-2 border-[#e0e0e0] px-3 py-2 text-sm focus:border-[#2f2582] focus:outline-none transition-colors"
+                        className="w-full rounded-lg border-2 border-[#e0e0e0] px-3 py-2 text-sm transition-colors focus:border-[#2f2582] focus:outline-none"
                         placeholder="Min"
                       />
                       <span className="text-[#898989]">-</span>
@@ -246,12 +269,13 @@ export function ShopFilterSidebar({
                             parseInt(e.target.value) || maxPrice,
                           ])
                         }
-                        className="w-full rounded-lg border-2 border-[#e0e0e0] px-3 py-2 text-sm focus:border-[#2f2582] focus:outline-none transition-colors"
+                        className="w-full rounded-lg border-2 border-[#e0e0e0] px-3 py-2 text-sm transition-colors focus:border-[#2f2582] focus:outline-none"
                         placeholder="Max"
                       />
                     </div>
-                    <p className="text-xs text-[#898989] text-center">
-                      {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
+                    <p className="text-center text-xs text-[#898989]">
+                      {formatPrice(priceRange[0])} -{" "}
+                      {formatPrice(priceRange[1])}
                     </p>
                   </div>
                 </div>
