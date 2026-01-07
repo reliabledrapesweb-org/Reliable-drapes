@@ -372,15 +372,17 @@ export function ProfileForm({ user }: ProfileFormProps) {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="h-auto w-full rounded-full bg-[#2f2582] py-3.5 text-base font-medium text-white hover:bg-[#241c66] md:w-auto md:px-10"
+              className="relative h-auto w-full cursor-pointer rounded-full bg-[#2f2582] py-3.5 text-base font-medium text-white hover:bg-[#241c66] disabled:pointer-events-auto disabled:opacity-100 md:w-auto md:px-10"
             >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                "Save my details"
+              <span
+                className={`${isSubmitting ? "opacity-0" : "opacity-100"} transition-opacity duration-200`}
+              >
+                Save my details
+              </span>
+              {isSubmitting && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Loader2 className="h-5 w-5 animate-spin text-white" />
+                </div>
               )}
             </Button>
           </div>
