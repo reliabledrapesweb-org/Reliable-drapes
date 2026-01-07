@@ -2,57 +2,23 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { motion } from "motion/react";
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Loader, Loader2, User } from "lucide-react";
+
 import { UserProfile, updateProfile } from "@/lib/actions/users";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/Toast";
-import {
-  Loader2,
-  Save,
-  User,
-  Phone,
-  MapPin,
-  Upload,
-  Trash2,
-  LogOut,
-} from "lucide-react";
-import Image from "next/image";
 import { supabaseClient } from "@/lib/supabase/client";
 import { useAuthStore } from "@/lib/store";
-import { useRouter } from "next/navigation";
-
-// Schema validation
-const profileSchema = z.object({
-  full_name: z.string().min(2, "Name must be at least 2 characters"),
-  phone: z.string().optional(),
-  address_line1: z.string().optional(),
-  address_line2: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  postal_code: z.string().optional(),
-  country: z.string().default("India"),
-  avatar_url: z.string().optional(),
-});
-
-type ProfileFormValues = z.infer<typeof profileSchema>;
+import { profileSchema, type ProfileFormValues } from "@/lib/validators";
+import { PROFILE_SIDEBAR_LINKS } from "@/lib/constants";
 
 interface ProfileFormProps {
   user: UserProfile;
 }
-
-const SIDEBAR_LINKS = [
-  { name: "My details", id: "details", active: true },
-  { name: "My wishlist", id: "wishlist", href: "/wishlist" },
-  { name: "My orders", id: "orders", href: "#", disabled: true },
-  {
-    name: "My address book",
-    id: "address",
-    active: false,
-    scrollTo: "address-section",
-  }, // Linking address to details for now
-];
 
 export function ProfileForm({ user }: ProfileFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,18 +31,17 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const { logout } = useAuthStore();
   const router = useRouter();
 
-  const form = useForm<any>({
+  const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      full_name: (user.full_name ?? "") as string,
-      phone: (user.phone ?? "") as string,
-      address_line1: (user.address_line1 ?? "") as string,
-      address_line2: (user.address_line2 ?? "") as string,
-      city: (user.city ?? "") as string,
-      state: (user.state ?? "") as string,
-      postal_code: (user.postal_code ?? "") as string,
-      country: (user.country ?? "India") as string,
-      avatar_url: (user.avatar_url ?? "") as string,
+      full_name: user.full_name ?? "",
+      phone: user.phone ?? "",
+      address_line1: user.address_line1 ?? "",
+      address_line2: user.address_line2 ?? "",
+      city: user.city ?? "",
+      state: user.state ?? "",
+      country: user.country ?? "India",
+      avatar_url: user.avatar_url ?? "",
     },
   });
 
@@ -148,7 +113,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const InputField = ({
     label,
     name,
-    icon: Icon,
     placeholder,
     className = "",
     type = "text",
@@ -156,7 +120,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
   }: {
     label: string;
     name?: keyof ProfileFormValues;
-    icon?: any;
     placeholder?: string;
     className?: string;
     type?: string;
@@ -167,7 +130,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
       <div className="relative">
         <input
           {...(name ? form.register(name) : {})}
-          className={`flex h-12 w-full rounded-lg border border-gray-200 bg-white px-4 py-3 pl-4 text-sm transition-all outline-none placeholder:text-gray-400 focus:border-[#2f2582] focus:ring-1 focus:ring-[#2f2582] disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500`}
+          className="flex h-12 w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm transition-all outline-none placeholder:text-gray-400 focus:border-[#2f2582] focus:ring-1 focus:ring-[#2f2582] disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
           placeholder={placeholder}
           disabled={isSubmitting || disabled}
           type={type}
@@ -193,7 +156,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
           <h2 className="text-3xl font-bold text-[#161616]">My account</h2>
         </div>
         <nav className="space-y-1">
-          {SIDEBAR_LINKS.map((link) => (
+          {PROFILE_SIDEBAR_LINKS.map((link) => (
             <a
               key={link.id}
               href={link.href || "#"}
@@ -381,7 +344,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
               </span>
               {isSubmitting && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Loader2 className="h-5 w-5 animate-spin text-white" />
+                  <Loader className="h-5 w-5 animate-spin mr-2 text-white" />
                 </div>
               )}
             </Button>

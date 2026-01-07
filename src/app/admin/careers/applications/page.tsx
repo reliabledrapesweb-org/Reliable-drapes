@@ -155,48 +155,48 @@ export default function AdminApplicationsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">
+        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">
           Job Applications
         </h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-1 text-xs text-gray-600 sm:text-sm">
           Review and manage job applications from candidates
         </p>
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-5">
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Total</p>
-          <p className="mt-1 text-2xl font-bold text-gray-900">{stats.total}</p>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 sm:gap-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Total</p>
+          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">{stats.total}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Pending</p>
-          <p className="mt-1 text-2xl font-bold text-yellow-600">{stats.pending}</p>
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Pending</p>
+          <p className="mt-1 text-lg font-bold text-yellow-600 sm:text-2xl">{stats.pending}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Reviewed</p>
-          <p className="mt-1 text-2xl font-bold text-blue-600">{stats.reviewed}</p>
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Reviewed</p>
+          <p className="mt-1 text-lg font-bold text-blue-600 sm:text-2xl">{stats.reviewed}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Shortlisted</p>
-          <p className="mt-1 text-2xl font-bold text-green-600">{stats.shortlisted}</p>
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Shortlisted</p>
+          <p className="mt-1 text-lg font-bold text-green-600 sm:text-2xl">{stats.shortlisted}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Rejected</p>
-          <p className="mt-1 text-2xl font-bold text-red-600">{stats.rejected}</p>
+        <div className="col-span-2 sm:col-span-1 rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Rejected</p>
+          <p className="mt-1 text-lg font-bold text-red-600 sm:text-2xl">{stats.rejected}</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2 overflow-x-auto">
+      <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
         {["all", "pending", "reviewed", "shortlisted", "rejected"].map((status) => (
           <button
             key={status}
             onClick={() => setFilterStatus(status)}
-            className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+            className={`whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium transition-colors sm:px-4 sm:text-sm ${
               filterStatus === status
                 ? "bg-[#2F2582] text-white"
                 : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
@@ -210,10 +210,10 @@ export default function AdminApplicationsPage() {
       {/* Applications List */}
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
         {filteredApplications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="flex flex-col items-center justify-center py-12 text-center px-4">
             <FileText className="mb-3 h-12 w-12 text-gray-300" />
-            <p className="text-lg font-medium text-gray-900">No applications found</p>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="text-base font-medium text-gray-900 sm:text-lg">No applications found</p>
+            <p className="mt-1 text-xs text-gray-500 sm:text-sm">
               {filterStatus !== "all"
                 ? "Try adjusting your filter"
                 : "Applications will appear here once candidates apply"}
@@ -227,30 +227,30 @@ export default function AdminApplicationsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="p-4 hover:bg-gray-50 transition-colors"
+                className="p-3 hover:bg-gray-50 transition-colors sm:p-4"
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-gray-900">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
                         {application.full_name}
                       </h3>
                       <span
-                        className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(application.status)}`}
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor(application.status)}`}
                       >
                         {application.status}
                       </span>
                     </div>
-                    <p className="text-sm font-medium text-[#2F2582] mb-2">
+                    <p className="text-xs font-medium text-[#2F2582] mb-2 sm:text-sm">
                       {application.job_title}
                       <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
                         {application.job_type}
                       </span>
                     </p>
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
                       <span className="flex items-center gap-1">
                         <Mail className="h-3 w-3" />
-                        {application.email}
+                        <span className="truncate max-w-[150px] sm:max-w-none">{application.email}</span>
                       </span>
                       <span className="flex items-center gap-1">
                         <Phone className="h-3 w-3" />
@@ -264,12 +264,12 @@ export default function AdminApplicationsPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0">
                     <Select
                       value={application.status}
                       onValueChange={(value) => handleStatusChange(application.id, value)}
                     >
-                      <SelectTrigger className="w-[130px]">
+                      <SelectTrigger className="w-full sm:w-[130px]">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -279,30 +279,32 @@ export default function AdminApplicationsPage() {
                         <SelectItem value="rejected">Rejected</SelectItem>
                       </SelectContent>
                     </Select>
-                    <a
-                      href={application.resume_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-lg border border-gray-200 bg-white p-2 text-gray-600 transition-colors hover:bg-gray-50"
-                      title="View Resume"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                    <a
-                      href={application.resume_url}
-                      download
-                      className="rounded-lg border border-green-200 bg-white p-2 text-green-600 transition-colors hover:bg-green-50"
-                      title="Download Resume"
-                    >
-                      <Download className="h-4 w-4" />
-                    </a>
-                    <button
-                      onClick={() => handleDelete(application.id, application.full_name)}
-                      className="rounded-lg border border-red-200 bg-white p-2 text-red-600 transition-colors hover:bg-red-50"
-                      title="Delete"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    <div className="flex gap-2">
+                      <a
+                        href={application.resume_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-lg border border-gray-200 bg-white p-2 text-gray-600 transition-colors hover:bg-gray-50"
+                        title="View Resume"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                      <a
+                        href={application.resume_url}
+                        download
+                        className="rounded-lg border border-green-200 bg-white p-2 text-green-600 transition-colors hover:bg-green-50"
+                        title="Download Resume"
+                      >
+                        <Download className="h-4 w-4" />
+                      </a>
+                      <button
+                        onClick={() => handleDelete(application.id, application.full_name)}
+                        className="rounded-lg border border-red-200 bg-white p-2 text-red-600 transition-colors hover:bg-red-50"
+                        title="Delete"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </motion.div>

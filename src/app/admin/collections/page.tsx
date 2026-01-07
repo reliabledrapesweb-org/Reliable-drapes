@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, Search, FolderHeart, Eye, EyeOff } from "lucide-react";
+import { Plus, Edit, Trash2, Search, FolderHeart, Eye, EyeOff, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import {
@@ -287,28 +287,28 @@ export default function AdminCollectionsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">Collections Management</h1>
-          <p className="mt-1 text-sm text-gray-600">Manage product collections and featured sets</p>
+          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">Collections Management</h1>
+          <p className="mt-1 text-xs text-gray-600 sm:text-sm">Manage product collections and featured sets</p>
         </div>
-        <Button onClick={() => handleOpenModal()} className="bg-[#2F2582] hover:bg-[#241c66]">
+        <Button onClick={() => handleOpenModal()} className="w-full bg-[#2F2582] hover:bg-[#241c66] sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
           Add Collection
         </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Total Collections</p>
-          <p className="mt-1 text-2xl font-bold text-gray-900">{totalCollections}</p>
+      <div className="grid grid-cols-2 gap-2 sm:gap-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Total Collections</p>
+          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">{totalCollections}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Active</p>
-          <p className="mt-1 text-2xl font-bold text-green-600">{activeCount}</p>
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Active</p>
+          <p className="mt-1 text-lg font-bold text-green-600 sm:text-2xl">{activeCount}</p>
         </div>
       </div>
 
@@ -320,140 +320,218 @@ export default function AdminCollectionsPage() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search collections..."
-          className="w-full rounded-lg border border-gray-200 py-2 pl-10 pr-4 text-sm focus:border-[#2F2582] focus:outline-none"
+          className="w-full rounded-lg border border-gray-200 py-2.5 pl-10 pr-4 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
         />
       </div>
 
-      {/* Collections Table Card */}
+      {/* Collections List */}
       <Card>
-        <CardHeader>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            {/* Search */}
-            <div className="relative flex-1 sm:max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search collections..."
-                className="w-full rounded-lg border-2 border-gray-200 py-2 pl-10 pr-4 text-sm transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
-              />
-            </div>
-
-            {/* Add Collection Button */}
-            <Button onClick={() => handleOpenModal()} className="bg-[#2F2582] hover:bg-[#241c66]">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Collection
-            </Button>
-          </div>
+        <CardHeader className="px-4 py-3 sm:px-6 sm:py-4">
+          <CardTitle className="text-base font-semibold sm:text-lg">
+            Collections ({filteredCollections.length})
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Collection</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead>Products</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredCollections.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-32 text-center text-gray-500">
-                    {searchQuery ? "No collections found" : "No collections yet. Add your first collection!"}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredCollections.map((collection) => (
-                  <TableRow key={collection.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                          <Image
-                            src={collection.image_url || fallbackImage}
-                            alt={collection.name}
-                            fill
-                            className="object-cover"
-                            sizes="48px"
-                          />
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900">{collection.name}</div>
-                          {collection.description && (
-                            <div className="max-w-xs truncate text-xs text-gray-500">
-                              {collection.description}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <code className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-600">
-                        {collection.slug}
-                      </code>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm text-gray-600">{collection.product_count || 0}</span>
-                    </TableCell>
-                    <TableCell>
-                      <button
-                        onClick={() => toggleActive(collection)}
-                        className={`rounded-full p-1 transition-colors ${
-                          collection.is_active
-                            ? "bg-green-100 text-green-600"
-                            : "bg-gray-100 text-gray-400 hover:bg-green-50"
-                        }`}
-                        title={collection.is_active ? "Deactivate" : "Activate"}
-                      >
-                        {collection.is_active ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                      </button>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenModal(collection)}
-                          className="text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(collection.id, collection.name)}
-                          className="text-red-600 hover:bg-red-50 hover:text-red-700"
-                          disabled={actionLoading[`delete-${collection.id}`] === "delete"}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
+        <CardContent className="p-0">
+          {filteredCollections.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center px-4">
+              <FolderHeart className="h-12 w-12 text-gray-400" />
+              <h3 className="mt-4 text-base font-medium text-gray-900 sm:text-lg">
+                {searchQuery ? "No collections found" : "No collections yet"}
+              </h3>
+              <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+                {searchQuery ? "Try a different search term" : "Get started by creating your first collection."}
+              </p>
+              {!searchQuery && (
+                <Button
+                  onClick={() => handleOpenModal()}
+                  className="mt-4 bg-[#2F2582] hover:bg-[#241c66]"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Collection
+                </Button>
               )}
-            </TableBody>
-          </Table>
+            </div>
+          ) : (
+            <>
+              {/* Mobile Card View */}
+              <div className="divide-y divide-gray-100 sm:hidden">
+                {filteredCollections.map((collection) => (
+                  <div key={collection.id} className="p-4 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                        <Image
+                          src={collection.image_url || fallbackImage}
+                          alt={collection.name}
+                          fill
+                          className="object-cover"
+                          sizes="56px"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-medium text-gray-900 truncate">{collection.name}</h3>
+                          <button
+                            onClick={() => toggleActive(collection)}
+                            className={`shrink-0 rounded-full p-1 transition-colors ${
+                              collection.is_active
+                                ? "bg-green-100 text-green-600"
+                                : "bg-gray-100 text-gray-400"
+                            }`}
+                          >
+                            {collection.is_active ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+                          </button>
+                        </div>
+                        <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">
+                          {collection.slug}
+                        </code>
+                        <p className="text-xs text-gray-500 mt-1">{collection.product_count || 0} products</p>
+                      </div>
+                    </div>
+                    
+                    {collection.description && (
+                      <p className="text-xs text-gray-500 line-clamp-2">{collection.description}</p>
+                    )}
+
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleOpenModal(collection)}
+                        className="flex-1 h-9"
+                      >
+                        <Edit className="mr-1 h-3 w-3" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(collection.id, collection.name)}
+                        disabled={actionLoading[`delete-${collection.id}`] === "delete"}
+                        className="flex-1 h-9 text-red-600 border-red-200 hover:bg-red-50"
+                      >
+                        <Trash2 className="mr-1 h-3 w-3" />
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Collection</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Slug</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Products</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Status</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-600">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {filteredCollections.map((collection) => (
+                      <tr key={collection.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                              <Image
+                                src={collection.image_url || fallbackImage}
+                                alt={collection.name}
+                                fill
+                                className="object-cover"
+                                sizes="48px"
+                              />
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-900">{collection.name}</div>
+                              {collection.description && (
+                                <div className="max-w-xs truncate text-xs text-gray-500">
+                                  {collection.description}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <code className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-600">
+                            {collection.slug}
+                          </code>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="text-sm text-gray-600">{collection.product_count || 0}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <button
+                            onClick={() => toggleActive(collection)}
+                            className={`rounded-full p-1 transition-colors ${
+                              collection.is_active
+                                ? "bg-green-100 text-green-600"
+                                : "bg-gray-100 text-gray-400 hover:bg-green-50"
+                            }`}
+                            title={collection.is_active ? "Deactivate" : "Activate"}
+                          >
+                            {collection.is_active ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                          </button>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleOpenModal(collection)}
+                              className="h-8 w-8 p-0 text-gray-600 hover:text-blue-600"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(collection.id, collection.name)}
+                              disabled={actionLoading[`delete-${collection.id}`] === "delete"}
+                              className="h-8 w-8 p-0 text-gray-600 hover:text-red-600"
+                            >
+                              {actionLoading[`delete-${collection.id}`] === "delete" ? (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-600 border-t-transparent" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
       {/* Add/Edit Collection Modal */}
       <AnimatePresence>
         {showModal && (
-          <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4">
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-2xl rounded-2xl border-2 border-gray-100 bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              className="w-full max-h-[90vh] overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-w-2xl sm:rounded-2xl"
             >
-              <h2 className="mb-6 text-2xl font-bold text-gray-900">
-                {editingCollection ? "Edit Collection" : "Add New Collection"}
-              </h2>
+              <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-3 sm:px-6 sm:py-4">
+                <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
+                  {editingCollection ? "Edit Collection" : "Add New Collection"}
+                </h2>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="rounded-full p-2 hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-gray-700">
@@ -656,20 +734,20 @@ export default function AdminCollectionsPage() {
                   </label>
                 </div>
 
-                <div className="flex gap-3 pt-4">
+                <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setShowModal(false)}
                     disabled={actionLoading.update === "update" || actionLoading.create === "create"}
-                    className="flex-1"
+                    className="w-full sm:flex-1"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     disabled={actionLoading.update === "update" || actionLoading.create === "create"}
-                    className="flex-1 bg-[#2F2582] hover:bg-[#241c66]"
+                    className="w-full bg-[#2F2582] hover:bg-[#241c66] sm:flex-1"
                   >
                     {actionLoading.update === "update" || actionLoading.create === "create"
                       ? "Saving..."

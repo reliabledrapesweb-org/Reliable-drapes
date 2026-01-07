@@ -224,18 +224,18 @@ export default function AdminCareersPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Job Listings</h1>
-          <p className="mt-1 text-sm text-gray-600 sm:text-base">
+          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">Job Listings</h1>
+          <p className="mt-1 text-xs text-gray-600 sm:text-sm">
             Manage job openings and career opportunities
           </p>
         </div>
         <Button
           onClick={handleOpenNewJobModal}
-          className="bg-[#2F2582] hover:bg-[#251e66] sm:w-auto cursor-pointer"
+          className="w-full bg-[#2F2582] hover:bg-[#251e66] sm:w-auto cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           Add New Job
@@ -243,20 +243,20 @@ export default function AdminCareersPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Total Jobs</p>
-          <p className="mt-1 text-2xl font-bold text-gray-900">{jobs.length}</p>
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Total</p>
+          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">{jobs.length}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Active Jobs</p>
-          <p className="mt-1 text-2xl font-bold text-green-600">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Active</p>
+          <p className="mt-1 text-lg font-bold text-green-600 sm:text-2xl">
             {jobs.filter((j) => j.is_active).length}
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Inactive Jobs</p>
-          <p className="mt-1 text-2xl font-bold text-gray-600">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Inactive</p>
+          <p className="mt-1 text-lg font-bold text-gray-600 sm:text-2xl">
             {jobs.filter((j) => !j.is_active).length}
           </p>
         </div>
@@ -265,10 +265,10 @@ export default function AdminCareersPage() {
       {/* Jobs List */}
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
         {jobs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="flex flex-col items-center justify-center py-12 text-center px-4">
             <Briefcase className="mb-3 h-12 w-12 text-gray-300" />
-            <p className="text-lg font-medium text-gray-900">No job listings yet</p>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="text-base font-medium text-gray-900 sm:text-lg">No job listings yet</p>
+            <p className="mt-1 text-xs text-gray-500 sm:text-sm">
               Get started by creating your first job listing
             </p>
             <Button
@@ -287,17 +287,17 @@ export default function AdminCareersPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="p-4 hover:bg-gray-50 transition-colors"
+                className="p-3 hover:bg-gray-50 transition-colors sm:p-4"
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-gray-900">{job.title}</h3>
-                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{job.title}</h3>
+                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
                         {job.type}
                       </span>
                       <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
                           job.is_active
                             ? "bg-green-100 text-green-700"
                             : "bg-gray-100 text-gray-500"
@@ -317,11 +317,11 @@ export default function AdminCareersPage() {
                       </span>
                     </div>
                     {job.description && (
-                      <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                      <p className="text-xs text-gray-600 line-clamp-2 mb-2 sm:text-sm">
                         {job.description}
                       </p>
                     )}
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
                       <span className="flex items-center gap-1">
                         <Briefcase className="h-3 w-3" />
                         {job.experience}
@@ -331,17 +331,17 @@ export default function AdminCareersPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 pt-2 sm:pt-0">
                     <button
                       onClick={() => handleEdit(job)}
-                      className="rounded-lg border border-gray-200 bg-white p-2 text-gray-600 transition-colors hover:bg-gray-50"
+                      className="flex-1 sm:flex-none rounded-lg border border-gray-200 bg-white p-2 text-gray-600 transition-colors hover:bg-gray-50"
                       title="Edit job"
                     >
-                      <Pencil className="h-4 w-4" />
+                      <Pencil className="h-4 w-4 mx-auto" />
                     </button>
                     <button
                       onClick={() => handleToggleStatus(job)}
-                      className={`rounded-lg border p-2 transition-colors ${
+                      className={`flex-1 sm:flex-none rounded-lg border p-2 transition-colors ${
                         job.is_active
                           ? "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
                           : "border-green-200 bg-white text-green-600 hover:bg-green-50"
@@ -349,17 +349,17 @@ export default function AdminCareersPage() {
                       title={job.is_active ? "Deactivate" : "Activate"}
                     >
                       {job.is_active ? (
-                        <EyeOff className="h-4 w-4" />
+                        <EyeOff className="h-4 w-4 mx-auto" />
                       ) : (
-                        <Eye className="h-4 w-4" />
+                        <Eye className="h-4 w-4 mx-auto" />
                       )}
                     </button>
                     <button
                       onClick={() => handleDelete(job.id, job.title)}
-                      className="rounded-lg border border-red-200 bg-white p-2 text-red-600 transition-colors hover:bg-red-50"
+                      className="flex-1 sm:flex-none rounded-lg border border-red-200 bg-white p-2 text-red-600 transition-colors hover:bg-red-50"
                       title="Delete job"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4 mx-auto" />
                     </button>
                   </div>
                 </div>
@@ -371,30 +371,25 @@ export default function AdminCareersPage() {
 
       {/* Job Form Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-2xl rounded-xl bg-white shadow-2xl"
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-h-[90vh] overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-w-2xl sm:rounded-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <Card className="border-0 shadow-none">
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl font-semibold">
-                    {editingJob ? "Edit Job Listing" : "Add New Job Listing"}
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={handleCloseModal}
-                    className="h-8 w-8"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-3 sm:px-6 sm:py-4">
+              <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
+                {editingJob ? "Edit Job Listing" : "Add New Job Listing"}
+              </h2>
+              <button
+                onClick={handleCloseModal}
+                className="rounded-full p-2 hover:bg-gray-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-4 sm:p-6">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="mb-2 block text-sm font-medium text-gray-700">
@@ -405,7 +400,7 @@ export default function AdminCareersPage() {
                       required
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
                       placeholder="Enter job title"
                     />
                   </div>
@@ -446,7 +441,7 @@ export default function AdminCareersPage() {
                           setFormData({ ...formData, experience: e.target.value })
                         }
                         placeholder="e.g., 2 - 4 yrs"
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
                       />
                     </div>
                   </div>
@@ -461,7 +456,7 @@ export default function AdminCareersPage() {
                       value={formData.location}
                       onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                       placeholder="e.g., Mumbai, Delhi"
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
                     />
                   </div>
 
@@ -476,7 +471,7 @@ export default function AdminCareersPage() {
                         setFormData({ ...formData, description: e.target.value })
                       }
                       rows={4}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20 resize-none"
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20 resize-none"
                       placeholder="Enter job description"
                     />
                   </div>
@@ -496,19 +491,19 @@ export default function AdminCareersPage() {
                     </label>
                   </div>
 
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={handleCloseModal}
-                      className="flex-1"
+                      className="w-full sm:flex-1"
                     >
                       Cancel
                     </Button>
                     <Button
                       type="submit"
                       disabled={isSubmitting}
-                      className="flex-1 bg-[#2F2582] hover:bg-[#251e66] disabled:opacity-50 cursor-pointer"
+                      className="w-full bg-[#2F2582] hover:bg-[#251e66] disabled:opacity-50 cursor-pointer sm:flex-1"
                     >
                       {isSubmitting ? (
                         <div className="flex items-center gap-2">
@@ -521,8 +516,7 @@ export default function AdminCareersPage() {
                     </Button>
                   </div>
                 </form>
-              </CardContent>
-            </Card>
+            </div>
           </motion.div>
         </div>
       )}

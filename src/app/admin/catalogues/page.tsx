@@ -242,18 +242,18 @@ export default function CataloguesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">Catalogues</h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">Catalogues</h1>
+          <p className="mt-1 text-xs text-gray-600 sm:text-sm">
             Manage your product catalogues and downloads
           </p>
         </div>
         <Button 
           onClick={() => handleOpenModal()}
-          className="bg-[#2F2582] hover:bg-[#251e66] sm:w-auto"
+          className="w-full bg-[#2F2582] hover:bg-[#251e66] sm:w-auto"
         >
           <Plus className="mr-2 h-4 w-4" />
           Add Catalogue
@@ -261,130 +261,103 @@ export default function CataloguesPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Total Catalogues</p>
-          <p className="mt-1 text-2xl font-bold text-gray-900">{catalogues.length}</p>
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Total</p>
+          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">{catalogues.length}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Active</p>
-          <p className="mt-1 text-2xl font-bold text-green-600">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Active</p>
+          <p className="mt-1 text-lg font-bold text-green-600 sm:text-2xl">
             {catalogues.filter((c) => c.is_active).length}
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Total Downloads</p>
-          <p className="mt-1 text-2xl font-bold text-[#2F2582]">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Downloads</p>
+          <p className="mt-1 text-lg font-bold text-[#2F2582] sm:text-2xl">
             {catalogues.reduce((sum, c) => sum + c.download_count, 0)}
           </p>
         </div>
       </div>
 
-      {/* Catalogues Table */}
+      {/* Catalogues List */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Catalogues ({catalogues.length})</CardTitle>
+        <CardHeader className="px-4 py-3 sm:px-6 sm:py-4">
+          <CardTitle className="text-base font-semibold sm:text-lg">Catalogues ({catalogues.length})</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Catalogue</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead className="hidden sm:table-cell">Downloads</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {catalogues.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
-                    <div className="flex flex-col items-center justify-center py-8">
-                      <BookOpen className="h-12 w-12 text-gray-400" />
-                      <h3 className="mt-4 text-lg font-medium text-gray-900">No catalogues yet</h3>
-                      <p className="mt-2 text-sm text-gray-500">Get started by creating your first catalogue.</p>
-                      <Button 
-                        onClick={() => handleOpenModal()}
-                        className="mt-4 bg-[#2F2582] hover:bg-[#251e66]"
-                      >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Catalogue
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                catalogues.map((catalogue) => (
-                  <TableRow key={catalogue.id}>
-                    <TableCell>
-                      <div className="flex items-center space-x-3">
-                        <div className="shrink-0">
-                          {(catalogue.thumbnail_url || catalogue.image_url) ? (
-                            <img
-                              src={catalogue.thumbnail_url || catalogue.image_url || ""}
-                              alt={catalogue.title}
-                              className="h-10 w-10 rounded-lg object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
-                              <FileText className="h-5 w-5 text-gray-400" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <p className="truncate text-sm font-medium text-gray-900">
-                              {catalogue.title}
-                            </p>
-                            {catalogue.badge && (
-                              <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                                catalogue.badge === "new" 
-                                  ? "bg-green-100 text-green-800" 
-                                  : "bg-orange-100 text-orange-800"
-                              }`}>
-                                {catalogue.badge === "new" ? "New" : catalogue.discount_value}
-                              </span>
-                            )}
+          {catalogues.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center px-4">
+              <BookOpen className="h-12 w-12 text-gray-400" />
+              <h3 className="mt-4 text-base font-medium text-gray-900 sm:text-lg">No catalogues yet</h3>
+              <p className="mt-2 text-xs text-gray-500 sm:text-sm">Get started by creating your first catalogue.</p>
+              <Button 
+                onClick={() => handleOpenModal()}
+                className="mt-4 bg-[#2F2582] hover:bg-[#251e66]"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add Catalogue
+              </Button>
+            </div>
+          ) : (
+            <>
+              {/* Mobile Card View */}
+              <div className="divide-y divide-gray-100 sm:hidden">
+                {catalogues.map((catalogue) => (
+                  <div key={catalogue.id} className="p-4 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="shrink-0">
+                        {(catalogue.thumbnail_url || catalogue.image_url) ? (
+                          <img
+                            src={catalogue.thumbnail_url || catalogue.image_url || ""}
+                            alt={catalogue.title}
+                            className="h-14 w-14 rounded-lg object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gray-100">
+                            <FileText className="h-6 w-6 text-gray-400" />
                           </div>
-                          {(catalogue.description || catalogue.subtitle) && (
-                            <p className="truncate text-xs text-gray-500">
-                              {catalogue.description || catalogue.subtitle}
-                            </p>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-medium text-gray-900 truncate">{catalogue.title}</h3>
+                          {catalogue.badge && (
+                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                              catalogue.badge === "new" 
+                                ? "bg-green-100 text-green-800" 
+                                : "bg-orange-100 text-orange-800"
+                            }`}>
+                              {catalogue.badge === "new" ? "New" : catalogue.discount_value}
+                            </span>
                           )}
                         </div>
+                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 mt-1">
+                          <Tag className="mr-1 h-3 w-3" />
+                          {catalogue.category}
+                        </span>
+                        <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Download className="h-3 w-3" />
+                            {catalogue.download_count}
+                          </span>
+                        </div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                        <Tag className="mr-1 h-3 w-3" />
-                        {catalogue.category}
-                      </span>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <div className="flex items-center gap-1 text-sm text-gray-900">
-                        <Download className="h-3 w-3" />
-                        {catalogue.download_count}
-                      </div>
-                    </TableCell>
-                    <TableCell>
+                    </div>
+                    
+                    <div className="flex items-center justify-between pt-2">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleToggleActive(catalogue)}
                         disabled={!!actionLoading[`toggle-${catalogue.id}`]}
-                        className={`h-8 px-3 disabled:opacity-50 cursor-pointer ${
+                        className={`h-8 px-3 ${
                           catalogue.is_active
-                            ? "bg-green-100 text-green-700 hover:bg-green-200"
-                            : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 text-gray-500"
                         }`}
                       >
-                        {actionLoading[`toggle-${catalogue.id}`] ? (
-                          <>
-                            <div className="mr-1 h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                            Updating...
-                          </>
-                        ) : catalogue.is_active ? (
+                        {catalogue.is_active ? (
                           <>
                             <Eye className="mr-1 h-3 w-3" />
                             Active
@@ -396,77 +369,192 @@ export default function CataloguesPage() {
                           </>
                         )}
                       </Button>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex gap-2">
                         <Button
-                          variant="ghost"
-                          size="icon-sm"
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleOpenModal(catalogue)}
-                          disabled={Object.values(actionLoading).some(loading => loading !== null)}
-                          className="h-8 w-8 text-gray-600 hover:text-blue-600 disabled:opacity-50 cursor-pointer"
+                          className="h-8 px-3"
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-3 w-3" />
                         </Button>
                         <Button
-                          variant="ghost"
-                          size="icon-sm"
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleDelete(catalogue.id, catalogue.title)}
                           disabled={!!actionLoading[`delete-${catalogue.id}`]}
-                          className="h-8 w-8 text-gray-600 hover:text-red-600 disabled:opacity-50 cursor-pointer"
+                          className="h-8 px-3 text-red-600 border-red-200 hover:bg-red-50"
                         >
-                          {actionLoading[`delete-${catalogue.id}`] ? (
-                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-600 border-t-transparent" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
+                          <Trash2 className="h-3 w-3" />
                         </Button>
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Catalogue</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Category</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600 hidden lg:table-cell">Downloads</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Status</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-600">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {catalogues.map((catalogue) => (
+                      <tr key={catalogue.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center space-x-3">
+                            <div className="shrink-0">
+                              {(catalogue.thumbnail_url || catalogue.image_url) ? (
+                                <img
+                                  src={catalogue.thumbnail_url || catalogue.image_url || ""}
+                                  alt={catalogue.title}
+                                  className="h-10 w-10 rounded-lg object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
+                                  <FileText className="h-5 w-5 text-gray-400" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="truncate text-sm font-medium text-gray-900">
+                                  {catalogue.title}
+                                </p>
+                                {catalogue.badge && (
+                                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                                    catalogue.badge === "new" 
+                                      ? "bg-green-100 text-green-800" 
+                                      : "bg-orange-100 text-orange-800"
+                                  }`}>
+                                    {catalogue.badge === "new" ? "New" : catalogue.discount_value}
+                                  </span>
+                                )}
+                              </div>
+                              {(catalogue.description || catalogue.subtitle) && (
+                                <p className="truncate text-xs text-gray-500">
+                                  {catalogue.description || catalogue.subtitle}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                            <Tag className="mr-1 h-3 w-3" />
+                            {catalogue.category}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 hidden lg:table-cell">
+                          <div className="flex items-center gap-1 text-sm text-gray-900">
+                            <Download className="h-3 w-3" />
+                            {catalogue.download_count}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleToggleActive(catalogue)}
+                            disabled={!!actionLoading[`toggle-${catalogue.id}`]}
+                            className={`h-8 px-3 disabled:opacity-50 cursor-pointer ${
+                              catalogue.is_active
+                                ? "bg-green-100 text-green-700 hover:bg-green-200"
+                                : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                            }`}
+                          >
+                            {actionLoading[`toggle-${catalogue.id}`] ? (
+                              <>
+                                <div className="mr-1 h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                                Updating...
+                              </>
+                            ) : catalogue.is_active ? (
+                              <>
+                                <Eye className="mr-1 h-3 w-3" />
+                                Active
+                              </>
+                            ) : (
+                              <>
+                                <EyeOff className="mr-1 h-3 w-3" />
+                                Inactive
+                              </>
+                            )}
+                          </Button>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleOpenModal(catalogue)}
+                              className="h-8 w-8 p-0 text-gray-600 hover:text-blue-600"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(catalogue.id, catalogue.title)}
+                              disabled={!!actionLoading[`delete-${catalogue.id}`]}
+                              className="h-8 w-8 p-0 text-gray-600 hover:text-red-600"
+                            >
+                              {actionLoading[`delete-${catalogue.id}`] ? (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-600 border-t-transparent" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl"
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-h-[90vh] overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-w-4xl sm:rounded-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Sticky Header */}
-            <div className="sticky top-0 z-10 border-b border-gray-200 bg-white px-6 py-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    {editingCatalogue ? "Edit Catalogue" : "Add New Catalogue"}
-                  </h2>
-                  <p className="mt-1 text-sm text-gray-600">
-                    {editingCatalogue 
-                      ? "Update catalogue information and files" 
-                      : "Upload a new catalogue with thumbnail"}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={handleCloseModal}
-                  className="h-8 w-8"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 sm:px-6 sm:py-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
+                  {editingCatalogue ? "Edit Catalogue" : "Add New Catalogue"}
+                </h2>
+                <p className="mt-0.5 text-xs text-gray-600 sm:text-sm">
+                  {editingCatalogue 
+                    ? "Update catalogue information and files" 
+                    : "Upload a new catalogue with thumbnail"}
+                </p>
               </div>
+              <button
+                onClick={handleCloseModal}
+                className="rounded-full p-2 hover:bg-gray-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
 
             {/* Form Content */}
-            <form onSubmit={handleSubmit} className="p-6">
-              <div className="space-y-6">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-6">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Basic Information Section */}
                 <div className="rounded-lg border-2 border-gray-200 p-4">
                   <h3 className="mb-4 text-lg font-semibold text-gray-900">Basic Information</h3>
@@ -652,20 +740,20 @@ export default function CataloguesPage() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-3 border-t border-gray-200 pt-6">
+                <div className="flex flex-col-reverse gap-3 border-t border-gray-200 pt-4 sm:flex-row sm:pt-6">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleCloseModal}
                     disabled={!!actionLoading.create || !!actionLoading.update}
-                    className="flex-1"
+                    className="w-full sm:flex-1"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     disabled={!!actionLoading.create || !!actionLoading.update || !formData.file_url}
-                    className="flex-1 bg-[#2F2582] hover:bg-[#251e66] disabled:opacity-50"
+                    className="w-full bg-[#2F2582] hover:bg-[#251e66] disabled:opacity-50 sm:flex-1"
                   >
                     {(actionLoading.create || actionLoading.update) ? (
                       <div className="flex items-center gap-2">

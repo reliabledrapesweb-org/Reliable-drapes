@@ -197,51 +197,51 @@ export default function ConsultationsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">
+        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">
           Consultation Requests
         </h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="mt-1 text-xs text-gray-600 sm:text-sm">
           Manage customer consultation bookings
         </p>
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Total</p>
-          <p className="mt-1 text-2xl font-bold text-gray-900">{stats.total}</p>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Total</p>
+          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">{stats.total}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Pending</p>
-          <p className="mt-1 text-2xl font-bold text-yellow-600">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Pending</p>
+          <p className="mt-1 text-lg font-bold text-yellow-600 sm:text-2xl">
             {stats.pending}
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Confirmed</p>
-          <p className="mt-1 text-2xl font-bold text-blue-600">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Confirmed</p>
+          <p className="mt-1 text-lg font-bold text-blue-600 sm:text-2xl">
             {stats.confirmed}
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-sm font-medium text-gray-600">Completed</p>
-          <p className="mt-1 text-2xl font-bold text-green-600">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Completed</p>
+          <p className="mt-1 text-lg font-bold text-green-600 sm:text-2xl">
             {stats.completed}
           </p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2 overflow-x-auto">
+      <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
         {["all", "pending", "confirmed", "completed", "cancelled"].map(
           (status) => (
             <button
               key={status}
               onClick={() => setFilter(status)}
-              className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              className={`whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium transition-colors sm:px-4 sm:text-sm ${
                 filter === status
                   ? "bg-[#2F2582] text-white"
                   : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
@@ -260,12 +260,12 @@ export default function ConsultationsPage() {
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2F2582] border-t-transparent" />
           </div>
         ) : filteredRequests.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="flex flex-col items-center justify-center py-12 text-center px-4">
             <Calendar className="mb-3 h-12 w-12 text-gray-300" />
-            <p className="text-lg font-medium text-gray-900">
+            <p className="text-base font-medium text-gray-900 sm:text-lg">
               No requests found
             </p>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-xs text-gray-500 sm:text-sm">
               Consultation requests will appear here
             </p>
           </div>
@@ -277,33 +277,33 @@ export default function ConsultationsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="p-4 hover:bg-gray-50 transition-colors"
+                className="p-3 hover:bg-gray-50 transition-colors sm:p-4"
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <h3 className="font-semibold text-gray-900">
+                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
                         {request.name}
                       </h3>
                       <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(request.status)}`}
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${getStatusColor(request.status)}`}
                       >
                         {getStatusIcon(request.status)}
                         {request.status}
                       </span>
                       {request.priority && request.priority !== "medium" && (
-                        <span className={`inline-flex items-center rounded-full border px-2 py-1 text-xs font-medium ${getPriorityColor(request.priority)}`}>
+                        <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${getPriorityColor(request.priority)}`}>
                           {request.priority.toUpperCase()}
                         </span>
                       )}
                       {request.converted_to_sale && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
                           <Check className="h-3 w-3" />
                           Converted
                         </span>
                       )}
                     </div>
-                    <p className="text-sm font-medium text-[#2F2582] mb-2">
+                    <p className="text-xs font-medium text-[#2F2582] mb-2 sm:text-sm">
                       {getServiceTypeDisplay(request.service_type)}
                       {request.project_type && ` • ${getProjectTypeDisplay(request.project_type)}`}
                     </p>
@@ -328,14 +328,14 @@ export default function ConsultationsPage() {
                       </div>
                     )}
                     {request.message && (
-                      <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                      <p className="text-xs text-gray-600 line-clamp-2 mb-2 sm:text-sm">
                         {request.message}
                       </p>
                     )}
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
                       <span className="flex items-center gap-1">
                         <Mail className="h-3 w-3" />
-                        {request.email}
+                        <span className="truncate max-w-[120px] sm:max-w-none">{request.email}</span>
                       </span>
                       <span className="flex items-center gap-1">
                         <Phone className="h-3 w-3" />
@@ -347,22 +347,11 @@ export default function ConsultationsPage() {
                           {new Date(request.preferred_date).toLocaleDateString()}
                         </span>
                       )}
-                      {request.preferred_time && (
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {request.preferred_time}
-                        </span>
-                      )}
-                      {request.assigned_to && (
-                        <span className="flex items-center gap-1 text-purple-600">
-                          <span className="font-medium">Assigned:</span> {request.assigned_to}
-                        </span>
-                      )}
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0">
                     <button
                       onClick={() => handleView(request)}
                       className="rounded-lg border border-gray-200 bg-white p-2 text-gray-600 transition-colors hover:bg-gray-50"
@@ -378,7 +367,7 @@ export default function ConsultationsPage() {
                           e.target.value as ConsultationRequest["status"]
                         )
                       }
-                      className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                      className="rounded-lg border border-gray-200 bg-white px-2 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 sm:px-3 sm:text-sm"
                     >
                       <option value="pending">Pending</option>
                       <option value="confirmed">Confirmed</option>

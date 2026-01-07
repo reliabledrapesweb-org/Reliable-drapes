@@ -548,252 +548,312 @@ export default function AdminProductsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">
-          Products Management
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Manage your product catalog and inventory
-        </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">
+            Products Management
+          </h1>
+          <p className="mt-1 text-xs text-gray-600 sm:text-sm">
+            Manage your product catalog and inventory
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+          <Button
+            onClick={() => fileInputRef.current?.click()}
+            variant="outline"
+            className="flex-1 border-[#2F2582] text-[#2F2582] hover:bg-[#2F2582]/10 sm:flex-none"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Import
+          </Button>
+          <Button
+            onClick={handleExportToExcel}
+            variant="outline"
+            disabled={products.length === 0}
+            className="flex-1 sm:flex-none"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+          <Button
+            onClick={() => handleOpenModal()}
+            className="w-full bg-[#2F2582] hover:bg-[#241c66] sm:w-auto"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Product
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-6 sm:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Total Products
-            </CardTitle>
-            <Package className="h-5 w-5 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-gray-900">{totalProducts}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Total Value
-            </CardTitle>
-            <div className="flex h-5 w-5 items-center justify-center">
-              <span className="text-lg font-bold text-green-600">₹</span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
-              {formatPrice(totalValue)}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Average Price
-            </CardTitle>
-            <div className="flex h-5 w-5 items-center justify-center">
-              <span className="text-sm font-bold text-purple-600">AVG</span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
-              {formatPrice(averagePrice)}
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Total Products</p>
+          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">{totalProducts}</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Total Value</p>
+          <p className="mt-1 text-lg font-bold text-green-600 sm:text-2xl">{formatPrice(totalValue)}</p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Avg Price</p>
+          <p className="mt-1 text-lg font-bold text-[#2F2582] sm:text-2xl">{formatPrice(averagePrice)}</p>
+        </div>
       </div>
 
-      {/* Products Table Card */}
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search products..."
+          className="w-full rounded-lg border border-gray-200 py-2.5 pl-10 pr-4 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+        />
+      </div>
+
+      {/* Products List */}
       <Card>
-        <CardHeader>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            {/* Search */}
-            <div className="relative flex-1 sm:max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search products..."
-                className="w-full rounded-lg border-2 border-gray-200 py-2 pl-10 pr-4 text-sm transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-2">
-              {/* Hidden file input */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".xlsx,.xls,.csv"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-              
-              {/* Import Button */}
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                variant="outline"
-                className="border-[#2F2582] text-[#2F2582] hover:bg-[#2F2582]/10"
-              >
-                <Upload className="mr-2 h-4 w-4" />
-                Import
-              </Button>
-
-              {/* Export Button */}
-              <Button
-                onClick={handleExportToExcel}
-                variant="outline"
-                disabled={products.length === 0}
-              >
-                <Download className="mr-2 h-4 w-4" />
-                Export
-              </Button>
-
-              {/* Add Product Button */}
-              <Button
-                onClick={() => handleOpenModal()}
-                className="bg-[#2F2582] hover:bg-[#241c66]"
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add Product
-              </Button>
-            </div>
-          </div>
+        <CardHeader className="px-4 py-3 sm:px-6 sm:py-4">
+          <CardTitle className="text-base font-semibold sm:text-lg">
+            Products ({filteredProducts.length})
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Product</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-32 text-center">
-                    <div className="flex items-center justify-center">
-                      <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2F2582] border-t-transparent"></div>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : filteredProducts.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-32 text-center text-gray-500">
-                    {searchQuery ? "No products found" : "No products yet. Add your first product!"}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredProducts.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                          <Image
-                            src={product.image_url || fallbackImage}
-                            alt={product.name}
-                            fill
-                            className="object-cover"
-                            sizes="48px"
-                          />
-                        </div>
-                        <div className="font-medium text-gray-900">
-                          {product.name}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {productCategories[product.id]?.length > 0 ? (
-                          productCategories[product.id].map((catId) => {
-                            const cat = categories.find((c) => c.id === catId);
-                            return cat ? (
-                              <span
-                                key={catId}
-                                className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800"
-                              >
-                                {cat.name}
-                              </span>
-                            ) : null;
-                          })
-                        ) : (
-                          <span className="text-xs text-gray-400">No category</span>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="max-w-xs truncate text-sm text-gray-500">
-                        {product.description || "—"}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-sm font-semibold text-gray-900">
-                        {formatPrice(product.price)}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-500">
-                      {new Date(product.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenModal(product)}
-                          className="text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(product.id, product.name)}
-                          className="text-red-600 hover:bg-red-50 hover:text-red-700"
-                          disabled={actionLoading[`delete-${product.id}`] === "delete"}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
+        <CardContent className="p-0">
+          {filteredProducts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center px-4">
+              <Package className="h-12 w-12 text-gray-400" />
+              <h3 className="mt-4 text-base font-medium text-gray-900 sm:text-lg">
+                {searchQuery ? "No products found" : "No products yet"}
+              </h3>
+              <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+                {searchQuery ? "Try a different search term" : "Get started by creating your first product."}
+              </p>
+              {!searchQuery && (
+                <Button
+                  onClick={() => handleOpenModal()}
+                  className="mt-4 bg-[#2F2582] hover:bg-[#251e66]"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Product
+                </Button>
               )}
-            </TableBody>
-          </Table>
+            </div>
+          ) : (
+            <>
+              {/* Mobile Card View */}
+              <div className="divide-y divide-gray-100 sm:hidden">
+                {filteredProducts.map((product) => (
+                  <div key={product.id} className="p-4 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                        <Image
+                          src={product.image_url || fallbackImage}
+                          alt={product.name}
+                          fill
+                          className="object-cover"
+                          sizes="64px"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-gray-900 truncate">{product.name}</h3>
+                        <p className="text-sm font-semibold text-[#2F2582] mt-0.5">
+                          {formatPrice(product.price)}
+                        </p>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {productCategories[product.id]?.length > 0 ? (
+                            productCategories[product.id].slice(0, 2).map((catId) => {
+                              const cat = categories.find((c) => c.id === catId);
+                              return cat ? (
+                                <span
+                                  key={catId}
+                                  className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800"
+                                >
+                                  {cat.name}
+                                </span>
+                              ) : null;
+                            })
+                          ) : (
+                            <span className="text-xs text-gray-400">No category</span>
+                          )}
+                          {productCategories[product.id]?.length > 2 && (
+                            <span className="text-xs text-gray-500">
+                              +{productCategories[product.id].length - 2}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {product.description && (
+                      <p className="text-xs text-gray-500 line-clamp-2">{product.description}</p>
+                    )}
+
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleOpenModal(product)}
+                        className="flex-1 h-9"
+                      >
+                        <Edit className="mr-1 h-3 w-3" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(product.id, product.name)}
+                        disabled={actionLoading[`delete-${product.id}`] === "delete"}
+                        className="flex-1 h-9 text-red-600 border-red-200 hover:bg-red-50"
+                      >
+                        <Trash2 className="mr-1 h-3 w-3" />
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200 bg-gray-50">
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Product</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Category</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600 hidden lg:table-cell">Description</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Price</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600 hidden lg:table-cell">Created</th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-600">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {filteredProducts.map((product) => (
+                      <tr key={product.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                              <Image
+                                src={product.image_url || fallbackImage}
+                                alt={product.name}
+                                fill
+                                className="object-cover"
+                                sizes="48px"
+                              />
+                            </div>
+                            <div className="font-medium text-gray-900 truncate max-w-[150px]">
+                              {product.name}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-wrap gap-1">
+                            {productCategories[product.id]?.length > 0 ? (
+                              productCategories[product.id].map((catId) => {
+                                const cat = categories.find((c) => c.id === catId);
+                                return cat ? (
+                                  <span
+                                    key={catId}
+                                    className="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800"
+                                  >
+                                    {cat.name}
+                                  </span>
+                                ) : null;
+                              })
+                            ) : (
+                              <span className="text-xs text-gray-400">No category</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 hidden lg:table-cell">
+                          <div className="max-w-xs truncate text-sm text-gray-500">
+                            {product.description || "—"}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="text-sm font-semibold text-gray-900">
+                            {formatPrice(product.price)}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-500 hidden lg:table-cell">
+                          {new Date(product.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleOpenModal(product)}
+                              className="h-8 w-8 p-0 text-gray-600 hover:text-blue-600"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(product.id, product.name)}
+                              disabled={actionLoading[`delete-${product.id}`] === "delete"}
+                              className="h-8 w-8 p-0 text-gray-600 hover:text-red-600"
+                            >
+                              {actionLoading[`delete-${product.id}`] === "delete" ? (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-600 border-t-transparent" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
       {/* Add/Edit Product Modal */}
       <AnimatePresence>
         {showModal && (
-          <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4">
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border-2 border-gray-100 bg-white shadow-2xl"
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              className="w-full max-h-[90vh] overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-w-3xl sm:rounded-2xl"
             >
               {/* Modal Header */}
-              <div className="sticky top-0 z-10 bg-white border-b border-gray-100 px-6 py-4">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {editingProduct ? "Edit Product" : "Add New Product"}
-                </h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  {editingProduct ? "Update the product details below" : "Fill in the details to create a new product"}
-                </p>
+              <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-3 sm:px-6 sm:py-4">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
+                    {editingProduct ? "Edit Product" : "Add New Product"}
+                  </h2>
+                  <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">
+                    {editingProduct ? "Update the product details below" : "Fill in the details to create a new product"}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="rounded-full p-2 hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-6">
+              <form onSubmit={handleSubmit} className="p-4 sm:p-6">
                 {/* Two Column Layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                   {/* Left Column - Main Info */}
                   <div className="lg:col-span-2 space-y-5">
                     {/* Product Name */}
@@ -1131,20 +1191,20 @@ export default function AdminProductsPage() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-3 pt-6 mt-6 border-t border-gray-100">
+                <div className="flex flex-col-reverse gap-3 pt-4 mt-4 border-t border-gray-100 sm:flex-row sm:pt-6 sm:mt-6">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setShowModal(false)}
                     disabled={actionLoading.update === "update" || actionLoading.create === "create"}
-                    className="flex-1"
+                    className="w-full sm:flex-1"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     disabled={actionLoading.update === "update" || actionLoading.create === "create"}
-                    className="flex-1 bg-[#2F2582] hover:bg-[#241c66]"
+                    className="w-full bg-[#2F2582] hover:bg-[#241c66] sm:flex-1"
                   >
                     {actionLoading.update === "update" || actionLoading.create === "create"
                       ? "Saving..."

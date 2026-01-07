@@ -123,14 +123,14 @@ export default function NotificationsPage() {
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 lg:text-3xl">
+          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">
             Notifications
           </h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="mt-1 text-xs text-gray-600 sm:text-sm">
             {unreadCount > 0
               ? `You have ${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}`
               : "You're all caught up!"}
@@ -143,7 +143,7 @@ export default function NotificationsPage() {
           <div className="flex rounded-lg border border-gray-200 bg-white p-1">
             <button
               onClick={() => setFilter("all")}
-              className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`rounded px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm ${
                 filter === "all"
                   ? "bg-[#2F2582] text-white"
                   : "text-gray-600 hover:text-gray-900"
@@ -153,7 +153,7 @@ export default function NotificationsPage() {
             </button>
             <button
               onClick={() => setFilter("unread")}
-              className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
+              className={`rounded px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm ${
                 filter === "unread"
                   ? "bg-[#2F2582] text-white"
                   : "text-gray-600 hover:text-gray-900"
@@ -167,10 +167,10 @@ export default function NotificationsPage() {
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllAsRead}
-              className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+              className="flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 sm:gap-2 sm:px-4 sm:text-sm"
             >
               <CheckCheck className="h-4 w-4" />
-              Mark all read
+              <span className="hidden sm:inline">Mark all read</span>
             </button>
           )}
         </div>
@@ -183,14 +183,14 @@ export default function NotificationsPage() {
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2F2582] border-t-transparent" />
           </div>
         ) : filteredNotifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="flex flex-col items-center justify-center py-12 text-center px-4">
             <Bell className="mb-3 h-12 w-12 text-gray-300" />
-            <p className="text-lg font-medium text-gray-900">
+            <p className="text-base font-medium text-gray-900 sm:text-lg">
               {filter === "unread"
                 ? "No unread notifications"
                 : "No notifications"}
             </p>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-xs text-gray-500 sm:text-sm">
               {filter === "unread"
                 ? "You're all caught up!"
                 : "Notifications will appear here"}
@@ -204,13 +204,13 @@ export default function NotificationsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className={`group flex items-start gap-4 p-4 transition-colors hover:bg-gray-50 ${
+                className={`group flex flex-col gap-3 p-3 transition-colors hover:bg-gray-50 sm:flex-row sm:items-start sm:gap-4 sm:p-4 ${
                   !notification.is_read ? "bg-blue-50/30" : ""
                 }`}
               >
                 {/* Icon */}
                 <div
-                  className={`mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${getNotificationBg(notification.type)}`}
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${getNotificationBg(notification.type)}`}
                 >
                   {getNotificationIcon(notification.type)}
                 </div>
@@ -220,14 +220,14 @@ export default function NotificationsPage() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-gray-900">
+                        <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
                           {notification.title}
                         </h3>
                         {!notification.is_read && (
                           <span className="h-2 w-2 rounded-full bg-blue-600" />
                         )}
                       </div>
-                      <p className="mt-1 text-sm text-gray-600">
+                      <p className="mt-1 text-xs text-gray-600 sm:text-sm">
                         {notification.message}
                       </p>
                       <p className="mt-2 text-xs text-gray-400">
@@ -237,7 +237,7 @@ export default function NotificationsPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="mt-3 flex items-center gap-2">
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
                     {notification.link && (
                       <button
                         onClick={() => handleNotificationClick(notification)}
