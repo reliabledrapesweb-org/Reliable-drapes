@@ -263,17 +263,20 @@ export default function AdminCollectionsPage() {
 
   if (adminLoading || isLoading) {
     return (
-      <div className="space-y-6">
-        <div>
-          <div className="h-8 w-64 animate-pulse rounded bg-gray-200" />
-          <div className="mt-2 h-4 w-96 animate-pulse rounded bg-gray-200" />
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="h-6 w-48 animate-pulse rounded bg-gray-200 sm:h-8 sm:w-64" />
+            <div className="mt-2 h-4 w-64 animate-pulse rounded bg-gray-200 sm:w-96" />
+          </div>
+          <div className="h-10 w-full animate-pulse rounded-lg bg-gray-200 sm:w-32" />
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-2 gap-2 sm:gap-4">
           {[...Array(2)].map((_, i) => (
-            <div key={i} className="h-24 animate-pulse rounded-lg bg-gray-200" />
+            <div key={i} className="h-20 animate-pulse rounded-lg bg-gray-200 sm:h-24" />
           ))}
         </div>
-        <div className="h-96 animate-pulse rounded-xl bg-gray-200" />
+        <div className="h-64 animate-pulse rounded-xl bg-gray-200 sm:h-96" />
       </div>
     );
   }

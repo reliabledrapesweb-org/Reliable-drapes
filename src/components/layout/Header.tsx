@@ -6,19 +6,22 @@ import { Menu, Search, User, ShoppingCart, LogOut, Heart } from "lucide-react";
 import { MobileMenu } from "./MobileMenu";
 import { SearchModal } from "./SearchModal";
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useScrollPosition } from "@/lib/hooks";
 import { useAuthStore, useCartStore, useWishlistStore } from "@/lib/store";
 import { NAV_LINKS } from "@/lib/constants";
 import { supabaseClient } from "@/lib/supabase/client";
+import { LogoutModal } from "@/components/features/profile/LogoutModal";
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const isHome = pathname === "/";
   const [isOpen, setIsOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const isScrolled = useScrollPosition(50);
 
   const { user, logout } = useAuthStore();
@@ -103,6 +106,32 @@ export function Header() {
     </>
   );
 
+  // User avatar component
+  const UserAvatar = ({ size = "md" }: { size?: "sm" | "md" }) => {
+    const sizeClasses = size === "sm" 
+      ? "h-6 w-6 md:h-7 md:w-7" 
+      : "h-7 w-7 xl:h-8 xl:w-8";
+    
+    if (user?.avatar_url) {
+      return (
+        <div className={`${sizeClasses} relative overflow-hidden rounded-full ring-2 ring-white/30`}>
+          <Image
+            src={user.avatar_url}
+            alt={user.full_name || "User avatar"}
+            fill
+            className="object-cover"
+          />
+        </div>
+      );
+    }
+    
+    return (
+      <User
+        className={size === "sm" ? "h-5 w-5 md:h-6 md:w-6" : "h-5 w-5 xl:h-6 xl:w-6"}
+      />
+    );
+  };
+
   // Reusable user menu component
   const UserMenu = ({ isMobile = false }: { isMobile?: boolean }) =>
     user ? (
@@ -111,16 +140,12 @@ export function Header() {
           onClick={() => setShowUserMenu(!showUserMenu)}
           className={`${
             shouldUseWhiteText ? "text-white" : "text-black"
-          } cursor-pointer`}
+          } cursor-pointer flex items-center`}
           aria-label="User account menu"
           whileHover={{ scale: 1.1, opacity: isMobile ? 1 : 0.8 }}
           transition={{ duration: 0.2 }}
         >
-          <User
-            className={
-              isMobile ? "h-5 w-5 md:h-6 md:w-6" : "h-5 w-5 xl:h-6 xl:w-6"
-            }
-          />
+          <UserAvatar size={isMobile ? "sm" : "md"} />
         </motion.button>
 
         {showUserMenu && (
@@ -132,11 +157,27 @@ export function Header() {
             className="absolute right-0 z-[110] mt-3 w-56 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl"
           >
             {/* User Info Header */}
-            <div className="border-b border-gray-100 bg-gray-50 px-4 py-3">
-              <p className="text-sm font-semibold text-gray-900">
-                {user.full_name || user.email.split("@")[0]}
-              </p>
-              <p className="truncate text-xs text-gray-500">{user.email}</p>
+            <div className="border-b border-gray-100 bg-gray-50 px-4 py-3 flex items-center gap-3">
+              {user.avatar_url ? (
+                <div className="h-10 w-10 relative overflow-hidden rounded-full ring-2 ring-gray-200">
+                  <Image
+                    src={user.avatar_url}
+                    alt={user.full_name || "User avatar"}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="h-10 w-10 rounded-full bg-[#2f2582]/10 flex items-center justify-center">
+                  <User className="h-5 w-5 text-[#2f2582]" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">
+                  {user.full_name || user.email.split("@")[0]}
+                </p>
+                <p className="truncate text-xs text-gray-500">{user.email}</p>
+              </div>
             </div>
 
             <div className="p-1">
@@ -151,10 +192,9 @@ export function Header() {
             </div>
 
             <button
-              onClick={async () => {
-                await supabaseClient.auth.signOut();
-                logout();
+              onClick={() => {
                 setShowUserMenu(false);
+                setShowLogoutModal(true);
               }}
               className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-sm text-gray-700 transition-colors hover:bg-gray-50"
             >
@@ -273,6 +313,17 @@ export function Header() {
       <SearchModal
         isOpen={showSearchModal}
         onClose={() => setShowSearchModal(false)}
+      />
+
+      {/* LOGOUT MODAL */}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={async () => {
+          await supabaseClient.auth.signOut();
+          logout();
+          router.push("/");
+        }}
       />
     </header>
   );

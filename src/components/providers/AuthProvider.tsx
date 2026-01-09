@@ -35,10 +35,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (user) {
             console.log("AuthProvider - Session restored for user:", user.email);
             
+            // Fetch profile to get avatar_url
+            const { data: profile } = await supabaseClient
+              .from("profiles")
+              .select("avatar_url, full_name")
+              .eq("id", user.id)
+              .single();
+
+            // Use profile avatar, or fallback to Google avatar from metadata
+            const avatarUrl = profile?.avatar_url || 
+              user.user_metadata?.avatar_url || 
+              user.user_metadata?.picture;
+
             setUser({
               id: user.id,
               email: user.email || "",
-              full_name: (user.user_metadata?.full_name as string) || undefined,
+              full_name: profile?.full_name || (user.user_metadata?.full_name as string) || undefined,
+              avatar_url: avatarUrl || undefined,
             });
 
             setSession({
@@ -48,7 +61,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               user: {
                 id: user.id,
                 email: user.email || "",
-                full_name: (user.user_metadata?.full_name as string) || undefined,
+                full_name: profile?.full_name || (user.user_metadata?.full_name as string) || undefined,
+                avatar_url: avatarUrl || undefined,
               },
             });
           }

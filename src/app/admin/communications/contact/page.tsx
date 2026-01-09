@@ -109,22 +109,22 @@ export default function ContactSubmissionsPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
-          <div className="h-8 w-64 animate-pulse rounded bg-gray-200" />
-          <div className="mt-2 h-4 w-96 animate-pulse rounded bg-gray-200" />
+          <div className="h-6 w-48 animate-pulse rounded bg-gray-200 sm:h-8 sm:w-64" />
+          <div className="mt-2 h-4 w-64 animate-pulse rounded bg-gray-200 sm:w-96" />
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-24 animate-pulse rounded-lg bg-gray-200" />
+            <div key={i} className="h-20 animate-pulse rounded-lg bg-gray-200 sm:h-24" />
           ))}
         </div>
-        <div className="flex gap-2">
+        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-10 w-24 animate-pulse rounded-lg bg-gray-200" />
+            <div key={i} className="h-9 w-20 shrink-0 animate-pulse rounded-lg bg-gray-200 sm:h-10 sm:w-24" />
           ))}
         </div>
-        <div className="h-96 animate-pulse rounded-xl bg-gray-200" />
+        <div className="h-64 animate-pulse rounded-xl bg-gray-200 sm:h-96" />
       </div>
     );
   }

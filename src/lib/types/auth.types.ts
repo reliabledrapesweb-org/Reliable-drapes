@@ -16,6 +16,7 @@ export interface AuthUser {
   email: string;
   full_name?: string;
   created_at?: string;
+  avatar_url?: string;
 }
 
 export interface AuthSession {
