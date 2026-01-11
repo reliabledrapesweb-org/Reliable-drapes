@@ -9,3 +9,4 @@ export { PageHeader } from './PageHeader';
 export { SearchBar } from './SearchBar';
 export { ImageWithFallback } from './ImageWithFallback';
 export { ConfirmationModal } from './ConfirmationModal';
+export { ConfirmModal } from './ConfirmModal';

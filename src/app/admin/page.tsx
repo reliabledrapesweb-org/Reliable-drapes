@@ -19,7 +19,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { getUserStats } from "@/lib/actions/users";
+import { getRecentOrdersAction } from "@/lib/actions/orders";
 import { useAuthStore } from "@/lib/store";
+import { mapStatusToColor } from "@/lib/utils"; // You might need to create this or inline it
 
 interface StatCardProps {
   title: string;
@@ -137,22 +139,32 @@ export default function AdminDashboard() {
   const [customerCount, setCustomerCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+
   useEffect(() => {
-    async function fetchCustomerStats() {
+    async function fetchStats() {
       try {
-        const userStatsResult = await getUserStats();
+        const [userStatsResult, ordersResult] = await Promise.all([
+          getUserStats(),
+          getRecentOrdersAction(5)
+        ]);
+
         const customers = userStatsResult.success
           ? userStatsResult.data?.customers || 0
           : 0;
         setCustomerCount(customers);
+
+        if (ordersResult.success) {
+          setRecentOrders(ordersResult.orders || []);
+        }
       } catch (error) {
-        console.error("Failed to fetch customer stats:", error);
+        console.error("Failed to fetch dashboard stats:", error);
       } finally {
         setIsLoading(false);
       }
     }
 
-    fetchCustomerStats();
+    fetchStats();
   }, []);
 
   // Get first name from user data
@@ -367,115 +379,103 @@ export default function AdminDashboard() {
         </div>
 
         <div className="p-0">
-          {/* Mobile Card View */}
-          <div className="divide-y divide-gray-100 sm:hidden">
-            {[...Array(5)].map((_, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + index * 0.05 }}
-                className="p-4 space-y-2"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-sm text-gray-500">#ORD-{1000 + index}</span>
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                      index % 3 === 0
-                        ? "bg-green-100 text-green-700"
-                        : index % 3 === 1
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-blue-100 text-blue-700"
-                    }`}
+          {recentOrders.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="m-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-center sm:m-6"
+            >
+              <ShoppingCart className="mx-auto h-6 w-6 text-gray-400 sm:h-8 sm:w-8" />
+              <p className="mt-2 text-xs text-gray-600 sm:text-sm">
+                No orders found.
+              </p>
+            </motion.div>
+          ) : (
+            <>
+              {/* Mobile Card View */}
+              <div className="divide-y divide-gray-100 sm:hidden">
+                {recentOrders.map((order, index) => (
+                  <motion.div
+                    key={order.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.4 + index * 0.05 }}
+                    className="p-4 space-y-2"
                   >
-                    {index % 3 === 0
-                      ? "Delivered"
-                      : index % 3 === 1
-                        ? "Processing"
-                        : "Pending"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-700">Customer {index + 1}</span>
-                  <span className="font-semibold text-gray-900">
-                    ${(Math.random() * 500 + 50).toFixed(2)}
-                  </span>
-                </div>
-                <div className="text-xs text-gray-500">
-                  {new Date(Date.now() - index * 86400000).toLocaleDateString()}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Desktop Table View */}
-          <div className="hidden sm:block overflow-x-auto">
-            <div className="min-w-[700px] space-y-4 p-6">
-              {/* Table Header */}
-              <div className="grid grid-cols-5 gap-4 border-b border-gray-200 pb-3 text-sm font-medium text-gray-600">
-                <div>Order ID</div>
-                <div>Customer</div>
-                <div>Date</div>
-                <div>Total</div>
-                <div>Status</div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-sm text-gray-500">#{order.id.slice(0, 8)}</span>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium 
+                                ${order.status === 'delivered' ? 'bg-green-100 text-green-700' :
+                            order.status === 'processing' ? 'bg-yellow-100 text-yellow-700' :
+                              order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                                'bg-blue-100 text-blue-700'}`}
+                      >
+                        {order.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-700">{order.user?.full_name || "Guest"}</span>
+                      <span className="font-semibold text-gray-900">
+                        ${(order.total || 0).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {new Date(order.created_at).toLocaleDateString()}
+                    </div>
+                  </motion.div>
+                ))}
               </div>
 
-              {/* Placeholder Rows */}
-              {[...Array(5)].map((_, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 + index * 0.05 }}
-                  className="grid grid-cols-5 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm"
-                >
-                  <div className="font-mono text-gray-500">
-                    #ORD-{1000 + index}
+              {/* Desktop Table View */}
+              <div className="hidden sm:block overflow-x-auto">
+                <div className="min-w-[700px] space-y-4 p-6">
+                  {/* Table Header */}
+                  <div className="grid grid-cols-5 gap-4 border-b border-gray-200 pb-3 text-sm font-medium text-gray-600">
+                    <div>Order ID</div>
+                    <div>Customer</div>
+                    <div>Date</div>
+                    <div>Total</div>
+                    <div>Status</div>
                   </div>
-                  <div className="text-gray-700">Customer {index + 1}</div>
-                  <div className="text-gray-600">
-                    {new Date(
-                      Date.now() - index * 86400000,
-                    ).toLocaleDateString()}
-                  </div>
-                  <div className="font-semibold text-gray-900">
-                    ${(Math.random() * 500 + 50).toFixed(2)}
-                  </div>
-                  <div>
-                    <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        index % 3 === 0
-                          ? "bg-green-100 text-green-700"
-                          : index % 3 === 1
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-blue-100 text-blue-700"
-                      }`}
-                    >
-                      {index % 3 === 0
-                        ? "Delivered"
-                        : index % 3 === 1
-                          ? "Processing"
-                          : "Pending"}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
 
-          {/* Info message */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="m-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-center sm:m-6"
-          >
-            <ShoppingCart className="mx-auto h-6 w-6 text-gray-400 sm:h-8 sm:w-8" />
-            <p className="mt-2 text-xs text-gray-600 sm:text-sm">
-              This is placeholder data. Real orders will appear here once the
-              orders feature is implemented.
-            </p>
-          </motion.div>
+                  {/* Rows */}
+                  {recentOrders.map((order, index) => (
+                    <motion.div
+                      key={order.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 + index * 0.05 }}
+                      className="grid grid-cols-5 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm"
+                    >
+                      <div className="font-mono text-gray-500">
+                        #{order.id.slice(0, 8)}
+                      </div>
+                      <div className="text-gray-700">{order.user?.full_name || "Guest"}</div>
+                      <div className="text-gray-600">
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </div>
+                      <div className="font-semibold text-gray-900">
+                        ${(order.total || 0).toFixed(2)}
+                      </div>
+                      <div>
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                                ${order.status === 'delivered' ? 'bg-green-100 text-green-700' :
+                              order.status === 'processing' ? 'bg-yellow-100 text-yellow-700' :
+                                order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                                  'bg-blue-100 text-blue-700'}`}
+                        >
+                          {order.status}
+                        </span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </motion.div>
 

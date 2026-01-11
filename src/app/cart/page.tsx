@@ -1,14 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Breadcrumb } from "@/components/shared";
+import { Breadcrumb, ConfirmModal } from "@/components/shared";
 import { useCartStore } from "@/lib/store";
-import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft, ArrowRight, Tag, ChevronRight } from "lucide-react";
+import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft, ArrowRight, Tag, ChevronRight, AlertTriangle, MapPin } from "lucide-react";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
+import { createOrderAction } from "@/lib/actions/orders";
+import { getProfile } from "@/lib/actions/users";
+import { useAuthStore } from "@/lib/store";
+import { Loader } from "lucide-react";
 
 export default function CartPage() {
   const router = useRouter();
@@ -25,6 +29,38 @@ export default function CartPage() {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<{ code: string; discount: number } | null>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [hasAddress, setHasAddress] = useState<boolean | null>(null);
+  const { user } = useAuthStore();
+
+  // Check if user has address on mount
+  useEffect(() => {
+    async function checkAddress() {
+      if (!user) {
+        setHasAddress(null);
+        return;
+      }
+      try {
+        const result = await getProfile();
+        if (result.success && result.data) {
+          const profile = result.data;
+          // Check if essential address fields are filled
+          const hasRequiredAddress = !!(
+            profile.address_line1 &&
+            profile.city &&
+            profile.country
+          );
+          setHasAddress(hasRequiredAddress);
+        } else {
+          setHasAddress(false);
+        }
+      } catch (error) {
+        console.error("Error checking address:", error);
+        setHasAddress(false);
+      }
+    }
+    checkAddress();
+  }, [user]);
 
   const totalItems = getTotalItems();
   const subtotal = getTotalPrice();
@@ -51,9 +87,49 @@ export default function CartPage() {
     addToast("Cart cleared successfully", "success", 2000);
   };
 
-  const handleCheckout = () => {
-    // TODO: Implement checkout flow
-    addToast("Checkout functionality coming soon!", "info", 3000);
+  const handleCheckout = async () => {
+    if (!user) {
+      addToast("Please login to complete your purchase", "error", 3000);
+      router.push("/auth/login?redirect=/cart");
+      return;
+    }
+
+    // Check if user has address
+    if (!hasAddress) {
+      addToast("Please add a shipping address before checkout", "error", 3000);
+      router.push("/profile?tab=address");
+      return;
+    }
+
+    setIsCheckingOut(true);
+    try {
+      // Simulate checkout delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      const orderData = {
+        total: total,
+        items: items.map((item) => ({
+          product_id: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      };
+
+      const result = await createOrderAction(orderData);
+
+      if (result.success) {
+        clearCart();
+        addToast("Order placed successfully!", "success", 3000);
+        router.push("/profile?tab=orders");
+      } else {
+        addToast(result.error || "Failed to place order", "error", 3000);
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      addToast("An unexpected error occurred", "error", 3000);
+    } finally {
+      setIsCheckingOut(false);
+    }
   };
 
   const handleApplyPromo = () => {
@@ -334,15 +410,50 @@ export default function CartPage() {
                     )}
                   </div>
 
-                  {/* Checkout Button */}
+                  {/* Address Warning */}
+                  {user && hasAddress === false && (
+                    <div className="mt-6 rounded-xl border border-yellow-200 bg-yellow-50 p-4">
+                      <div className="flex items-start gap-3">
+                        <MapPin className="h-5 w-5 shrink-0 text-yellow-600 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-medium text-yellow-800">
+                            Shipping address required
+                          </p>
+                          <p className="mt-1 text-xs text-yellow-700">
+                            Please add your shipping address before you can checkout.
+                          </p>
+                          <Link
+                            href="/profile?tab=address"
+                            className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-yellow-800 underline hover:text-yellow-900"
+                          >
+                            Add Address <ArrowRight className="h-3 w-3" />
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <motion.button
                     onClick={handleCheckout}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#2f2582] px-6 py-4 text-base font-semibold text-white transition-all hover:bg-[#241c66] hover:shadow-xl"
+                    whileHover={{ scale: hasAddress === false ? 1 : 1.02 }}
+                    whileTap={{ scale: hasAddress === false ? 1 : 0.98 }}
+                    disabled={isCheckingOut || hasAddress === false}
+                    className={`mt-6 flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-base font-semibold text-white transition-all ${hasAddress === false
+                        ? "bg-gray-300 cursor-not-allowed"
+                        : "bg-[#2f2582] hover:bg-[#241c66] hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
+                      }`}
                   >
-                    Go to Checkout
-                    <ArrowRight className="h-5 w-5" />
+                    {isCheckingOut ? (
+                      <>
+                        <Loader className="h-5 w-5 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        Go to Checkout
+                        <ArrowRight className="h-5 w-5" />
+                      </>
+                    )}
                   </motion.button>
 
                   {/* Free Shipping Notice */}
@@ -373,37 +484,16 @@ export default function CartPage() {
         )}
       </div>
 
-      {/* Clear Cart Confirmation Modal */}
-      {showClearConfirm && (
-        <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mx-4 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
-          >
-            <h3 className="mb-4 text-xl font-bold text-[#161616]">
-              Clear Cart?
-            </h3>
-            <p className="mb-6 text-base text-[#575757]">
-              Are you sure you want to remove all items from your cart? This action cannot be undone.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowClearConfirm(false)}
-                className="flex-1 rounded-lg border-2 border-[#e0e0e0] px-4 py-3 text-sm font-semibold text-[#575757] transition-all hover:border-[#d0d0d0] hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleClearCart}
-                className="flex-1 rounded-lg bg-red-600 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-red-700 hover:shadow-lg"
-              >
-                Clear Cart
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        onConfirm={handleClearCart}
+        title="Clear Cart?"
+        description="Are you sure you want to remove all items from your cart? This action cannot be undone."
+        confirmText="Clear Cart"
+        icon={AlertTriangle}
+        variant="danger"
+      />
 
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </main>

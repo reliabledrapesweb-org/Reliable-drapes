@@ -36,9 +36,8 @@ export function Header() {
     <>
       <motion.button
         onClick={() => setShowSearchModal(true)}
-        className={`${
-          shouldUseWhiteText ? "text-white" : "text-black"
-        } cursor-pointer`}
+        className={`${shouldUseWhiteText ? "text-white" : "text-black"
+          } cursor-pointer`}
         aria-label="Search"
         whileHover={{ scale: 1.1, opacity: isMobile ? 1 : 0.8 }}
         transition={{ duration: 0.2 }}
@@ -52,9 +51,8 @@ export function Header() {
 
       <motion.a
         href="/wishlist"
-        className={`${
-          shouldUseWhiteText ? "text-white" : "text-black"
-        } relative cursor-pointer`}
+        className={`${shouldUseWhiteText ? "text-white" : "text-black"
+          } relative cursor-pointer`}
         aria-label="Wishlist"
         whileHover={{ scale: 1.1, opacity: isMobile ? 1 : 0.8 }}
         transition={{ duration: 0.2 }}
@@ -79,9 +77,8 @@ export function Header() {
 
       <motion.button
         onClick={toggleCart}
-        className={`${
-          shouldUseWhiteText ? "text-white" : "text-black"
-        } relative cursor-pointer`}
+        className={`${shouldUseWhiteText ? "text-white" : "text-black"
+          } relative cursor-pointer`}
         aria-label="Cart"
         whileHover={{ scale: 1.1, opacity: isMobile ? 1 : 0.8 }}
         transition={{ duration: 0.2 }}
@@ -108,10 +105,10 @@ export function Header() {
 
   // User avatar component
   const UserAvatar = ({ size = "md" }: { size?: "sm" | "md" }) => {
-    const sizeClasses = size === "sm" 
-      ? "h-6 w-6 md:h-7 md:w-7" 
+    const sizeClasses = size === "sm"
+      ? "h-6 w-6 md:h-7 md:w-7"
       : "h-7 w-7 xl:h-8 xl:w-8";
-    
+
     if (user?.avatar_url) {
       return (
         <div className={`${sizeClasses} relative overflow-hidden rounded-full ring-2 ring-white/30`}>
@@ -120,11 +117,12 @@ export function Header() {
             alt={user.full_name || "User avatar"}
             fill
             className="object-cover"
+            referrerPolicy="no-referrer"
           />
         </div>
       );
     }
-    
+
     return (
       <User
         className={size === "sm" ? "h-5 w-5 md:h-6 md:w-6" : "h-5 w-5 xl:h-6 xl:w-6"}
@@ -138,9 +136,8 @@ export function Header() {
       <div className="relative">
         <motion.button
           onClick={() => setShowUserMenu(!showUserMenu)}
-          className={`${
-            shouldUseWhiteText ? "text-white" : "text-black"
-          } cursor-pointer flex items-center`}
+          className={`${shouldUseWhiteText ? "text-white" : "text-black"
+            } cursor-pointer flex items-center`}
           aria-label="User account menu"
           whileHover={{ scale: 1.1, opacity: isMobile ? 1 : 0.8 }}
           transition={{ duration: 0.2 }}
@@ -165,6 +162,7 @@ export function Header() {
                     alt={user.full_name || "User avatar"}
                     fill
                     className="object-cover"
+                    referrerPolicy="no-referrer"
                   />
                 </div>
               ) : (
@@ -207,9 +205,8 @@ export function Header() {
     ) : (
       <motion.a
         href="/login"
-        className={`${
-          shouldUseWhiteText ? "text-white" : "text-black"
-        } hidden cursor-pointer text-sm tracking-tight lg:inline-block xl:text-base`}
+        className={`${shouldUseWhiteText ? "text-white" : "text-black"
+          } hidden cursor-pointer text-sm tracking-tight lg:inline-block xl:text-base`}
         whileHover={{ scale: 1.05, opacity: 0.8 }}
         transition={{ duration: 0.2 }}
       >
@@ -221,9 +218,8 @@ export function Header() {
     <header className="fixed top-0 left-0 z-[100] w-full">
       {/* NAV */}
       <nav
-        className={`backdrop-blur-[5.1px] ${
-          isScrolled ? "bg-black/80" : "bg-[rgba(0,0,0,0.1)]"
-        } h-14 transition-colors duration-300 md:h-16 lg:h-[72px]`}
+        className={`backdrop-blur-[5.1px] ${isScrolled ? "bg-black/80" : "bg-[rgba(0,0,0,0.1)]"
+          } h-14 transition-colors duration-300 md:h-16 lg:h-[72px]`}
       >
         <div className="container mx-auto flex h-full items-center justify-between px-4 md:px-6 lg:px-8">
           {/* LOGO */}
@@ -254,11 +250,9 @@ export function Header() {
               <motion.a
                 key={i}
                 href={item.link}
-                className={`${
-                  shouldUseWhiteText ? "text-white" : "text-black"
-                } ${
-                  pathname === item.name && "font-semibold"
-                } cursor-pointer text-sm tracking-tight xl:text-base`}
+                className={`${shouldUseWhiteText ? "text-white" : "text-black"
+                  } ${pathname === item.name && "font-semibold"
+                  } cursor-pointer text-sm tracking-tight xl:text-base`}
                 whileHover={{ scale: 1.05, opacity: 0.8 }}
                 transition={{ duration: 0.2 }}
               >
@@ -282,9 +276,8 @@ export function Header() {
 
             {/* MENU BUTTON */}
             <motion.button
-              className={`${
-                shouldUseWhiteText ? "text-white" : "text-black"
-              } cursor-pointer`}
+              className={`${shouldUseWhiteText ? "text-white" : "text-black"
+                } cursor-pointer`}
               aria-label="Menu"
               onClick={() => setIsOpen(true)}
               whileTap={{ scale: 0.9 }}

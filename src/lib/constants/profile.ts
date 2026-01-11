@@ -12,8 +12,8 @@ export interface ProfileSidebarLink {
 }
 
 export const PROFILE_SIDEBAR_LINKS: ProfileSidebarLink[] = [
-  { name: "My details", id: "details", active: true },
+  { name: "My details", id: "details" },
   { name: "My wishlist", id: "wishlist", href: "/wishlist" },
-  { name: "My orders", id: "orders", href: "#", disabled: true },
+  { name: "My orders", id: "orders" },
   { name: "My address book", id: "address", scrollTo: "address-section" },
 ];

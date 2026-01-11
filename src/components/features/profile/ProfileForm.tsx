@@ -3,8 +3,8 @@
 import { useForm, UseFormRegister, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "motion/react";
-import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import {
   Loader,
@@ -32,6 +32,7 @@ import { profileSchema, type ProfileFormValues } from "@/lib/validators";
 import { PROFILE_SIDEBAR_LINKS } from "@/lib/constants";
 import { ChangePasswordModal } from "./ChangePasswordModal";
 import { LogoutModal } from "./LogoutModal";
+import { OrdersSection } from "./OrdersSection";
 
 interface ProfileFormProps {
   user: UserProfile;
@@ -69,9 +70,8 @@ function AnimatedInputField({
       className={`space-y-2 ${className}`}
     >
       <label
-        className={`text-sm font-medium transition-colors duration-200 ${
-          isFocused ? "text-[#2f2582]" : "text-gray-700"
-        }`}
+        className={`text-sm font-medium transition-colors duration-200 ${isFocused ? "text-[#2f2582]" : "text-gray-700"
+          }`}
       >
         {label}
       </label>
@@ -79,9 +79,8 @@ function AnimatedInputField({
         {Icon && (
           <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
             <Icon
-              className={`h-5 w-5 transition-colors duration-200 ${
-                isFocused ? "text-[#2f2582]" : "text-gray-400"
-              }`}
+              className={`h-5 w-5 transition-colors duration-200 ${isFocused ? "text-[#2f2582]" : "text-gray-400"
+                }`}
             />
           </div>
         )}
@@ -89,10 +88,9 @@ function AnimatedInputField({
           {...(name ? register(name) : {})}
           className={`flex h-12 w-full rounded-xl border-2 bg-white px-4 py-3 text-sm text-gray-900 transition-all duration-200 outline-none placeholder:text-gray-400 
             ${Icon ? "pl-11" : ""}
-            ${
-              isFocused
-                ? "border-[#2f2582] ring-4 ring-[#2f2582]/10 shadow-sm"
-                : "border-gray-200 hover:border-gray-300"
+            ${isFocused
+              ? "border-[#2f2582] ring-4 ring-[#2f2582]/10 shadow-sm"
+              : "border-gray-200 hover:border-gray-300"
             }
             disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500 disabled:border-gray-200`}
           placeholder={placeholder}
@@ -119,6 +117,7 @@ function AnimatedInputField({
 export function ProfileForm({ user }: ProfileFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(
@@ -128,6 +127,16 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { logout, setUser, user: authUser } = useAuthStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [activeTab, setActiveTab] = useState("details");
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["details", "orders", "wishlist", "address"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -198,10 +207,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
       setAvatarUrl(publicUrl);
       form.setValue("avatar_url", publicUrl, { shouldDirty: true });
-      
+
       // Save avatar to database immediately
       const result = await updateProfile({ avatar_url: publicUrl });
-      
+
       if (result.success) {
         // Update auth store immediately so header updates
         if (authUser) {
@@ -221,9 +230,34 @@ export function ProfileForm({ user }: ProfileFormProps) {
     }
   };
 
-  const handleDeleteAvatar = () => {
-    setAvatarUrl(null);
-    form.setValue("avatar_url", "", { shouldDirty: true });
+  const handleDeleteAvatar = async () => {
+    try {
+      setIsRemoving(true);
+
+      // Update database to remove avatar
+      const result = await updateProfile({ avatar_url: "" });
+
+      if (result.success) {
+        // Update local state
+        setAvatarUrl(null);
+        form.setValue("avatar_url", "", { shouldDirty: false });
+
+        // Update auth store so header updates
+        if (authUser) {
+          setUser({
+            ...authUser,
+            avatar_url: undefined,
+          });
+        }
+        addToast("Avatar removed successfully", "success");
+      } else {
+        throw new Error(result.error || "Failed to remove avatar");
+      }
+    } catch (error: any) {
+      addToast(error.message || "Error removing avatar", "error");
+    } finally {
+      setIsRemoving(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -261,29 +295,42 @@ export function ProfileForm({ user }: ProfileFormProps) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 + index * 0.05 }}
               href={link.href || "#"}
-              className={`flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-sm font-medium transition-all duration-200 group ${
-                link.active
-                  ? "bg-[#2f2582] text-white shadow-md shadow-[#2f2582]/20"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-[#161616] " +
-                    (link.disabled ? "cursor-not-allowed opacity-50" : "")
-              }`}
+              className={`flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-sm font-medium transition-all duration-200 group cursor-pointer ${(link.id === activeTab && !link.href) || (link.id === 'details' && activeTab === 'details')
+                ? "bg-[#2f2582] text-white shadow-md shadow-[#2f2582]/20"
+                : "text-gray-600 hover:bg-gray-50 hover:text-[#161616] " +
+                (link.disabled ? "cursor-not-allowed opacity-50" : "")
+                }`}
               onClick={(e) => {
                 if (link.disabled) e.preventDefault();
-                if (link.scrollTo && !link.disabled) {
-                  e.preventDefault();
-                  document
-                    .getElementById(link.scrollTo)
-                    ?.scrollIntoView({ behavior: "smooth" });
+
+                if (link.href) {
+                  // Let normal navigation happen for wishlist
+                  return;
+                }
+
+                e.preventDefault();
+
+                if (link.id === 'orders') {
+                  setActiveTab('orders');
+                } else if (link.id === 'details') {
+                  setActiveTab('details');
+                } else if (link.id === 'address') {
+                  setActiveTab('details');
+                  // Small timeout to allow render if switching from another tab
+                  setTimeout(() => {
+                    document
+                      .getElementById(link.scrollTo!)
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }, 100);
                 }
               }}
             >
               <span>{link.name}</span>
               <ChevronRight
-                className={`h-4 w-4 transition-all duration-200 ${
-                  link.active
-                    ? "opacity-100"
-                    : "opacity-0 group-hover:opacity-100 group-hover:translate-x-1"
-                }`}
+                className={`h-4 w-4 transition-all duration-200 ${(link.id === activeTab && !link.href)
+                  ? "opacity-100"
+                  : "opacity-0 group-hover:opacity-100 group-hover:translate-x-1"
+                  }`}
               />
             </motion.a>
           ))}
@@ -333,6 +380,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                         alt="Profile"
                         fill
                         className="object-cover"
+                        referrerPolicy="no-referrer"
                       />
                     </motion.div>
                   ) : (
@@ -404,9 +452,19 @@ export function ProfileForm({ user }: ProfileFormProps) {
                         size="sm"
                         className="rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
                         onClick={handleDeleteAvatar}
+                        disabled={isRemoving}
                       >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Remove
+                        {isRemoving ? (
+                          <>
+                            <Loader className="h-4 w-4 mr-2 animate-spin" />
+                            Removing...
+                          </>
+                        ) : (
+                          <>
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Remove
+                          </>
+                        )}
                       </Button>
                     </motion.div>
                   )}
@@ -418,198 +476,202 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
         {/* Form Card */}
         <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 lg:p-8">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {/* Personal Info Section */}
-            <div>
-              <div className="flex items-center gap-2 mb-6">
-                <div className="h-8 w-8 rounded-lg bg-[#2f2582]/10 flex items-center justify-center">
-                  <UserCircle className="h-4 w-4 text-[#2f2582]" />
-                </div>
-                <h4 className="text-lg font-semibold text-[#161616]">
-                  Personal Information
-                </h4>
-              </div>
-              <div className="grid gap-5 md:grid-cols-2">
-                <AnimatedInputField
-                  label="Full Name"
-                  name="full_name"
-                  placeholder="Enter your full name"
-                  disabled={isSubmitting}
-                  register={form.register}
-                  errors={form.formState.errors}
-                  icon={User}
-                />
-                {/* Read-only Email */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.05 }}
-                  className="space-y-2"
-                >
-                  <label className="text-sm font-medium text-gray-700">
-                    Email address
-                  </label>
-                  <div className="relative group">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <Mail className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      value={user.email || ""}
-                      disabled
-                      type="email"
-                      className="flex h-12 w-full cursor-not-allowed rounded-xl border-2 border-gray-100 bg-gray-50 pl-11 pr-4 py-3 text-sm text-gray-500 outline-none"
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
-                      Verified
-                    </span>
+          {activeTab === 'orders' ? (
+            <OrdersSection />
+          ) : (
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              {/* Personal Info Section */}
+              <div>
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="h-8 w-8 rounded-lg bg-[#2f2582]/10 flex items-center justify-center">
+                    <UserCircle className="h-4 w-4 text-[#2f2582]" />
                   </div>
-                </motion.div>
-
-                <AnimatedInputField
-                  label="Phone number"
-                  name="phone"
-                  placeholder="Enter your phone number"
-                  disabled={isSubmitting}
-                  register={form.register}
-                  errors={form.formState.errors}
-                  icon={Phone}
-                />
-
-                {/* Password Placeholder */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.15 }}
-                  className="space-y-2"
-                >
-                  <label className="text-sm font-medium text-gray-700">
-                    Password
-                  </label>
-                  <div className="relative group">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      value="•••••••••"
-                      disabled
-                      type="password"
-                      className="flex h-12 w-full cursor-not-allowed rounded-xl border-2 border-gray-100 bg-gray-50 pl-11 pr-4 py-3 text-sm text-gray-500 outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPasswordModal(true)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#2f2582] hover:text-[#241c66] font-medium transition-colors"
-                    >
-                      Change
-                    </button>
-                  </div>
-                </motion.div>
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div className="border-t border-gray-100" />
-
-            {/* Address Section */}
-            <motion.div
-              id="address-section"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <div className="flex items-center gap-2 mb-6">
-                <div className="h-8 w-8 rounded-lg bg-[#2f2582]/10 flex items-center justify-center">
-                  <MapPin className="h-4 w-4 text-[#2f2582]" />
+                  <h4 className="text-lg font-semibold text-[#161616]">
+                    Personal Information
+                  </h4>
                 </div>
-                <h4 className="text-lg font-semibold text-[#161616]">
-                  Address Information
-                </h4>
-              </div>
-              <div className="grid gap-5 md:grid-cols-2">
-                <AnimatedInputField
-                  label="Address Line 1"
-                  name="address_line1"
-                  placeholder="Street address"
-                  className="md:col-span-2"
-                  disabled={isSubmitting}
-                  register={form.register}
-                  errors={form.formState.errors}
-                  icon={Home}
-                />
-                <AnimatedInputField
-                  label="Address Line 2 (Optional)"
-                  name="address_line2"
-                  placeholder="Apartment, suite, etc."
-                  className="md:col-span-2"
-                  disabled={isSubmitting}
-                  register={form.register}
-                  errors={form.formState.errors}
-                  icon={Building}
-                />
-                <AnimatedInputField
-                  label="City"
-                  name="city"
-                  placeholder="Enter city"
-                  disabled={isSubmitting}
-                  register={form.register}
-                  errors={form.formState.errors}
-                  icon={Building}
-                />
-                <AnimatedInputField
-                  label="State / Province"
-                  name="state"
-                  placeholder="Enter state"
-                  disabled={isSubmitting}
-                  register={form.register}
-                  errors={form.formState.errors}
-                  icon={MapPin}
-                />
-                <AnimatedInputField
-                  label="Postal Code"
-                  name="postal_code"
-                  placeholder="Enter postal code"
-                  disabled={isSubmitting}
-                  register={form.register}
-                  errors={form.formState.errors}
-                  icon={MapPin}
-                />
-                <AnimatedInputField
-                  label="Country"
-                  name="country"
-                  placeholder="Enter country"
-                  disabled={isSubmitting}
-                  register={form.register}
-                  errors={form.formState.errors}
-                  icon={Globe}
-                />
-              </div>
-            </motion.div>
+                <div className="grid gap-5 md:grid-cols-2">
+                  <AnimatedInputField
+                    label="Full Name"
+                    name="full_name"
+                    placeholder="Enter your full name"
+                    disabled={isSubmitting}
+                    register={form.register}
+                    errors={form.formState.errors}
+                    icon={User}
+                  />
+                  {/* Read-only Email */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.05 }}
+                    className="space-y-2"
+                  >
+                    <label className="text-sm font-medium text-gray-700">
+                      Email address
+                    </label>
+                    <div className="relative group">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <Mail className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        value={user.email || ""}
+                        disabled
+                        type="email"
+                        className="flex h-12 w-full cursor-not-allowed rounded-xl border-2 border-gray-100 bg-gray-50 pl-11 pr-4 py-3 text-sm text-gray-500 outline-none"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
+                        Verified
+                      </span>
+                    </div>
+                  </motion.div>
 
-            {/* Submit Button */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="flex justify-end pt-4 border-t border-gray-100"
-            >
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="relative h-12 px-8 cursor-pointer rounded-xl bg-[#2f2582] text-base font-medium text-white hover:bg-[#241c66] hover:shadow-lg hover:shadow-[#2f2582]/25 disabled:opacity-70 transition-all duration-300"
+                  <AnimatedInputField
+                    label="Phone number"
+                    name="phone"
+                    placeholder="Enter your phone number"
+                    disabled={isSubmitting}
+                    register={form.register}
+                    errors={form.formState.errors}
+                    icon={Phone}
+                  />
+
+                  {/* Password Placeholder */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.15 }}
+                    className="space-y-2"
+                  >
+                    <label className="text-sm font-medium text-gray-700">
+                      Password
+                    </label>
+                    <div className="relative group">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <Lock className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        value="•••••••••"
+                        disabled
+                        type="password"
+                        className="flex h-12 w-full cursor-not-allowed rounded-xl border-2 border-gray-100 bg-gray-50 pl-11 pr-4 py-3 text-sm text-gray-500 outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPasswordModal(true)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#2f2582] hover:text-[#241c66] font-medium transition-colors"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="border-t border-gray-100" />
+
+              {/* Address Section */}
+              <motion.div
+                id="address-section"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3 }}
               >
-                <span
-                  className={`flex items-center gap-2 ${isSubmitting ? "opacity-0" : "opacity-100"} transition-opacity duration-200`}
-                >
-                  Save changes
-                </span>
-                {isSubmitting && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Loader className="h-5 w-5 animate-spin text-white" />
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="h-8 w-8 rounded-lg bg-[#2f2582]/10 flex items-center justify-center">
+                    <MapPin className="h-4 w-4 text-[#2f2582]" />
                   </div>
-                )}
-              </Button>
-            </motion.div>
-          </form>
+                  <h4 className="text-lg font-semibold text-[#161616]">
+                    Address Information
+                  </h4>
+                </div>
+                <div className="grid gap-5 md:grid-cols-2">
+                  <AnimatedInputField
+                    label="Address Line 1"
+                    name="address_line1"
+                    placeholder="Street address"
+                    className="md:col-span-2"
+                    disabled={isSubmitting}
+                    register={form.register}
+                    errors={form.formState.errors}
+                    icon={Home}
+                  />
+                  <AnimatedInputField
+                    label="Address Line 2 (Optional)"
+                    name="address_line2"
+                    placeholder="Apartment, suite, etc."
+                    className="md:col-span-2"
+                    disabled={isSubmitting}
+                    register={form.register}
+                    errors={form.formState.errors}
+                    icon={Building}
+                  />
+                  <AnimatedInputField
+                    label="City"
+                    name="city"
+                    placeholder="Enter city"
+                    disabled={isSubmitting}
+                    register={form.register}
+                    errors={form.formState.errors}
+                    icon={Building}
+                  />
+                  <AnimatedInputField
+                    label="State / Province"
+                    name="state"
+                    placeholder="Enter state"
+                    disabled={isSubmitting}
+                    register={form.register}
+                    errors={form.formState.errors}
+                    icon={MapPin}
+                  />
+                  <AnimatedInputField
+                    label="Postal Code"
+                    name="postal_code"
+                    placeholder="Enter postal code"
+                    disabled={isSubmitting}
+                    register={form.register}
+                    errors={form.formState.errors}
+                    icon={MapPin}
+                  />
+                  <AnimatedInputField
+                    label="Country"
+                    name="country"
+                    placeholder="Enter country"
+                    disabled={isSubmitting}
+                    register={form.register}
+                    errors={form.formState.errors}
+                    icon={Globe}
+                  />
+                </div>
+              </motion.div>
+
+              {/* Submit Button */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="flex justify-end pt-4 border-t border-gray-100"
+              >
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="relative h-12 px-8 cursor-pointer rounded-xl bg-[#2f2582] text-base font-medium text-white hover:bg-[#241c66] hover:shadow-lg hover:shadow-[#2f2582]/25 disabled:opacity-70 transition-all duration-300"
+                >
+                  <span
+                    className={`flex items-center gap-2 ${isSubmitting ? "opacity-0" : "opacity-100"} transition-opacity duration-200`}
+                  >
+                    Save changes
+                  </span>
+                  {isSubmitting && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Loader className="h-5 w-5 animate-spin text-white" />
+                    </div>
+                  )}
+                </Button>
+              </motion.div>
+            </form>
+          )}
         </div>
       </motion.div>
 

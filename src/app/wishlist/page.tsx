@@ -1,10 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion } from "motion/react";
 import Link from "next/link";
-import { Breadcrumb } from "@/components/shared";
+import { Breadcrumb, ConfirmModal } from "@/components/shared";
 import { useWishlistStore, useCartStore } from "@/lib/store";
-import { Heart, ArrowLeft, ArrowRight } from "lucide-react";
+import { Heart, ArrowLeft, ArrowRight, AlertTriangle } from "lucide-react";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { ShopProductCard } from "@/components/features/shop/ShopProductCard";
 import type { Product } from "@/lib/actions/products";
@@ -13,6 +14,7 @@ export default function WishlistPage() {
   const { toasts, addToast, removeToast } = useToast();
   const { items, clearWishlist } = useWishlistStore();
   const { addItem } = useCartStore();
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const handleAddToCart = (productId: string, productName: string) => {
     const item = items.find((i) => i.productId === productId);
@@ -70,10 +72,7 @@ export default function WishlistPage() {
           </div>
           {items.length > 0 && (
             <button
-              onClick={() => {
-                clearWishlist();
-                addToast("Wishlist cleared", "success", 2000);
-              }}
+              onClick={() => setShowClearConfirm(true)}
               className="text-sm font-medium text-red-600 transition-colors hover:text-red-700"
             >
               Clear All
@@ -157,6 +156,20 @@ export default function WishlistPage() {
           </motion.div>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={showClearConfirm}
+        onClose={() => setShowClearConfirm(false)}
+        onConfirm={() => {
+          clearWishlist();
+          addToast("Wishlist cleared", "success", 2000);
+        }}
+        title="Clear Wishlist?"
+        description="Are you sure you want to remove all items from your wishlist? This action cannot be undone."
+        confirmText="Clear All"
+        icon={AlertTriangle}
+        variant="danger"
+      />
 
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </main>

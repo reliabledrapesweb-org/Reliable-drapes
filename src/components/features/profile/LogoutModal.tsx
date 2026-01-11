@@ -17,6 +17,7 @@ export function LogoutModal({ isOpen, onClose, onConfirm }: LogoutModalProps) {
     setIsLoading(true);
     try {
       await onConfirm();
+      onClose();
     } finally {
       setIsLoading(false);
     }
