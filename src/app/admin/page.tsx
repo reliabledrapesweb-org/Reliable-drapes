@@ -21,7 +21,6 @@ import Link from "next/link";
 import { getUserStats } from "@/lib/actions/users";
 import { getRecentOrdersAction } from "@/lib/actions/orders";
 import { useAuthStore } from "@/lib/store";
-import { mapStatusToColor } from "@/lib/utils"; // You might need to create this or inline it
 
 interface StatCardProps {
   title: string;
