@@ -31,17 +31,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  Plus, 
-  BookOpen, 
-  Download, 
-  Eye, 
-  EyeOff, 
-  Edit, 
-  Trash2, 
+import {
+  Plus,
+  BookOpen,
+  Download,
+  Eye,
+  EyeOff,
+  Edit,
+  Trash2,
   X,
   FileText,
-  Tag
+  Tag,
 } from "lucide-react";
 import { FileUpload } from "@/components/admin/FileUpload";
 
@@ -50,8 +50,12 @@ export default function CataloguesPage() {
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [editingCatalogue, setEditingCatalogue] = useState<Catalogue | null>(null);
-  const [actionLoading, setActionLoading] = useState<{[key: string]: string | null}>({});
+  const [editingCatalogue, setEditingCatalogue] = useState<Catalogue | null>(
+    null,
+  );
+  const [actionLoading, setActionLoading] = useState<{
+    [key: string]: string | null;
+  }>({});
   const { toasts, addToast, removeToast } = useToast();
 
   // Form state
@@ -93,7 +97,6 @@ export default function CataloguesPage() {
         thumbnail_url: catalogue.thumbnail_url || catalogue.image_url || "",
         badge: catalogue.badge,
         discount_value: catalogue.discount_value || "",
-
       });
     } else {
       setEditingCatalogue(null);
@@ -105,7 +108,6 @@ export default function CataloguesPage() {
         thumbnail_url: "",
         badge: null,
         discount_value: "",
-
       });
     }
     setShowModal(true);
@@ -119,7 +121,7 @@ export default function CataloguesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const actionKey = editingCatalogue ? "update" : "create";
-    setActionLoading(prev => ({ ...prev, [actionKey]: actionKey }));
+    setActionLoading((prev) => ({ ...prev, [actionKey]: actionKey }));
 
     try {
       if (editingCatalogue) {
@@ -145,7 +147,7 @@ export default function CataloguesPage() {
         }
       }
     } finally {
-      setActionLoading(prev => ({ ...prev, [actionKey]: null }));
+      setActionLoading((prev) => ({ ...prev, [actionKey]: null }));
     }
   };
 
@@ -166,7 +168,10 @@ export default function CataloguesPage() {
 
   const executeDelete = async () => {
     if (!confirmAction.catalogueId) return;
-    setActionLoading(prev => ({ ...prev, [`delete-${confirmAction.catalogueId}`]: "delete" }));
+    setActionLoading((prev) => ({
+      ...prev,
+      [`delete-${confirmAction.catalogueId}`]: "delete",
+    }));
 
     try {
       const result = await deleteCatalogue(confirmAction.catalogueId);
@@ -179,7 +184,10 @@ export default function CataloguesPage() {
         setConfirmAction({ type: null });
       }
     } finally {
-      setActionLoading(prev => ({ ...prev, [`delete-${confirmAction.catalogueId}`]: null }));
+      setActionLoading((prev) => ({
+        ...prev,
+        [`delete-${confirmAction.catalogueId}`]: null,
+      }));
     }
   };
 
@@ -193,8 +201,12 @@ export default function CataloguesPage() {
   };
 
   const executeToggle = async () => {
-    if (!confirmAction.catalogueId || confirmAction.isActive === undefined) return;
-    setActionLoading(prev => ({ ...prev, [`toggle-${confirmAction.catalogueId}`]: "toggle" }));
+    if (!confirmAction.catalogueId || confirmAction.isActive === undefined)
+      return;
+    setActionLoading((prev) => ({
+      ...prev,
+      [`toggle-${confirmAction.catalogueId}`]: "toggle",
+    }));
 
     try {
       const result = await updateCatalogue({
@@ -204,7 +216,7 @@ export default function CataloguesPage() {
       if (result.success) {
         addToast(
           `Catalogue ${confirmAction.isActive ? "activated" : "deactivated"}`,
-          "success"
+          "success",
         );
         fetchCatalogues();
         setConfirmAction({ type: null });
@@ -213,7 +225,10 @@ export default function CataloguesPage() {
         setConfirmAction({ type: null });
       }
     } finally {
-      setActionLoading(prev => ({ ...prev, [`toggle-${confirmAction.catalogueId}`]: null }));
+      setActionLoading((prev) => ({
+        ...prev,
+        [`toggle-${confirmAction.catalogueId}`]: null,
+      }));
     }
   };
 
@@ -229,7 +244,10 @@ export default function CataloguesPage() {
         </div>
         <div className="grid grid-cols-3 gap-2 sm:gap-4">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-lg bg-gray-200 sm:h-24" />
+            <div
+              key={i}
+              className="h-20 animate-pulse rounded-lg bg-gray-200 sm:h-24"
+            />
           ))}
         </div>
         <div className="h-64 animate-pulse rounded-xl bg-gray-200 sm:h-96" />
@@ -246,12 +264,14 @@ export default function CataloguesPage() {
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">Catalogues</h1>
+          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">
+            Catalogues
+          </h1>
           <p className="mt-1 text-xs text-gray-600 sm:text-sm">
             Manage your product catalogues and downloads
           </p>
         </div>
-        <Button 
+        <Button
           onClick={() => handleOpenModal()}
           className="w-full bg-[#2F2582] hover:bg-[#251e66] sm:w-auto"
         >
@@ -264,7 +284,9 @@ export default function CataloguesPage() {
       <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-600 sm:text-sm">Total</p>
-          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">{catalogues.length}</p>
+          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">
+            {catalogues.length}
+          </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-600 sm:text-sm">Active</p>
@@ -273,7 +295,9 @@ export default function CataloguesPage() {
           </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
-          <p className="text-xs font-medium text-gray-600 sm:text-sm">Downloads</p>
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">
+            Downloads
+          </p>
           <p className="mt-1 text-lg font-bold text-[#2F2582] sm:text-2xl">
             {catalogues.reduce((sum, c) => sum + c.download_count, 0)}
           </p>
@@ -283,15 +307,21 @@ export default function CataloguesPage() {
       {/* Catalogues List */}
       <Card>
         <CardHeader className="px-4 py-3 sm:px-6 sm:py-4">
-          <CardTitle className="text-base font-semibold sm:text-lg">Catalogues ({catalogues.length})</CardTitle>
+          <CardTitle className="text-base font-semibold sm:text-lg">
+            Catalogues ({catalogues.length})
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {catalogues.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center px-4">
+            <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
               <BookOpen className="h-12 w-12 text-gray-400" />
-              <h3 className="mt-4 text-base font-medium text-gray-900 sm:text-lg">No catalogues yet</h3>
-              <p className="mt-2 text-xs text-gray-500 sm:text-sm">Get started by creating your first catalogue.</p>
-              <Button 
+              <h3 className="mt-4 text-base font-medium text-gray-900 sm:text-lg">
+                No catalogues yet
+              </h3>
+              <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+                Get started by creating your first catalogue.
+              </p>
+              <Button
                 onClick={() => handleOpenModal()}
                 className="mt-4 bg-[#2F2582] hover:bg-[#251e66]"
               >
@@ -304,12 +334,16 @@ export default function CataloguesPage() {
               {/* Mobile Card View */}
               <div className="divide-y divide-gray-100 sm:hidden">
                 {catalogues.map((catalogue) => (
-                  <div key={catalogue.id} className="p-4 space-y-3">
+                  <div key={catalogue.id} className="space-y-3 p-4">
                     <div className="flex items-start gap-3">
                       <div className="shrink-0">
-                        {(catalogue.thumbnail_url || catalogue.image_url) ? (
+                        {catalogue.thumbnail_url || catalogue.image_url ? (
                           <img
-                            src={catalogue.thumbnail_url || catalogue.image_url || ""}
+                            src={
+                              catalogue.thumbnail_url ||
+                              catalogue.image_url ||
+                              ""
+                            }
                             alt={catalogue.title}
                             className="h-14 w-14 rounded-lg object-cover"
                           />
@@ -319,24 +353,30 @@ export default function CataloguesPage() {
                           </div>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="font-medium text-gray-900 truncate">{catalogue.title}</h3>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="truncate font-medium text-gray-900">
+                            {catalogue.title}
+                          </h3>
                           {catalogue.badge && (
-                            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                              catalogue.badge === "new" 
-                                ? "bg-green-100 text-green-800" 
-                                : "bg-orange-100 text-orange-800"
-                            }`}>
-                              {catalogue.badge === "new" ? "New" : catalogue.discount_value}
+                            <span
+                              className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                                catalogue.badge === "new"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-orange-100 text-orange-800"
+                              }`}
+                            >
+                              {catalogue.badge === "new"
+                                ? "New"
+                                : catalogue.discount_value}
                             </span>
                           )}
                         </div>
-                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 mt-1">
+                        <span className="mt-1 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
                           <Tag className="mr-1 h-3 w-3" />
                           {catalogue.category}
                         </span>
-                        <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                        <div className="mt-1 flex items-center gap-3 text-xs text-gray-500">
                           <span className="flex items-center gap-1">
                             <Download className="h-3 w-3" />
                             {catalogue.download_count}
@@ -344,7 +384,7 @@ export default function CataloguesPage() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center justify-between pt-2">
                       <Button
                         variant="ghost"
@@ -381,9 +421,11 @@ export default function CataloguesPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDelete(catalogue.id, catalogue.title)}
+                          onClick={() =>
+                            handleDelete(catalogue.id, catalogue.title)
+                          }
                           disabled={!!actionLoading[`delete-${catalogue.id}`]}
-                          className="h-8 px-3 text-red-600 border-red-200 hover:bg-red-50"
+                          className="h-8 border-red-200 px-3 text-red-600 hover:bg-red-50"
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
@@ -394,15 +436,25 @@ export default function CataloguesPage() {
               </div>
 
               {/* Desktop Table View */}
-              <div className="hidden sm:block overflow-x-auto">
+              <div className="hidden overflow-x-auto sm:block">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Catalogue</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Category</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600 hidden lg:table-cell">Downloads</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Status</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-600">Actions</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                        Catalogue
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                        Category
+                      </th>
+                      <th className="hidden px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase lg:table-cell">
+                        Downloads
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
@@ -411,9 +463,14 @@ export default function CataloguesPage() {
                         <td className="px-4 py-3">
                           <div className="flex items-center space-x-3">
                             <div className="shrink-0">
-                              {(catalogue.thumbnail_url || catalogue.image_url) ? (
+                              {catalogue.thumbnail_url ||
+                              catalogue.image_url ? (
                                 <img
-                                  src={catalogue.thumbnail_url || catalogue.image_url || ""}
+                                  src={
+                                    catalogue.thumbnail_url ||
+                                    catalogue.image_url ||
+                                    ""
+                                  }
                                   alt={catalogue.title}
                                   className="h-10 w-10 rounded-lg object-cover"
                                 />
@@ -429,16 +486,21 @@ export default function CataloguesPage() {
                                   {catalogue.title}
                                 </p>
                                 {catalogue.badge && (
-                                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                                    catalogue.badge === "new" 
-                                      ? "bg-green-100 text-green-800" 
-                                      : "bg-orange-100 text-orange-800"
-                                  }`}>
-                                    {catalogue.badge === "new" ? "New" : catalogue.discount_value}
+                                  <span
+                                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                                      catalogue.badge === "new"
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-orange-100 text-orange-800"
+                                    }`}
+                                  >
+                                    {catalogue.badge === "new"
+                                      ? "New"
+                                      : catalogue.discount_value}
                                   </span>
                                 )}
                               </div>
-                              {(catalogue.description || catalogue.subtitle) && (
+                              {(catalogue.description ||
+                                catalogue.subtitle) && (
                                 <p className="truncate text-xs text-gray-500">
                                   {catalogue.description || catalogue.subtitle}
                                 </p>
@@ -452,7 +514,7 @@ export default function CataloguesPage() {
                             {catalogue.category}
                           </span>
                         </td>
-                        <td className="px-4 py-3 hidden lg:table-cell">
+                        <td className="hidden px-4 py-3 lg:table-cell">
                           <div className="flex items-center gap-1 text-sm text-gray-900">
                             <Download className="h-3 w-3" />
                             {catalogue.download_count}
@@ -464,7 +526,7 @@ export default function CataloguesPage() {
                             size="sm"
                             onClick={() => handleToggleActive(catalogue)}
                             disabled={!!actionLoading[`toggle-${catalogue.id}`]}
-                            className={`h-8 px-3 disabled:opacity-50 cursor-pointer ${
+                            className={`h-8 cursor-pointer px-3 disabled:opacity-50 ${
                               catalogue.is_active
                                 ? "bg-green-100 text-green-700 hover:bg-green-200"
                                 : "bg-gray-100 text-gray-500 hover:bg-gray-200"
@@ -501,8 +563,12 @@ export default function CataloguesPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDelete(catalogue.id, catalogue.title)}
-                              disabled={!!actionLoading[`delete-${catalogue.id}`]}
+                              onClick={() =>
+                                handleDelete(catalogue.id, catalogue.title)
+                              }
+                              disabled={
+                                !!actionLoading[`delete-${catalogue.id}`]
+                              }
                               className="h-8 w-8 p-0 text-gray-600 hover:text-red-600"
                             >
                               {actionLoading[`delete-${catalogue.id}`] ? (
@@ -529,7 +595,7 @@ export default function CataloguesPage() {
           <motion.div
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-h-[90vh] overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-w-4xl sm:rounded-2xl"
+            className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-w-4xl sm:rounded-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Sticky Header */}
@@ -539,8 +605,8 @@ export default function CataloguesPage() {
                   {editingCatalogue ? "Edit Catalogue" : "Add New Catalogue"}
                 </h2>
                 <p className="mt-0.5 text-xs text-gray-600 sm:text-sm">
-                  {editingCatalogue 
-                    ? "Update catalogue information and files" 
+                  {editingCatalogue
+                    ? "Update catalogue information and files"
                     : "Upload a new catalogue with thumbnail"}
                 </p>
               </div>
@@ -557,8 +623,10 @@ export default function CataloguesPage() {
               <div className="space-y-4 sm:space-y-6">
                 {/* Basic Information Section */}
                 <div className="rounded-lg border-2 border-gray-200 p-4">
-                  <h3 className="mb-4 text-lg font-semibold text-gray-900">Basic Information</h3>
-                  
+                  <h3 className="mb-4 text-lg font-semibold text-gray-900">
+                    Basic Information
+                  </h3>
+
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div>
@@ -572,7 +640,7 @@ export default function CataloguesPage() {
                           onChange={(e) =>
                             setFormData({ ...formData, title: e.target.value })
                           }
-                          className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 text-sm transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                          className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                           placeholder="Enter catalogue title"
                         />
                       </div>
@@ -586,9 +654,12 @@ export default function CataloguesPage() {
                           required
                           value={formData.category}
                           onChange={(e) =>
-                            setFormData({ ...formData, category: e.target.value })
+                            setFormData({
+                              ...formData,
+                              category: e.target.value,
+                            })
                           }
-                          className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 text-sm transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                          className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                           placeholder="e.g., Curtains, Blinds"
                         />
                       </div>
@@ -601,10 +672,13 @@ export default function CataloguesPage() {
                       <textarea
                         value={formData.description}
                         onChange={(e) =>
-                          setFormData({ ...formData, description: e.target.value })
+                          setFormData({
+                            ...formData,
+                            description: e.target.value,
+                          })
                         }
                         rows={3}
-                        className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 text-sm transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                        className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                         placeholder="Brief description of the catalogue"
                       />
                     </div>
@@ -613,8 +687,10 @@ export default function CataloguesPage() {
 
                 {/* Files Section */}
                 <div className="rounded-lg border-2 border-gray-200 p-4">
-                  <h3 className="mb-4 text-lg font-semibold text-gray-900">Files & Media</h3>
-                  
+                  <h3 className="mb-4 text-lg font-semibold text-gray-900">
+                    Files & Media
+                  </h3>
+
                   <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     {/* Catalogue File */}
                     <div className="space-y-3">
@@ -624,13 +700,17 @@ export default function CataloguesPage() {
                         bucket="catalogues"
                         folder="files"
                         currentUrl={formData.file_url}
-                        onUploadComplete={(url) => setFormData({ ...formData, file_url: url })}
-                        onRemove={() => setFormData({ ...formData, file_url: "" })}
+                        onUploadComplete={(url) =>
+                          setFormData({ ...formData, file_url: url })
+                        }
+                        onRemove={() =>
+                          setFormData({ ...formData, file_url: "" })
+                        }
                         maxSizeMB={50}
                         allowedTypes={["application/pdf"]}
                         previewType="file"
                       />
-                      
+
                       {/* Manual URL input as alternative */}
                       {!formData.file_url && (
                         <div>
@@ -641,9 +721,12 @@ export default function CataloguesPage() {
                             type="url"
                             value={formData.file_url}
                             onChange={(e) =>
-                              setFormData({ ...formData, file_url: e.target.value })
+                              setFormData({
+                                ...formData,
+                                file_url: e.target.value,
+                              })
                             }
-                            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                             placeholder="https://example.com/catalogue.pdf"
                           />
                         </div>
@@ -658,13 +741,22 @@ export default function CataloguesPage() {
                         bucket="catalogues"
                         folder="thumbnails"
                         currentUrl={formData.thumbnail_url}
-                        onUploadComplete={(url) => setFormData({ ...formData, thumbnail_url: url })}
-                        onRemove={() => setFormData({ ...formData, thumbnail_url: "" })}
+                        onUploadComplete={(url) =>
+                          setFormData({ ...formData, thumbnail_url: url })
+                        }
+                        onRemove={() =>
+                          setFormData({ ...formData, thumbnail_url: "" })
+                        }
                         maxSizeMB={5}
-                        allowedTypes={["image/jpeg", "image/png", "image/webp", "image/jpg"]}
+                        allowedTypes={[
+                          "image/jpeg",
+                          "image/png",
+                          "image/webp",
+                          "image/jpg",
+                        ]}
                         previewType="image"
                       />
-                      
+
                       {/* Manual URL input as alternative */}
                       {!formData.thumbnail_url && (
                         <div>
@@ -675,9 +767,12 @@ export default function CataloguesPage() {
                             type="url"
                             value={formData.thumbnail_url}
                             onChange={(e) =>
-                              setFormData({ ...formData, thumbnail_url: e.target.value })
+                              setFormData({
+                                ...formData,
+                                thumbnail_url: e.target.value,
+                              })
                             }
-                            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                            className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                             placeholder="https://example.com/thumbnail.jpg"
                           />
                         </div>
@@ -688,8 +783,10 @@ export default function CataloguesPage() {
 
                 {/* Display Options Section */}
                 <div className="rounded-lg border-2 border-gray-200 p-4">
-                  <h3 className="mb-4 text-lg font-semibold text-gray-900">Display Options</h3>
-                  
+                  <h3 className="mb-4 text-lg font-semibold text-gray-900">
+                    Display Options
+                  </h3>
+
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-gray-700">
@@ -700,7 +797,10 @@ export default function CataloguesPage() {
                         onValueChange={(value) =>
                           setFormData({
                             ...formData,
-                            badge: value === "none" ? null : (value as "new" | "discount"),
+                            badge:
+                              value === "none"
+                                ? null
+                                : (value as "new" | "discount"),
                           })
                         }
                       >
@@ -728,7 +828,7 @@ export default function CataloguesPage() {
                             discount_value: e.target.value,
                           })
                         }
-                        className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 text-sm transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                        className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                         placeholder="-30%"
                         disabled={formData.badge !== "discount"}
                       />
@@ -752,17 +852,23 @@ export default function CataloguesPage() {
                   </Button>
                   <Button
                     type="submit"
-                    disabled={!!actionLoading.create || !!actionLoading.update || !formData.file_url}
+                    disabled={
+                      !!actionLoading.create ||
+                      !!actionLoading.update ||
+                      !formData.file_url
+                    }
                     className="w-full bg-[#2F2582] hover:bg-[#251e66] disabled:opacity-50 sm:flex-1"
                   >
-                    {(actionLoading.create || actionLoading.update) ? (
+                    {actionLoading.create || actionLoading.update ? (
                       <div className="flex items-center gap-2">
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                         {editingCatalogue ? "Updating..." : "Creating..."}
                       </div>
                     ) : (
                       <>
-                        {editingCatalogue ? "Update Catalogue" : "Create Catalogue"}
+                        {editingCatalogue
+                          ? "Update Catalogue"
+                          : "Create Catalogue"}
                       </>
                     )}
                   </Button>
@@ -788,7 +894,9 @@ export default function CataloguesPage() {
 
       <ConfirmationModal
         isOpen={confirmAction.type === "toggle"}
-        title={confirmAction.isActive ? "Activate Catalogue" : "Deactivate Catalogue"}
+        title={
+          confirmAction.isActive ? "Activate Catalogue" : "Deactivate Catalogue"
+        }
         message={`${confirmAction.isActive ? "Activate" : "Deactivate"} "${confirmAction.catalogueName}"? ${confirmAction.isActive ? "It will be visible to users." : "It will be hidden from users."}`}
         confirmText={confirmAction.isActive ? "Activate" : "Deactivate"}
         cancelText="Cancel"

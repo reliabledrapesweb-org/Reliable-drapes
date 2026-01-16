@@ -88,7 +88,7 @@ export async function createOrderAction(data: {
       .from("profiles")
       .select("id")
       .eq("role", "admin");
-    
+
     if (adminUsers && adminUsers.length > 0) {
       for (const adminUser of adminUsers) {
         await createNotification({
@@ -163,7 +163,7 @@ export async function getOrdersAction() {
 export async function getAdminOrdersAction(
   page: number = 1,
   limit: number = 10,
-  status?: string
+  status?: string,
 ) {
   const auth = await getAuthenticatedUser();
   if ("error" in auth) return { success: false, ...auth };
@@ -200,37 +200,49 @@ export async function getAdminOrdersAction(
   }
 
   // Fetch order items with products for each order
-  const orderIds = ordersData.map(o => o.id);
+  const orderIds = ordersData.map((o) => o.id);
   const { data: orderItems } = await admin
     .from("order_items")
-    .select(`
+    .select(
+      `
       id,
       order_id,
       quantity,
       price_snapshot,
       product_id,
       products (name, image_url)
-    `)
+    `,
+    )
     .in("order_id", orderIds);
 
   // Fetch user profiles for each order
-  const userIds = [...new Set(ordersData.map(o => o.user_id).filter(Boolean))];
+  const userIds = [
+    ...new Set(ordersData.map((o) => o.user_id).filter(Boolean)),
+  ];
   const { data: profiles } = await admin
     .from("profiles")
-    .select("id, full_name")
+    .select("id, full_name, city, address_line1")
     .in("id", userIds);
 
   // Combine data
-  const ordersWithDetails = ordersData.map(order => {
-    const items = (orderItems || []).filter((item: any) => item.order_id === order.id).map((item: any) => ({
-      ...item,
-      product: item.products
-    }));
-    const userProfile = profiles?.find(p => p.id === order.user_id);
+  const ordersWithDetails = ordersData.map((order) => {
+    const items = (orderItems || [])
+      .filter((item: any) => item.order_id === order.id)
+      .map((item: any) => ({
+        ...item,
+        product: item.products,
+      }));
+    const userProfile = profiles?.find((p) => p.id === order.user_id);
     return {
       ...order,
       order_items: items,
-      user: userProfile ? { full_name: userProfile.full_name } : null
+      user: userProfile
+        ? {
+            full_name: userProfile.full_name,
+            city: userProfile.city,
+            address_line1: userProfile.address_line1,
+          }
+        : null,
     };
   });
 
@@ -244,29 +256,31 @@ export async function getAdminOrdersAction(
 }
 
 export async function getOrderByIdAction(orderId: string) {
-    const auth = await getAuthenticatedUser();
-    if ("error" in auth) return { success: false, ...auth };
+  const auth = await getAuthenticatedUser();
+  if ("error" in auth) return { success: false, ...auth };
 
-    const admin = getAdminSupabase();
-    
-    const { data: order, error } = await admin
-        .from("orders")
-        .select(`
+  const admin = getAdminSupabase();
+
+  const { data: order, error } = await admin
+    .from("orders")
+    .select(
+      `
             *,
             order_items (
                 *,
                 product: products(name, image_url, price)
             ),
             user: profiles(full_name, phone, address_line1, city, country)
-        `)
-        .eq("id", orderId)
-        .single();
+        `,
+    )
+    .eq("id", orderId)
+    .single();
 
-    if (error) {
-        return { success: false, error: error.message };
-    }
+  if (error) {
+    return { success: false, error: error.message };
+  }
 
-    return { success: true, order };
+  return { success: true, order };
 }
 
 export async function updateOrderStatusAction(orderId: string, status: string) {
@@ -286,14 +300,14 @@ export async function updateOrderStatusAction(orderId: string, status: string) {
     return { success: false, error: error.message };
   }
 
-    // Notify user about status change
-    await createNotification({
-        user_id: updated.user_id,
-        title: "Order Status Updated",
-        message: `Your order #${orderId.slice(0, 8)} is now ${status}.`,
-        type: "info",
-        link: `/profile?tab=orders`,
-    });
+  // Notify user about status change
+  await createNotification({
+    user_id: updated.user_id,
+    title: "Order Status Updated",
+    message: `Your order #${orderId.slice(0, 8)} is now ${status}.`,
+    type: "info",
+    link: `/profile?tab=orders`,
+  });
 
   revalidatePath("/admin/orders");
   revalidatePath(`/admin/orders/${orderId}`);
@@ -303,26 +317,28 @@ export async function updateOrderStatusAction(orderId: string, status: string) {
 }
 
 export async function getRecentOrdersAction(limit: number = 5) {
-    const auth = await getAuthenticatedUser();
-    if ("error" in auth) return { success: false, ...auth };
+  const auth = await getAuthenticatedUser();
+  if ("error" in auth) return { success: false, ...auth };
 
-    const admin = getAdminSupabase();
+  const admin = getAdminSupabase();
 
-    const { data: orders, error } = await admin
-        .from("orders")
-        .select(`
+  const { data: orders, error } = await admin
+    .from("orders")
+    .select(
+      `
             id, 
             status, 
             total, 
             created_at,
             user: profiles(full_name)
-        `)
-        .order("created_at", { ascending: false })
-        .limit(limit);
+        `,
+    )
+    .order("created_at", { ascending: false })
+    .limit(limit);
 
-    if (error) {
-        return { success: false, error: error.message };
-    }
+  if (error) {
+    return { success: false, error: error.message };
+  }
 
-    return { success: true, orders: orders || [] };
+  return { success: true, orders: orders || [] };
 }

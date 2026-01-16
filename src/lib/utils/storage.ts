@@ -2,7 +2,7 @@
  * Supabase Storage utilities for file uploads
  */
 
-import { getAdminSupabase } from "@/lib/supabase/admin";
+import { supabaseClient } from "@/lib/supabase/client";
 
 export interface UploadResult {
   success: boolean;
@@ -20,10 +20,15 @@ export interface UploadResult {
 export async function uploadFile(
   file: File,
   bucket: string,
-  folder?: string
+  folder?: string,
 ): Promise<UploadResult> {
   try {
-    const supabase = getAdminSupabase();
+    if (!supabaseClient) {
+      return {
+        success: false,
+        error: "Supabase client not available",
+      };
+    }
 
     // Generate unique filename
     const fileExt = file.name.split(".").pop();
@@ -31,7 +36,7 @@ export async function uploadFile(
     const filePath = folder ? `${folder}/${fileName}` : fileName;
 
     // Upload file
-    const { data, error } = await supabase.storage
+    const { data, error } = await supabaseClient.storage
       .from(bucket)
       .upload(filePath, file, {
         cacheControl: "3600",
@@ -47,7 +52,7 @@ export async function uploadFile(
     }
 
     // Get public URL
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = supabaseClient.storage
       .from(bucket)
       .getPublicUrl(data.path);
 
@@ -72,10 +77,12 @@ export async function uploadFile(
  */
 export async function deleteFile(
   url: string,
-  bucket: string
+  bucket: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supabase = getAdminSupabase();
+    if (!supabaseClient) {
+      return { success: false, error: "Supabase client not available" };
+    }
 
     // Extract file path from URL
     const urlParts = url.split(`/storage/v1/object/public/${bucket}/`);
@@ -85,7 +92,9 @@ export async function deleteFile(
 
     const filePath = urlParts[1];
 
-    const { error } = await supabase.storage.from(bucket).remove([filePath]);
+    const { error } = await supabaseClient.storage
+      .from(bucket)
+      .remove([filePath]);
 
     if (error) {
       console.error("Delete error:", error);
@@ -115,7 +124,7 @@ export async function deleteFile(
 export function validateFile(
   file: File,
   allowedTypes: string[],
-  maxSizeMB: number
+  maxSizeMB: number,
 ): { valid: boolean; error?: string } {
   // Check file type
   if (!allowedTypes.includes(file.type)) {
