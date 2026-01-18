@@ -269,8 +269,7 @@ export async function getOrderByIdAction(orderId: string) {
             order_items (
                 *,
                 product: products(name, image_url, price)
-            ),
-            user: profiles(full_name, phone, address_line1, city, country)
+            )
         `,
     )
     .eq("id", orderId)
@@ -280,7 +279,26 @@ export async function getOrderByIdAction(orderId: string) {
     return { success: false, error: error.message };
   }
 
-  return { success: true, order };
+  // Fetch profile separately to avoid relationship issues in PostgREST
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("full_name, phone, address_line1, city, country")
+    .eq("id", order.user_id)
+    .single();
+
+  return {
+    success: true,
+    order: {
+      ...order,
+      user: profile || {
+        full_name: "Guest",
+        phone: "N/A",
+        address_line1: "N/A",
+        city: "N/A",
+        country: "N/A",
+      },
+    },
+  };
 }
 
 export async function updateOrderStatusAction(orderId: string, status: string) {
@@ -341,4 +359,48 @@ export async function getRecentOrdersAction(limit: number = 5) {
   }
 
   return { success: true, orders: orders || [] };
+}
+
+export async function updateOrderTrackingAction(
+  orderId: string,
+  data: {
+    tracking_number?: string;
+    tracking_url?: string;
+    expected_delivery_date?: string;
+    current_location?: string;
+    invoice_url?: string;
+  },
+) {
+  const auth = await getAuthenticatedUser();
+  if ("error" in auth) return { success: false, ...auth };
+
+  const admin = getAdminSupabase();
+
+  const { data: updated, error } = await admin
+    .from("orders")
+    .update(data)
+    .eq("id", orderId)
+    .select()
+    .single();
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  // Notify user about tracking update if it's a significant change
+  if (data.tracking_number || data.expected_delivery_date) {
+    await createNotification({
+      user_id: updated.user_id,
+      title: "Order Tracking Updated",
+      message: `Tracking information for your order #${orderId.slice(0, 8)} has been updated.`,
+      type: "info",
+      link: `/profile?tab=orders`,
+    });
+  }
+
+  revalidatePath("/admin/orders");
+  revalidatePath(`/admin/orders/${orderId}`);
+  revalidatePath("/profile/orders");
+
+  return { success: true, order: updated };
 }

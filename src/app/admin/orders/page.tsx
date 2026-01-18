@@ -29,7 +29,9 @@ import {
   getAdminOrdersAction,
   getOrderByIdAction,
   updateOrderStatusAction,
+  updateOrderTrackingAction,
 } from "@/lib/actions/orders";
+import { FileUpload } from "@/components/admin/FileUpload";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAdmin } from "@/lib/hooks/useAdmin";
@@ -62,6 +64,11 @@ interface OrderDetail {
   status: string;
   total: number;
   user_id: string;
+  tracking_number?: string;
+  tracking_url?: string;
+  expected_delivery_date?: string;
+  current_location?: string;
+  invoice_url?: string;
   user: {
     full_name: string;
     email: string;
@@ -82,9 +89,7 @@ interface OrderDetail {
   }>;
 }
 
-type TabFilter = "all" | "open" | "unfulfilled" | "unpaid";
-type PaymentStatus = "paid" | "pending" | "unpaid" | "partially_refunded";
-type FulfillmentStatus = "fulfilled" | "unfulfilled" | "processing";
+type TabFilter = "all" | "pending" | "shipped" | "delivered" | "cancelled";
 
 const statusOptions = [
   "pending",
@@ -108,12 +113,7 @@ export default function AdminOrdersPage() {
 
   // Filter Modal State
   const [showFilterModal, setShowFilterModal] = useState(false);
-  const [filterPaymentStatus, setFilterPaymentStatus] = useState<
-    PaymentStatus | "all"
-  >("all");
-  const [filterFulfillmentStatus, setFilterFulfillmentStatus] = useState<
-    FulfillmentStatus | "all"
-  >("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterDateFrom, setFilterDateFrom] = useState("");
   const [filterDateTo, setFilterDateTo] = useState("");
 
@@ -122,6 +122,16 @@ export default function AdminOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<OrderDetail | null>(null);
   const [isLoadingOrder, setIsLoadingOrder] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [isUpdatingTracking, setIsUpdatingTracking] = useState(false);
+
+  // Tracking Form State
+  const [trackingData, setTrackingData] = useState({
+    tracking_number: "",
+    tracking_url: "",
+    expected_delivery_date: "",
+    current_location: "",
+    invoice_url: "",
+  });
 
   useEffect(() => {
     if (isAdmin) {
@@ -151,6 +161,17 @@ export default function AdminOrdersPage() {
       const result = await getOrderByIdAction(orderId);
       if (result.success && result.order) {
         setSelectedOrder(result.order);
+        setTrackingData({
+          tracking_number: result.order.tracking_number || "",
+          tracking_url: result.order.tracking_url || "",
+          expected_delivery_date: result.order.expected_delivery_date
+            ? new Date(result.order.expected_delivery_date)
+                .toISOString()
+                .split("T")[0]
+            : "",
+          current_location: result.order.current_location || "",
+          invoice_url: result.order.invoice_url || "",
+        });
       } else {
         addToast(result.error || "Failed to fetch order details", "error");
         setShowOrderModal(false);
@@ -186,49 +207,45 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const handleTrackingUpdate = async () => {
+    if (!selectedOrder) return;
+    setIsUpdatingTracking(true);
+    try {
+      const result = await updateOrderTrackingAction(
+        selectedOrder.id,
+        trackingData,
+      );
+      if (result.success) {
+        setSelectedOrder({ ...selectedOrder, ...trackingData });
+        addToast("Tracking information updated", "success");
+      } else {
+        addToast(result.error || "Failed to update tracking", "error");
+      }
+    } catch (error) {
+      addToast("An unexpected error occurred", "error");
+    } finally {
+      setIsUpdatingTracking(false);
+    }
+  };
+
   const closeOrderModal = () => {
     setShowOrderModal(false);
     setSelectedOrder(null);
   };
 
-  const getPaymentStatus = (order: AdminOrder): PaymentStatus => {
-    if (order.status === "cancelled") return "partially_refunded";
-    if (order.status === "delivered") return "paid";
-    if (order.status === "processing" || order.status === "shipped")
-      return "pending";
-    return "unpaid";
-  };
-
-  const getFulfillmentStatus = (order: AdminOrder): FulfillmentStatus => {
-    if (order.status === "delivered") return "fulfilled";
-    if (order.status === "shipped" || order.status === "processing")
-      return "processing";
-    return "unfulfilled";
-  };
-
-  const getPaymentStatusColor = (status: PaymentStatus) => {
-    switch (status) {
-      case "paid":
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "delivered":
+        return "text-green-600";
+      case "shipped":
+      case "processing":
         return "text-blue-600";
       case "pending":
         return "text-yellow-600";
-      case "partially_refunded":
-        return "text-orange-600";
-      case "unpaid":
+      case "cancelled":
+        return "text-red-600";
       default:
         return "text-gray-600";
-    }
-  };
-
-  const getFulfillmentStatusColor = (status: FulfillmentStatus) => {
-    switch (status) {
-      case "fulfilled":
-        return "text-green-600";
-      case "processing":
-        return "text-blue-600";
-      case "unfulfilled":
-      default:
-        return "text-red-600";
     }
   };
 
@@ -269,9 +286,8 @@ export default function AdminOrdersPage() {
       Items: order.order_items.length,
       Customer: order.user?.full_name || "Guest",
       Location: formatLocation(order.user),
-      "Payment Status": getPaymentStatus(order),
       Date: format(new Date(order.created_at), "dd MMM, yyyy"),
-      "Fulfillment Status": getFulfillmentStatus(order),
+      Status: order.status,
       Total: formatPrice(order.total),
     }));
 
@@ -290,8 +306,7 @@ export default function AdminOrdersPage() {
   };
 
   const clearFilters = () => {
-    setFilterPaymentStatus("all");
-    setFilterFulfillmentStatus("all");
+    setFilterStatus("all");
     setFilterDateFrom("");
     setFilterDateTo("");
   };
@@ -305,23 +320,13 @@ export default function AdminOrdersPage() {
       order.user?.full_name?.toLowerCase().includes(searchQuery.toLowerCase());
 
     let matchesTab = true;
-    if (activeTab === "open") {
-      matchesTab = ["pending", "processing"].includes(order.status);
-    } else if (activeTab === "unfulfilled") {
-      matchesTab = getFulfillmentStatus(order) === "unfulfilled";
-    } else if (activeTab === "unpaid") {
-      matchesTab = getPaymentStatus(order) === "unpaid";
+    if (activeTab !== "all") {
+      matchesTab = order.status === activeTab;
     }
 
-    let matchesPayment = true;
-    if (filterPaymentStatus !== "all") {
-      matchesPayment = getPaymentStatus(order) === filterPaymentStatus;
-    }
-
-    let matchesFulfillment = true;
-    if (filterFulfillmentStatus !== "all") {
-      matchesFulfillment =
-        getFulfillmentStatus(order) === filterFulfillmentStatus;
+    let matchesStatus = true;
+    if (filterStatus !== "all") {
+      matchesStatus = order.status === filterStatus;
     }
 
     let matchesDateRange = true;
@@ -336,13 +341,7 @@ export default function AdminOrdersPage() {
         new Date(order.created_at) <= new Date(filterDateTo);
     }
 
-    return (
-      matchesSearch &&
-      matchesTab &&
-      matchesPayment &&
-      matchesFulfillment &&
-      matchesDateRange
-    );
+    return matchesSearch && matchesTab && matchesStatus && matchesDateRange;
   });
 
   // Stats
@@ -354,9 +353,10 @@ export default function AdminOrdersPage() {
 
   const tabs: { key: TabFilter; label: string }[] = [
     { key: "all", label: "All Orders" },
-    { key: "open", label: "Open" },
-    { key: "unfulfilled", label: "Unfulfilled" },
-    { key: "unpaid", label: "Unpaid" },
+    { key: "pending", label: "Pending" },
+    { key: "shipped", label: "Shipped" },
+    { key: "delivered", label: "Delivered" },
+    { key: "cancelled", label: "Cancelled" },
   ];
 
   if (adminLoading || isLoading) {
@@ -554,12 +554,6 @@ export default function AdminOrdersPage() {
                         <p className="text-sm font-semibold text-gray-900">
                           {formatPrice(order.total)}
                         </p>
-                        <span
-                          className={`text-xs font-medium ${getPaymentStatusColor(getPaymentStatus(order))}`}
-                        >
-                          {getPaymentStatus(order).charAt(0).toUpperCase() +
-                            getPaymentStatus(order).slice(1).replace("_", " ")}
-                        </span>
                       </div>
                     </div>
 
@@ -568,12 +562,10 @@ export default function AdminOrdersPage() {
                         <span className="text-xs text-gray-500">
                           {format(new Date(order.created_at), "MMM d, yyyy")}
                         </span>
-                        <span
-                          className={`text-xs font-medium ${getFulfillmentStatusColor(getFulfillmentStatus(order))}`}
-                        >
-                          •{" "}
-                          {getFulfillmentStatus(order).charAt(0).toUpperCase() +
-                            getFulfillmentStatus(order).slice(1)}
+                        <span className="text-xs text-gray-400">|</span>
+                        <span className="text-xs font-medium text-[#2F2582]">
+                          {order.status.charAt(0).toUpperCase() +
+                            order.status.slice(1)}
                         </span>
                       </div>
                       <Button
@@ -596,12 +588,6 @@ export default function AdminOrdersPage() {
                   <thead>
                     <tr className="border-b border-gray-200 bg-gray-50">
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">
-                        <input
-                          type="checkbox"
-                          className="rounded border-gray-300"
-                        />
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">
                         Order ID
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">
@@ -611,13 +597,10 @@ export default function AdminOrdersPage() {
                         Location
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">
-                        Payment Status
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">
                         Date
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">
-                        Fulfillment Status
+                        Status
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600">
                         Total
@@ -630,12 +613,6 @@ export default function AdminOrdersPage() {
                   <tbody className="divide-y divide-gray-100">
                     {filteredOrders.map((order) => (
                       <tr key={order.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3">
-                          <input
-                            type="checkbox"
-                            className="rounded border-gray-300"
-                          />
-                        </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             <div className="flex -space-x-2 overflow-hidden">
@@ -683,29 +660,17 @@ export default function AdminOrdersPage() {
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          <span
-                            className={`text-sm font-medium ${getPaymentStatusColor(getPaymentStatus(order))}`}
-                          >
-                            {getPaymentStatus(order).charAt(0).toUpperCase() +
-                              getPaymentStatus(order)
-                                .slice(1)
-                                .replace("_", " ")}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
                           <span className="text-sm text-gray-600">
                             {format(new Date(order.created_at), "dd MMM, yyyy")}
                           </span>
                         </td>
                         <td className="px-4 py-3">
                           <span
-                            className={`flex items-center gap-1 text-sm font-medium ${getFulfillmentStatusColor(getFulfillmentStatus(order))}`}
+                            className={`flex items-center gap-1 text-sm font-medium ${getStatusColor(order.status)}`}
                           >
                             <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                            {getFulfillmentStatus(order)
-                              .charAt(0)
-                              .toUpperCase() +
-                              getFulfillmentStatus(order).slice(1)}
+                            {order.status.charAt(0).toUpperCase() +
+                              order.status.slice(1)}
                           </span>
                         </td>
                         <td className="px-4 py-3">
@@ -833,44 +798,19 @@ export default function AdminOrdersPage() {
               <div className="space-y-4">
                 <div>
                   <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Payment Status
+                    Order Status
                   </label>
                   <select
-                    value={filterPaymentStatus}
-                    onChange={(e) =>
-                      setFilterPaymentStatus(
-                        e.target.value as PaymentStatus | "all",
-                      )
-                    }
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
                     className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none"
                   >
                     <option value="all">All</option>
-                    <option value="paid">Paid</option>
-                    <option value="pending">Pending</option>
-                    <option value="unpaid">Unpaid</option>
-                    <option value="partially_refunded">
-                      Partially Refunded
-                    </option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Fulfillment Status
-                  </label>
-                  <select
-                    value={filterFulfillmentStatus}
-                    onChange={(e) =>
-                      setFilterFulfillmentStatus(
-                        e.target.value as FulfillmentStatus | "all",
-                      )
-                    }
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none"
-                  >
-                    <option value="all">All</option>
-                    <option value="fulfilled">Fulfilled</option>
-                    <option value="unfulfilled">Unfulfilled</option>
-                    <option value="processing">Processing</option>
+                    {statusOptions.map((status) => (
+                      <option key={status} value={status}>
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -957,7 +897,8 @@ export default function AdminOrdersPage() {
                               : "bg-blue-100 text-blue-700"
                         }`}
                       >
-                        {selectedOrder.status}
+                        {selectedOrder.status.charAt(0).toUpperCase() +
+                          selectedOrder.status.slice(1)}
                       </span>
                     </div>
                     <button
@@ -1100,6 +1041,121 @@ export default function AdminOrdersPage() {
                           <span>Total Amount</span>
                           <span>{formatPrice(selectedOrder.total)}</span>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Order Management Section */}
+                    <div className="rounded-lg border border-[#2F2582]/10 bg-[#2F2582]/5 p-6">
+                      <h3 className="mb-4 flex items-center gap-2 font-bold text-[#2F2582]">
+                        <Truck className="h-5 w-5" />
+                        Order Tracking & Invoice
+                      </h3>
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                            Tracking Number
+                          </label>
+                          <input
+                            type="text"
+                            value={trackingData.tracking_number}
+                            onChange={(e) =>
+                              setTrackingData({
+                                ...trackingData,
+                                tracking_number: e.target.value,
+                              })
+                            }
+                            placeholder="e.g. FEDEX123456"
+                            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                            Expected Delivery
+                          </label>
+                          <input
+                            type="date"
+                            value={trackingData.expected_delivery_date}
+                            onChange={(e) =>
+                              setTrackingData({
+                                ...trackingData,
+                                expected_delivery_date: e.target.value,
+                              })
+                            }
+                            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                            Current Location
+                          </label>
+                          <input
+                            type="text"
+                            value={trackingData.current_location}
+                            onChange={(e) =>
+                              setTrackingData({
+                                ...trackingData,
+                                current_location: e.target.value,
+                              })
+                            }
+                            placeholder="e.g. In Transit - Mumbai"
+                            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                            Tracking URL (Optional)
+                          </label>
+                          <input
+                            type="url"
+                            value={trackingData.tracking_url}
+                            onChange={(e) =>
+                              setTrackingData({
+                                ...trackingData,
+                                tracking_url: e.target.value,
+                              })
+                            }
+                            placeholder="https://track.courier.com/..."
+                            className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none"
+                          />
+                        </div>
+                        <div className="col-span-full space-y-1.5">
+                          <label className="text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                            Invoice Document
+                          </label>
+                          <FileUpload
+                            label=""
+                            accept="application/pdf,image/*"
+                            bucket="catalogues"
+                            folder="invoices"
+                            onUploadComplete={(url) =>
+                              setTrackingData({
+                                ...trackingData,
+                                invoice_url: url,
+                              })
+                            }
+                            currentUrl={trackingData.invoice_url}
+                            onRemove={() =>
+                              setTrackingData({
+                                ...trackingData,
+                                invoice_url: "",
+                              })
+                            }
+                          />
+                        </div>
+                      </div>
+                      <div className="mt-6">
+                        <Button
+                          onClick={handleTrackingUpdate}
+                          disabled={isUpdatingTracking}
+                          className="w-full bg-[#2F2582] hover:bg-[#251e66]"
+                        >
+                          {isUpdatingTracking ? (
+                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          ) : (
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                          )}
+                          Save Management Details
+                        </Button>
                       </div>
                     </div>
 

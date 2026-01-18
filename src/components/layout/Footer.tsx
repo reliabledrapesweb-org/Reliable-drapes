@@ -127,7 +127,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm text-[#7e7e7e] md:text-base">
               <li>
                 <motion.a
-                  href="/store-locator"
+                  href="/contact"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
