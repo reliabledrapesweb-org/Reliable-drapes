@@ -766,30 +766,26 @@ export default function AdminOrdersPage() {
       {/* Filter Modal */}
       <AnimatePresence>
         {showFilterModal && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            onClick={() => setShowFilterModal(false)}
-          >
+          <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4">
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/50"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative z-10 w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border-2 border-gray-100 bg-white p-6 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="mb-6 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Filter Orders
-                </h3>
+              <div className="mb-6 flex items-start justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Filter Orders
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-600">
+                    Narrow down your order list
+                  </p>
+                </div>
                 <button
                   onClick={() => setShowFilterModal(false)}
-                  className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                  className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -840,13 +836,17 @@ export default function AdminOrdersPage() {
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-end gap-3">
-                <Button variant="outline" onClick={clearFilters}>
+              <div className="mt-6 flex gap-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={clearFilters}
+                  className="flex-1"
+                >
                   Clear
                 </Button>
                 <Button
                   onClick={applyFilters}
-                  className="bg-[#2F2582] hover:bg-[#251e66]"
+                  className="flex-1 bg-[#2F2582] hover:bg-[#241c66]"
                 >
                   Apply Filters
                 </Button>
@@ -859,21 +859,12 @@ export default function AdminOrdersPage() {
       {/* Order Details Modal */}
       <AnimatePresence>
         {showOrderModal && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            onClick={closeOrderModal}
-          >
+          <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4">
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/50"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative z-10 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white shadow-xl"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border-2 border-gray-100 bg-white shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               {isLoadingOrder ? (
@@ -883,27 +874,29 @@ export default function AdminOrdersPage() {
               ) : selectedOrder ? (
                 <div>
                   {/* Modal Header */}
-                  <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <h2 className="text-xl font-bold text-gray-900">
+                  <div className="sticky top-0 z-10 flex items-start justify-between border-b border-gray-200 bg-white px-6 py-4">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900">
                         Order #{selectedOrder.id.slice(0, 8)}
                       </h2>
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide uppercase ${
-                          selectedOrder.status === "delivered"
-                            ? "bg-green-100 text-green-700"
-                            : selectedOrder.status === "cancelled"
-                              ? "bg-red-100 text-red-700"
-                              : "bg-blue-100 text-blue-700"
-                        }`}
-                      >
-                        {selectedOrder.status.charAt(0).toUpperCase() +
-                          selectedOrder.status.slice(1)}
-                      </span>
+                      <p className="mt-1 text-sm text-gray-600">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium tracking-wide uppercase ${
+                            selectedOrder.status === "delivered"
+                              ? "bg-green-100 text-green-700"
+                              : selectedOrder.status === "cancelled"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-blue-100 text-blue-700"
+                          }`}
+                        >
+                          {selectedOrder.status.charAt(0).toUpperCase() +
+                            selectedOrder.status.slice(1)}
+                        </span>
+                      </p>
                     </div>
                     <button
                       onClick={closeOrderModal}
-                      className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                      className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
                     >
                       <X className="h-5 w-5" />
                     </button>

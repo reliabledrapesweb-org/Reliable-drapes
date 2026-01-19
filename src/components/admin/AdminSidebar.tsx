@@ -105,18 +105,31 @@ const navItems: NavItem[] = [
   },
 ];
 
+import { useAdminPreferencesStore, ACCENT_COLORS } from "@/lib/store";
+
 interface AdminSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  compact?: boolean;
 }
 
-export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
+export function AdminSidebar({
+  isOpen,
+  onClose,
+  compact = false,
+}: AdminSidebarProps) {
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<string[]>(["Products"]);
+  const { accentColor } = useAdminPreferencesStore();
+
+  const accent = ACCENT_COLORS[accentColor];
 
   const toggleExpand = (name: string) => {
+    if (compact) return; // Disable expansion in compact mode
     setExpandedItems((prev) =>
-      prev.includes(name) ? prev.filter((item) => item !== name) : [...prev, name]
+      prev.includes(name)
+        ? prev.filter((item) => item !== name)
+        : [...prev, name],
     );
   };
 
@@ -126,6 +139,19 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
     }
     return pathname.startsWith(href);
   };
+
+  const getActiveStyle = (active: boolean) => {
+    if (active) {
+      return {
+        backgroundColor: accent.primary,
+        color: "white",
+      };
+    }
+    return {};
+  };
+
+  const activeClass = `text-white`;
+  const inactiveClass = `text-gray-300 hover:bg-white/5 hover:text-white`;
 
   return (
     <>
@@ -142,48 +168,77 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 z-50 h-screen w-[280px] bg-[#1a1a1a] text-white transition-transform lg:relative lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-screen bg-[#1a1a1a] text-white transition-all duration-300 lg:relative lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
+        } ${compact ? "w-[80px]" : "w-[280px]"}`}
       >
         {/* Header */}
-        <div className="flex h-16 items-center justify-between border-b border-white/10 px-6 lg:h-20">
-          <Link href="/admin" className="flex items-center gap-3">
-            <Image
-              src="/images/logo.png"
-              alt="Reliable Drapes"
-              width={120}
-              height={40}
-              className="object-contain"
-            />
+        <div
+          className={`flex items-center border-b border-white/10 ${compact ? "h-16 justify-center px-0 lg:h-20" : "h-16 justify-between px-6 lg:h-20"}`}
+        >
+          <Link
+            href="/admin"
+            className={`flex items-center gap-3 ${compact ? "justify-center" : ""}`}
+          >
+            {compact ? (
+              <div className="relative h-8 w-8">
+                <Image
+                  src="/images/logo-icon.png" // Assuming you have an icon version or fallback to full logo cropped
+                  alt="RD"
+                  fill
+                  className="object-contain"
+                  onError={(e) => {
+                    // Fallback if icon doesn't exist, just show first letter or generic icon
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+                {/* Fallback if no icon image */}
+                <div className="flex h-8 w-8 items-center justify-center rounded bg-white text-xs font-bold text-[#1a1a1a]">
+                  RD
+                </div>
+              </div>
+            ) : (
+              <Image
+                src="/images/logo.png"
+                alt="Reliable Drapes"
+                width={120}
+                height={40}
+                className="object-contain"
+              />
+            )}
           </Link>
-          <button onClick={onClose} className="lg:hidden">
-            <X className="h-6 w-6" />
-          </button>
+          {!compact && (
+            <button onClick={onClose} className="lg:hidden">
+              <X className="h-6 w-6" />
+            </button>
+          )}
         </div>
 
         {/* Navigation */}
-        <nav className="h-[calc(100vh-4rem)] overflow-y-auto px-4 py-6 lg:h-[calc(100vh-5rem)]">
+        <nav
+          className={`h-[calc(100vh-4rem)] overflow-y-auto py-6 lg:h-[calc(100vh-5rem)] ${compact ? "px-2" : "px-4"}`}
+        >
           <div className="space-y-1">
             {navItems.map((item) => (
-              <div key={item.name}>
+              <div key={item.name} className="group relative">
                 {/* Parent Item */}
                 <div>
-                  {item.children ? (
+                  {item.children && !compact ? (
                     <button
                       onClick={() => toggleExpand(item.name)}
                       className={`flex w-full items-center justify-between rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
-                        isActive(item.href)
-                          ? "bg-[#2F2582] text-white"
-                          : "text-gray-300 hover:bg-white/5 hover:text-white"
+                        isActive(item.href) ? activeClass : inactiveClass
                       }`}
+                      style={isActive(item.href) ? getActiveStyle(true) : {}}
                     >
                       <div className="flex items-center gap-3">
                         <item.icon className="h-5 w-5" />
                         <span>{item.name}</span>
                       </div>
                       <motion.div
-                        animate={{ rotate: expandedItems.includes(item.name) ? 180 : 0 }}
+                        animate={{
+                          rotate: expandedItems.includes(item.name) ? 180 : 0,
+                        }}
                         transition={{ duration: 0.2 }}
                       >
                         <ChevronDown className="h-4 w-4" />
@@ -193,48 +248,79 @@ export function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                     <Link
                       href={item.href}
                       onClick={onClose}
-                      className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors ${
-                        isActive(item.href)
-                          ? "bg-[#2F2582] text-white"
-                          : "text-gray-300 hover:bg-white/5 hover:text-white"
-                      }`}
+                      className={`flex items-center gap-3 rounded-lg py-3 text-sm font-medium transition-colors ${
+                        compact ? "justify-center px-0" : "px-4"
+                      } ${isActive(item.href) ? activeClass : inactiveClass}`}
+                      style={isActive(item.href) ? getActiveStyle(true) : {}}
+                      title={compact ? item.name : undefined}
                     >
                       <item.icon className="h-5 w-5" />
-                      <span>{item.name}</span>
+                      {!compact && <span>{item.name}</span>}
                     </Link>
                   )}
                 </div>
 
-                {/* Children Items */}
-                {item.children && expandedItems.includes(item.name) && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="ml-4 mt-1 space-y-1 overflow-hidden border-l-2 border-white/10 pl-4"
-                  >
-                    {item.children.map((child) => (
+                {/* Compact Hover Tooltip / Submenu (Simplified for prototype) */}
+                {compact && (
+                  <div className="absolute top-0 left-full z-50 ml-2 hidden w-48 rounded-lg bg-[#2a2a2a] p-2 shadow-xl group-hover:block">
+                    <p className="mb-2 px-2 text-xs font-semibold text-gray-400">
+                      {item.name}
+                    </p>
+                    {item.children?.map((child) => (
                       <Link
                         key={child.href}
                         href={child.href}
-                        onClick={onClose}
-                        className={`block rounded-lg px-4 py-2 text-sm transition-colors ${
+                        className={`block rounded px-2 py-1.5 text-sm ${
                           pathname === child.href
-                            ? "bg-[#2F2582]/20 text-[#2F2582] font-medium"
-                            : "text-gray-400 hover:bg-white/5 hover:text-white"
+                            ? "bg-white/10 text-white"
+                            : "text-gray-300 hover:bg-white/5 hover:text-white"
                         }`}
                       >
                         {child.name}
                       </Link>
                     ))}
-                  </motion.div>
+                  </div>
                 )}
+
+                {/* Children Items (Expanded Mode) */}
+                {item.children &&
+                  expandedItems.includes(item.name) &&
+                  !compact && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="mt-1 ml-4 space-y-1 overflow-hidden border-l-2 border-white/10 pl-4"
+                    >
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          onClick={onClose}
+                          className={`block rounded-lg px-4 py-2 text-sm transition-colors ${
+                            pathname === child.href
+                              ? "font-medium"
+                              : "text-gray-400 hover:bg-white/5 hover:text-white"
+                          }`}
+                          style={
+                            pathname === child.href
+                              ? {
+                                  color: accent.primary,
+                                  backgroundColor: `${accent.primary}20`,
+                                }
+                              : {}
+                          }
+                        >
+                          {child.name}
+                        </Link>
+                      ))}
+                    </motion.div>
+                  )}
               </div>
             ))}
           </div>
         </nav>
-
       </aside>
     </>
   );
