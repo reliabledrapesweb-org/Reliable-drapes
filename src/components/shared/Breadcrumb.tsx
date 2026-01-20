@@ -41,6 +41,22 @@ export function Breadcrumb() {
       items.push({ label: "Wishlist" });
     } else if (pathname === "/cart") {
       items.push({ label: "Shopping Cart" });
+    } else if (pathname.startsWith("/collections")) {
+      const pathSegments = pathname.split("/").filter(Boolean);
+
+      if (pathSegments.length === 1) {
+        // /collections
+        items.push({ label: "Collections" });
+      } else if (pathSegments.length === 2) {
+        // /collections/[slug]
+        items.push({ label: "Collections", href: "/collections" });
+        // Format slug to readable name (e.g., "summer-sale" -> "Summer Sale")
+        const collectionName = pathSegments[1]
+          .split("-")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+        items.push({ label: collectionName });
+      }
     } else if (pathname.startsWith("/admin")) {
       items.push({ label: "Admin Dashboard", href: "/admin" });
 

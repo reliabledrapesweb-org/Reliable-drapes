@@ -4,16 +4,24 @@ import { Breadcrumb, PageHero, PageHeader } from "@/components/shared";
 import { ShopProductGrid, ShopFilterSidebar } from "@/components/features/shop";
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { getProducts, getCategories, getProductsByCategory, type Product, type Category } from "@/lib/actions/products";
+import {
+  getProducts,
+  getCategories,
+  getProductsByCategory,
+  type Product,
+  type Category,
+} from "@/lib/actions/products";
+import { SlidersHorizontal, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ShopPage() {
   const searchParams = useSearchParams();
   const urlSearchQuery = searchParams.get("search") || "";
   const urlCategory = searchParams.get("category") || "";
-  
+
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    urlCategory ? [urlCategory] : []
+    urlCategory ? [urlCategory] : [],
   );
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [sortBy, setSortBy] = useState<string>("newest");
@@ -21,6 +29,16 @@ export default function ShopPage() {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+
+  // Count active filters for badge
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (selectedCategories.length > 0) count += selectedCategories.length;
+    if (priceRange[0] > 0 || priceRange[1] < 10000) count += 1;
+    if (sortBy !== "newest") count += 1;
+    return count;
+  }, [selectedCategories, priceRange, sortBy]);
 
   // Update search query and category when URL params change
   useEffect(() => {
@@ -62,11 +80,11 @@ export default function ShopPage() {
       } else if (selectedCategories.length > 1) {
         // Fetch products for multiple categories and combine
         const results = await Promise.all(
-          selectedCategories.map((slug) => getProductsByCategory(slug))
+          selectedCategories.map((slug) => getProductsByCategory(slug)),
         );
         const combinedProducts: Product[] = [];
         const seenIds = new Set<string>();
-        
+
         results.forEach((result) => {
           if (result.success && result.data) {
             result.data.forEach((product) => {
@@ -118,14 +136,16 @@ export default function ShopPage() {
       filtered = filtered.filter(
         (product) =>
           product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.description?.toLowerCase().includes(searchQuery.toLowerCase())
+          product.description
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()),
       );
     }
 
     // Filter by price range
     filtered = filtered.filter(
       (product) =>
-        product.price >= priceRange[0] && product.price <= priceRange[1]
+        product.price >= priceRange[0] && product.price <= priceRange[1],
     );
 
     // Sort products
@@ -143,7 +163,7 @@ export default function ShopPage() {
       default:
         filtered = [...filtered].sort(
           (a, b) =>
-            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
         );
         break;
     }
@@ -173,8 +193,24 @@ export default function ShopPage() {
 
           {/* Content Section */}
           <div className="flex flex-col gap-8 md:gap-12 lg:flex-row lg:gap-16">
-            {/* Filter Sidebar - Sticky on desktop */}
-            <div className="lg:sticky lg:top-24 lg:self-start lg:w-64 lg:shrink-0">
+            {/* Mobile Filter Button */}
+            <div className="lg:hidden">
+              <button
+                onClick={() => setIsFilterSheetOpen(true)}
+                className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#2F2582] bg-white px-6 py-3 text-sm font-semibold text-[#2F2582] transition-all hover:bg-[#2F2582] hover:text-white"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Filters
+                {activeFilterCount > 0 && (
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#2F2582] text-xs text-white group-hover:bg-white group-hover:text-[#2F2582]">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* Filter Sidebar - Desktop only */}
+            <div className="hidden lg:sticky lg:top-24 lg:block lg:w-64 lg:shrink-0 lg:self-start">
               <ShopFilterSidebar
                 selectedCategories={selectedCategories}
                 onCategoryChange={setSelectedCategories}
@@ -190,11 +226,11 @@ export default function ShopPage() {
             {/* Product Grid */}
             <div className="min-w-0 flex-1">
               {isLoading ? (
-                <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 lg:gap-10 xl:gap-12">
+                <div className="grid w-full grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3 lg:gap-8">
                   {[...Array(6)].map((_, i) => (
                     <div
                       key={i}
-                      className="h-96 animate-pulse rounded-lg bg-gray-200"
+                      className="h-72 animate-pulse rounded-lg bg-gray-200 sm:h-96"
                     />
                   ))}
                 </div>
@@ -203,6 +239,66 @@ export default function ShopPage() {
               )}
             </div>
           </div>
+
+          {/* Mobile Filter Sheet */}
+          <AnimatePresence>
+            {isFilterSheetOpen && (
+              <>
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsFilterSheetOpen(false)}
+                  className="fixed inset-0 z-50 bg-black/50 lg:hidden"
+                />
+
+                {/* Sheet */}
+                <motion.div
+                  initial={{ x: "100%" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: "100%" }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  className="fixed inset-y-0 right-0 z-50 w-full max-w-sm bg-white shadow-2xl lg:hidden"
+                >
+                  {/* Sheet Header */}
+                  <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+                    <h2 className="text-lg font-bold text-gray-900">Filters</h2>
+                    <button
+                      onClick={() => setIsFilterSheetOpen(false)}
+                      className="rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  {/* Sheet Content */}
+                  <div className="h-[calc(100%-140px)] overflow-y-auto px-6 py-6">
+                    <ShopFilterSidebar
+                      selectedCategories={selectedCategories}
+                      onCategoryChange={setSelectedCategories}
+                      categories={categories}
+                      priceRange={priceRange}
+                      onPriceRangeChange={setPriceRange}
+                      sortBy={sortBy}
+                      onSortChange={setSortBy}
+                      maxPrice={10000}
+                    />
+                  </div>
+
+                  {/* Sheet Footer */}
+                  <div className="absolute inset-x-0 bottom-0 border-t border-gray-100 bg-white px-6 py-4">
+                    <button
+                      onClick={() => setIsFilterSheetOpen(false)}
+                      className="w-full rounded-full bg-[#2F2582] px-6 py-3 text-sm font-semibold tracking-wide text-white transition-all hover:bg-[#241c66]"
+                    >
+                      Show {filteredProducts.length} Products
+                    </button>
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </main>
