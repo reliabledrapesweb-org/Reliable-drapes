@@ -186,11 +186,13 @@ export function OrdersSection() {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-end justify-between border-b border-gray-100 pb-6"
+        className="flex flex-col gap-2 border-b border-gray-100 pb-4 sm:flex-row sm:items-end sm:justify-between sm:pb-6"
       >
         <div>
-          <h2 className="text-3xl font-bold text-[#161616]">Order History</h2>
-          <p className="mt-2 text-base text-gray-500">
+          <h2 className="text-xl font-bold text-[#161616] sm:text-2xl lg:text-3xl">
+            Order History
+          </h2>
+          <p className="mt-1 text-sm text-gray-500 sm:mt-2 sm:text-base">
             View details and track your recent purchases
           </p>
         </div>
@@ -212,16 +214,16 @@ export function OrdersSection() {
             {/* Order Card Header (Always Visible) */}
             <div
               onClick={() => toggleOrder(order.id)}
-              className="relative cursor-pointer p-6 sm:p-8"
+              className="relative cursor-pointer p-4 sm:p-6 lg:p-8"
             >
-              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-center lg:justify-between">
                 {/* Visual Order Snapshot */}
-                <div className="flex flex-1 items-start gap-4">
-                  <div className="flex -space-x-4 overflow-hidden py-1">
+                <div className="flex flex-1 items-start gap-3 sm:gap-4">
+                  <div className="flex -space-x-3 overflow-hidden py-1 sm:-space-x-4">
                     {order.order_items.slice(0, 3).map((item) => (
                       <div
                         key={item.id}
-                        className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border-2 border-white bg-gray-50 shadow-sm"
+                        className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border-2 border-white bg-gray-50 shadow-sm sm:h-16 sm:w-16 sm:rounded-xl"
                       >
                         {item.product?.image_url ? (
                           <Image
@@ -232,23 +234,23 @@ export function OrdersSection() {
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center bg-gray-100">
-                            <Package className="h-6 w-6 text-gray-400" />
+                            <Package className="h-4 w-4 text-gray-400 sm:h-6 sm:w-6" />
                           </div>
                         )}
                       </div>
                     ))}
                     {order.order_items.length > 3 && (
-                      <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border-2 border-white bg-gray-100 text-xs font-bold text-gray-500 shadow-sm">
+                      <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border-2 border-white bg-gray-100 text-xs font-bold text-gray-500 shadow-sm sm:h-16 sm:w-16 sm:rounded-xl">
                         +{order.order_items.length - 3}
                       </div>
                     )}
                   </div>
 
-                  <div className="ml-2">
-                    <h3 className="text-lg font-semibold text-[#161616]">
+                  <div className="ml-1 min-w-0 sm:ml-2">
+                    <h3 className="truncate text-base font-semibold text-[#161616] sm:text-lg">
                       Order #{order.id.slice(0, 8)}
                     </h3>
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-0.5 text-xs text-gray-500 sm:mt-1 sm:text-sm">
                       {order.order_items.length}{" "}
                       {order.order_items.length === 1 ? "Item" : "Items"} •{" "}
                       {format(new Date(order.created_at), "MMM d, yyyy")}
@@ -257,25 +259,25 @@ export function OrdersSection() {
                 </div>
 
                 {/* Status & Action */}
-                <div className="flex items-center justify-between gap-6 lg:justify-end">
-                  <div className="flex flex-col items-end gap-1">
-                    <span className="text-xs font-semibold tracking-wider text-gray-400 uppercase">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 lg:justify-end lg:gap-6">
+                  <div className="flex flex-col items-start gap-0.5 sm:items-end sm:gap-1">
+                    <span className="text-[10px] font-semibold tracking-wider text-gray-400 uppercase sm:text-xs">
                       Total Amount
                     </span>
-                    <span className="text-xl font-bold text-[#161616]">
+                    <span className="text-lg font-bold text-[#161616] sm:text-xl">
                       {formatPrice(order.total)}
                     </span>
                   </div>
 
                   <div
-                    className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold tracking-wide ${getStatusColor(order.status)}`}
+                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold tracking-wide sm:gap-2 sm:px-4 sm:py-2 sm:text-sm ${getStatusColor(order.status)}`}
                   >
                     {getStatusIcon(order.status)}
                     <span className="capitalize">{order.status}</span>
                   </div>
 
                   <ChevronDown
-                    className={`h-5 w-5 text-gray-400 transition-transform duration-300 ${expandedOrder === order.id ? "rotate-180" : ""}`}
+                    className={`ml-auto h-4 w-4 text-gray-400 transition-transform duration-300 sm:h-5 sm:w-5 lg:ml-0 ${expandedOrder === order.id ? "rotate-180" : ""}`}
                   />
                 </div>
               </div>
@@ -290,31 +292,47 @@ export function OrdersSection() {
                   exit={{ height: 0, opacity: 0 }}
                   className="bg-gray-50/50"
                 >
-                  <div className="border-t border-gray-100 p-6 sm:p-8">
-                    <h4 className="mb-4 text-sm font-semibold tracking-wider text-[#161616] uppercase">
+                  <div className="border-t border-gray-100 p-4 sm:p-6 lg:p-8">
+                    <h4 className="mb-3 text-xs font-semibold tracking-wider text-[#161616] uppercase sm:mb-4 sm:text-sm">
                       Items in this order
                     </h4>
-                    <div className="grid gap-4">
+                    <div className="grid gap-3 sm:gap-4">
                       {order.order_items.map((item) => (
                         <div
                           key={item.id}
-                          className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-4"
+                          className="flex flex-col gap-3 rounded-xl border border-gray-100 bg-white p-3 sm:flex-row sm:items-center sm:gap-4 sm:rounded-2xl sm:p-4"
                         >
-                          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
-                            {item.product?.image_url ? (
-                              <Image
-                                src={item.product.image_url}
-                                alt={item.product.name}
-                                fill
-                                className="object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center">
-                                <Package className="h-8 w-8 text-gray-300" />
-                              </div>
-                            )}
+                          <div className="flex items-center gap-3 sm:gap-4">
+                            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-gray-100 sm:h-20 sm:w-20 sm:rounded-xl">
+                              {item.product?.image_url ? (
+                                <Image
+                                  src={item.product.image_url}
+                                  alt={item.product.name}
+                                  fill
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center">
+                                  <Package className="h-6 w-6 text-gray-300 sm:h-8 sm:w-8" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1 sm:hidden">
+                              <h5 className="truncate text-sm font-medium text-[#161616]">
+                                {item.product?.name || "Unknown Product"}
+                              </h5>
+                              <p className="mt-0.5 text-xs text-gray-500">
+                                Qty: {item.quantity} ×{" "}
+                                {formatPrice(item.price_snapshot || 0)}
+                              </p>
+                            </div>
+                            <div className="text-sm font-semibold text-[#161616] sm:hidden">
+                              {formatPrice(
+                                (item.price_snapshot || 0) * item.quantity,
+                              )}
+                            </div>
                           </div>
-                          <div className="min-w-0 flex-1">
+                          <div className="hidden min-w-0 flex-1 sm:block">
                             <h5 className="truncate pr-4 text-base font-medium text-[#161616]">
                               {item.product?.name || "Unknown Product"}
                             </h5>
@@ -323,7 +341,7 @@ export function OrdersSection() {
                               {formatPrice(item.price_snapshot || 0)}
                             </p>
                           </div>
-                          <div className="text-right font-semibold text-[#161616]">
+                          <div className="hidden text-right font-semibold text-[#161616] sm:block">
                             {formatPrice(
                               (item.price_snapshot || 0) * item.quantity,
                             )}
@@ -332,10 +350,10 @@ export function OrdersSection() {
                       ))}
                     </div>
 
-                    <div className="mt-8 flex justify-end gap-4 border-t border-gray-100/50 pt-6">
+                    <div className="mt-6 flex flex-col gap-3 border-t border-gray-100/50 pt-4 sm:mt-8 sm:flex-row sm:justify-end sm:gap-4 sm:pt-6">
                       <Button
                         variant="outline"
-                        className="rounded-xl border-gray-200"
+                        className="w-full rounded-xl border-gray-200 text-sm sm:w-auto sm:text-base"
                         onClick={() => {
                           if (order.invoice_url) {
                             window.open(order.invoice_url, "_blank");
@@ -351,7 +369,7 @@ export function OrdersSection() {
                         Download Invoice
                       </Button>
                       <Button
-                        className="rounded-xl bg-[#2f2582] text-white hover:bg-[#241c66]"
+                        className="w-full rounded-xl bg-[#2f2582] text-sm text-white hover:bg-[#241c66] sm:w-auto sm:text-base"
                         onClick={() => setTrackingOrder(order)}
                       >
                         <Truck className="mr-2 h-4 w-4" />
@@ -369,7 +387,7 @@ export function OrdersSection() {
       {/* Tracking Modal */}
       <AnimatePresence>
         {trackingOrder && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -381,30 +399,30 @@ export function OrdersSection() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative z-10 w-full max-w-lg overflow-hidden rounded-[2.5rem] bg-white shadow-2xl"
+              className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-hidden overflow-y-auto rounded-2xl bg-white shadow-2xl sm:rounded-[2.5rem]"
             >
               {/* Modal Header */}
-              <div className="relative border-b border-gray-100 p-8 pb-6">
-                <h3 className="text-2xl font-bold text-[#161616]">
+              <div className="relative border-b border-gray-100 p-4 pb-4 sm:p-6 sm:pb-6 lg:p-8">
+                <h3 className="pr-10 text-lg font-bold text-[#161616] sm:text-xl lg:text-2xl">
                   Track Order #{trackingOrder.id.slice(0, 8)}
                 </h3>
-                <p className="mt-1 text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 sm:text-sm">
                   Real-time status of your shipment
                 </p>
                 <button
                   onClick={() => setTrackingOrder(null)}
-                  className="absolute top-6 right-6 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-[#161616]"
+                  className="absolute top-3 right-3 rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-[#161616] sm:top-6 sm:right-6 sm:p-2"
                 >
-                  <X className="h-6 w-6" />
+                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
               </div>
 
-              <div className="p-8">
+              <div className="p-4 sm:p-6 lg:p-8">
                 {/* Visual Progress Bar */}
-                <div className="relative mb-10">
-                  <div className="absolute top-1/2 left-0 h-1.5 w-full -translate-y-1/2 rounded-full bg-gray-100" />
+                <div className="relative mb-6 sm:mb-10">
+                  <div className="absolute top-4 left-0 h-1 w-full rounded-full bg-gray-100 sm:top-5 sm:h-1.5" />
                   <div
-                    className="absolute top-1/2 left-0 h-1.5 -translate-y-1/2 rounded-full bg-[#2f2582] transition-all duration-1000"
+                    className="absolute top-4 left-0 h-1 rounded-full bg-[#2f2582] transition-all duration-1000 sm:top-5 sm:h-1.5"
                     style={{
                       width:
                         trackingOrder.status === "delivered"
@@ -442,17 +460,22 @@ export function OrdersSection() {
                       return (
                         <div
                           key={i}
-                          className="flex flex-col items-center gap-3"
+                          className="flex flex-col items-center gap-1.5 sm:gap-3"
                         >
                           <div
-                            className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-4 border-white shadow-sm transition-all duration-300 ${isActive ? "bg-[#2f2582] text-white" : "bg-gray-200 text-gray-400"}`}
+                            className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white shadow-sm transition-all duration-300 sm:h-10 sm:w-10 sm:border-4 ${isActive ? "bg-[#2f2582] text-white" : "bg-gray-200 text-gray-400"}`}
                           >
-                            <step.icon className="h-5 w-5" />
+                            <step.icon className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
                           </div>
                           <span
-                            className={`text-xs font-bold tracking-tight uppercase ${isActive ? "text-[#2f2582]" : "text-gray-400"}`}
+                            className={`text-center text-[9px] leading-tight font-bold tracking-tight uppercase sm:text-xs ${isActive ? "text-[#2f2582]" : "text-gray-400"}`}
                           >
-                            {step.label}
+                            <span className="hidden sm:inline">
+                              {step.label}
+                            </span>
+                            <span className="sm:hidden">
+                              {step.label.slice(0, 4)}
+                            </span>
                           </span>
                         </div>
                       );
@@ -461,13 +484,13 @@ export function OrdersSection() {
                 </div>
 
                 {/* Tracking Details */}
-                <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-6 rounded-3xl border border-gray-100 bg-gray-50/80 p-6">
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-bold tracking-[1px] text-gray-400 uppercase">
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="grid grid-cols-1 gap-4 rounded-xl border border-gray-100 bg-gray-50/80 p-4 sm:grid-cols-2 sm:gap-6 sm:rounded-3xl sm:p-6">
+                    <div className="space-y-0.5 sm:space-y-1">
+                      <span className="text-[9px] font-bold tracking-[1px] text-gray-400 uppercase sm:text-[10px]">
                         Tracking Number
                       </span>
-                      <p className="flex items-center gap-2 font-bold text-[#161616]">
+                      <p className="flex items-center gap-2 text-sm font-bold text-[#161616] sm:text-base">
                         {trackingOrder.tracking_number || "Awaiting Number"}
                         {trackingOrder.tracking_url && (
                           <a
@@ -480,12 +503,12 @@ export function OrdersSection() {
                         )}
                       </p>
                     </div>
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-bold tracking-[1px] text-gray-400 uppercase">
+                    <div className="space-y-0.5 sm:space-y-1">
+                      <span className="text-[9px] font-bold tracking-[1px] text-gray-400 uppercase sm:text-[10px]">
                         Expected Delivery
                       </span>
-                      <p className="flex items-center gap-1.5 font-bold text-[#161616]">
-                        <Calendar className="h-3.5 w-3.5 text-[#2f2582]" />
+                      <p className="flex items-center gap-1.5 text-sm font-bold text-[#161616] sm:text-base">
+                        <Calendar className="h-3 w-3 text-[#2f2582] sm:h-3.5 sm:w-3.5" />
                         {trackingOrder.expected_delivery_date
                           ? format(
                               new Date(trackingOrder.expected_delivery_date),
@@ -494,12 +517,12 @@ export function OrdersSection() {
                           : "Calculating..."}
                       </p>
                     </div>
-                    <div className="col-span-2 space-y-1">
-                      <span className="text-[10px] font-bold tracking-[1px] text-gray-400 uppercase">
+                    <div className="space-y-0.5 sm:col-span-2 sm:space-y-1">
+                      <span className="text-[9px] font-bold tracking-[1px] text-gray-400 uppercase sm:text-[10px]">
                         Current Location
                       </span>
-                      <p className="flex items-center gap-1.5 font-bold text-[#161616]">
-                        <MapPin className="h-3.5 w-3.5 text-[#2f2582]" />
+                      <p className="flex items-center gap-1.5 text-sm font-bold text-[#161616] sm:text-base">
+                        <MapPin className="h-3 w-3 text-[#2f2582] sm:h-3.5 sm:w-3.5" />
                         {trackingOrder.current_location ||
                           "Processing at Warehouse"}
                       </p>
@@ -507,9 +530,9 @@ export function OrdersSection() {
                   </div>
 
                   {!trackingOrder.tracking_number && (
-                    <div className="flex items-center gap-3 rounded-2xl border border-amber-100 bg-amber-50 p-4">
-                      <AlertCircle className="h-5 w-5 shrink-0 text-amber-600" />
-                      <p className="text-xs font-medium text-amber-700">
+                    <div className="flex items-start gap-2 rounded-xl border border-amber-100 bg-amber-50 p-3 sm:items-center sm:gap-3 sm:rounded-2xl sm:p-4">
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 sm:mt-0 sm:h-5 sm:w-5" />
+                      <p className="text-[11px] font-medium text-amber-700 sm:text-xs">
                         Shipment details are usually updated within 24-48 hours
                         after processing.
                       </p>
@@ -518,9 +541,9 @@ export function OrdersSection() {
                 </div>
               </div>
 
-              <div className="flex gap-4 border-t border-gray-100 bg-gray-50 p-8">
+              <div className="flex flex-col gap-3 border-t border-gray-100 bg-gray-50 p-4 sm:flex-row sm:gap-4 sm:p-6 lg:p-8">
                 <Button
-                  className="flex-1 rounded-2xl border-gray-200 bg-white text-[#161616] hover:bg-gray-100"
+                  className="order-2 w-full rounded-xl border-gray-200 bg-white text-sm text-[#161616] hover:bg-gray-100 sm:order-1 sm:flex-1 sm:rounded-2xl sm:text-base"
                   variant="outline"
                   onClick={() => setTrackingOrder(null)}
                 >
@@ -528,7 +551,7 @@ export function OrdersSection() {
                 </Button>
                 {trackingOrder.tracking_url && (
                   <Button
-                    className="flex-1 rounded-2xl bg-[#2f2582] text-white shadow-lg shadow-[#2f2582]/20 hover:bg-[#241c66]"
+                    className="order-1 w-full rounded-xl bg-[#2f2582] text-sm text-white shadow-lg shadow-[#2f2582]/20 hover:bg-[#241c66] sm:order-2 sm:flex-1 sm:rounded-2xl sm:text-base"
                     onClick={() =>
                       window.open(trackingOrder.tracking_url, "_blank")
                     }

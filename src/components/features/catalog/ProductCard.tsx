@@ -1,6 +1,14 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
+import {
+  X,
+  Download,
+  FileText,
+  Eye,
+  ExternalLink,
+  Loader2,
+} from "lucide-react";
 
 interface ProductCardProps {
   id?: string;
@@ -31,6 +39,7 @@ export function ProductCard({
   const [imageError, setImageError] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(true);
   const [pdfError, setPdfError] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Luxury furniture fallback image
   const fallbackImage =
@@ -42,7 +51,8 @@ export function ProductCard({
     setPdfError(false);
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
+    setIsDownloading(true);
     onDownload?.(title, id);
 
     // Trigger actual download if PDF URL exists
@@ -56,6 +66,9 @@ export function ProductCard({
       document.body.removeChild(link);
     }
 
+    // Small delay for UX feedback
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    setIsDownloading(false);
     setShowPreview(false);
   };
 
@@ -130,202 +143,217 @@ export function ProductCard({
         </div>
       </motion.article>
 
-      {/* Preview Modal */}
-      {showPreview && (
-        <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
-          onClick={handleClose}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="relative flex h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+      {/* Preview Modal - Improved Design */}
+      <AnimatePresence>
+        {showPreview && (
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4"
+            onClick={handleClose}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between bg-gradient-to-r from-[#2f2582] to-[#1e1a5c] px-6 py-5 md:px-8 md:py-6">
-              <div className="min-w-0 flex-1 pr-4">
-                <h2 className="truncate text-xl font-bold text-white md:text-2xl">
-                  {title}
-                </h2>
-                <p className="mt-1 truncate text-sm text-white/90 md:text-base">
-                  {subtitle}
-                </p>
-              </div>
-              <button
-                onClick={handleClose}
-                className="flex-shrink-0 rounded-full bg-white/10 p-2.5 backdrop-blur-sm transition-all duration-200 hover:rotate-90 hover:bg-white/20"
-                aria-label="Close preview"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 text-white md:h-6 md:w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-[#161616]/70 backdrop-blur-md"
+            />
 
-            {/* PDF Preview */}
-            <div className="relative flex-1 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 p-3 md:p-6">
-              {pdfUrl ? (
-                <>
-                  {/* Loading Indicator */}
-                  {pdfLoading && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/95 backdrop-blur-sm">
-                      <div className="flex flex-col items-center gap-4">
-                        <div className="relative">
-                          <div className="h-16 w-16 rounded-full border-4 border-[#2f2582]/20 md:h-20 md:w-20"></div>
-                          <div className="absolute inset-0 h-16 w-16 animate-spin rounded-full border-4 border-transparent border-t-[#2f2582] md:h-20 md:w-20"></div>
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="relative z-10 flex max-h-[95vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl sm:max-h-[90vh] sm:rounded-3xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header - Compact on mobile */}
+              <div className="relative flex items-center gap-4 border-b border-gray-100 bg-white px-4 py-4 sm:px-6 sm:py-5">
+                {/* Thumbnail */}
+                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-gray-100 shadow-sm sm:h-16 sm:w-16">
+                  <Image
+                    src={imageError ? fallbackImage : imageSrc}
+                    alt={title}
+                    fill
+                    className="object-cover"
+                    onError={() => setImageError(true)}
+                  />
+                </div>
+
+                {/* Title & Subtitle */}
+                <div className="min-w-0 flex-1 pr-10">
+                  <h2 className="truncate text-base font-bold text-[#161616] sm:text-xl">
+                    {title}
+                  </h2>
+                  <p className="mt-0.5 truncate text-xs text-gray-500 sm:text-sm">
+                    {subtitle}
+                  </p>
+                </div>
+
+                {/* Close Button */}
+                <button
+                  onClick={handleClose}
+                  className="absolute top-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-all hover:bg-gray-200 hover:text-gray-700 sm:top-4 sm:right-4 sm:h-10 sm:w-10"
+                  aria-label="Close preview"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* PDF Preview Area */}
+              <div className="relative flex-1 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100/50">
+                {pdfUrl ? (
+                  <>
+                    {/* Loading State */}
+                    <AnimatePresence>
+                      {pdfLoading && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="absolute inset-0 z-10 flex items-center justify-center bg-white/95"
+                        >
+                          <div className="flex flex-col items-center gap-4 text-center">
+                            <div className="relative flex h-16 w-16 items-center justify-center sm:h-20 sm:w-20">
+                              <div className="absolute inset-0 animate-spin rounded-full border-4 border-[#2f2582]/20 border-t-[#2f2582]" />
+                              <FileText className="h-6 w-6 text-[#2f2582] sm:h-8 sm:w-8" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold text-gray-900 sm:text-base">
+                                Loading PDF Preview
+                              </p>
+                              <p className="mt-1 text-xs text-gray-500 sm:text-sm">
+                                Please wait...
+                              </p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Error State */}
+                    {pdfError && (
+                      <div className="flex h-full min-h-[300px] flex-col items-center justify-center gap-4 p-6 sm:min-h-[400px]">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 sm:h-20 sm:w-20">
+                          <Eye className="h-7 w-7 text-amber-600 sm:h-8 sm:w-8" />
                         </div>
                         <div className="text-center">
-                          <p className="text-base font-semibold text-gray-900 md:text-lg">
-                            Loading PDF...
-                          </p>
-                          <p className="mt-1 text-xs text-gray-500 md:text-sm">
-                            Please wait while we prepare your preview
+                          <h3 className="text-base font-bold text-gray-900 sm:text-lg">
+                            Preview Unavailable
+                          </h3>
+                          <p className="mt-1 max-w-sm text-xs text-gray-500 sm:text-sm">
+                            We couldn't load the preview in browser. You can
+                            still download the PDF directly.
                           </p>
                         </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* PDF Error State */}
-                  {pdfError && (
-                    <div className="flex h-full flex-col items-center justify-center gap-4">
-                      <div className="mx-auto max-w-md rounded-2xl bg-white p-8 text-center shadow-lg md:p-12">
-                        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 md:h-20 md:w-20">
-                          <svg
-                            className="h-8 w-8 text-red-600 md:h-10 md:w-10"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                            />
-                          </svg>
-                        </div>
-                        <h3 className="mb-2 text-lg font-bold text-gray-900 md:text-xl">
-                          PDF Preview Unavailable
-                        </h3>
-                        <p className="mb-6 text-sm text-gray-600 md:text-base">
-                          We couldn't load the PDF preview. You can still
-                          download the catalogue below.
-                        </p>
-                        <div className="rounded-xl border-2 border-gray-200 bg-white p-4 shadow-sm md:p-6">
+                        {/* Thumbnail fallback */}
+                        <div className="mt-2 w-full max-w-xs overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
                           <Image
                             width={300}
-                            height={225}
+                            height={200}
                             src={imageError ? fallbackImage : imageSrc}
                             alt={title}
-                            className="h-auto w-full rounded-lg object-cover"
+                            className="h-auto w-full object-cover"
                             onError={() => setImageError(true)}
                           />
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* PDF Iframe */}
-                  {!pdfError && (
-                    <iframe
-                      src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1`}
-                      className="h-full w-full rounded-xl border-2 border-gray-300 bg-white shadow-lg"
-                      title={`${title} PDF Preview`}
-                      onLoad={() => setPdfLoading(false)}
-                      onError={() => {
-                        setPdfLoading(false);
-                        setPdfError(true);
-                      }}
-                    />
-                  )}
-                </>
-              ) : (
-                <div className="flex h-full flex-col items-center justify-center gap-6">
-                  <div className="mx-auto max-w-lg rounded-2xl bg-white p-8 shadow-lg md:p-12">
-                    <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 md:h-20 md:w-20">
-                      <svg
-                        className="h-8 w-8 text-amber-600 md:h-10 md:w-10"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                        />
-                      </svg>
+                    {/* PDF Iframe */}
+                    {!pdfError && (
+                      <iframe
+                        src={`${pdfUrl}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
+                        className="h-full min-h-[350px] w-full border-0 sm:min-h-[450px]"
+                        title={`${title} PDF Preview`}
+                        onLoad={() => setPdfLoading(false)}
+                        onError={() => {
+                          setPdfLoading(false);
+                          setPdfError(true);
+                        }}
+                      />
+                    )}
+                  </>
+                ) : (
+                  /* No PDF Available State */
+                  <div className="flex h-full min-h-[300px] flex-col items-center justify-center gap-4 p-6 sm:min-h-[400px]">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 sm:h-20 sm:w-20">
+                      <FileText className="h-7 w-7 text-gray-400 sm:h-8 sm:w-8" />
                     </div>
-                    <h3 className="mb-4 text-center text-lg font-bold text-gray-900 md:text-xl">
-                      Preview Not Available
-                    </h3>
-                    <div className="rounded-xl border-2 border-gray-200 bg-white p-4 shadow-sm md:p-6">
+                    <div className="text-center">
+                      <h3 className="text-base font-bold text-gray-900 sm:text-lg">
+                        PDF Not Available
+                      </h3>
+                      <p className="mt-1 max-w-sm text-xs text-gray-500 sm:text-sm">
+                        This catalogue doesn't have a downloadable PDF yet.
+                      </p>
+                    </div>
+                    {/* Show thumbnail */}
+                    <div className="mt-2 w-full max-w-xs overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
                       <Image
-                        width={400}
-                        height={300}
+                        width={300}
+                        height={200}
                         src={imageError ? fallbackImage : imageSrc}
                         alt={title}
-                        className="h-auto w-full rounded-lg object-cover"
+                        className="h-auto w-full object-cover"
                         onError={() => setImageError(true)}
                       />
                     </div>
-                    <p className="mt-4 text-center text-sm text-gray-600 md:text-base">
-                      Download the catalogue to view full details
-                    </p>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            {/* Footer */}
-            <div className="flex flex-col-reverse items-stretch justify-end gap-3 border-t border-gray-200 bg-white px-4 py-4 sm:flex-row sm:items-center md:px-8 md:py-5">
-              <button
-                onClick={handleClose}
-                className="w-full rounded-xl border-2 border-gray-300 px-6 py-2.5 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-gray-400 hover:bg-gray-50 sm:w-auto md:px-8 md:py-3 md:text-base"
-              >
-                Close
-              </button>
-              <button
-                onClick={handleDownload}
-                disabled={!pdfUrl}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#2f2582] to-[#1e1a5c] px-6 py-2.5 text-sm font-semibold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl active:scale-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 sm:w-auto md:px-8 md:py-3 md:text-base"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                  />
-                </svg>
-                Download Catalogue
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
+              {/* Footer - Action Buttons */}
+              <div className="flex flex-col gap-2 border-t border-gray-100 bg-gray-50/80 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-4">
+                {/* Left side - Info */}
+                <div className="hidden text-xs text-gray-500 sm:block">
+                  {pdfUrl ? (
+                    <span className="flex items-center gap-1.5">
+                      <FileText className="h-3.5 w-3.5" />
+                      PDF Document
+                    </span>
+                  ) : (
+                    <span>No PDF attached</span>
+                  )}
+                </div>
+
+                {/* Right side - Buttons */}
+                <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+                  {pdfUrl && (
+                    <a
+                      href={pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 sm:px-5"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      <span className="sm:hidden">Open in New Tab</span>
+                      <span className="hidden sm:inline">View Full Screen</span>
+                    </a>
+                  )}
+                  <button
+                    onClick={handleDownload}
+                    disabled={!pdfUrl || isDownloading}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-[#2f2582] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#2f2582]/20 transition-all hover:bg-[#241c66] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none sm:px-6"
+                  >
+                    {isDownloading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Downloading...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="h-4 w-4" />
+                        Download PDF
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

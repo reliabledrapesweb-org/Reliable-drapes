@@ -38,7 +38,7 @@ export interface UpdateCatalogueInput extends Partial<CreateCatalogueInput> {
 }
 
 /**
- * Get all active catalogues
+ * Get all active catalogues (for public page)
  */
 export async function getCatalogues() {
   try {
@@ -48,6 +48,7 @@ export async function getCatalogues() {
     const { data, error } = await supabase
       .from("catalogues")
       .select("*")
+      .eq("is_active", true)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -117,7 +118,6 @@ export async function createCatalogue(input: CreateCatalogueInput) {
       thumbnail_url: input.thumbnail_url || null,
       badge: input.badge || null,
       discount_value: input.discount_value || null,
-
     })
     .select()
     .single();
