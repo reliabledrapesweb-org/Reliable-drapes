@@ -1,7 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, Search, FolderTree, Eye, EyeOff, Star, X } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Search,
+  FolderTree,
+  Eye,
+  EyeOff,
+  Star,
+  X,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import {
@@ -15,7 +25,6 @@ import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { ConfirmationModal } from "@/components/shared";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AdminPageSkeleton } from "@/components/ui/AdminPageSkeleton";
 import {
   Table,
   TableBody,
@@ -33,9 +42,13 @@ export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<CategoryFull[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<CategoryFull | null>(null);
+  const [editingCategory, setEditingCategory] = useState<CategoryFull | null>(
+    null,
+  );
   const [searchQuery, setSearchQuery] = useState("");
-  const [actionLoading, setActionLoading] = useState<{ [key: string]: string | null }>({});
+  const [actionLoading, setActionLoading] = useState<{
+    [key: string]: string | null;
+  }>({});
   const [confirmAction, setConfirmAction] = useState<{
     type: "delete" | null;
     categoryId?: string;
@@ -51,7 +64,6 @@ export default function AdminCategoriesPage() {
     published: true,
     sort_order: 0,
   });
-
 
   // Fetch categories on admin access
   useEffect(() => {
@@ -101,7 +113,10 @@ export default function AdminCategoriesPage() {
 
   // Generate slug from name
   const generateSlug = (name: string) => {
-    return name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    return name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
   };
 
   // Handle form submission
@@ -155,7 +170,10 @@ export default function AdminCategoriesPage() {
 
   const executeDelete = async () => {
     if (!confirmAction.categoryId) return;
-    setActionLoading((prev) => ({ ...prev, [`delete-${confirmAction.categoryId}`]: "delete" }));
+    setActionLoading((prev) => ({
+      ...prev,
+      [`delete-${confirmAction.categoryId}`]: "delete",
+    }));
 
     try {
       const result = await deleteCategory(confirmAction.categoryId);
@@ -168,15 +186,23 @@ export default function AdminCategoriesPage() {
         setConfirmAction({ type: null });
       }
     } finally {
-      setActionLoading((prev) => ({ ...prev, [`delete-${confirmAction.categoryId}`]: null }));
+      setActionLoading((prev) => ({
+        ...prev,
+        [`delete-${confirmAction.categoryId}`]: null,
+      }));
     }
   };
 
   // Toggle featured status
   const toggleFeatured = async (category: CategoryFull) => {
-    const result = await updateCategory(category.id, { is_featured: !category.is_featured });
+    const result = await updateCategory(category.id, {
+      is_featured: !category.is_featured,
+    });
     if (result.success) {
-      addToast(`Category ${!category.is_featured ? "featured" : "unfeatured"}`, "success");
+      addToast(
+        `Category ${!category.is_featured ? "featured" : "unfeatured"}`,
+        "success",
+      );
       fetchCategories();
     } else {
       addToast("Failed to update category", "error");
@@ -185,9 +211,14 @@ export default function AdminCategoriesPage() {
 
   // Toggle published status
   const togglePublished = async (category: CategoryFull) => {
-    const result = await updateCategory(category.id, { published: !category.published });
+    const result = await updateCategory(category.id, {
+      published: !category.published,
+    });
     if (result.success) {
-      addToast(`Category ${!category.published ? "published" : "unpublished"}`, "success");
+      addToast(
+        `Category ${!category.published ? "published" : "unpublished"}`,
+        "success",
+      );
       fetchCategories();
     } else {
       addToast("Failed to update category", "error");
@@ -198,10 +229,11 @@ export default function AdminCategoriesPage() {
   const filteredCategories = categories.filter(
     (category) =>
       category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      category.slug.toLowerCase().includes(searchQuery.toLowerCase())
+      category.slug.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const fallbackImage = "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=200&fit=crop";
+  const fallbackImage =
+    "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=200&fit=crop";
 
   // Stats
   const totalCategories = categories.length;
@@ -220,7 +252,10 @@ export default function AdminCategoriesPage() {
         </div>
         <div className="grid grid-cols-3 gap-2 sm:gap-4">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-lg bg-gray-200 sm:h-24" />
+            <div
+              key={i}
+              className="h-20 animate-pulse rounded-lg bg-gray-200 sm:h-24"
+            />
           ))}
         </div>
         <div className="h-64 animate-pulse rounded-xl bg-gray-200 sm:h-96" />
@@ -236,16 +271,22 @@ export default function AdminCategoriesPage() {
     );
   }
 
-
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">Categories Management</h1>
-          <p className="mt-1 text-xs text-gray-600 sm:text-sm">Organize your products with categories</p>
+          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">
+            Categories Management
+          </h1>
+          <p className="mt-1 text-xs text-gray-600 sm:text-sm">
+            Organize your products with categories
+          </p>
         </div>
-        <Button onClick={() => handleOpenModal()} className="w-full bg-[#2F2582] hover:bg-[#241c66] sm:w-auto">
+        <Button
+          onClick={() => handleOpenModal()}
+          className="w-full bg-[#2F2582] hover:bg-[#241c66] sm:w-auto"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Add Category
         </Button>
@@ -255,27 +296,37 @@ export default function AdminCategoriesPage() {
       <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-600 sm:text-sm">Total</p>
-          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">{totalCategories}</p>
+          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">
+            {totalCategories}
+          </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
-          <p className="text-xs font-medium text-gray-600 sm:text-sm">Featured</p>
-          <p className="mt-1 text-lg font-bold text-yellow-600 sm:text-2xl">{featuredCount}</p>
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">
+            Featured
+          </p>
+          <p className="mt-1 text-lg font-bold text-yellow-600 sm:text-2xl">
+            {featuredCount}
+          </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
-          <p className="text-xs font-medium text-gray-600 sm:text-sm">Published</p>
-          <p className="mt-1 text-lg font-bold text-green-600 sm:text-2xl">{publishedCount}</p>
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">
+            Published
+          </p>
+          <p className="mt-1 text-lg font-bold text-green-600 sm:text-2xl">
+            {publishedCount}
+          </p>
         </div>
       </div>
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search categories..."
-          className="w-full rounded-lg border border-gray-200 py-2.5 pl-10 pr-4 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+          className="w-full rounded-lg border border-gray-200 py-2.5 pr-4 pl-10 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
         />
       </div>
 
@@ -288,13 +339,15 @@ export default function AdminCategoriesPage() {
         </CardHeader>
         <CardContent className="p-0">
           {filteredCategories.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center px-4">
+            <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
               <FolderTree className="h-12 w-12 text-gray-400" />
               <h3 className="mt-4 text-base font-medium text-gray-900 sm:text-lg">
                 {searchQuery ? "No categories found" : "No categories yet"}
               </h3>
               <p className="mt-2 text-xs text-gray-500 sm:text-sm">
-                {searchQuery ? "Try a different search term" : "Get started by creating your first category."}
+                {searchQuery
+                  ? "Try a different search term"
+                  : "Get started by creating your first category."}
               </p>
               {!searchQuery && (
                 <Button
@@ -311,7 +364,7 @@ export default function AdminCategoriesPage() {
               {/* Mobile Card View */}
               <div className="divide-y divide-gray-100 sm:hidden">
                 {filteredCategories.map((category) => (
-                  <div key={category.id} className="p-4 space-y-3">
+                  <div key={category.id} className="space-y-3 p-4">
                     <div className="flex items-start gap-3">
                       <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-gray-100">
                         <Image
@@ -322,20 +375,26 @@ export default function AdminCategoriesPage() {
                           sizes="56px"
                         />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-gray-900 truncate">{category.name}</h3>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate font-medium text-gray-900">
+                          {category.name}
+                        </h3>
                         <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">
                           {category.slug}
                         </code>
                         {category.description && (
-                          <p className="text-xs text-gray-500 mt-1 line-clamp-1">{category.description}</p>
+                          <p className="mt-1 line-clamp-1 text-xs text-gray-500">
+                            {category.description}
+                          </p>
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <span className="text-xs text-gray-500">{category.product_count || 0} products</span>
+                        <span className="text-xs text-gray-500">
+                          {category.product_count || 0} products
+                        </span>
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => toggleFeatured(category)}
@@ -345,7 +404,12 @@ export default function AdminCategoriesPage() {
                                 : "bg-gray-100 text-gray-400"
                             }`}
                           >
-                            <Star className="h-3.5 w-3.5" fill={category.is_featured ? "currentColor" : "none"} />
+                            <Star
+                              className="h-3.5 w-3.5"
+                              fill={
+                                category.is_featured ? "currentColor" : "none"
+                              }
+                            />
                           </button>
                           <button
                             onClick={() => togglePublished(category)}
@@ -355,7 +419,11 @@ export default function AdminCategoriesPage() {
                                 : "bg-gray-100 text-gray-400"
                             }`}
                           >
-                            {category.published ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+                            {category.published ? (
+                              <Eye className="h-3.5 w-3.5" />
+                            ) : (
+                              <EyeOff className="h-3.5 w-3.5" />
+                            )}
                           </button>
                         </div>
                       </div>
@@ -371,9 +439,13 @@ export default function AdminCategoriesPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDelete(category.id, category.name)}
-                          disabled={actionLoading[`delete-${category.id}`] === "delete"}
-                          className="h-8 px-3 text-red-600 border-red-200 hover:bg-red-50"
+                          onClick={() =>
+                            handleDelete(category.id, category.name)
+                          }
+                          disabled={
+                            actionLoading[`delete-${category.id}`] === "delete"
+                          }
+                          className="h-8 border-red-200 px-3 text-red-600 hover:bg-red-50"
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
@@ -384,15 +456,25 @@ export default function AdminCategoriesPage() {
               </div>
 
               {/* Desktop Table View */}
-              <div className="hidden sm:block overflow-x-auto">
+              <div className="hidden overflow-x-auto sm:block">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Category</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Slug</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Products</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Status</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-600">Actions</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                        Category
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                        Slug
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                        Products
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
@@ -410,7 +492,9 @@ export default function AdminCategoriesPage() {
                               />
                             </div>
                             <div>
-                              <div className="font-medium text-gray-900">{category.name}</div>
+                              <div className="font-medium text-gray-900">
+                                {category.name}
+                              </div>
                               {category.description && (
                                 <div className="max-w-xs truncate text-xs text-gray-500">
                                   {category.description}
@@ -425,7 +509,9 @@ export default function AdminCategoriesPage() {
                           </code>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="text-sm text-gray-600">{category.product_count || 0}</span>
+                          <span className="text-sm text-gray-600">
+                            {category.product_count || 0}
+                          </span>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
@@ -436,9 +522,18 @@ export default function AdminCategoriesPage() {
                                   ? "bg-yellow-100 text-yellow-600"
                                   : "bg-gray-100 text-gray-400 hover:bg-yellow-50"
                               }`}
-                              title={category.is_featured ? "Remove from featured" : "Add to featured"}
+                              title={
+                                category.is_featured
+                                  ? "Remove from featured"
+                                  : "Add to featured"
+                              }
                             >
-                              <Star className="h-4 w-4" fill={category.is_featured ? "currentColor" : "none"} />
+                              <Star
+                                className="h-4 w-4"
+                                fill={
+                                  category.is_featured ? "currentColor" : "none"
+                                }
+                              />
                             </button>
                             <button
                               onClick={() => togglePublished(category)}
@@ -447,9 +542,15 @@ export default function AdminCategoriesPage() {
                                   ? "bg-green-100 text-green-600"
                                   : "bg-gray-100 text-gray-400 hover:bg-green-50"
                               }`}
-                              title={category.published ? "Unpublish" : "Publish"}
+                              title={
+                                category.published ? "Unpublish" : "Publish"
+                              }
                             >
-                              {category.published ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                              {category.published ? (
+                                <Eye className="h-4 w-4" />
+                              ) : (
+                                <EyeOff className="h-4 w-4" />
+                              )}
                             </button>
                           </div>
                         </td>
@@ -466,11 +567,17 @@ export default function AdminCategoriesPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDelete(category.id, category.name)}
-                              disabled={actionLoading[`delete-${category.id}`] === "delete"}
+                              onClick={() =>
+                                handleDelete(category.id, category.name)
+                              }
+                              disabled={
+                                actionLoading[`delete-${category.id}`] ===
+                                "delete"
+                              }
                               className="h-8 w-8 p-0 text-gray-600 hover:text-red-600"
                             >
-                              {actionLoading[`delete-${category.id}`] === "delete" ? (
+                              {actionLoading[`delete-${category.id}`] ===
+                              "delete" ? (
                                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-600 border-t-transparent" />
                               ) : (
                                 <Trash2 className="h-4 w-4" />
@@ -488,7 +595,6 @@ export default function AdminCategoriesPage() {
         </CardContent>
       </Card>
 
-
       {/* Add/Edit Category Modal */}
       <AnimatePresence>
         {showModal && (
@@ -497,7 +603,7 @@ export default function AdminCategoriesPage() {
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 100 }}
-              className="w-full max-h-[90vh] overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-w-2xl sm:rounded-2xl"
+              className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-w-2xl sm:rounded-2xl"
             >
               <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-3 sm:px-6 sm:py-4">
                 <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
@@ -511,7 +617,7 @@ export default function AdminCategoriesPage() {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4 p-4 sm:p-6">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-gray-700">
@@ -528,60 +634,82 @@ export default function AdminCategoriesPage() {
                           slug: formData.slug || generateSlug(e.target.value),
                         });
                       }}
-                      className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                       placeholder="Enter category name"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700">Slug</label>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700">
+                      Slug
+                    </label>
                     <input
                       type="text"
                       value={formData.slug}
-                      onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                      className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      onChange={(e) =>
+                        setFormData({ ...formData, slug: e.target.value })
+                      }
+                      className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                       placeholder="auto-generated-from-name"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">Description</label>
+                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Description
+                  </label>
                   <textarea
                     value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
                     rows={3}
-                    className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                    className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                     placeholder="Enter category description"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">Image URL</label>
+                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Image URL
+                  </label>
                   <input
                     type="url"
                     value={formData.image_url}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                    onChange={(e) =>
+                      setFormData({ ...formData, image_url: e.target.value })
+                    }
+                    className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                     placeholder="https://example.com/image.jpg"
                   />
                   {formData.image_url && (
                     <div className="relative mt-3 h-32 w-32 overflow-hidden rounded-lg border-2 border-gray-200">
-                      <Image src={formData.image_url} alt="Preview" fill className="object-cover" />
+                      <Image
+                        src={formData.image_url}
+                        alt="Preview"
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                   )}
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-3">
                   <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700">Sort Order</label>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700">
+                      Sort Order
+                    </label>
                     <input
                       type="number"
                       value={formData.sort_order}
                       onChange={(e) =>
-                        setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })
+                        setFormData({
+                          ...formData,
+                          sort_order: parseInt(e.target.value) || 0,
+                        })
                       }
-                      className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                     />
                   </div>
 
@@ -590,10 +718,18 @@ export default function AdminCategoriesPage() {
                       type="checkbox"
                       id="is_featured"
                       checked={formData.is_featured}
-                      onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          is_featured: e.target.checked,
+                        })
+                      }
                       className="h-4 w-4 rounded border-gray-300 text-[#2F2582] focus:ring-[#2F2582]"
                     />
-                    <label htmlFor="is_featured" className="text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="is_featured"
+                      className="text-sm font-medium text-gray-700"
+                    >
                       Featured on Homepage
                     </label>
                   </div>
@@ -603,10 +739,18 @@ export default function AdminCategoriesPage() {
                       type="checkbox"
                       id="published"
                       checked={formData.published}
-                      onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          published: e.target.checked,
+                        })
+                      }
                       className="h-4 w-4 rounded border-gray-300 text-[#2F2582] focus:ring-[#2F2582]"
                     />
-                    <label htmlFor="published" className="text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="published"
+                      className="text-sm font-medium text-gray-700"
+                    >
                       Published
                     </label>
                   </div>
@@ -617,17 +761,24 @@ export default function AdminCategoriesPage() {
                     type="button"
                     variant="outline"
                     onClick={() => setShowModal(false)}
-                    disabled={actionLoading.update === "update" || actionLoading.create === "create"}
+                    disabled={
+                      actionLoading.update === "update" ||
+                      actionLoading.create === "create"
+                    }
                     className="w-full sm:flex-1"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
-                    disabled={actionLoading.update === "update" || actionLoading.create === "create"}
+                    disabled={
+                      actionLoading.update === "update" ||
+                      actionLoading.create === "create"
+                    }
                     className="w-full bg-[#2F2582] hover:bg-[#241c66] sm:flex-1"
                   >
-                    {actionLoading.update === "update" || actionLoading.create === "create"
+                    {actionLoading.update === "update" ||
+                    actionLoading.create === "create"
                       ? "Saving..."
                       : editingCategory
                         ? "Update Category"
@@ -649,7 +800,9 @@ export default function AdminCategoriesPage() {
         message={`Are you sure you want to delete "${confirmAction.categoryName}"? Products in this category will be unassigned.`}
         confirmText="Delete"
         variant="danger"
-        isLoading={actionLoading[`delete-${confirmAction.categoryId}`] === "delete"}
+        isLoading={
+          actionLoading[`delete-${confirmAction.categoryId}`] === "delete"
+        }
       />
 
       <ToastContainer toasts={toasts} removeToast={removeToast} />
