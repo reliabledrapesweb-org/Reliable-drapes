@@ -63,9 +63,22 @@ export function NotificationDropdown() {
     if (!notification.is_read) {
       await handleMarkAsRead(notification.id);
     }
-    if (notification.link) {
+
+    let link = notification.link;
+
+    if (link) {
       setIsOpen(false);
-      router.push(notification.link);
+
+      if (
+        link.startsWith("/profile?tab=orders") ||
+        link === "/profile/orders"
+      ) {
+        const orderMatch = notification.message.match(/#([a-f0-9]{8})/i);
+        const orderId = orderMatch ? orderMatch[1] : null;
+        link = orderId ? `/admin/orders/${orderId}` : "/admin/orders";
+      }
+
+      router.push(link);
     }
   };
 
@@ -78,6 +91,8 @@ export function NotificationDropdown() {
         return <Bell className={`${iconClass} text-yellow-600`} />;
       case "error":
         return <X className={`${iconClass} text-red-600`} />;
+      case "info":
+        return <Bell className={`${iconClass} text-blue-600`} />;
       default:
         return <Bell className={`${iconClass} text-blue-600`} />;
     }
