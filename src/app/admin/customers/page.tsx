@@ -8,6 +8,8 @@ import {
   getUserStats,
   updateUser,
   deleteUser,
+  promoteToAdmin,
+  demoteFromAdmin,
   type UserProfile,
   type UpdateUserInput,
 } from "@/lib/actions/users";
@@ -22,14 +24,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  Trash2, 
-  Edit, 
-  Users, 
+import {
+  Trash2,
+  Edit,
+  Users,
   Crown,
   Mail,
   Calendar,
   Search,
+  Shield,
+  ShieldCheck,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { AdminModal, FormField, TextInput } from "@/components/admin";
@@ -43,7 +47,9 @@ export default function CustomersPage() {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
-  const [actionLoading, setActionLoading] = useState<{[key: string]: string | null}>({});
+  const [actionLoading, setActionLoading] = useState<{
+    [key: string]: string | null;
+  }>({});
   const { toasts, addToast, removeToast } = useToast();
 
   const [stats, setStats] = useState({
@@ -53,9 +59,10 @@ export default function CustomersPage() {
   });
 
   const [confirmAction, setConfirmAction] = useState<{
-    type: "delete" | "update" | null;
+    type: "delete" | "update" | "toggle" | null;
     userId?: string;
     userName?: string;
+    newRole?: "customer" | "admin";
     data?: any;
   }>({ type: null });
 
@@ -101,7 +108,7 @@ export default function CustomersPage() {
       filtered = filtered.filter(
         (user) =>
           user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.email?.toLowerCase().includes(searchQuery.toLowerCase())
+          user.email?.toLowerCase().includes(searchQuery.toLowerCase()),
       );
     }
 
@@ -139,7 +146,7 @@ export default function CustomersPage() {
 
   const executeUpdate = async () => {
     if (!confirmAction.data) return;
-    setActionLoading(prev => ({ ...prev, update: "update" }));
+    setActionLoading((prev) => ({ ...prev, update: "update" }));
 
     try {
       const result = await updateUser(confirmAction.data);
@@ -157,7 +164,7 @@ export default function CustomersPage() {
       addToast("An unexpected error occurred", "error");
       setConfirmAction({ type: null });
     } finally {
-      setActionLoading(prev => ({ ...prev, update: null }));
+      setActionLoading((prev) => ({ ...prev, update: null }));
     }
   };
 
@@ -167,7 +174,10 @@ export default function CustomersPage() {
 
   const executeDelete = async () => {
     if (!confirmAction.userId) return;
-    setActionLoading(prev => ({ ...prev, [`delete-${confirmAction.userId}`]: "delete" }));
+    setActionLoading((prev) => ({
+      ...prev,
+      [`delete-${confirmAction.userId}`]: "delete",
+    }));
 
     try {
       const result = await deleteUser(confirmAction.userId);
@@ -181,7 +191,53 @@ export default function CustomersPage() {
         setConfirmAction({ type: null });
       }
     } finally {
-      setActionLoading(prev => ({ ...prev, [`delete-${confirmAction.userId}`]: null }));
+      setActionLoading((prev) => ({
+        ...prev,
+        [`delete-${confirmAction.userId}`]: null,
+      }));
+    }
+  };
+
+  const handleToggleRole = (user: UserProfile) => {
+    const newRole = user.role === "admin" ? "customer" : "admin";
+    setConfirmAction({
+      type: "toggle",
+      userId: user.id,
+      userName: user.full_name || user.email || "this user",
+      newRole,
+    });
+  };
+
+  const executeToggle = async () => {
+    if (!confirmAction.userId || !confirmAction.newRole) return;
+    setActionLoading((prev) => ({
+      ...prev,
+      [`toggle-${confirmAction.userId}`]: "toggle",
+    }));
+
+    try {
+      const result =
+        confirmAction.newRole === "admin"
+          ? await promoteToAdmin(confirmAction.userId)
+          : await demoteFromAdmin(confirmAction.userId);
+
+      if (result.success) {
+        addToast(
+          `User ${confirmAction.newRole === "admin" ? "promoted to admin" : "demoted to customer"} successfully`,
+          "success",
+        );
+        fetchUsers();
+        fetchStats();
+        setConfirmAction({ type: null });
+      } else {
+        addToast(result.error || "Failed to update user role", "error");
+        setConfirmAction({ type: null });
+      }
+    } finally {
+      setActionLoading((prev) => ({
+        ...prev,
+        [`toggle-${confirmAction.userId}`]: null,
+      }));
     }
   };
 
@@ -218,29 +274,41 @@ export default function CustomersPage() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-2 sm:gap-4">
           <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
-            <p className="text-xs font-medium text-gray-600 sm:text-sm">Total Users</p>
-            <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">{stats.total}</p>
+            <p className="text-xs font-medium text-gray-600 sm:text-sm">
+              Total Users
+            </p>
+            <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">
+              {stats.total}
+            </p>
           </div>
           <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
-            <p className="text-xs font-medium text-gray-600 sm:text-sm">Customers</p>
-            <p className="mt-1 text-lg font-bold text-green-600 sm:text-2xl">{stats.customers}</p>
+            <p className="text-xs font-medium text-gray-600 sm:text-sm">
+              Customers
+            </p>
+            <p className="mt-1 text-lg font-bold text-green-600 sm:text-2xl">
+              {stats.customers}
+            </p>
           </div>
           <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
-            <p className="text-xs font-medium text-gray-600 sm:text-sm">Admins</p>
-            <p className="mt-1 text-lg font-bold text-purple-600 sm:text-2xl">{stats.admins}</p>
+            <p className="text-xs font-medium text-gray-600 sm:text-sm">
+              Admins
+            </p>
+            <p className="mt-1 text-lg font-bold text-purple-600 sm:text-2xl">
+              {stats.admins}
+            </p>
           </div>
         </div>
 
         {/* Search and Filters */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="Search by name or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 py-2.5 pl-10 pr-4 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+              className="w-full rounded-lg border border-gray-200 py-2.5 pr-4 pl-10 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
             />
           </div>
           <Select value={roleFilter} onValueChange={setRoleFilter}>
@@ -258,9 +326,11 @@ export default function CustomersPage() {
         {/* Users List */}
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
           {filteredUsers.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center px-4">
+            <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
               <Users className="mb-3 h-12 w-12 text-gray-300" />
-              <p className="text-base font-medium text-gray-900 sm:text-lg">No users found</p>
+              <p className="text-base font-medium text-gray-900 sm:text-lg">
+                No users found
+              </p>
               <p className="mt-1 text-xs text-gray-500 sm:text-sm">
                 Try adjusting your search or filters
               </p>
@@ -273,38 +343,76 @@ export default function CustomersPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.03 }}
-                  className="p-3 hover:bg-gray-50 transition-colors sm:p-4"
+                  className="p-3 transition-colors hover:bg-gray-50 sm:p-4"
                 >
                   {/* Mobile Layout */}
-                  <div className="sm:hidden space-y-3">
+                  <div className="space-y-3 sm:hidden">
                     <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex min-w-0 items-center gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2F2582] text-white">
                           <span className="text-sm font-medium">
-                            {(user.full_name || user.email || "U").charAt(0).toUpperCase()}
+                            {(user.full_name || user.email || "U")
+                              .charAt(0)
+                              .toUpperCase()}
                           </span>
                         </div>
                         <div className="min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="font-semibold text-gray-900 truncate text-sm">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="truncate text-sm font-semibold text-gray-900">
                               {user.full_name || "No name"}
                             </h3>
-                            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${getRoleBadgeColor(user.role)}`}>
-                              {user.role === "admin" && <Crown className="h-3 w-3" />}
+                            <span
+                              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${getRoleBadgeColor(user.role)}`}
+                            >
+                              {user.role === "admin" && (
+                                <Crown className="h-3 w-3" />
+                              )}
                               {user.role}
                             </span>
                           </div>
-                          <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                          <p className="truncate text-xs text-gray-500">
+                            {user.email}
+                          </p>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center justify-between text-xs text-gray-500">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        {formatDistanceToNow(new Date(user.created_at), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(user.created_at), {
+                          addSuffix: true,
+                        })}
                       </span>
                       <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleToggleRole(user)}
+                          disabled={!!actionLoading[`toggle-${user.id}`]}
+                          className={`rounded-lg border p-2 transition-colors disabled:opacity-50 ${
+                            user.role === "admin"
+                              ? "border-purple-200 bg-purple-50 text-purple-600 hover:bg-purple-100"
+                              : "border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100"
+                          }`}
+                          title={
+                            user.role === "admin"
+                              ? "Demote to customer"
+                              : "Promote to admin"
+                          }
+                        >
+                          {actionLoading[`toggle-${user.id}`] ? (
+                            <div
+                              className={`h-4 w-4 animate-spin rounded-full border-2 ${
+                                user.role === "admin"
+                                  ? "border-purple-600 border-t-transparent"
+                                  : "border-gray-600 border-t-transparent"
+                              }`}
+                            />
+                          ) : user.role === "admin" ? (
+                            <ShieldCheck className="h-4 w-4" />
+                          ) : (
+                            <Shield className="h-4 w-4" />
+                          )}
+                        </button>
                         <button
                           onClick={() => handleOpenEditModal(user)}
                           className="rounded-lg border border-gray-200 bg-white p-2 text-gray-600 hover:bg-gray-50"
@@ -312,7 +420,12 @@ export default function CustomersPage() {
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(user.id, user.full_name || user.email || "")}
+                          onClick={() =>
+                            handleDelete(
+                              user.id,
+                              user.full_name || user.email || "",
+                            )
+                          }
                           disabled={!!actionLoading[`delete-${user.id}`]}
                           className="rounded-lg border border-red-200 bg-white p-2 text-red-600 hover:bg-red-50 disabled:opacity-50"
                         >
@@ -327,20 +440,26 @@ export default function CustomersPage() {
                   </div>
 
                   {/* Desktop Layout */}
-                  <div className="hidden sm:flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="hidden items-start justify-between gap-4 sm:flex">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
                       <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#2F2582] text-white">
                         <span className="text-sm font-medium">
-                          {(user.full_name || user.email || "U").charAt(0).toUpperCase()}
+                          {(user.full_name || user.email || "U")
+                            .charAt(0)
+                            .toUpperCase()}
                         </span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-gray-900 truncate">
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-1 flex items-center gap-2">
+                          <h3 className="truncate font-semibold text-gray-900">
                             {user.full_name || "No name"}
                           </h3>
-                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${getRoleBadgeColor(user.role)}`}>
-                            {user.role === "admin" && <Crown className="h-3 w-3" />}
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${getRoleBadgeColor(user.role)}`}
+                          >
+                            {user.role === "admin" && (
+                              <Crown className="h-3 w-3" />
+                            )}
                             {user.role}
                           </span>
                         </div>
@@ -351,7 +470,9 @@ export default function CustomersPage() {
                           </span>
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            {formatDistanceToNow(new Date(user.created_at), { addSuffix: true })}
+                            {formatDistanceToNow(new Date(user.created_at), {
+                              addSuffix: true,
+                            })}
                           </span>
                         </div>
                       </div>
@@ -359,15 +480,50 @@ export default function CustomersPage() {
 
                     <div className="flex items-center gap-2">
                       <button
+                        onClick={() => handleToggleRole(user)}
+                        disabled={!!actionLoading[`toggle-${user.id}`]}
+                        className={`rounded-lg border p-2 transition-colors disabled:opacity-50 ${
+                          user.role === "admin"
+                            ? "border-purple-200 bg-purple-50 text-purple-600 hover:bg-purple-100"
+                            : "border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100"
+                        }`}
+                        title={
+                          user.role === "admin"
+                            ? "Demote to customer"
+                            : "Promote to admin"
+                        }
+                      >
+                        {actionLoading[`toggle-${user.id}`] ? (
+                          <div
+                            className={`h-4 w-4 animate-spin rounded-full border-2 ${
+                              user.role === "admin"
+                                ? "border-purple-600 border-t-transparent"
+                                : "border-gray-600 border-t-transparent"
+                            }`}
+                          />
+                        ) : user.role === "admin" ? (
+                          <ShieldCheck className="h-4 w-4" />
+                        ) : (
+                          <Shield className="h-4 w-4" />
+                        )}
+                      </button>
+                      <button
                         onClick={() => handleOpenEditModal(user)}
-                        disabled={Object.values(actionLoading).some(loading => loading !== null)}
+                        disabled={Object.values(actionLoading).some(
+                          (loading) => loading !== null,
+                        )}
                         className="rounded-lg border border-gray-200 bg-white p-2 text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
                         title="Edit user"
                       >
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(user.id, user.full_name || user.email || "")}
+                        onClick={() =>
+                          handleDelete(
+                            user.id,
+                            user.full_name || user.email || "",
+                          )
+                        }
                         disabled={!!actionLoading[`delete-${user.id}`]}
                         className="rounded-lg border border-red-200 bg-white p-2 text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
                         title="Delete user"
@@ -392,7 +548,11 @@ export default function CustomersPage() {
         isOpen={showEditModal}
         onClose={handleCloseModal}
         title="Edit User"
-        subtitle={editingUser ? `Update information for ${editingUser.full_name || editingUser.email}` : undefined}
+        subtitle={
+          editingUser
+            ? `Update information for ${editingUser.full_name || editingUser.email}`
+            : undefined
+        }
         onSubmit={handleSubmit}
         submitLabel="Update User"
         isSubmitting={!!actionLoading.update}
@@ -453,6 +613,21 @@ export default function CustomersPage() {
         confirmText="Update"
         cancelText="Cancel"
         onConfirm={executeUpdate}
+        onCancel={() => setConfirmAction({ type: null })}
+      />
+
+      <ConfirmationModal
+        isOpen={confirmAction.type === "toggle"}
+        title={
+          confirmAction.newRole === "admin"
+            ? "Promote to Admin"
+            : "Demote to Customer"
+        }
+        message={`Are you sure you want to change ${confirmAction.userName}'s role to ${confirmAction.newRole}?`}
+        confirmText={confirmAction.newRole === "admin" ? "Promote" : "Demote"}
+        cancelText="Cancel"
+        variant={confirmAction.newRole === "admin" ? "default" : "warning"}
+        onConfirm={executeToggle}
         onCancel={() => setConfirmAction({ type: null })}
       />
     </>

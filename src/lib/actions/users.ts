@@ -354,6 +354,36 @@ export async function deleteUser(userId: string) {
 export async function promoteToAdmin(userId: string) {
   const supabase = await supabaseServer();
 
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    console.error("Authentication error:", authError);
+    return { success: false, error: "Authentication required", data: null };
+  }
+
+  const { data: currentUserProfile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError) {
+    console.error("Error fetching current user profile:", profileError);
+    return {
+      success: false,
+      error: "Failed to verify admin status",
+      data: null,
+    };
+  }
+
+  if (currentUserProfile?.role !== "admin") {
+    console.error("Non-admin user attempted to promote user:", user.id);
+    return { success: false, error: "Admin privileges required", data: null };
+  }
+
   const { data, error } = await supabase
     .from("profiles")
     .update({ role: "admin" })
@@ -376,6 +406,36 @@ export async function promoteToAdmin(userId: string) {
  */
 export async function demoteFromAdmin(userId: string) {
   const supabase = await supabaseServer();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    console.error("Authentication error:", authError);
+    return { success: false, error: "Authentication required", data: null };
+  }
+
+  const { data: currentUserProfile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError) {
+    console.error("Error fetching current user profile:", profileError);
+    return {
+      success: false,
+      error: "Failed to verify admin status",
+      data: null,
+    };
+  }
+
+  if (currentUserProfile?.role !== "admin") {
+    console.error("Non-admin user attempted to demote user:", user.id);
+    return { success: false, error: "Admin privileges required", data: null };
+  }
 
   const { data, error } = await supabase
     .from("profiles")

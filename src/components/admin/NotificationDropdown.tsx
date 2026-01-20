@@ -75,7 +75,9 @@ export function NotificationDropdown() {
       ) {
         const orderMatch = notification.message.match(/#([a-f0-9]{8})/i);
         const orderId = orderMatch ? orderMatch[1] : null;
-        link = orderId ? `/admin/orders/${orderId}` : "/admin/orders";
+        link = orderId
+          ? `/admin/orders?selectedOrder=${orderId}`
+          : "/admin/orders";
       }
 
       router.push(link);

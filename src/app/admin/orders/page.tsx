@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -132,6 +133,15 @@ export default function AdminOrdersPage() {
     current_location: "",
     invoice_url: "",
   });
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const selectedOrderId = searchParams.get("selectedOrder");
+    if (selectedOrderId && isAdmin) {
+      handleViewOrder(selectedOrderId);
+    }
+  }, [searchParams, isAdmin]);
 
   useEffect(() => {
     if (isAdmin) {
