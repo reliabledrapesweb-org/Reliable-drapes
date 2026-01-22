@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Eye, EyeOff, Briefcase, X } from "lucide-react";
 import { motion } from "framer-motion";
+import { AdminPageSkeleton } from "@/components/ui/AdminPageSkeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -157,14 +158,11 @@ export default function AdminCareersPage() {
     if (!confirmAction.jobId || confirmAction.isActive === undefined) return;
 
     try {
-      const result = await toggleJobStatus(
-        confirmAction.jobId,
-        confirmAction.isActive,
-      );
+      const result = await toggleJobStatus(confirmAction.jobId, confirmAction.isActive);
       if (result.success) {
         addToast(
           `Job ${confirmAction.isActive ? "activated" : "deactivated"} successfully!`,
-          "success",
+          "success"
         );
         fetchJobs();
         setConfirmAction({ type: null });
@@ -217,10 +215,7 @@ export default function AdminCareersPage() {
         </div>
         <div className="grid grid-cols-3 gap-2 sm:gap-4">
           {[...Array(3)].map((_, i) => (
-            <div
-              key={i}
-              className="h-20 animate-pulse rounded-lg bg-gray-200 sm:h-24"
-            />
+            <div key={i} className="h-20 animate-pulse rounded-lg bg-gray-200 sm:h-24" />
           ))}
         </div>
         <div className="h-64 animate-pulse rounded-xl bg-gray-200 sm:h-96" />
@@ -233,16 +228,14 @@ export default function AdminCareersPage() {
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">
-            Job Listings
-          </h1>
+          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">Job Listings</h1>
           <p className="mt-1 text-xs text-gray-600 sm:text-sm">
             Manage job openings and career opportunities
           </p>
         </div>
         <Button
           onClick={handleOpenNewJobModal}
-          className="w-full cursor-pointer bg-[#2F2582] hover:bg-[#251e66] sm:w-auto"
+          className="w-full bg-[#2F2582] hover:bg-[#251e66] sm:w-auto cursor-pointer"
         >
           <Plus className="h-4 w-4" />
           Add New Job
@@ -253,9 +246,7 @@ export default function AdminCareersPage() {
       <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-600 sm:text-sm">Total</p>
-          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">
-            {jobs.length}
-          </p>
+          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">{jobs.length}</p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-600 sm:text-sm">Active</p>
@@ -264,9 +255,7 @@ export default function AdminCareersPage() {
           </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
-          <p className="text-xs font-medium text-gray-600 sm:text-sm">
-            Inactive
-          </p>
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">Inactive</p>
           <p className="mt-1 text-lg font-bold text-gray-600 sm:text-2xl">
             {jobs.filter((j) => !j.is_active).length}
           </p>
@@ -276,17 +265,15 @@ export default function AdminCareersPage() {
       {/* Jobs List */}
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
         {jobs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
+          <div className="flex flex-col items-center justify-center py-12 text-center px-4">
             <Briefcase className="mb-3 h-12 w-12 text-gray-300" />
-            <p className="text-base font-medium text-gray-900 sm:text-lg">
-              No job listings yet
-            </p>
+            <p className="text-base font-medium text-gray-900 sm:text-lg">No job listings yet</p>
             <p className="mt-1 text-xs text-gray-500 sm:text-sm">
               Get started by creating your first job listing
             </p>
             <Button
               onClick={handleOpenNewJobModal}
-              className="mt-4 cursor-pointer bg-[#2F2582] hover:bg-[#251e66]"
+              className="mt-4 bg-[#2F2582] hover:bg-[#251e66] cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               Add New Job
@@ -300,14 +287,12 @@ export default function AdminCareersPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="p-3 transition-colors hover:bg-gray-50 sm:p-4"
+                className="p-3 hover:bg-gray-50 transition-colors sm:p-4"
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-2 flex flex-wrap items-center gap-2">
-                      <h3 className="text-sm font-semibold text-gray-900 sm:text-base">
-                        {job.title}
-                      </h3>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base">{job.title}</h3>
                       <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
                         {job.type}
                       </span>
@@ -332,7 +317,7 @@ export default function AdminCareersPage() {
                       </span>
                     </div>
                     {job.description && (
-                      <p className="mb-2 line-clamp-2 text-xs text-gray-600 sm:text-sm">
+                      <p className="text-xs text-gray-600 line-clamp-2 mb-2 sm:text-sm">
                         {job.description}
                       </p>
                     )}
@@ -349,14 +334,14 @@ export default function AdminCareersPage() {
                   <div className="flex items-center gap-2 pt-2 sm:pt-0">
                     <button
                       onClick={() => handleEdit(job)}
-                      className="flex-1 rounded-lg border border-gray-200 bg-white p-2 text-gray-600 transition-colors hover:bg-gray-50 sm:flex-none"
+                      className="flex-1 sm:flex-none rounded-lg border border-gray-200 bg-white p-2 text-gray-600 transition-colors hover:bg-gray-50"
                       title="Edit job"
                     >
-                      <Pencil className="mx-auto h-4 w-4" />
+                      <Pencil className="h-4 w-4 mx-auto" />
                     </button>
                     <button
                       onClick={() => handleToggleStatus(job)}
-                      className={`flex-1 rounded-lg border p-2 transition-colors sm:flex-none ${
+                      className={`flex-1 sm:flex-none rounded-lg border p-2 transition-colors ${
                         job.is_active
                           ? "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
                           : "border-green-200 bg-white text-green-600 hover:bg-green-50"
@@ -364,17 +349,17 @@ export default function AdminCareersPage() {
                       title={job.is_active ? "Deactivate" : "Activate"}
                     >
                       {job.is_active ? (
-                        <EyeOff className="mx-auto h-4 w-4" />
+                        <EyeOff className="h-4 w-4 mx-auto" />
                       ) : (
-                        <Eye className="mx-auto h-4 w-4" />
+                        <Eye className="h-4 w-4 mx-auto" />
                       )}
                     </button>
                     <button
                       onClick={() => handleDelete(job.id, job.title)}
-                      className="flex-1 rounded-lg border border-red-200 bg-white p-2 text-red-600 transition-colors hover:bg-red-50 sm:flex-none"
+                      className="flex-1 sm:flex-none rounded-lg border border-red-200 bg-white p-2 text-red-600 transition-colors hover:bg-red-50"
                       title="Delete job"
                     >
-                      <Trash2 className="mx-auto h-4 w-4" />
+                      <Trash2 className="h-4 w-4 mx-auto" />
                     </button>
                   </div>
                 </div>
@@ -390,7 +375,7 @@ export default function AdminCareersPage() {
           <motion.div
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-w-2xl sm:rounded-2xl"
+            className="w-full max-h-[90vh] overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-w-2xl sm:rounded-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-3 sm:px-6 sm:py-4">
@@ -405,141 +390,132 @@ export default function AdminCareersPage() {
               </button>
             </div>
             <div className="p-4 sm:p-6">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Job Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.title}
-                    onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
-                    }
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
-                    placeholder="Enter job title"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="mb-2 block text-sm font-medium text-gray-700">
-                      Type *
-                    </label>
-                    <Select
-                      required
-                      value={formData.type}
-                      onValueChange={(value: typeof formData.type) =>
-                        setFormData({ ...formData, type: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Store">Store</SelectItem>
-                        <SelectItem value="Corporate">Corporate</SelectItem>
-                        <SelectItem value="Design">Design</SelectItem>
-                        <SelectItem value="Warehouse">Warehouse</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-gray-700">
-                      Experience *
+                      Job Title *
                     </label>
                     <input
                       type="text"
                       required
-                      value={formData.experience}
-                      onChange={(e) =>
-                        setFormData({ ...formData, experience: e.target.value })
-                      }
-                      placeholder="e.g., 2 - 4 yrs"
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      placeholder="Enter job title"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Location *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.location}
-                    onChange={(e) =>
-                      setFormData({ ...formData, location: e.target.value })
-                    }
-                    placeholder="e.g., Mumbai, Delhi"
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
-                  />
-                </div>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                        Type *
+                      </label>
+                      <Select
+                        required
+                        value={formData.type}
+                        onValueChange={(value: typeof formData.type) =>
+                          setFormData({ ...formData, type: value })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Store">Store</SelectItem>
+                          <SelectItem value="Corporate">Corporate</SelectItem>
+                          <SelectItem value="Design">Design</SelectItem>
+                          <SelectItem value="Warehouse">Warehouse</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Description *
-                  </label>
-                  <textarea
-                    required
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    rows={4}
-                    className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
-                    placeholder="Enter job description"
-                  />
-                </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                        Experience *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.experience}
+                        onChange={(e) =>
+                          setFormData({ ...formData, experience: e.target.value })
+                        }
+                        placeholder="e.g., 2 - 4 yrs"
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      />
+                    </div>
+                  </div>
 
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="is_active"
-                    checked={formData.is_active}
-                    onChange={(e) =>
-                      setFormData({ ...formData, is_active: e.target.checked })
-                    }
-                    className="h-4 w-4 rounded border-gray-300 text-[#2F2582] focus:ring-[#2F2582]"
-                  />
-                  <label
-                    htmlFor="is_active"
-                    className="ml-2 block text-sm text-gray-900"
-                  >
-                    Active (visible to job seekers)
-                  </label>
-                </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                      Location *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      placeholder="e.g., Mumbai, Delhi"
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                    />
+                  </div>
 
-                <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleCloseModal}
-                    className="w-full sm:flex-1"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full cursor-pointer bg-[#2F2582] hover:bg-[#251e66] disabled:opacity-50 sm:flex-1"
-                  >
-                    {isSubmitting ? (
-                      <div className="flex items-center gap-2">
-                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                        {editingJob ? "Updating..." : "Creating..."}
-                      </div>
-                    ) : editingJob ? (
-                      "Update"
-                    ) : (
-                      "Create"
-                    )}
-                  </Button>
-                </div>
-              </form>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                      Description *
+                    </label>
+                    <textarea
+                      required
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({ ...formData, description: e.target.value })
+                      }
+                      rows={4}
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20 resize-none"
+                      placeholder="Enter job description"
+                    />
+                  </div>
+
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="is_active"
+                      checked={formData.is_active}
+                      onChange={(e) =>
+                        setFormData({ ...formData, is_active: e.target.checked })
+                      }
+                      className="h-4 w-4 rounded border-gray-300 text-[#2F2582] focus:ring-[#2F2582]"
+                    />
+                    <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">
+                      Active (visible to job seekers)
+                    </label>
+                  </div>
+
+                  <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleCloseModal}
+                      className="w-full sm:flex-1"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full bg-[#2F2582] hover:bg-[#251e66] disabled:opacity-50 cursor-pointer sm:flex-1"
+                    >
+                      {isSubmitting ? (
+                        <div className="flex items-center gap-2">
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          {editingJob ? "Updating..." : "Creating..."}
+                        </div>
+                      ) : (
+                        editingJob ? "Update" : "Create"
+                      )}
+                    </Button>
+                  </div>
+                </form>
             </div>
           </motion.div>
         </div>

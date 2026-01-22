@@ -6,6 +6,7 @@ import { useState, useRef } from "react";
 import { Upload, X, Loader2, File, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { uploadFile, validateFile } from "@/lib/utils/storage";
+import { uploadMediaItem } from "@/lib/actions/media";
 
 interface FileUploadProps {
   label: string;
@@ -19,6 +20,8 @@ interface FileUploadProps {
   allowedTypes?: string[];
   previewType?: "image" | "file";
   disabled?: boolean;
+  registerWithMediaLibrary?: boolean; // Whether to register uploads with the media library
+  mediaLibraryTags?: string[]; // Tags to apply when registering with media library
 }
 
 export function FileUpload({
@@ -33,6 +36,8 @@ export function FileUpload({
   allowedTypes = [],
   previewType = "file",
   disabled = false,
+  registerWithMediaLibrary = false,
+  mediaLibraryTags = [],
 }: FileUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +64,28 @@ export function FileUpload({
       const result = await uploadFile(file, bucket, folder);
       if (result.success && result.url) {
         onUploadComplete(result.url);
+
+        // Register with media library if requested
+        if (registerWithMediaLibrary) {
+          try {
+            // Determine the media library bucket based on file type
+            let mediaBucket = "media"; // Default bucket for general files
+            if (bucket === "products" || bucket === "catalogues") {
+              mediaBucket = bucket; // Use the same bucket for products/catalogues
+            }
+
+            await uploadMediaItem(file, {
+              bucket: mediaBucket,
+              folder: folder || "uploads",
+              tags: mediaLibraryTags,
+              altText: "", // Could be enhanced to accept alt text
+            });
+          } catch (mediaError) {
+            console.warn("Failed to register with media library:", mediaError);
+            // Don't fail the upload if media library registration fails
+          }
+        }
+
         setError(null);
       } else {
         setError(result.error || "Upload failed");
@@ -86,7 +113,9 @@ export function FileUpload({
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-semibold text-gray-700">{label}</label>
+      <label className="block text-sm font-semibold text-gray-700">
+        {label}
+      </label>
 
       {/* Current file preview */}
       {currentUrl && (
@@ -98,8 +127,8 @@ export function FileUpload({
                 alt="Preview"
                 className="h-20 w-20 rounded-lg object-cover"
               />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-600 truncate">{currentUrl}</p>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm text-gray-600">{currentUrl}</p>
               </div>
               {!disabled && (
                 <Button
@@ -107,7 +136,7 @@ export function FileUpload({
                   variant="ghost"
                   size="sm"
                   onClick={handleRemove}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="text-red-600 hover:bg-red-50 hover:text-red-700"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -118,8 +147,8 @@ export function FileUpload({
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100">
                 <File className="h-6 w-6 text-gray-600" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-600 truncate">{currentUrl}</p>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm text-gray-600">{currentUrl}</p>
               </div>
               {!disabled && (
                 <Button
@@ -127,7 +156,7 @@ export function FileUpload({
                   variant="ghost"
                   size="sm"
                   onClick={handleRemove}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="text-red-600 hover:bg-red-50 hover:text-red-700"
                 >
                   <X className="h-4 w-4" />
                 </Button>

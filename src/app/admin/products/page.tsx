@@ -15,11 +15,14 @@ import {
   AlertCircle,
   CheckCircle,
   FileSpreadsheet,
+  Image as ImageIcon,
+  Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import * as XLSX from "xlsx";
 import { FileUpload } from "@/components/admin/FileUpload";
+import { uploadFile } from "@/lib/utils/storage";
 import {
   getProducts,
   createProduct,
@@ -91,6 +94,20 @@ export default function AdminProductsPage() {
     productId?: string;
     productName?: string;
   }>({ type: null });
+
+  const [productsMissingImages, setProductsMissingImages] = useState<
+    Array<{ id: string; name: string }>
+  >([]);
+  const [showMassUploadModal, setShowMassUploadModal] = useState(false);
+  const [massUploadFiles, setMassUploadFiles] = useState<File[]>([]);
+  const [massUploadMatches, setMassUploadMatches] = useState<
+    Record<string, File[]>
+  >({});
+  const [isMassUploading, setIsMassUploading] = useState(false);
+  const [massUploadProgress, setMassUploadProgress] = useState({
+    current: 0,
+    total: 0,
+  });
 
   const [formData, setFormData] = useState({
     name: "",
@@ -465,6 +482,9 @@ export default function AdminProductsPage() {
               return null;
             }
 
+            // Image URL is now optional for bulk import
+            // We will allow products without images and prompt for mass upload later
+
             // Parse and validate categories
             const categoryNames = categoriesStr
               ? categoriesStr
@@ -536,6 +556,7 @@ export default function AdminProductsPage() {
     setImportProgress({ current: 0, total: importPreview.length });
 
     const details: string[] = [];
+    const missingImages: Array<{ id: string; name: string }> = [];
 
     try {
       let successCount = 0;
@@ -552,6 +573,14 @@ export default function AdminProductsPage() {
           price: productData.price,
         });
         if (result.success && result.data) {
+          // Track if product is missing image
+          if (!productData.image_url) {
+            missingImages.push({
+              id: result.data.id,
+              name: productData.name,
+            });
+          }
+
           // Assign categories if provided
           if (productData.categories) {
             const categoryNames = productData.categories
@@ -591,6 +620,16 @@ export default function AdminProductsPage() {
 
       // Don't close modal - show summary instead
       setImportPreview([]);
+
+      // If products are missing images, show prompt for mass upload
+      if (missingImages.length > 0) {
+        setProductsMissingImages(missingImages);
+        // Delay slightly to let the toast show
+        setTimeout(() => {
+          handleCloseImportModal();
+          setShowMassUploadModal(true);
+        }, 2000);
+      }
     } catch (error) {
       console.error("Bulk import error:", error);
       addToast("Failed to import products", "error");
@@ -607,6 +646,105 @@ export default function AdminProductsPage() {
     setSkippedRows([]);
     setImportSummary(null);
     setImportProgress({ current: 0, total: 0 });
+  };
+
+  // Handle mass image upload
+  const handleMassImageFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setMassUploadFiles(files);
+    matchFilesToProducts(files);
+  };
+
+  const matchFilesToProducts = (files: File[]) => {
+    const matches: Record<string, File[]> = {};
+
+    productsMissingImages.forEach((product) => {
+      // Find files that start with the product name (case insensitive)
+      // Normalizing names to handle special chars and spacing
+      const normalizedProductName = product.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "");
+
+      const productMatches = files.filter((file) => {
+        const normalizedFileName = file.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "");
+        return normalizedFileName.startsWith(normalizedProductName);
+      });
+
+      if (productMatches.length > 0) {
+        matches[product.id] = productMatches;
+      }
+    });
+
+    setMassUploadMatches(matches);
+  };
+
+  const executeMassUpload = async () => {
+    setIsMassUploading(true);
+    let totalImages = 0;
+    Object.values(massUploadMatches).forEach((files) => {
+      totalImages += files.length;
+    });
+    setMassUploadProgress({ current: 0, total: totalImages });
+
+    let processedCount = 0;
+    let successCount = 0;
+
+    try {
+      for (const [productId, files] of Object.entries(massUploadMatches)) {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const uploadResult = await uploadFile(file, "products", "images");
+
+          if (uploadResult.success && uploadResult.url) {
+            // If it's the first image, set as primary product image
+            if (i === 0) {
+              await updateProduct(productId, {
+                image_url: uploadResult.url,
+              });
+            }
+
+            // Add to product gallery
+            await addProductImage({
+              product_id: productId,
+              image_url: uploadResult.url,
+              alt_text:
+                productImages.length > 0
+                  ? `${files[0].name} - ${i + 1}`
+                  : file.name.split(".")[0],
+              is_primary: i === 0,
+              sort_order: i,
+            });
+            successCount++;
+          }
+          processedCount++;
+          setMassUploadProgress((prev) => ({
+            ...prev,
+            current: processedCount,
+          }));
+        }
+      }
+
+      addToast(
+        `Successfully uploaded ${successCount} images for ${
+          Object.keys(massUploadMatches).length
+        } products`,
+        "success",
+      );
+      setShowMassUploadModal(false);
+      setProductsMissingImages([]);
+      setMassUploadFiles([]);
+      setMassUploadMatches({});
+      fetchProducts();
+    } catch (error) {
+      console.error("Mass upload error:", error);
+      addToast("Failed to complete mass upload", "error");
+    } finally {
+      setIsMassUploading(false);
+    }
   };
 
   // Export products to Excel
@@ -1534,18 +1672,181 @@ export default function AdminProductsPage() {
         )}
       </AnimatePresence>
 
+      {/* Mass Image Upload Modal */}
+      <AnimatePresence>
+        {showMassUploadModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl"
+            >
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Upload Product Images
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Found {productsMissingImages.length} products without images
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowMassUploadModal(false)}
+                  className="rounded-full p-2 hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div className="rounded-lg bg-blue-50 p-4 text-sm text-blue-800">
+                  <p className="font-medium">How this works:</p>
+                  <ul className="mt-2 list-disc space-y-1 pl-4">
+                    <li>Select multiple images at once</li>
+                    <li>
+                      Images will be matched if filename starts with product
+                      name
+                    </li>
+                    <li>
+                      Example: &quot;Royal Curtain.jpg&quot; matches product
+                      &quot;Royal Curtain&quot;
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-10">
+                    <div className="text-center">
+                      <ImageIcon className="mx-auto h-12 w-12 text-gray-300" />
+                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                        <label
+                          htmlFor="mass-file-upload"
+                          className="relative cursor-pointer rounded-md bg-white font-semibold text-[#2F2582] focus-within:ring-2 focus-within:ring-[#2F2582] focus-within:ring-offset-2 focus-within:outline-none hover:text-[#241c66]"
+                        >
+                          <span>Upload files</span>
+                          <input
+                            id="mass-file-upload"
+                            name="mass-file-upload"
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            className="sr-only"
+                            onChange={handleMassImageFiles}
+                          />
+                        </label>
+                        <p className="pl-1">or drag and drop</p>
+                      </div>
+                      <p className="text-xs leading-5 text-gray-600">
+                        PNG, JPG, WEBP up to 10MB
+                      </p>
+                    </div>
+                  </div>
+
+                  {massUploadFiles.length > 0 && (
+                    <div className="rounded-lg border border-gray-200">
+                      <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
+                        <h3 className="text-sm font-medium text-gray-900">
+                          Matched Products (
+                          {Object.keys(massUploadMatches).length})
+                        </h3>
+                      </div>
+                      <div className="max-h-60 divide-y divide-gray-200 overflow-y-auto">
+                        {Object.entries(massUploadMatches).map(
+                          ([productId, files]) => {
+                            const product = productsMissingImages.find(
+                              (p) => p.id === productId,
+                            );
+                            return (
+                              <div
+                                key={productId}
+                                className="flex items-center justify-between px-4 py-3"
+                              >
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">
+                                    {product?.name}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {files.length} image(s) matched
+                                  </p>
+                                </div>
+                                <div className="flex -space-x-2">
+                                  {files.slice(0, 3).map((file, i) => (
+                                    <div
+                                      key={i}
+                                      className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-[10px] ring-2 ring-white"
+                                      title={file.name}
+                                    >
+                                      📷
+                                    </div>
+                                  ))}
+                                  {files.length > 3 && (
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-[10px] ring-2 ring-white">
+                                      +{files.length - 3}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          },
+                        )}
+                        {Object.keys(massUploadMatches).length === 0 && (
+                          <div className="px-4 py-8 text-center text-sm text-gray-500">
+                            No matches found. Check your filenames.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowMassUploadModal(false)}
+                    disabled={isMassUploading}
+                  >
+                    Skip & Close
+                  </Button>
+                  <Button
+                    onClick={executeMassUpload}
+                    disabled={
+                      isMassUploading ||
+                      Object.keys(massUploadMatches).length === 0
+                    }
+                    className="bg-[#2F2582] hover:bg-[#241c66]"
+                  >
+                    {isMassUploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading ({massUploadProgress.current}/
+                        {massUploadProgress.total})
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Start Upload
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Delete Confirmation Modal */}
       <ConfirmationModal
-        isOpen={confirmAction.type === "delete"}
-        onCancel={() => setConfirmAction({ type: null })}
-        onConfirm={executeDelete}
-        title="Delete Product?"
+        isOpen={!!confirmAction.type}
+        title="Delete Product"
         message={`Are you sure you want to delete "${confirmAction.productName}"? This action cannot be undone.`}
         confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={executeDelete}
+        onCancel={() => setConfirmAction({ type: null })}
+        isLoading={!!actionLoading[`delete-${confirmAction.productId}`]}
         variant="danger"
-        isLoading={
-          actionLoading[`delete-${confirmAction.productId}`] === "delete"
-        }
       />
 
       {/* Import Preview Modal */}

@@ -42,7 +42,7 @@ import { supabaseClient } from "@/lib/supabase/client";
 import { useAdmin } from "@/lib/hooks/useAdmin";
 import { profileSchema, type ProfileFormValues } from "@/lib/validators";
 import { ChangePasswordModal } from "@/components/features/profile/ChangePasswordModal";
-import { AdminPageSkeleton } from "@/components/ui/AdminPageSkeleton";
+import { SettingsSkeleton } from "@/components/ui/AdminSkeletons";
 import {
   useAdminPreferencesStore,
   ACCENT_COLORS,
@@ -200,7 +200,7 @@ export default function AdminSettingsPage() {
 
   // Loading state
   if (adminLoading || isLoading) {
-    return <AdminPageSkeleton />;
+    return <SettingsSkeleton />;
   }
 
   if (!isAdmin) {

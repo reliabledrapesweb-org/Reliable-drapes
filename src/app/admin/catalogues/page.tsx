@@ -15,6 +15,7 @@ import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { ConfirmationModal } from "@/components/shared";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { AdminPageSkeleton } from "@/components/ui/AdminPageSkeleton";
 import {
   Table,
   TableBody,

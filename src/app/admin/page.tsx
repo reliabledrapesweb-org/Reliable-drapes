@@ -30,7 +30,7 @@ import { getApplicationStats } from "@/lib/actions/job-applications";
 import { getAdminOrdersAction } from "@/lib/actions/orders";
 import { useAuthStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
-import { AdminPageSkeleton } from "@/components/ui/AdminPageSkeleton";
+import { AdminDashboardSkeleton } from "@/components/ui/AdminSkeletons";
 
 interface StatCardProps {
   title: string;
@@ -364,7 +364,7 @@ export default function AdminDashboard() {
   ];
 
   if (isLoading) {
-    return <AdminPageSkeleton />;
+    return <AdminDashboardSkeleton />;
   }
 
   return (

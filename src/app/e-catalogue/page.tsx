@@ -13,6 +13,14 @@ function transformCatalogueToProduct(catalogue: Catalogue) {
   const fallbackImage =
     "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center";
 
+  // Debug: Log the catalogue data to see what image URLs we're getting
+  console.log("Catalogue data:", {
+    id: catalogue.id,
+    title: catalogue.title,
+    thumbnail_url: catalogue.thumbnail_url,
+    image_url: catalogue.image_url,
+  });
+
   // Use thumbnail_url first, then image_url, then fallback
   const imageUrl =
     catalogue.thumbnail_url || catalogue.image_url || fallbackImage;
@@ -41,6 +49,7 @@ export default function CataloguePage() {
       setIsLoading(true);
       try {
         const result = await getCatalogues();
+        console.log("Catalogues API response:", result);
         if (result.success && result.data) {
           setCatalogues(result.data);
         } else {
