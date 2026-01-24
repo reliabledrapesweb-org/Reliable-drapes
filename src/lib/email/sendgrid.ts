@@ -1,10 +1,9 @@
-import sgMail from "@sendgrid/mail";
+/**
+ * SendGrid Email Service - Edge-Compatible (Fetch API)
+ * Works on both Vercel (Serverless/Edge) and Cloudflare (Edge)
+ */
 
-// Initialize SendGrid with API key
-const apiKey = process.env.SENDGRID_API_KEY;
-if (apiKey) {
-  sgMail.setApiKey(apiKey);
-}
+const SENDGRID_API_URL = "https://api.sendgrid.com/v3/mail/send";
 
 // Default sender configuration
 const DEFAULT_FROM_EMAIL =
@@ -55,7 +54,7 @@ export function isSendGridConfigured(): boolean {
 }
 
 /**
- * Send a single email using SendGrid
+ * Send a single email using SendGrid REST API
  */
 export async function sendEmail(
   options: EmailOptions,
@@ -71,28 +70,60 @@ export async function sendEmail(
 
   const { to, subject, html, text, from } = options;
 
-  try {
-    const msg = {
-      to,
-      from: {
-        email: from?.email || DEFAULT_FROM_EMAIL,
-        name: from?.name || DEFAULT_FROM_NAME,
-      },
-      subject,
-      html,
-      text: text || html.replace(/<[^>]*>/g, ""), // Strip HTML for plain text version
-    };
+  // Normalize 'to' to array format
+  const toAddresses = Array.isArray(to) ? to : [to];
 
-    const [response] = await sgMail.send(msg);
+  const payload = {
+    personalizations: [
+      {
+        to: toAddresses.map((email) => ({ email })),
+      },
+    ],
+    from: {
+      email: from?.email || DEFAULT_FROM_EMAIL,
+      name: from?.name || DEFAULT_FROM_NAME,
+    },
+    subject,
+    content: [
+      {
+        type: "text/plain",
+        value: text || html.replace(/<[^>]*>/g, ""),
+      },
+      {
+        type: "text/html",
+        value: html,
+      },
+    ],
+  };
+
+  try {
+    const response = await fetch(SENDGRID_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error("[SendGrid] API error:", response.status, errorBody);
+      return {
+        success: false,
+        error: `SendGrid API error: ${response.status} - ${errorBody}`,
+      };
+    }
+
+    const messageId = response.headers.get("x-message-id") || undefined;
 
     return {
       success: true,
-      messageId: response.headers["x-message-id"] as string,
+      messageId,
     };
   } catch (error) {
     console.error("[SendGrid] Error sending email:", error);
 
-    // Extract meaningful error message from SendGrid response
     const errorMessage =
       error instanceof Error
         ? error.message
@@ -126,7 +157,7 @@ export async function sendBulkEmail(
 
   const { recipients, subject, html, text, from } = options;
 
-  // SendGrid recommends batches of 1000 for personalization
+  // SendGrid allows up to 1000 personalizations per request
   const BATCH_SIZE = 1000;
   const batches: string[][] = [];
 
@@ -139,22 +170,54 @@ export async function sendBulkEmail(
   const errors: Array<{ email: string; error: string }> = [];
 
   for (const batch of batches) {
-    try {
-      // Create personalized messages for each recipient
-      const messages = batch.map((email) => ({
-        to: email,
-        from: {
-          email: from?.email || DEFAULT_FROM_EMAIL,
-          name: from?.name || DEFAULT_FROM_NAME,
+    const payload = {
+      personalizations: batch.map((email) => ({
+        to: [{ email }],
+      })),
+      from: {
+        email: from?.email || DEFAULT_FROM_EMAIL,
+        name: from?.name || DEFAULT_FROM_NAME,
+      },
+      subject,
+      content: [
+        {
+          type: "text/plain",
+          value: text || html.replace(/<[^>]*>/g, ""),
         },
-        subject,
-        html,
-        text: text || html.replace(/<[^>]*>/g, ""),
-      }));
+        {
+          type: "text/html",
+          value: html,
+        },
+      ],
+    };
 
-      // Send batch
-      await sgMail.send(messages);
-      sent += batch.length;
+    try {
+      const response = await fetch(SENDGRID_API_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error(
+          "[SendGrid] Batch send error:",
+          response.status,
+          errorBody,
+        );
+        failed += batch.length;
+        batch.forEach((email) => {
+          errors.push({
+            email,
+            error: `API error: ${response.status}`,
+          });
+        });
+      } else {
+        sent += batch.length;
+      }
 
       // Small delay between batches to avoid rate limiting
       if (batches.length > 1) {
@@ -164,7 +227,6 @@ export async function sendBulkEmail(
       console.error("[SendGrid] Batch send error:", error);
       failed += batch.length;
 
-      // Log individual errors if available
       batch.forEach((email) => {
         errors.push({
           email,

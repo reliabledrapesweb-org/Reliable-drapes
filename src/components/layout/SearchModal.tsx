@@ -6,6 +6,7 @@ import { Search, X, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getProducts, type Product } from "@/lib/actions/products";
+import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants/app";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -82,8 +83,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }).format(price);
   };
 
-  const fallbackImage =
-    "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=200&fit=crop&crop=center";
+  const fallbackImage = DEFAULT_PRODUCT_IMAGE;
 
   return (
     <AnimatePresence>

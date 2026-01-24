@@ -7,12 +7,24 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Breadcrumb, ConfirmModal } from "@/components/shared";
 import { useCartStore } from "@/lib/store";
-import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft, ArrowRight, Tag, ChevronRight, AlertTriangle, MapPin } from "lucide-react";
+import {
+  ShoppingCart,
+  Minus,
+  Plus,
+  Trash2,
+  ArrowLeft,
+  ArrowRight,
+  Tag,
+  ChevronRight,
+  AlertTriangle,
+  MapPin,
+} from "lucide-react";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { createOrderAction } from "@/lib/actions/orders";
 import { getProfile } from "@/lib/actions/users";
 import { useAuthStore } from "@/lib/store";
 import { Loader } from "lucide-react";
+import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants/app";
 
 export default function CartPage() {
   const router = useRouter();
@@ -28,7 +40,10 @@ export default function CartPage() {
 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [promoCode, setPromoCode] = useState("");
-  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discount: number } | null>(null);
+  const [appliedPromo, setAppliedPromo] = useState<{
+    code: string;
+    discount: number;
+  } | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [hasAddress, setHasAddress] = useState<boolean | null>(null);
   const { user } = useAuthStore();
@@ -140,9 +155,9 @@ export default function CartPage() {
 
     // Mock promo codes for demo
     const promoCodes: Record<string, number> = {
-      "SAVE10": 10,
-      "SAVE20": 20,
-      "WELCOME": 15,
+      SAVE10: 10,
+      SAVE20: 20,
+      WELCOME: 15,
     };
 
     const discount = promoCodes[promoCode.toUpperCase()];
@@ -154,13 +169,13 @@ export default function CartPage() {
     }
   };
 
-  const fallbackImage = "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=200&fit=crop&crop=center";
+  const fallbackImage = DEFAULT_PRODUCT_IMAGE;
 
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
       <Breadcrumb />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-12 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -246,9 +261,13 @@ export default function CartPage() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
-                    transition={{ delay: index * 0.05, type: "spring", stiffness: 100 }}
+                    transition={{
+                      delay: index * 0.05,
+                      type: "spring",
+                      stiffness: 100,
+                    }}
                     whileHover={{ scale: 1.01 }}
-                    className="flex gap-4 rounded-2xl bg-white border border-gray-200 p-5 shadow-sm transition-all hover:shadow-md"
+                    className="flex gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md"
                   >
                     {/* Product Image */}
                     <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-white">
@@ -303,7 +322,9 @@ export default function CartPage() {
                         {/* Quantity Controls */}
                         <div className="flex items-center gap-4 rounded-full bg-[#F0F0F0] px-5 py-2.5">
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={() =>
+                              updateQuantity(item.id, item.quantity - 1)
+                            }
                             className="text-[#000000] transition-opacity hover:opacity-70 disabled:opacity-30"
                             disabled={item.quantity <= 1}
                             aria-label="Decrease quantity"
@@ -314,7 +335,9 @@ export default function CartPage() {
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            onClick={() =>
+                              updateQuantity(item.id, item.quantity + 1)
+                            }
                             className="text-[#000000] transition-opacity hover:opacity-70"
                             aria-label="Increase quantity"
                           >
@@ -373,7 +396,9 @@ export default function CartPage() {
 
                     <div className="border-t border-[#00000010] pt-4">
                       <div className="flex items-center justify-between">
-                        <span className="text-base font-medium text-[#000000]">Total</span>
+                        <span className="text-base font-medium text-[#000000]">
+                          Total
+                        </span>
                         <span className="text-2xl font-bold text-[#000000]">
                           {formatPrice(total)}
                         </span>
@@ -385,14 +410,14 @@ export default function CartPage() {
                   <div className="mt-6">
                     <div className="flex items-center gap-3">
                       <div className="relative flex-1">
-                        <Tag className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#00000066]" />
+                        <Tag className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-[#00000066]" />
                         <input
                           type="text"
                           value={promoCode}
                           onChange={(e) => setPromoCode(e.target.value)}
                           placeholder="Add promo code"
                           disabled={!!appliedPromo}
-                          className="w-full rounded-full border border-[#00000010] bg-[#F0F0F0] py-3 pl-11 pr-4 text-sm text-[#000000] placeholder:text-[#00000066] focus:border-[#2f2582] focus:outline-none focus:ring-2 focus:ring-[#2f2582]/20 disabled:opacity-50"
+                          className="w-full rounded-full border border-[#00000010] bg-[#F0F0F0] py-3 pr-4 pl-11 text-sm text-[#000000] placeholder:text-[#00000066] focus:border-[#2f2582] focus:ring-2 focus:ring-[#2f2582]/20 focus:outline-none disabled:opacity-50"
                         />
                       </div>
                       <button
@@ -414,13 +439,14 @@ export default function CartPage() {
                   {user && hasAddress === false && (
                     <div className="mt-6 rounded-xl border border-yellow-200 bg-yellow-50 p-4">
                       <div className="flex items-start gap-3">
-                        <MapPin className="h-5 w-5 shrink-0 text-yellow-600 mt-0.5" />
+                        <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-yellow-600" />
                         <div>
                           <p className="text-sm font-medium text-yellow-800">
                             Shipping address required
                           </p>
                           <p className="mt-1 text-xs text-yellow-700">
-                            Please add your shipping address before you can checkout.
+                            Please add your shipping address before you can
+                            checkout.
                           </p>
                           <Link
                             href="/profile?tab=address"
@@ -438,10 +464,11 @@ export default function CartPage() {
                     whileHover={{ scale: hasAddress === false ? 1 : 1.02 }}
                     whileTap={{ scale: hasAddress === false ? 1 : 0.98 }}
                     disabled={isCheckingOut || hasAddress === false}
-                    className={`mt-6 flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-base font-semibold text-white transition-all ${hasAddress === false
-                        ? "bg-gray-300 cursor-not-allowed"
-                        : "bg-[#2f2582] hover:bg-[#241c66] hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed"
-                      }`}
+                    className={`mt-6 flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-base font-semibold text-white transition-all ${
+                      hasAddress === false
+                        ? "cursor-not-allowed bg-gray-300"
+                        : "bg-[#2f2582] hover:bg-[#241c66] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-70"
+                    }`}
                   >
                     {isCheckingOut ? (
                       <>

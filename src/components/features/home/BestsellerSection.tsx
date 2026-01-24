@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getCollectionProducts, type Product } from "@/lib/actions/products";
+import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants/app";
 
 export function BestsellerSection() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -168,10 +169,7 @@ function BestsellerCard({
         <Image
           width={800}
           height={800}
-          src={
-            product.image_url ||
-            "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=800&fit=crop"
-          }
+          src={product.image_url || DEFAULT_PRODUCT_IMAGE}
           alt={product.name}
           className="h-full w-full object-cover"
           sizes="(max-width: 1024px) 100vw, 50vw"

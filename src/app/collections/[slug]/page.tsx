@@ -22,6 +22,7 @@ import {
   type Product,
 } from "@/lib/actions/products";
 import { format, isAfter } from "date-fns";
+import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants/app";
 
 export default function CollectionDetailPage() {
   const params = useParams();
@@ -100,8 +101,7 @@ export default function CollectionDetailPage() {
     }).format(price);
   };
 
-  const fallbackBanner =
-    "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=1600&h=400&fit=crop";
+  const fallbackBanner = DEFAULT_PRODUCT_IMAGE;
 
   // Check if collection is ending soon
   const isEndingSoon = collection?.end_date

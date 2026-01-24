@@ -1,36 +1,8 @@
-<svg width="500" height="375" viewBox="0 0 500 375" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="500" height="375" fill="#F8FAFC"/>
-  
-  <!-- Sofa Illustration -->
-  <g transform="translate(125, 120)">
-    <!-- Main sofa body -->
-    <rect x="0" y="60" width="250" height="80" rx="12" fill="#6B7280"/>
-    <!-- Backrest -->
-    <rect x="10" y="40" width="230" height="50" rx="10" fill="#9CA3AF"/>
-    <!-- Left armrest -->
-    <rect x="-20" y="50" width="35" height="70" rx="8" fill="#9CA3AF"/>
-    <!-- Right armrest -->
-    <rect x="235" y="50" width="35" height="70" rx="8" fill="#9CA3AF"/>
-    <!-- Legs -->
-    <rect x="20" y="135" width="12" height="25" fill="#374151"/>
-    <rect x="218" y="135" width="12" height="25" fill="#374151"/>
-    <!-- Cushions -->
-    <ellipse cx="75" cy="85" rx="35" ry="15" fill="#D1D5DB"/>
-    <ellipse cx="175" cy="85" rx="35" ry="15" fill="#D1D5DB"/>
-  </g>
-  
-  <!-- Curtain elements -->
-  <g transform="translate(50, 80)">
-    <!-- Curtain rod -->
-    <rect x="0" y="0" width="400" height="4" rx="2" fill="#6B7280"/>
-    <!-- Left curtain -->
-    <path d="M20 4 Q30 20 25 40 Q35 60 30 80 Q40 100 35 120 Q45 140 40 160 L20 160 Z" fill="#E5E7EB" opacity="0.6"/>
-    <!-- Right curtain -->
-    <path d="M380 4 Q370 20 375 40 Q365 60 370 80 Q360 100 365 120 Q355 140 360 160 L380 160 Z" fill="#E5E7EB" opacity="0.6"/>
-  </g>
-  
-  <!-- Brand text -->
-  <text x="250" y="320" font-family="Arial, sans-serif" font-size="18" font-weight="500" fill="#6B7280" text-anchor="middle">Reliable Drapes</text>
-  <text x="250" y="345" font-family="Arial, sans-serif" font-size="14" fill="#9CA3AF" text-anchor="middle">Product Catalogue</text>
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="#F3F4F6"/>
+  <rect x="320" y="200" width="160" height="120" rx="8" stroke="#2F2582" stroke-width="3" fill="none"/>
+  <circle cx="355" cy="235" r="12" fill="#2F2582"/>
+  <path d="M330 310L370 260L400 290L440 240L470 310H330Z" fill="#2F2582" opacity="0.3"/>
+  <path d="M330 310L370 270L410 300L470 250" stroke="#2F2582" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="400" y="380" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="500" fill="#6B7280">No Image Available</text>
 </svg>

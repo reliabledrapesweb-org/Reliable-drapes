@@ -22,6 +22,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import * as XLSX from "xlsx";
 import { FileUpload } from "@/components/admin/FileUpload";
+import { MediaPickerModal } from "@/components/admin/MediaPickerModal";
 import { uploadFile } from "@/lib/utils/storage";
 import {
   getProducts,
@@ -41,6 +42,7 @@ import {
   type Category,
   type ProductImage,
 } from "@/lib/actions/products";
+import { type MediaItem, uploadMediaItem } from "@/lib/actions/media";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { ConfirmationModal } from "@/components/shared";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,6 +57,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAdmin } from "@/lib/hooks/useAdmin";
+import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants/app";
 
 export default function AdminProductsPage() {
   const { isAdmin, isLoading: adminLoading } = useAdmin();
@@ -69,6 +72,10 @@ export default function AdminProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
+  const [mediaPickerMode, setMediaPickerMode] = useState<"main" | "gallery">(
+    "main",
+  );
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [actionLoading, setActionLoading] = useState<{
@@ -434,6 +441,24 @@ export default function AdminProductsPage() {
     }
   };
 
+  // Handle media picker selection
+  const handleMediaSelect = (media: MediaItem[]) => {
+    if (media.length === 0) return;
+
+    if (mediaPickerMode === "main") {
+      setFormData({ ...formData, image_url: media[0].file_url });
+    } else {
+      // Add to gallery
+      const newItems = media.map((item) => ({
+        url: item.file_url,
+        alt_text: item.alt_text || "",
+        is_primary: false,
+      }));
+
+      setNewImages((prev) => [...prev, ...newItems]);
+    }
+  };
+
   // Handle file upload for import
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -648,6 +673,15 @@ export default function AdminProductsPage() {
     setImportProgress({ current: 0, total: 0 });
   };
 
+  // Close mass upload modal and reset state
+  const handleCloseMassUploadModal = () => {
+    setShowMassUploadModal(false);
+    setProductsMissingImages([]);
+    setMassUploadFiles([]);
+    setMassUploadMatches({});
+    setMassUploadProgress({ current: 0, total: 0 });
+  };
+
   // Handle mass image upload
   const handleMassImageFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -657,10 +691,36 @@ export default function AdminProductsPage() {
     matchFilesToProducts(files);
   };
 
+  // Handle drag and drop for mass upload
+  const handleMassUploadDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const files = Array.from(e.dataTransfer.files).filter((file) =>
+      file.type.startsWith("image/"),
+    );
+    if (files.length === 0) return;
+
+    setMassUploadFiles(files);
+    matchFilesToProducts(files);
+  };
+
+  const handleMassUploadDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   const matchFilesToProducts = (files: File[]) => {
     const matches: Record<string, File[]> = {};
+    const assignedFiles = new Set<File>();
 
-    productsMissingImages.forEach((product) => {
+    // Sort products by name length (longest first) to prevent shorter names from stealing matches
+    // e.g., "Royal Curtain Deluxe" should match before "Royal Curtain" or "Royal"
+    const sortedProducts = [...productsMissingImages].sort(
+      (a, b) => b.name.length - a.name.length,
+    );
+
+    sortedProducts.forEach((product) => {
       // Find files that start with the product name (case insensitive)
       // Normalizing names to handle special chars and spacing
       const normalizedProductName = product.name
@@ -668,6 +728,9 @@ export default function AdminProductsPage() {
         .replace(/[^a-z0-9]/g, "");
 
       const productMatches = files.filter((file) => {
+        // Skip files that have already been assigned to another product
+        if (assignedFiles.has(file)) return false;
+
         const normalizedFileName = file.name
           .toLowerCase()
           .replace(/[^a-z0-9]/g, "");
@@ -676,6 +739,8 @@ export default function AdminProductsPage() {
 
       if (productMatches.length > 0) {
         matches[product.id] = productMatches;
+        // Mark these files as assigned
+        productMatches.forEach((file) => assignedFiles.add(file));
       }
     });
 
@@ -697,24 +762,34 @@ export default function AdminProductsPage() {
       for (const [productId, files] of Object.entries(massUploadMatches)) {
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
-          const uploadResult = await uploadFile(file, "products", "images");
+          const product = productsMissingImages.find((p) => p.id === productId);
+          const altText = product
+            ? `${product.name}${files.length > 1 ? ` - ${i + 1}` : ""}`
+            : file.name.split(".")[0];
 
-          if (uploadResult.success && uploadResult.url) {
+          // Use media library upload to register the file
+          const uploadResult = await uploadMediaItem(file, {
+            bucket: "products",
+            folder: "images",
+            altText,
+            tags: ["product", "mass-upload"],
+          });
+
+          if (uploadResult.success && uploadResult.data) {
+            const fileUrl = uploadResult.data.file_url;
+
             // If it's the first image, set as primary product image
             if (i === 0) {
               await updateProduct(productId, {
-                image_url: uploadResult.url,
+                image_url: fileUrl,
               });
             }
 
             // Add to product gallery
             await addProductImage({
               product_id: productId,
-              image_url: uploadResult.url,
-              alt_text:
-                productImages.length > 0
-                  ? `${files[0].name} - ${i + 1}`
-                  : file.name.split(".")[0],
+              image_url: fileUrl,
+              alt_text: altText,
               is_primary: i === 0,
               sort_order: i,
             });
@@ -829,8 +904,7 @@ export default function AdminProductsPage() {
     }).format(price);
   };
 
-  const fallbackImage =
-    "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200&h=200&fit=crop&crop=center";
+  const fallbackImage = DEFAULT_PRODUCT_IMAGE;
 
   // Stats calculations
   const totalProducts = products.length;
@@ -1294,8 +1368,26 @@ export default function AdminProductsPage() {
                       </div>
 
                       <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <label className="block text-sm font-semibold text-gray-700">
+                            Product Image
+                          </label>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setMediaPickerMode("main");
+                              setShowMediaPicker(true);
+                            }}
+                            className="h-8 border-[#2F2582] text-xs text-[#2F2582] hover:bg-[#2F2582]/10"
+                          >
+                            <ImageIcon className="mr-1.5 h-3 w-3" />
+                            Choose from Library
+                          </Button>
+                        </div>
                         <FileUpload
-                          label="Product Image"
+                          label=""
                           accept="image/*"
                           bucket="products"
                           folder="images"
@@ -1314,6 +1406,8 @@ export default function AdminProductsPage() {
                             "image/jpg",
                           ]}
                           previewType="image"
+                          registerWithMediaLibrary={true}
+                          mediaLibraryTags={["product", "main-image"]}
                         />
 
                         {/* Manual URL input as alternative */}
@@ -1566,8 +1660,26 @@ export default function AdminProductsPage() {
 
                       {/* Add New Image */}
                       <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-4">
+                        <div className="mb-2 flex items-center justify-between">
+                          <label className="block text-sm font-semibold text-gray-700">
+                            Add Product Images
+                          </label>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setMediaPickerMode("gallery");
+                              setShowMediaPicker(true);
+                            }}
+                            className="h-8 border-[#2F2582] text-xs text-[#2F2582] hover:bg-[#2F2582]/10"
+                          >
+                            <ImageIcon className="mr-1.5 h-3 w-3" />
+                            Choose from Library
+                          </Button>
+                        </div>
                         <FileUpload
-                          label="Add Product Image"
+                          label=""
                           accept="image/*"
                           bucket="products"
                           folder="gallery"
@@ -1692,7 +1804,7 @@ export default function AdminProductsPage() {
                   </p>
                 </div>
                 <button
-                  onClick={() => setShowMassUploadModal(false)}
+                  onClick={handleCloseMassUploadModal}
                   className="rounded-full p-2 hover:bg-gray-100"
                 >
                   <X className="h-5 w-5" />
@@ -1716,7 +1828,11 @@ export default function AdminProductsPage() {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-10">
+                  <div
+                    className="flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-10 transition-colors hover:border-[#2F2582]"
+                    onDrop={handleMassUploadDrop}
+                    onDragOver={handleMassUploadDragOver}
+                  >
                     <div className="text-center">
                       <ImageIcon className="mx-auto h-12 w-12 text-gray-300" />
                       <div className="mt-4 flex text-sm leading-6 text-gray-600">
@@ -1803,7 +1919,7 @@ export default function AdminProductsPage() {
                 <div className="flex justify-end gap-3">
                   <Button
                     variant="outline"
-                    onClick={() => setShowMassUploadModal(false)}
+                    onClick={handleCloseMassUploadModal}
                     disabled={isMassUploading}
                   >
                     Skip & Close
@@ -2150,6 +2266,19 @@ export default function AdminProductsPage() {
           </div>
         )}
       </AnimatePresence>
+
+      <MediaPickerModal
+        isOpen={showMediaPicker}
+        onClose={() => setShowMediaPicker(false)}
+        onSelect={handleMediaSelect}
+        allowMultiple={mediaPickerMode === "gallery"}
+        allowedTypes={["image/jpeg", "image/png", "image/webp", "image/gif"]}
+        title={
+          mediaPickerMode === "main"
+            ? "Select Product Image"
+            : "Select Gallery Images"
+        }
+      />
 
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>

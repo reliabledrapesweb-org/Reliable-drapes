@@ -7,11 +7,11 @@ import { useMemo, useState, useEffect } from "react";
 import { getCatalogues, type Catalogue } from "@/lib/actions/catalogues";
 import { motion, AnimatePresence } from "motion/react";
 import { SlidersHorizontal, X, Check } from "lucide-react";
+import { DEFAULT_CATALOG_IMAGE } from "@/lib/constants/app";
 
 // Transform database catalogue to product format
 function transformCatalogueToProduct(catalogue: Catalogue) {
-  const fallbackImage =
-    "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center";
+  const fallbackImage = DEFAULT_CATALOG_IMAGE;
 
   // Debug: Log the catalogue data to see what image URLs we're getting
   console.log("Catalogue data:", {

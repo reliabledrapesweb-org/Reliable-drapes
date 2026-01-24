@@ -9,6 +9,7 @@ import {
   ExternalLink,
   Loader2,
 } from "lucide-react";
+import { DEFAULT_CATALOG_IMAGE } from "@/lib/constants/app";
 
 interface ProductCardProps {
   id?: string;
@@ -41,9 +42,8 @@ export function ProductCard({
   const [pdfError, setPdfError] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  // Luxury furniture fallback image
-  const fallbackImage =
-    "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center";
+  // Fallback image for catalogs without images
+  const fallbackImage = DEFAULT_CATALOG_IMAGE;
 
   const handleClick = () => {
     setShowPreview(true);

@@ -38,6 +38,22 @@ import { MediaLibrarySkeleton } from "@/components/ui/AdminSkeletons";
 import { ConfirmationModal } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { syncExistingFiles, getStorageBucketsInfo } from "@/lib/actions/media";
+import { validateFile } from "@/lib/utils/storage";
+
+const ALLOWED_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/svg+xml",
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "text/csv",
+];
+const MAX_SIZE_MB = 10;
 
 export default function MediaLibraryPage() {
   const { isAdmin, isLoading: adminLoading } = useAdmin();
@@ -77,6 +93,7 @@ export default function MediaLibraryPage() {
   );
 
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [showUnusedOnly, setShowUnusedOnly] = useState(false);
 
   const [editingTags, setEditingTags] = useState("");
   const [editingAltText, setEditingAltText] = useState("");
@@ -94,6 +111,7 @@ export default function MediaLibraryPage() {
     const result = await getMediaItems({
       search: searchQuery || undefined,
       folder: selectedFolder === "all" ? undefined : selectedFolder,
+      unused: showUnusedOnly ? true : undefined,
     });
 
     if (result.success && result.data) {
@@ -130,7 +148,7 @@ export default function MediaLibraryPage() {
     }, 500);
 
     return () => clearTimeout(delayDebounce);
-  }, [searchQuery, selectedFolder, isAdmin]);
+  }, [searchQuery, selectedFolder, showUnusedOnly, isAdmin]);
 
   const filteredItems = mediaItems.filter((item) => {
     if (selectedFolder === "all") return true;
@@ -147,6 +165,16 @@ export default function MediaLibraryPage() {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       setUploadProgress(Math.round(((i + 1) / files.length) * 100));
+
+      // Validate file
+      const validation = validateFile(file, ALLOWED_TYPES, MAX_SIZE_MB);
+      if (!validation.valid) {
+        addToast(
+          `Skipped ${file.name}: ${validation.error || "Invalid file"}`,
+          "error",
+        );
+        continue;
+      }
 
       const result = await uploadMediaItem(file, {
         bucket: "media", // Use dedicated media bucket for general uploads
@@ -181,6 +209,16 @@ export default function MediaLibraryPage() {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       setUploadProgress(Math.round(((i + 1) / files.length) * 100));
+
+      // Validate file
+      const validation = validateFile(file, ALLOWED_TYPES, MAX_SIZE_MB);
+      if (!validation.valid) {
+        addToast(
+          `Skipped ${file.name}: ${validation.error || "Invalid file"}`,
+          "error",
+        );
+        continue;
+      }
 
       const result = await uploadMediaItem(file, {
         bucket: "media", // Use dedicated media bucket for general uploads
@@ -462,6 +500,18 @@ export default function MediaLibraryPage() {
               </option>
             ))}
           </select>
+          <Button
+            variant={showUnusedOnly ? "default" : "outline"}
+            onClick={() => setShowUnusedOnly(!showUnusedOnly)}
+            className={cn(
+              "whitespace-nowrap",
+              showUnusedOnly
+                ? "bg-[#2F2582] text-white hover:bg-[#2F2582]/90"
+                : "border-gray-200 text-gray-700",
+            )}
+          >
+            {showUnusedOnly ? "Showing Unused" : "Show Unused"}
+          </Button>
         </div>
       </div>
 
@@ -581,6 +631,8 @@ export default function MediaLibraryPage() {
                     <button
                       onClick={() => {
                         setSelectedMedia(item);
+                        setEditingAltText(item.alt_text || "");
+                        setEditingTags(item.tags?.join(", ") || "");
                         setShowPreviewModal(true);
                       }}
                       className="rounded-full bg-white p-2 text-gray-800 hover:bg-gray-100"
@@ -769,17 +821,42 @@ export default function MediaLibraryPage() {
                         placeholder="Add alt text..."
                         className="flex-1 rounded border border-gray-600 bg-white/10 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-[#2F2582] focus:outline-none"
                       />
-                      <Button
-                        onClick={() => {
-                          handleUpdateMedia(selectedMedia.id, {
-                            alt_text: editingAltText || undefined,
-                          });
-                        }}
-                        size="sm"
-                      >
-                        Save
-                      </Button>
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-gray-300">
+                      Tags (comma separated)
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={editingTags}
+                        onChange={(e) => setEditingTags(e.target.value)}
+                        placeholder="furniture, living room, sale..."
+                        className="flex-1 rounded border border-gray-600 bg-white/10 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-[#2F2582] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={() => {
+                        const tags = editingTags
+                          .split(",")
+                          .map((t) => t.trim())
+                          .filter(Boolean);
+
+                        handleUpdateMedia(selectedMedia.id, {
+                          alt_text: editingAltText || undefined,
+                          tags: tags.length > 0 ? tags : undefined,
+                        });
+                      }}
+                      size="sm"
+                      className="bg-[#2F2582] text-white hover:bg-[#2F2582]/90"
+                    >
+                      Save Changes
+                    </Button>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Button
@@ -864,7 +941,7 @@ export default function MediaLibraryPage() {
                     <p className="mt-2 text-sm text-gray-600">
                       This will scan all Supabase storage buckets (products,
                       catalogues, media) and import any existing files that
-                      aren't already in the media library.
+                      aren&apos;t already in the media library.
                     </p>
                     <div className="mt-6 flex justify-center gap-3">
                       <Button

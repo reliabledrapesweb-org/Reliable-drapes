@@ -42,14 +42,21 @@ import {
   X,
   FileText,
   Tag,
+  Image as ImageIcon,
 } from "lucide-react";
 import { FileUpload } from "@/components/admin/FileUpload";
+import { MediaPickerModal } from "@/components/admin/MediaPickerModal";
+import { type MediaItem } from "@/lib/actions/media";
 
 export default function CataloguesPage() {
   const { isAdmin, isLoading: adminLoading } = useAdmin();
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
+  const [mediaPickerTarget, setMediaPickerTarget] = useState<
+    "pdf" | "thumbnail"
+  >("thumbnail");
   const [editingCatalogue, setEditingCatalogue] = useState<Catalogue | null>(
     null,
   );
@@ -116,6 +123,16 @@ export default function CataloguesPage() {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingCatalogue(null);
+  };
+
+  const handleMediaSelect = (media: MediaItem[]) => {
+    if (media.length === 0) return;
+
+    if (mediaPickerTarget === "pdf") {
+      setFormData({ ...formData, file_url: media[0].file_url });
+    } else {
+      setFormData({ ...formData, thumbnail_url: media[0].file_url });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -694,8 +711,27 @@ export default function CataloguesPage() {
                   <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     {/* Catalogue File */}
                     <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-sm font-semibold text-gray-700">
+                          Catalogue File (PDF){" "}
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setMediaPickerTarget("pdf");
+                            setShowMediaPicker(true);
+                          }}
+                          className="h-8 border-[#2F2582] text-xs text-[#2F2582] hover:bg-[#2F2582]/10"
+                        >
+                          <FileText className="mr-1.5 h-3 w-3" />
+                          Choose from Library
+                        </Button>
+                      </div>
                       <FileUpload
-                        label="Catalogue File (PDF) *"
+                        label=""
                         accept=".pdf,application/pdf"
                         bucket="catalogues"
                         folder="files"
@@ -735,8 +771,26 @@ export default function CataloguesPage() {
 
                     {/* Thumbnail Image */}
                     <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-sm font-semibold text-gray-700">
+                          Thumbnail Image
+                        </label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setMediaPickerTarget("thumbnail");
+                            setShowMediaPicker(true);
+                          }}
+                          className="h-8 border-[#2F2582] text-xs text-[#2F2582] hover:bg-[#2F2582]/10"
+                        >
+                          <ImageIcon className="mr-1.5 h-3 w-3" />
+                          Choose from Library
+                        </Button>
+                      </div>
                       <FileUpload
-                        label="Thumbnail Image"
+                        label=""
                         accept="image/*"
                         bucket="catalogues"
                         folder="thumbnails"
@@ -833,7 +887,7 @@ export default function CataloguesPage() {
                         disabled={formData.badge !== "discount"}
                       />
                       <p className="mt-1 text-xs text-gray-500">
-                        Only shown when badge is set to "Discount"
+                        Only shown when badge is set to &quot;Discount&quot;
                       </p>
                     </div>
                   </div>
@@ -878,6 +932,22 @@ export default function CataloguesPage() {
           </motion.div>
         </div>
       )}
+      <MediaPickerModal
+        isOpen={showMediaPicker}
+        onClose={() => setShowMediaPicker(false)}
+        onSelect={handleMediaSelect}
+        allowMultiple={false}
+        allowedTypes={
+          mediaPickerTarget === "pdf"
+            ? ["application/pdf"]
+            : ["image/jpeg", "image/png", "image/webp", "image/gif"]
+        }
+        title={
+          mediaPickerTarget === "pdf"
+            ? "Select Catalogue PDF"
+            : "Select Thumbnail Image"
+        }
+      />
       <ToastContainer toasts={toasts} removeToast={removeToast} />
 
       {/* Confirmation Modals */}

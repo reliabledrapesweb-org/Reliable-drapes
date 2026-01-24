@@ -34,6 +34,7 @@ export interface MediaFilters {
   tags?: string[];
   limit?: number;
   offset?: number;
+  unused?: boolean;
 }
 
 interface MediaResponse {
@@ -75,6 +76,10 @@ export async function getMediaItems(
 
     if (filters?.tags && filters.tags.length > 0) {
       query = query.overlaps("tags", filters.tags);
+    }
+
+    if (filters?.unused) {
+      query = query.eq("usage_count", 0);
     }
 
     query = query.order("created_at", { ascending: false });

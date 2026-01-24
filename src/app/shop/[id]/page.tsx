@@ -28,6 +28,7 @@ import {
   getRelatedProducts,
   type ProductWithDetails,
 } from "@/lib/actions/products";
+import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants/app";
 import { WishlistButton } from "@/components/features/shop/WishlistButton";
 
 export default function ProductDetailPage() {
@@ -45,7 +46,9 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [imageError, setImageError] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
-  const [activeTab, setActiveTab] = useState<"description" | "specifications">("description");
+  const [activeTab, setActiveTab] = useState<"description" | "specifications">(
+    "description",
+  );
 
   const productId = params.id as string;
 
@@ -147,8 +150,7 @@ export default function ProductDetailPage() {
     }).format(price);
   };
 
-  const fallbackImage =
-    "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center";
+  const fallbackImage = DEFAULT_PRODUCT_IMAGE;
 
   // Get all images - prioritize product_images table, fallback to main image_url
   const allImages = product
@@ -192,7 +194,10 @@ export default function ProductDetailPage() {
             <div className="flex gap-4">
               <div className="hidden w-20 flex-col gap-3 md:flex">
                 {[...Array(4)].map((_, i) => (
-                  <div key={i} className="aspect-square w-full animate-pulse rounded-lg bg-gray-200" />
+                  <div
+                    key={i}
+                    className="aspect-square w-full animate-pulse rounded-lg bg-gray-200"
+                  />
                 ))}
               </div>
               <div className="flex-1">
@@ -291,7 +296,7 @@ export default function ProductDetailPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
 
                   {/* Top Actions */}
-                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+                  <div className="absolute top-4 right-4 left-4 flex items-center justify-between">
                     <WishlistButton
                       productId={product.id}
                       productName={product.name}
@@ -302,14 +307,14 @@ export default function ProductDetailPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={handleShare}
-                        className="rounded-full bg-white/90 p-2.5 shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
+                        className="rounded-full bg-white/90 p-2.5 shadow-lg backdrop-blur-sm transition-all hover:scale-110 hover:bg-white"
                         aria-label="Share product"
                       >
                         <Share2 className="h-5 w-5 text-gray-700" />
                       </button>
                       <button
                         onClick={() => setIsZoomed(true)}
-                        className="rounded-full bg-white/90 p-2.5 shadow-lg backdrop-blur-sm transition-all hover:bg-white hover:scale-110"
+                        className="rounded-full bg-white/90 p-2.5 shadow-lg backdrop-blur-sm transition-all hover:scale-110 hover:bg-white"
                         aria-label="Zoom image"
                       >
                         <ZoomIn className="h-5 w-5 text-gray-700" />
@@ -322,14 +327,14 @@ export default function ProductDetailPage() {
                     <>
                       <button
                         onClick={() => navigateImage("prev")}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-lg opacity-0 transition-all hover:bg-white group-hover:opacity-100"
+                        className="absolute top-1/2 left-3 -translate-y-1/2 rounded-full bg-white/90 p-2 opacity-0 shadow-lg transition-all group-hover:opacity-100 hover:bg-white"
                         aria-label="Previous image"
                       >
                         <ChevronLeft className="h-5 w-5 text-gray-700" />
                       </button>
                       <button
                         onClick={() => navigateImage("next")}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 shadow-lg opacity-0 transition-all hover:bg-white group-hover:opacity-100"
+                        className="absolute top-1/2 right-3 -translate-y-1/2 rounded-full bg-white/90 p-2 opacity-0 shadow-lg transition-all group-hover:opacity-100 hover:bg-white"
                         aria-label="Next image"
                       >
                         <ChevronRight className="h-5 w-5 text-gray-700" />
@@ -387,7 +392,7 @@ export default function ProductDetailPage() {
 
             {/* Short Description */}
             {product.description && (
-              <p className="mt-4 text-gray-600 leading-relaxed line-clamp-3">
+              <p className="mt-4 line-clamp-3 leading-relaxed text-gray-600">
                 {product.description}
               </p>
             )}
@@ -398,7 +403,7 @@ export default function ProductDetailPage() {
             {/* Variants */}
             {product.variants && product.variants.length > 0 && (
               <div className="mb-6">
-                <h3 className="mb-3 text-sm font-semibold text-gray-900 uppercase tracking-wide">
+                <h3 className="mb-3 text-sm font-semibold tracking-wide text-gray-900 uppercase">
                   Options
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -461,23 +466,31 @@ export default function ProductDetailPage() {
             <div className="mt-8 grid grid-cols-3 gap-4 rounded-xl bg-gray-50 p-4">
               <div className="flex flex-col items-center text-center">
                 <Truck className="mb-2 h-6 w-6 text-[#2f2582]" />
-                <span className="text-xs font-medium text-gray-700">Free Shipping</span>
+                <span className="text-xs font-medium text-gray-700">
+                  Free Shipping
+                </span>
                 <span className="text-xs text-gray-500">Over ₹5,000</span>
               </div>
               <div className="flex flex-col items-center text-center">
                 <Shield className="mb-2 h-6 w-6 text-[#2f2582]" />
-                <span className="text-xs font-medium text-gray-700">Quality Assured</span>
+                <span className="text-xs font-medium text-gray-700">
+                  Quality Assured
+                </span>
                 <span className="text-xs text-gray-500">Premium Fabrics</span>
               </div>
               <div className="flex flex-col items-center text-center">
                 <RotateCcw className="mb-2 h-6 w-6 text-[#2f2582]" />
-                <span className="text-xs font-medium text-gray-700">Easy Returns</span>
+                <span className="text-xs font-medium text-gray-700">
+                  Easy Returns
+                </span>
                 <span className="text-xs text-gray-500">30 Day Policy</span>
               </div>
             </div>
 
             {/* Tabs: Description & Specifications */}
-            {(product.description || (product.specifications && product.specifications.length > 0)) && (
+            {(product.description ||
+              (product.specifications &&
+                product.specifications.length > 0)) && (
               <div className="mt-8">
                 <div className="flex border-b border-gray-200">
                   <button
@@ -490,18 +503,19 @@ export default function ProductDetailPage() {
                   >
                     Description
                   </button>
-                  {product.specifications && product.specifications.length > 0 && (
-                    <button
-                      onClick={() => setActiveTab("specifications")}
-                      className={`px-4 py-3 text-sm font-medium transition-colors ${
-                        activeTab === "specifications"
-                          ? "border-b-2 border-[#2f2582] text-[#2f2582]"
-                          : "text-gray-500 hover:text-gray-700"
-                      }`}
-                    >
-                      Specifications
-                    </button>
-                  )}
+                  {product.specifications &&
+                    product.specifications.length > 0 && (
+                      <button
+                        onClick={() => setActiveTab("specifications")}
+                        className={`px-4 py-3 text-sm font-medium transition-colors ${
+                          activeTab === "specifications"
+                            ? "border-b-2 border-[#2f2582] text-[#2f2582]"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
+                      >
+                        Specifications
+                      </button>
+                    )}
                 </div>
 
                 <AnimatePresence mode="wait">
@@ -513,7 +527,7 @@ export default function ProductDetailPage() {
                       exit={{ opacity: 0, y: -10 }}
                       className="py-4"
                     >
-                      <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+                      <p className="leading-relaxed whitespace-pre-line text-gray-600">
                         {product.description}
                       </p>
                     </motion.div>
@@ -653,21 +667,21 @@ export default function ProductDetailPage() {
               <>
                 <button
                   onClick={() => navigateImage("prev")}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-4 backdrop-blur-sm transition-all hover:bg-white/20"
+                  className="absolute top-1/2 left-4 -translate-y-1/2 rounded-full bg-white/10 p-4 backdrop-blur-sm transition-all hover:bg-white/20"
                   aria-label="Previous image"
                 >
                   <ChevronLeft className="h-6 w-6 text-white" />
                 </button>
                 <button
                   onClick={() => navigateImage("next")}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-4 backdrop-blur-sm transition-all hover:bg-white/20"
+                  className="absolute top-1/2 right-4 -translate-y-1/2 rounded-full bg-white/10 p-4 backdrop-blur-sm transition-all hover:bg-white/20"
                   aria-label="Next image"
                 >
                   <ChevronRight className="h-6 w-6 text-white" />
                 </button>
 
                 {/* Thumbnail Strip in Modal */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+                <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2">
                   {allImages.map((image, index) => (
                     <button
                       key={index}

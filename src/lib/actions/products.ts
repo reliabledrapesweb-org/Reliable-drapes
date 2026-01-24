@@ -82,7 +82,7 @@ interface ProductResponse {
  * Get all products with optional filters
  */
 export async function getProducts(
-  filters?: ProductFilters
+  filters?: ProductFilters,
 ): Promise<ProductsResponse> {
   try {
     const supabase = getAnonSupabase();
@@ -91,7 +91,7 @@ export async function getProducts(
     // Apply filters
     if (filters?.search) {
       query = query.or(
-        `name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`
+        `name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`,
       );
     }
 
@@ -124,7 +124,7 @@ export async function getProducts(
     if (filters?.offset) {
       query = query.range(
         filters.offset,
-        filters.offset + (filters.limit || 10) - 1
+        filters.offset + (filters.limit || 10) - 1,
       );
     }
 
@@ -183,7 +183,7 @@ export async function getProductById(id: string): Promise<ProductResponse> {
           name,
           slug
         )
-      `
+      `,
       )
       .eq("product_id", id);
 
@@ -273,7 +273,7 @@ export async function getCategories(): Promise<{
  */
 export async function getProductsByCategory(
   categorySlug: string,
-  filters?: ProductFilters
+  filters?: ProductFilters,
 ): Promise<ProductsResponse> {
   try {
     const supabase = getAnonSupabase();
@@ -325,7 +325,7 @@ export async function getProductsByCategory(
     // Apply additional filters
     if (filters?.search) {
       query = query.or(
-        `name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`
+        `name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`,
       );
     }
 
@@ -379,7 +379,7 @@ export async function getProductsByCategory(
  * Create a new product (Admin only)
  */
 export async function createProduct(
-  productData: Omit<Product, "id" | "created_at">
+  productData: Omit<Product, "id" | "created_at">,
 ): Promise<ProductResponse> {
   try {
     const supabase = getAdminSupabase();
@@ -392,6 +392,7 @@ export async function createProduct(
           description: productData.description,
           image_url: productData.image_url,
           price: productData.price,
+          visible_to: ["customer"], // Explicitly set to valid role to satisfy constraint
         },
       ])
       .select()
@@ -423,7 +424,7 @@ export async function createProduct(
  */
 export async function updateProduct(
   id: string,
-  productData: Partial<Omit<Product, "id" | "created_at">>
+  productData: Partial<Omit<Product, "id" | "created_at">>,
 ): Promise<ProductResponse> {
   try {
     const supabase = getAdminSupabase();
@@ -506,11 +507,12 @@ export async function deleteProduct(id: string): Promise<{
   }
 }
 
-
 /**
  * Get product-category mappings for multiple products
  */
-export async function getProductCategoryMappings(productIds: string[]): Promise<{
+export async function getProductCategoryMappings(
+  productIds: string[],
+): Promise<{
   success: boolean;
   data?: Record<string, string[]>;
   error?: string;
@@ -606,7 +608,7 @@ export async function getAllCategories(): Promise<CategoriesResponse> {
           ...category,
           product_count: count || 0,
         };
-      })
+      }),
     );
 
     return { success: true, data: categoriesWithCounts as CategoryFull[] };
@@ -647,32 +649,42 @@ export async function getFeaturedCategories(): Promise<CategoriesResponse> {
  * Create a new category (Admin only)
  */
 export async function createCategory(
-  categoryData: Omit<CategoryFull, "id" | "created_at" | "product_count">
+  categoryData: Omit<CategoryFull, "id" | "created_at" | "product_count">,
 ): Promise<CategoryResponse> {
   try {
     const supabase = getAdminSupabase();
 
     // Generate slug from name if not provided
-    const slug = categoryData.slug || categoryData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    const slug =
+      categoryData.slug ||
+      categoryData.name
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
 
     const { data, error } = await supabase
       .from("categories")
-      .insert([{
-        name: categoryData.name,
-        slug,
-        description: categoryData.description,
-        image_url: categoryData.image_url,
-        parent_id: categoryData.parent_id,
-        sort_order: categoryData.sort_order || 0,
-        is_featured: categoryData.is_featured || false,
-        published: categoryData.published ?? true,
-      }])
+      .insert([
+        {
+          name: categoryData.name,
+          slug,
+          description: categoryData.description,
+          image_url: categoryData.image_url,
+          parent_id: categoryData.parent_id,
+          sort_order: categoryData.sort_order || 0,
+          is_featured: categoryData.is_featured || false,
+          published: categoryData.published ?? true,
+        },
+      ])
       .select()
       .single();
 
     if (error) {
       console.error("Error creating category:", error);
-      return { success: false, error: error.message || "Failed to create category" };
+      return {
+        success: false,
+        error: error.message || "Failed to create category",
+      };
     }
 
     return { success: true, data: data as CategoryFull };
@@ -687,7 +699,9 @@ export async function createCategory(
  */
 export async function updateCategory(
   id: string,
-  categoryData: Partial<Omit<CategoryFull, "id" | "created_at" | "product_count">>
+  categoryData: Partial<
+    Omit<CategoryFull, "id" | "created_at" | "product_count">
+  >,
 ): Promise<CategoryResponse> {
   try {
     const supabase = getAdminSupabase();
@@ -695,12 +709,18 @@ export async function updateCategory(
     const updateData: Record<string, unknown> = {};
     if (categoryData.name !== undefined) updateData.name = categoryData.name;
     if (categoryData.slug !== undefined) updateData.slug = categoryData.slug;
-    if (categoryData.description !== undefined) updateData.description = categoryData.description;
-    if (categoryData.image_url !== undefined) updateData.image_url = categoryData.image_url;
-    if (categoryData.parent_id !== undefined) updateData.parent_id = categoryData.parent_id;
-    if (categoryData.sort_order !== undefined) updateData.sort_order = categoryData.sort_order;
-    if (categoryData.is_featured !== undefined) updateData.is_featured = categoryData.is_featured;
-    if (categoryData.published !== undefined) updateData.published = categoryData.published;
+    if (categoryData.description !== undefined)
+      updateData.description = categoryData.description;
+    if (categoryData.image_url !== undefined)
+      updateData.image_url = categoryData.image_url;
+    if (categoryData.parent_id !== undefined)
+      updateData.parent_id = categoryData.parent_id;
+    if (categoryData.sort_order !== undefined)
+      updateData.sort_order = categoryData.sort_order;
+    if (categoryData.is_featured !== undefined)
+      updateData.is_featured = categoryData.is_featured;
+    if (categoryData.published !== undefined)
+      updateData.published = categoryData.published;
 
     const { data, error } = await supabase
       .from("categories")
@@ -711,7 +731,10 @@ export async function updateCategory(
 
     if (error) {
       console.error("Error updating category:", error);
-      return { success: false, error: error.message || "Failed to update category" };
+      return {
+        success: false,
+        error: error.message || "Failed to update category",
+      };
     }
 
     return { success: true, data: data as CategoryFull };
@@ -724,7 +747,9 @@ export async function updateCategory(
 /**
  * Delete a category (Admin only)
  */
-export async function deleteCategory(id: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteCategory(
+  id: string,
+): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = getAdminSupabase();
 
@@ -752,18 +777,19 @@ export async function deleteCategory(id: string): Promise<{ success: boolean; er
 export async function assignProductToCategory(
   productId: string,
   categoryId: string,
-  isPrimary: boolean = false
+  isPrimary: boolean = false,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = getAdminSupabase();
 
-    const { error } = await supabase
-      .from("product_categories")
-      .upsert({
+    const { error } = await supabase.from("product_categories").upsert(
+      {
         product_id: productId,
         category_id: categoryId,
         is_primary: isPrimary,
-      }, { onConflict: "product_id,category_id" });
+      },
+      { onConflict: "product_id,category_id" },
+    );
 
     if (error) {
       console.error("Error assigning product to category:", error);
@@ -782,7 +808,7 @@ export async function assignProductToCategory(
  */
 export async function removeProductFromCategory(
   productId: string,
-  categoryId: string
+  categoryId: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = getAdminSupabase();
@@ -795,7 +821,10 @@ export async function removeProductFromCategory(
 
     if (error) {
       console.error("Error removing product from category:", error);
-      return { success: false, error: "Failed to remove product from category" };
+      return {
+        success: false,
+        error: "Failed to remove product from category",
+      };
     }
 
     return { success: true };
@@ -804,7 +833,6 @@ export async function removeProductFromCategory(
     return { success: false, error: "An unexpected error occurred" };
   }
 }
-
 
 // ============================================
 // Collections Management Actions
@@ -867,7 +895,7 @@ export async function getAllCollections(): Promise<CollectionsResponse> {
           ...collection,
           product_count: count || 0,
         };
-      })
+      }),
     );
 
     return { success: true, data: collectionsWithCounts as Collection[] };
@@ -906,7 +934,9 @@ export async function getActiveCollections(): Promise<CollectionsResponse> {
 /**
  * Get products in a collection
  */
-export async function getCollectionProducts(collectionSlug: string): Promise<ProductsResponse> {
+export async function getCollectionProducts(
+  collectionSlug: string,
+): Promise<ProductsResponse> {
   try {
     const supabase = getAnonSupabase();
 
@@ -952,8 +982,12 @@ export async function getCollectionProducts(collectionSlug: string): Promise<Pro
 
     // Sort by featured_order
     const sortedData = (data || []).sort((a, b) => {
-      const orderA = productCollections.find((pc) => pc.product_id === a.id)?.featured_order || 999;
-      const orderB = productCollections.find((pc) => pc.product_id === b.id)?.featured_order || 999;
+      const orderA =
+        productCollections.find((pc) => pc.product_id === a.id)
+          ?.featured_order || 999;
+      const orderB =
+        productCollections.find((pc) => pc.product_id === b.id)
+          ?.featured_order || 999;
       return orderA - orderB;
     });
 
@@ -968,32 +1002,42 @@ export async function getCollectionProducts(collectionSlug: string): Promise<Pro
  * Create a collection (Admin only)
  */
 export async function createCollection(
-  collectionData: Omit<Collection, "id" | "created_at" | "product_count">
+  collectionData: Omit<Collection, "id" | "created_at" | "product_count">,
 ): Promise<CollectionResponse> {
   try {
     const supabase = getAdminSupabase();
 
-    const slug = collectionData.slug || collectionData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+    const slug =
+      collectionData.slug ||
+      collectionData.name
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
 
     const { data, error } = await supabase
       .from("collections")
-      .insert([{
-        name: collectionData.name,
-        slug,
-        description: collectionData.description,
-        image_url: collectionData.image_url,
-        banner_url: collectionData.banner_url,
-        start_date: collectionData.start_date,
-        end_date: collectionData.end_date,
-        is_active: collectionData.is_active ?? true,
-        sort_order: collectionData.sort_order || 0,
-      }])
+      .insert([
+        {
+          name: collectionData.name,
+          slug,
+          description: collectionData.description,
+          image_url: collectionData.image_url,
+          banner_url: collectionData.banner_url,
+          start_date: collectionData.start_date,
+          end_date: collectionData.end_date,
+          is_active: collectionData.is_active ?? true,
+          sort_order: collectionData.sort_order || 0,
+        },
+      ])
       .select()
       .single();
 
     if (error) {
       console.error("Error creating collection:", error);
-      return { success: false, error: error.message || "Failed to create collection" };
+      return {
+        success: false,
+        error: error.message || "Failed to create collection",
+      };
     }
 
     return { success: true, data: data as Collection };
@@ -1008,21 +1052,32 @@ export async function createCollection(
  */
 export async function updateCollection(
   id: string,
-  collectionData: Partial<Omit<Collection, "id" | "created_at" | "product_count">>
+  collectionData: Partial<
+    Omit<Collection, "id" | "created_at" | "product_count">
+  >,
 ): Promise<CollectionResponse> {
   try {
     const supabase = getAdminSupabase();
 
     const updateData: Record<string, unknown> = {};
-    if (collectionData.name !== undefined) updateData.name = collectionData.name;
-    if (collectionData.slug !== undefined) updateData.slug = collectionData.slug;
-    if (collectionData.description !== undefined) updateData.description = collectionData.description;
-    if (collectionData.image_url !== undefined) updateData.image_url = collectionData.image_url;
-    if (collectionData.banner_url !== undefined) updateData.banner_url = collectionData.banner_url;
-    if (collectionData.start_date !== undefined) updateData.start_date = collectionData.start_date;
-    if (collectionData.end_date !== undefined) updateData.end_date = collectionData.end_date;
-    if (collectionData.is_active !== undefined) updateData.is_active = collectionData.is_active;
-    if (collectionData.sort_order !== undefined) updateData.sort_order = collectionData.sort_order;
+    if (collectionData.name !== undefined)
+      updateData.name = collectionData.name;
+    if (collectionData.slug !== undefined)
+      updateData.slug = collectionData.slug;
+    if (collectionData.description !== undefined)
+      updateData.description = collectionData.description;
+    if (collectionData.image_url !== undefined)
+      updateData.image_url = collectionData.image_url;
+    if (collectionData.banner_url !== undefined)
+      updateData.banner_url = collectionData.banner_url;
+    if (collectionData.start_date !== undefined)
+      updateData.start_date = collectionData.start_date;
+    if (collectionData.end_date !== undefined)
+      updateData.end_date = collectionData.end_date;
+    if (collectionData.is_active !== undefined)
+      updateData.is_active = collectionData.is_active;
+    if (collectionData.sort_order !== undefined)
+      updateData.sort_order = collectionData.sort_order;
 
     const { data, error } = await supabase
       .from("collections")
@@ -1033,7 +1088,10 @@ export async function updateCollection(
 
     if (error) {
       console.error("Error updating collection:", error);
-      return { success: false, error: error.message || "Failed to update collection" };
+      return {
+        success: false,
+        error: error.message || "Failed to update collection",
+      };
     }
 
     return { success: true, data: data as Collection };
@@ -1046,7 +1104,9 @@ export async function updateCollection(
 /**
  * Delete a collection (Admin only)
  */
-export async function deleteCollection(id: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteCollection(
+  id: string,
+): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = getAdminSupabase();
 
@@ -1074,18 +1134,19 @@ export async function deleteCollection(id: string): Promise<{ success: boolean; 
 export async function addProductToCollection(
   productId: string,
   collectionId: string,
-  featuredOrder?: number
+  featuredOrder?: number,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = getAdminSupabase();
 
-    const { error } = await supabase
-      .from("product_collections")
-      .upsert({
+    const { error } = await supabase.from("product_collections").upsert(
+      {
         product_id: productId,
         collection_id: collectionId,
         featured_order: featuredOrder,
-      }, { onConflict: "product_id,collection_id" });
+      },
+      { onConflict: "product_id,collection_id" },
+    );
 
     if (error) {
       console.error("Error adding product to collection:", error);
@@ -1104,7 +1165,7 @@ export async function addProductToCollection(
  */
 export async function removeProductFromCollection(
   productId: string,
-  collectionId: string
+  collectionId: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = getAdminSupabase();
@@ -1117,7 +1178,10 @@ export async function removeProductFromCollection(
 
     if (error) {
       console.error("Error removing product from collection:", error);
-      return { success: false, error: "Failed to remove product from collection" };
+      return {
+        success: false,
+        error: "Failed to remove product from collection",
+      };
     }
 
     return { success: true };
@@ -1131,7 +1195,9 @@ export async function removeProductFromCollection(
  * Get product-collection mappings for multiple products
  * Returns mapping of product_id -> collection_id[]
  */
-export async function getProductCollectionMappings(productIds: string[]): Promise<{
+export async function getProductCollectionMappings(
+  productIds: string[],
+): Promise<{
   success: boolean;
   data?: Record<string, string[]>;
   error?: string;
@@ -1153,12 +1219,14 @@ export async function getProductCollectionMappings(productIds: string[]): Promis
     }
 
     const mapping: Record<string, string[]> = {};
-    (data || []).forEach((pc: { product_id: string; collection_id: string }) => {
-      if (!mapping[pc.product_id]) {
-        mapping[pc.product_id] = [];
-      }
-      mapping[pc.product_id].push(pc.collection_id);
-    });
+    (data || []).forEach(
+      (pc: { product_id: string; collection_id: string }) => {
+        if (!mapping[pc.product_id]) {
+          mapping[pc.product_id] = [];
+        }
+        mapping[pc.product_id].push(pc.collection_id);
+      },
+    );
 
     return { success: true, data: mapping };
   } catch (error) {
@@ -1171,7 +1239,9 @@ export async function getProductCollectionMappings(productIds: string[]): Promis
  * Get collection-product mappings for multiple collections
  * Returns mapping of collection_id -> product_id[]
  */
-export async function getCollectionProductMappings(collectionIds: string[]): Promise<{
+export async function getCollectionProductMappings(
+  collectionIds: string[],
+): Promise<{
   success: boolean;
   data?: Record<string, string[]>;
   error?: string;
@@ -1193,12 +1263,14 @@ export async function getCollectionProductMappings(collectionIds: string[]): Pro
     }
 
     const mapping: Record<string, string[]> = {};
-    (data || []).forEach((pc: { product_id: string; collection_id: string }) => {
-      if (!mapping[pc.collection_id]) {
-        mapping[pc.collection_id] = [];
-      }
-      mapping[pc.collection_id].push(pc.product_id);
-    });
+    (data || []).forEach(
+      (pc: { product_id: string; collection_id: string }) => {
+        if (!mapping[pc.collection_id]) {
+          mapping[pc.collection_id] = [];
+        }
+        mapping[pc.collection_id].push(pc.product_id);
+      },
+    );
 
     return { success: true, data: mapping };
   } catch (error) {
@@ -1206,7 +1278,6 @@ export async function getCollectionProductMappings(collectionIds: string[]): Pro
     return { success: false, error: "An unexpected error occurred" };
   }
 }
-
 
 // ============================================
 // Product Images Management Actions
@@ -1270,13 +1341,15 @@ export async function addProductImage(imageData: ProductImageInput): Promise<{
 
     const { data, error } = await supabase
       .from("product_images")
-      .insert([{
-        product_id: imageData.product_id,
-        image_url: imageData.image_url,
-        alt_text: imageData.alt_text || null,
-        is_primary: imageData.is_primary || false,
-        sort_order: imageData.sort_order || 0,
-      }])
+      .insert([
+        {
+          product_id: imageData.product_id,
+          image_url: imageData.image_url,
+          alt_text: imageData.alt_text || null,
+          is_primary: imageData.is_primary || false,
+          sort_order: imageData.sort_order || 0,
+        },
+      ])
       .select()
       .single();
 
@@ -1297,7 +1370,7 @@ export async function addProductImage(imageData: ProductImageInput): Promise<{
  */
 export async function updateProductImage(
   imageId: string,
-  updates: Partial<ProductImageInput>
+  updates: Partial<ProductImageInput>,
 ): Promise<{
   success: boolean;
   data?: ProductImage;
@@ -1374,7 +1447,7 @@ export async function deleteProductImage(imageId: string): Promise<{
  */
 export async function getRelatedProducts(
   productId: string,
-  limit: number = 4
+  limit: number = 4,
 ): Promise<ProductsResponse> {
   try {
     const supabase = getAnonSupabase();
@@ -1385,7 +1458,11 @@ export async function getRelatedProducts(
       .select("category_id")
       .eq("product_id", productId);
 
-    if (categoriesError || !productCategories || productCategories.length === 0) {
+    if (
+      categoriesError ||
+      !productCategories ||
+      productCategories.length === 0
+    ) {
       // If no categories found, return random products
       const { data, error } = await supabase
         .from("products")
@@ -1397,17 +1474,22 @@ export async function getRelatedProducts(
         return { success: false, error: "Failed to fetch related products" };
       }
 
-      return { success: true, data: data as Product[], total: data?.length || 0 };
+      return {
+        success: true,
+        data: data as Product[],
+        total: data?.length || 0,
+      };
     }
 
     const categoryIds = productCategories.map((pc) => pc.category_id);
 
     // Find other products that share these categories
-    const { data: relatedProductCategories, error: relatedError } = await supabase
-      .from("product_categories")
-      .select("product_id")
-      .in("category_id", categoryIds)
-      .neq("product_id", productId);
+    const { data: relatedProductCategories, error: relatedError } =
+      await supabase
+        .from("product_categories")
+        .select("product_id")
+        .in("category_id", categoryIds)
+        .neq("product_id", productId);
 
     if (relatedError) {
       return { success: false, error: "Failed to fetch related products" };
@@ -1425,7 +1507,11 @@ export async function getRelatedProducts(
         return { success: false, error: "Failed to fetch related products" };
       }
 
-      return { success: true, data: data as Product[], total: data?.length || 0 };
+      return {
+        success: true,
+        data: data as Product[],
+        total: data?.length || 0,
+      };
     }
 
     // Count how many categories each product shares
@@ -1475,7 +1561,7 @@ export async function getRelatedProducts(
  * Reorder product images
  */
 export async function reorderProductImages(
-  imageOrders: { id: string; sort_order: number }[]
+  imageOrders: { id: string; sort_order: number }[],
 ): Promise<{
   success: boolean;
   error?: string;
@@ -1488,7 +1574,7 @@ export async function reorderProductImages(
       supabase
         .from("product_images")
         .update({ sort_order: item.sort_order })
-        .eq("id", item.id)
+        .eq("id", item.id),
     );
 
     await Promise.all(updates);

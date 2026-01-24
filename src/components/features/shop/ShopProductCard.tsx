@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import type { Product } from "@/lib/actions/products";
 import { WishlistButton } from "./WishlistButton";
+import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants/app";
 
 interface ShopProductCardProps {
   product: Product;
@@ -23,8 +24,7 @@ export function ShopProductCard({
 }: ShopProductCardProps) {
   const [imageError, setImageError] = useState(false);
 
-  const fallbackImage =
-    "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center";
+  const fallbackImage = DEFAULT_PRODUCT_IMAGE;
   const imageSrc =
     imageError || !product.image_url ? fallbackImage : product.image_url;
 

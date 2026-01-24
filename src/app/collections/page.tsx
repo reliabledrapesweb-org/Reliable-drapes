@@ -8,6 +8,7 @@ import { ArrowRight, Package, Calendar, Sparkles } from "lucide-react";
 import { Breadcrumb, PageHero } from "@/components/shared";
 import { getActiveCollections, type Collection } from "@/lib/actions/products";
 import { format, isAfter, isBefore } from "date-fns";
+import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants/app";
 
 export default function CollectionsPage() {
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -42,8 +43,7 @@ export default function CollectionsPage() {
     fetchCollections();
   }, []);
 
-  const fallbackImage =
-    "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop";
+  const fallbackImage = DEFAULT_PRODUCT_IMAGE;
 
   // Check if collection is limited time
   const isLimitedTime = (collection: Collection) => {
