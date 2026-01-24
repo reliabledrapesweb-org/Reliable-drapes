@@ -1,0 +1,7 @@
+# Static asset caching for Cloudflare Pages
+/_next/static/*
+  Cache-Control: public,max-age=31536000,immutable
+
+# Images caching
+/images/*
+  Cache-Control: public,max-age=31536000,immutable

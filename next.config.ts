@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 
 const nextConfig: NextConfig = {
   // Ignore ESLint errors during build (fix them separately)
@@ -55,3 +56,6 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+// Initialize OpenNext Cloudflare for local development
+initOpenNextCloudflareForDev();

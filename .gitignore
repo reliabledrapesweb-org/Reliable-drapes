@@ -33,9 +33,13 @@ yarn-error.log*
 # env files (keep .env.example for documentation)
 .env*
 !.env.example
+.dev.vars
 
 # vercel
 .vercel
+
+# cloudflare (OpenNext build output)
+.open-next
 
 # typescript
 *.tsbuildinfo
