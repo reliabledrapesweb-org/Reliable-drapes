@@ -5,6 +5,7 @@
 export interface Product {
   id: string;
   name: string;
+  sku?: string | null;
   description?: string;
   price: number;
   image?: string;
@@ -18,6 +19,7 @@ export interface Product {
 export interface ProductCard {
   id: string;
   name: string;
+  sku?: string | null;
   price: number;
   image: string;
   category?: string;

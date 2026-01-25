@@ -17,6 +17,8 @@ import {
   FileSpreadsheet,
   Image as ImageIcon,
   Loader2,
+  Copy,
+  FileWarning,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -38,6 +40,7 @@ import {
   updateProductImage,
   deleteProductImage,
   reorderProductImages,
+  checkSkusExist,
   type Product,
   type Category,
   type ProductImage,
@@ -103,21 +106,29 @@ export default function AdminProductsPage() {
   }>({ type: null });
 
   const [productsMissingImages, setProductsMissingImages] = useState<
-    Array<{ id: string; name: string }>
+    Array<{ id: string; name: string; sku: string | null }>
   >([]);
   const [showMassUploadModal, setShowMassUploadModal] = useState(false);
   const [massUploadFiles, setMassUploadFiles] = useState<File[]>([]);
   const [massUploadMatches, setMassUploadMatches] = useState<
     Record<string, File[]>
   >({});
+  const [unmatchedFiles, setUnmatchedFiles] = useState<File[]>([]);
   const [isMassUploading, setIsMassUploading] = useState(false);
   const [massUploadProgress, setMassUploadProgress] = useState({
     current: 0,
     total: 0,
   });
 
+  // SKU validation state for import
+  const [skuValidation, setSkuValidation] = useState<{
+    duplicatesInFile: string[];
+    existingInDb: string[];
+  }>({ duplicatesInFile: [], existingInDb: [] });
+
   const [formData, setFormData] = useState({
     name: "",
+    sku: "",
     description: "",
     image_url: "",
     price: 0,
@@ -174,6 +185,7 @@ export default function AdminProductsPage() {
       setEditingProduct(product);
       setFormData({
         name: product.name,
+        sku: product.sku || "",
         description: product.description || "",
         image_url: product.image_url || "",
         price: product.price,
@@ -191,6 +203,7 @@ export default function AdminProductsPage() {
       setEditingProduct(null);
       setFormData({
         name: "",
+        sku: "",
         description: "",
         image_url: "",
         price: 0,
@@ -212,6 +225,7 @@ export default function AdminProductsPage() {
       if (editingProduct) {
         const result = await updateProduct(editingProduct.id, {
           name: formData.name,
+          sku: formData.sku || null,
           description: formData.description,
           image_url: formData.image_url,
           price: formData.price,
@@ -235,6 +249,7 @@ export default function AdminProductsPage() {
       } else {
         const result = await createProduct({
           name: formData.name,
+          sku: formData.sku || null,
           description: formData.description,
           image_url: formData.image_url,
           price: formData.price,
@@ -467,9 +482,10 @@ export default function AdminProductsPage() {
     setIsParsing(true);
     setSkippedRows([]);
     setImportSummary(null);
+    setSkuValidation({ duplicatesInFile: [], existingInDb: [] });
 
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = async (evt) => {
       try {
         const data = evt.target?.result;
         const workbook = XLSX.read(data, { type: "binary" });
@@ -483,6 +499,7 @@ export default function AdminProductsPage() {
         const validatedData = jsonData
           .map((row: any, index: number) => {
             const name = row.name || row.Name || row.product_name || "";
+            const sku = row.sku || row.SKU || row.Sku || "";
             const price = parseFloat(row.price || row.Price || 0);
             const description = row.description || row.Description || "";
             const image_url = row.image_url || row.Image_URL || row.image || "";
@@ -528,6 +545,7 @@ export default function AdminProductsPage() {
 
             return {
               name,
+              sku: sku.trim().toUpperCase() || null,
               description,
               image_url,
               price,
@@ -552,6 +570,30 @@ export default function AdminProductsPage() {
           return;
         }
 
+        // SKU Validation - Check for duplicates within the file
+        const skusInFile = validatedData
+          .map((item) => item.sku)
+          .filter((sku): sku is string => sku !== null && sku.trim() !== "");
+
+        const skuCounts: Record<string, number> = {};
+        skusInFile.forEach((sku) => {
+          skuCounts[sku] = (skuCounts[sku] || 0) + 1;
+        });
+
+        const duplicatesInFile = Object.entries(skuCounts)
+          .filter(([, count]) => count > 1)
+          .map(([sku]) => sku);
+
+        // SKU Validation - Check for existing SKUs in database
+        let existingInDb: string[] = [];
+        if (skusInFile.length > 0) {
+          const result = await checkSkusExist(skusInFile);
+          if (result.success) {
+            existingInDb = result.existing;
+          }
+        }
+
+        setSkuValidation({ duplicatesInFile, existingInDb });
         setImportPreview(validatedData);
         setShowImportModal(true);
       } catch (error) {
@@ -581,7 +623,11 @@ export default function AdminProductsPage() {
     setImportProgress({ current: 0, total: importPreview.length });
 
     const details: string[] = [];
-    const missingImages: Array<{ id: string; name: string }> = [];
+    const missingImages: Array<{
+      id: string;
+      name: string;
+      sku: string | null;
+    }> = [];
 
     try {
       let successCount = 0;
@@ -593,6 +639,7 @@ export default function AdminProductsPage() {
 
         const result = await createProduct({
           name: productData.name,
+          sku: productData.sku || null,
           description: productData.description,
           image_url: productData.image_url,
           price: productData.price,
@@ -603,6 +650,7 @@ export default function AdminProductsPage() {
             missingImages.push({
               id: result.data.id,
               name: productData.name,
+              sku: productData.sku || null,
             });
           }
 
@@ -671,15 +719,59 @@ export default function AdminProductsPage() {
     setSkippedRows([]);
     setImportSummary(null);
     setImportProgress({ current: 0, total: 0 });
+    setSkuValidation({ duplicatesInFile: [], existingInDb: [] });
   };
 
-  // Close mass upload modal and reset state
+  // Handle close mass upload modal
   const handleCloseMassUploadModal = () => {
     setShowMassUploadModal(false);
     setProductsMissingImages([]);
     setMassUploadFiles([]);
     setMassUploadMatches({});
+    setUnmatchedFiles([]);
     setMassUploadProgress({ current: 0, total: 0 });
+  };
+
+  // Copy all SKUs to clipboard
+  const handleCopySkus = () => {
+    const skus = productsMissingImages
+      .map((p) => p.sku)
+      .filter((sku): sku is string => !!sku)
+      .join("\n");
+
+    if (!skus) {
+      addToast("No SKUs to copy", "info");
+      return;
+    }
+
+    navigator.clipboard.writeText(skus);
+    addToast(
+      `${productsMissingImages.length} SKUs copied to clipboard`,
+      "success",
+    );
+  };
+
+  // Download SKU list as TXT
+  const handleDownloadSkuList = () => {
+    const content = productsMissingImages
+      .map((p) => `${p.sku || "NO-SKU"} - ${p.name}`)
+      .join("\n");
+
+    if (!content) {
+      addToast("No products to list", "info");
+      return;
+    }
+
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `product_skus_${new Date().toISOString().split("T")[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    addToast("SKU list downloaded", "success");
   };
 
   // Handle mass image upload
@@ -721,21 +813,45 @@ export default function AdminProductsPage() {
     );
 
     sortedProducts.forEach((product) => {
-      // Find files that start with the product name (case insensitive)
-      // Normalizing names to handle special chars and spacing
-      const normalizedProductName = product.name
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, "");
+      // Strategy 1: Match by SKU (Highest Priority)
+      let productMatches: File[] = [];
 
-      const productMatches = files.filter((file) => {
-        // Skip files that have already been assigned to another product
-        if (assignedFiles.has(file)) return false;
-
-        const normalizedFileName = file.name
+      if (product.sku) {
+        const normalizedSku = product.sku
           .toLowerCase()
           .replace(/[^a-z0-9]/g, "");
-        return normalizedFileName.startsWith(normalizedProductName);
-      });
+
+        const skuMatches = files.filter((file) => {
+          if (assignedFiles.has(file)) return false;
+
+          const normalizedFileName = file.name
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, "");
+
+          // SKU match must be exact prefix match
+          return normalizedFileName.startsWith(normalizedSku);
+        });
+
+        if (skuMatches.length > 0) {
+          productMatches = skuMatches;
+        }
+      }
+
+      // Strategy 2: Match by Product Name (Fallback if no SKU matches)
+      if (productMatches.length === 0) {
+        const normalizedProductName = product.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "");
+
+        productMatches = files.filter((file) => {
+          if (assignedFiles.has(file)) return false;
+
+          const normalizedFileName = file.name
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, "");
+          return normalizedFileName.startsWith(normalizedProductName);
+        });
+      }
 
       if (productMatches.length > 0) {
         matches[product.id] = productMatches;
@@ -743,6 +859,10 @@ export default function AdminProductsPage() {
         productMatches.forEach((file) => assignedFiles.add(file));
       }
     });
+
+    // Track unmatched files
+    const unmatched = files.filter((file) => !assignedFiles.has(file));
+    setUnmatchedFiles(unmatched);
 
     setMassUploadMatches(matches);
   };
@@ -834,11 +954,12 @@ export default function AdminProductsPage() {
 
       return {
         name: p.name,
+        sku: p.sku || "",
         description: p.description || "",
         image_url: p.image_url || "",
         price: p.price,
         categories: categoryNames,
-        created_at: new Date(p.created_at).toLocaleDateString(),
+        created_at: new Date(p.created_at!).toLocaleDateString(),
       };
     });
 
@@ -860,6 +981,7 @@ export default function AdminProductsPage() {
     const templateData = [
       {
         name: "Sample Product 1",
+        sku: "BVC-101",
         description: "Sample product description",
         image_url: "https://example.com/image.jpg",
         price: 1299,
@@ -867,6 +989,7 @@ export default function AdminProductsPage() {
       },
       {
         name: "Sample Product 2",
+        sku: "BVC-102",
         description: "Another sample description",
         image_url: "https://example.com/image2.jpg",
         price: 2499,
@@ -1156,6 +1279,9 @@ export default function AdminProductsPage() {
                         Product
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                        SKU
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
                         Category
                       </th>
                       <th className="hidden px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase lg:table-cell">
@@ -1190,6 +1316,9 @@ export default function AdminProductsPage() {
                               {product.name}
                             </div>
                           </div>
+                        </td>
+                        <td className="px-4 py-3 font-mono text-sm text-gray-600">
+                          {product.sku || "—"}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-1">
@@ -1318,6 +1447,31 @@ export default function AdminProductsPage() {
                         className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                         placeholder="Enter product name"
                       />
+                    </div>
+
+                    {/* SKU */}
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-gray-700">
+                        SKU{" "}
+                        <span className="font-normal text-gray-400">
+                          (Stock Keeping Unit)
+                        </span>
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.sku}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            sku: e.target.value.toUpperCase(),
+                          })
+                        }
+                        className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 font-mono uppercase transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
+                        placeholder="e.g., BVC-101"
+                      />
+                      <p className="mt-1.5 text-xs text-gray-500">
+                        Unique code for image matching during mass uploads
+                      </p>
                     </div>
 
                     {/* Description */}
@@ -1815,32 +1969,104 @@ export default function AdminProductsPage() {
                 <div className="rounded-lg bg-blue-50 p-4 text-sm text-blue-800">
                   <p className="font-medium">How this works:</p>
                   <ul className="mt-2 list-disc space-y-1 pl-4">
-                    <li>Select multiple images at once</li>
                     <li>
-                      Images will be matched if filename starts with product
-                      name
+                      <strong>Method 1 (Best):</strong> Name images with product
+                      SKU (e.g. &quot;BVC-101.jpg&quot;)
                     </li>
                     <li>
-                      Example: &quot;Royal Curtain.jpg&quot; matches product
-                      &quot;Royal Curtain&quot;
+                      <strong>Method 2:</strong> Name images with product name
+                      (e.g. &quot;Blue Velvet.jpg&quot;)
+                    </li>
+                    <li>
+                      Select all images at once - system will match them
+                      automatically
                     </li>
                   </ul>
                 </div>
 
+                {/* SKU Helper Section */}
+                <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
+                  <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50 px-4 py-3">
+                    <h3 className="text-sm font-semibold text-gray-900">
+                      Products Needing Images
+                    </h3>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleCopySkus}
+                        className="h-8 px-3 text-xs"
+                      >
+                        <Copy className="mr-1.5 h-3.5 w-3.5" />
+                        Copy SKUs
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleDownloadSkuList}
+                        className="h-8 px-3 text-xs"
+                      >
+                        <Download className="mr-1.5 h-3.5 w-3.5" />
+                        Download List
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="max-h-48 overflow-y-auto">
+                    <table className="w-full text-left text-sm">
+                      <thead className="sticky top-0 bg-white text-xs font-semibold text-gray-500 uppercase">
+                        <tr className="border-b border-gray-100">
+                          <th className="px-4 py-2">Product Name</th>
+                          <th className="px-4 py-2">SKU</th>
+                          <th className="px-4 py-2">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-50">
+                        {productsMissingImages.map((product) => {
+                          const isMatched = !!massUploadMatches[product.id];
+                          return (
+                            <tr key={product.id} className="hover:bg-gray-50">
+                              <td className="px-4 py-2 font-medium text-gray-700">
+                                {product.name}
+                              </td>
+                              <td className="px-4 py-2 font-mono text-xs text-gray-600">
+                                {product.sku || "—"}
+                              </td>
+                              <td className="px-4 py-2 text-xs">
+                                {isMatched ? (
+                                  <span className="inline-flex items-center text-green-600">
+                                    <CheckCircle className="mr-1 h-3 w-3" />
+                                    Matched (
+                                    {massUploadMatches[product.id].length})
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center text-gray-400">
+                                    <AlertCircle className="mr-1 h-3 w-3" />
+                                    No images
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
                 <div className="space-y-4">
                   <div
-                    className="flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-10 transition-colors hover:border-[#2F2582]"
+                    className="flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-8 transition-colors hover:border-[#2F2582]"
                     onDrop={handleMassUploadDrop}
                     onDragOver={handleMassUploadDragOver}
                   >
                     <div className="text-center">
-                      <ImageIcon className="mx-auto h-12 w-12 text-gray-300" />
+                      <ImageIcon className="mx-auto h-10 w-10 text-gray-300" />
                       <div className="mt-4 flex text-sm leading-6 text-gray-600">
                         <label
                           htmlFor="mass-file-upload"
                           className="relative cursor-pointer rounded-md bg-white font-semibold text-[#2F2582] focus-within:ring-2 focus-within:ring-[#2F2582] focus-within:ring-offset-2 focus-within:outline-none hover:text-[#241c66]"
                         >
-                          <span>Upload files</span>
+                          <span>Upload folder/files</span>
                           <input
                             id="mass-file-upload"
                             name="mass-file-upload"
@@ -1860,63 +2086,76 @@ export default function AdminProductsPage() {
                   </div>
 
                   {massUploadFiles.length > 0 && (
-                    <div className="rounded-lg border border-gray-200">
-                      <div className="border-b border-gray-200 bg-gray-50 px-4 py-2">
-                        <h3 className="text-sm font-medium text-gray-900">
-                          Matched Products (
-                          {Object.keys(massUploadMatches).length})
-                        </h3>
+                    <div className="space-y-4">
+                      {/* Matched Summary */}
+                      <div className="flex items-center justify-between rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-800">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4" />
+                          Matched {
+                            Object.keys(massUploadMatches).length
+                          } of {productsMissingImages.length} products
+                        </div>
+                        <div>
+                          {Object.values(massUploadMatches).flat().length}{" "}
+                          images selected
+                        </div>
                       </div>
-                      <div className="max-h-60 divide-y divide-gray-200 overflow-y-auto">
-                        {Object.entries(massUploadMatches).map(
-                          ([productId, files]) => {
-                            const product = productsMissingImages.find(
-                              (p) => p.id === productId,
-                            );
-                            return (
-                              <div
-                                key={productId}
-                                className="flex items-center justify-between px-4 py-3"
-                              >
-                                <div>
-                                  <p className="text-sm font-medium text-gray-900">
-                                    {product?.name}
-                                  </p>
-                                  <p className="text-xs text-gray-500">
-                                    {files.length} image(s) matched
-                                  </p>
-                                </div>
-                                <div className="flex -space-x-2">
-                                  {files.slice(0, 3).map((file, i) => (
-                                    <div
-                                      key={i}
-                                      className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-[10px] ring-2 ring-white"
-                                      title={file.name}
-                                    >
-                                      📷
-                                    </div>
-                                  ))}
-                                  {files.length > 3 && (
-                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-[10px] ring-2 ring-white">
-                                      +{files.length - 3}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          },
-                        )}
-                        {Object.keys(massUploadMatches).length === 0 && (
-                          <div className="px-4 py-8 text-center text-sm text-gray-500">
-                            No matches found. Check your filenames.
+
+                      {/* Unmatched Files Warning */}
+                      {unmatchedFiles.length > 0 && (
+                        <div className="rounded-lg border border-red-100 bg-red-50 p-3">
+                          <div className="flex items-center gap-2 text-sm font-semibold text-red-800">
+                            <FileWarning className="h-4 w-4" />
+                            {unmatchedFiles.length} files could not be matched
                           </div>
-                        )}
-                      </div>
+                          <div className="mt-2 max-h-24 overflow-y-auto text-xs text-red-600">
+                            <ul className="list-inside list-disc space-y-0.5">
+                              {unmatchedFiles.map((file, i) => (
+                                <li key={i} className="truncate">
+                                  &quot;{file.name}&quot;
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          <p className="mt-2 text-[10px] text-red-500 italic">
+                            Tip: Ensure the file name starts with the exact SKU
+                            or Product Name.
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Still Missing Images Warning */}
+                      {productsMissingImages.some(
+                        (p) => !massUploadMatches[p.id],
+                      ) && (
+                        <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
+                          <div className="flex items-center gap-2 text-sm font-semibold text-amber-800">
+                            <AlertCircle className="h-4 w-4" />
+                            {
+                              productsMissingImages.filter(
+                                (p) => !massUploadMatches[p.id],
+                              ).length
+                            }{" "}
+                            products still need images
+                          </div>
+                          <div className="mt-1 text-xs text-amber-700">
+                            Provide images named with these SKUs:{" "}
+                            {productsMissingImages
+                              .filter((p) => !massUploadMatches[p.id])
+                              .slice(0, 5)
+                              .map((p) => p.sku || p.name)
+                              .join(", ")}
+                            {productsMissingImages.filter(
+                              (p) => !massUploadMatches[p.id],
+                            ).length > 5 && " ..."}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
 
-                <div className="flex justify-end gap-3">
+                <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">
                   <Button
                     variant="outline"
                     onClick={handleCloseMassUploadModal}
@@ -1930,7 +2169,7 @@ export default function AdminProductsPage() {
                       isMassUploading ||
                       Object.keys(massUploadMatches).length === 0
                     }
-                    className="bg-[#2F2582] hover:bg-[#241c66]"
+                    className="min-w-[140px] bg-[#2F2582] hover:bg-[#241c66]"
                   >
                     {isMassUploading ? (
                       <>
@@ -2094,6 +2333,62 @@ export default function AdminProductsPage() {
                       </div>
                     )}
 
+                    {/* Duplicate SKUs in File Warning */}
+                    {skuValidation.duplicatesInFile.length > 0 && (
+                      <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-700 dark:bg-red-900/20">
+                        <div className="flex items-start gap-3">
+                          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
+                          <div className="flex-1">
+                            <p className="font-semibold text-red-800 dark:text-red-300">
+                              Duplicate SKUs in file
+                            </p>
+                            <p className="mt-1 text-sm text-red-700 dark:text-red-400">
+                              The following SKUs appear multiple times in your
+                              file. Each product must have a unique SKU.
+                            </p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {skuValidation.duplicatesInFile.map((sku) => (
+                                <span
+                                  key={sku}
+                                  className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 font-mono text-xs font-medium text-red-800 dark:bg-red-800 dark:text-red-200"
+                                >
+                                  {sku}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Existing SKUs in Database Warning */}
+                    {skuValidation.existingInDb.length > 0 && (
+                      <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-700 dark:bg-orange-900/20">
+                        <div className="flex items-start gap-3">
+                          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-orange-600 dark:text-orange-400" />
+                          <div className="flex-1">
+                            <p className="font-semibold text-orange-800 dark:text-orange-300">
+                              SKUs already exist
+                            </p>
+                            <p className="mt-1 text-sm text-orange-700 dark:text-orange-400">
+                              The following SKUs are already used by existing
+                              products. These rows will fail during import.
+                            </p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {skuValidation.existingInDb.map((sku) => (
+                                <span
+                                  key={sku}
+                                  className="inline-flex items-center rounded-full bg-orange-100 px-2.5 py-0.5 font-mono text-xs font-medium text-orange-800 dark:bg-orange-800 dark:text-orange-200"
+                                >
+                                  {sku}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Preview Table */}
                     {importPreview.length > 0 ? (
                       <div className="mb-4 overflow-hidden rounded-lg border-2 border-gray-200 dark:border-gray-600">
@@ -2102,6 +2397,9 @@ export default function AdminProductsPage() {
                             <tr>
                               <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                                 Name
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
+                                SKU
                               </th>
                               <th className="px-4 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase dark:text-gray-400">
                                 Categories
@@ -2126,6 +2424,48 @@ export default function AdminProductsPage() {
                                     <div className="max-w-xs truncate text-xs text-gray-500 dark:text-gray-400">
                                       {item.description}
                                     </div>
+                                  )}
+                                </td>
+                                <td className="px-4 py-3 font-mono text-sm">
+                                  {item.sku ? (
+                                    <span
+                                      className={`inline-flex items-center rounded-md px-2 py-0.5 ${
+                                        skuValidation.duplicatesInFile.includes(
+                                          item.sku,
+                                        )
+                                          ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                                          : skuValidation.existingInDb.includes(
+                                                item.sku,
+                                              )
+                                            ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
+                                            : "text-gray-600 dark:text-gray-400"
+                                      }`}
+                                      title={
+                                        skuValidation.duplicatesInFile.includes(
+                                          item.sku,
+                                        )
+                                          ? "Duplicate SKU in file"
+                                          : skuValidation.existingInDb.includes(
+                                                item.sku,
+                                              )
+                                            ? "SKU already exists in database"
+                                            : "Valid SKU"
+                                      }
+                                    >
+                                      {skuValidation.duplicatesInFile.includes(
+                                        item.sku,
+                                      ) ||
+                                      skuValidation.existingInDb.includes(
+                                        item.sku,
+                                      ) ? (
+                                        <AlertCircle className="mr-1.5 h-3.5 w-3.5" />
+                                      ) : null}
+                                      {item.sku}
+                                    </span>
+                                  ) : (
+                                    <span className="text-gray-400 dark:text-gray-500">
+                                      —
+                                    </span>
                                   )}
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">

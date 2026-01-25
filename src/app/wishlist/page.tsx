@@ -42,6 +42,7 @@ export default function WishlistPage() {
   const mapItemToProduct = (item: any): Product => ({
     id: item.productId,
     name: item.name,
+    sku: null,
     price: item.price,
     image_url: item.image,
     description: null,

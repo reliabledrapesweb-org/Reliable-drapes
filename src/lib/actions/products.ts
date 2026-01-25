@@ -10,6 +10,7 @@ import { getAdminSupabase } from "@/lib/supabase/admin";
 export interface Product {
   id: string;
   name: string;
+  sku: string | null;
   description: string | null;
   image_url: string | null;
   price: number;
@@ -91,7 +92,7 @@ export async function getProducts(
     // Apply filters
     if (filters?.search) {
       query = query.or(
-        `name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`,
+        `name.ilike.%${filters.search}%,description.ilike.%${filters.search}%,sku.ilike.%${filters.search}%`,
       );
     }
 
@@ -225,6 +226,63 @@ export async function getProductById(id: string): Promise<ProductResponse> {
     console.error("Get product by ID exception:", error);
     return {
       success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}
+
+/**
+ * Check if SKUs already exist in the database
+ * Used for pre-import validation
+ */
+export async function checkSkusExist(skus: string[]): Promise<{
+  success: boolean;
+  existing: string[];
+  error?: string;
+}> {
+  try {
+    if (skus.length === 0) {
+      return { success: true, existing: [] };
+    }
+
+    const supabase = getAnonSupabase();
+
+    // Filter out empty/null SKUs and normalize to uppercase
+    const normalizedSkus = skus
+      .filter((sku) => sku && sku.trim())
+      .map((sku) => sku.trim().toUpperCase());
+
+    if (normalizedSkus.length === 0) {
+      return { success: true, existing: [] };
+    }
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("sku")
+      .in("sku", normalizedSkus);
+
+    if (error) {
+      console.error("Error checking SKUs:", error);
+      return {
+        success: false,
+        existing: [],
+        error: "Failed to check SKUs",
+      };
+    }
+
+    const existingSkus = (data || [])
+      .map((p) => p.sku)
+      .filter((sku): sku is string => sku !== null);
+
+    return {
+      success: true,
+      existing: existingSkus,
+    };
+  } catch (error) {
+    console.error("Check SKUs exception:", error);
+    return {
+      success: false,
+      existing: [],
       error: "An unexpected error occurred",
     };
   }
@@ -389,6 +447,7 @@ export async function createProduct(
       .insert([
         {
           name: productData.name,
+          sku: productData.sku || null,
           description: productData.description,
           image_url: productData.image_url,
           price: productData.price,
@@ -400,6 +459,13 @@ export async function createProduct(
 
     if (error) {
       console.error("Error creating product:", error);
+      // Check for unique constraint violation on SKU
+      if (error.code === "23505" && error.message.includes("sku")) {
+        return {
+          success: false,
+          error: "A product with this SKU already exists",
+        };
+      }
       return {
         success: false,
         error: "Failed to create product",
@@ -433,6 +499,7 @@ export async function updateProduct(
       .from("products")
       .update({
         ...(productData.name && { name: productData.name }),
+        ...(productData.sku !== undefined && { sku: productData.sku || null }),
         ...(productData.description !== undefined && {
           description: productData.description,
         }),
@@ -447,6 +514,13 @@ export async function updateProduct(
 
     if (error) {
       console.error("Error updating product:", error);
+      // Check for unique constraint violation on SKU
+      if (error.code === "23505" && error.message.includes("sku")) {
+        return {
+          success: false,
+          error: "A product with this SKU already exists",
+        };
+      }
       return {
         success: false,
         error: "Failed to update product",
