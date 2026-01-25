@@ -28,6 +28,14 @@ async function build() {
   } else {
     console.log("No assets directory found to flatten.");
   }
+
+  // 3. Handle _routes.json (ensure it's in the root of .open-next)
+  const routesPath = path.join(process.cwd(), "public", "_routes.json");
+  const targetRoutesPath = path.join(openNextDir, "_routes.json");
+  if (fs.existsSync(routesPath)) {
+    console.log("Copying _routes.json to root...");
+    fs.copyFileSync(routesPath, targetRoutesPath);
+  }
 }
 
 function copyRecursiveSync(src, dest) {
