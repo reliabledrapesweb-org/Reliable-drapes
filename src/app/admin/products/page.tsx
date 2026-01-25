@@ -2381,18 +2381,18 @@ export default function AdminProductsPage() {
 
                     {/* Missing SKUs Warning */}
                     {skuValidation.missingSkusCount > 0 && (
-                      <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-700 dark:bg-red-900/20">
+                      <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/20">
                         <div className="flex items-center justify-between">
                           <div className="flex items-start gap-3">
-                            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
+                            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
                             <div className="flex-1">
-                              <p className="font-semibold text-red-800 dark:text-red-300">
+                              <p className="font-semibold text-amber-800 dark:text-amber-300">
                                 Missing SKUs detected
                               </p>
-                              <p className="mt-1 text-sm text-red-700 dark:text-red-400">
+                              <p className="mt-1 text-sm text-amber-700 dark:text-amber-400">
                                 {skuValidation.missingSkusCount} product(s) are
-                                missing SKUs. Every product must have a SKU
-                                before import.
+                                missing SKUs. SKUs are recommended for reliable
+                                image matching.
                               </p>
                             </div>
                           </div>
@@ -2514,7 +2514,7 @@ export default function AdminProductsPage() {
                                       placeholder="Enter SKU"
                                       className={`w-full rounded border px-2 py-1 font-mono text-xs uppercase transition-colors focus:ring-2 focus:outline-none ${
                                         !item.sku
-                                          ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-200"
+                                          ? "border-amber-300 bg-amber-50 focus:border-amber-500 focus:ring-amber-200"
                                           : skuValidation.duplicatesInFile.includes(
                                                 item.sku,
                                               )
@@ -2537,7 +2537,7 @@ export default function AdminProductsPage() {
                                         className="absolute top-1/2 right-2 -translate-y-1/2"
                                         title={
                                           !item.sku
-                                            ? "SKU is required"
+                                            ? "No SKU provided"
                                             : skuValidation.duplicatesInFile.includes(
                                                   item.sku,
                                                 )
@@ -2547,7 +2547,6 @@ export default function AdminProductsPage() {
                                       >
                                         <AlertCircle
                                           className={`h-3.5 w-3.5 ${
-                                            !item.sku ||
                                             skuValidation.duplicatesInFile.includes(
                                               item.sku,
                                             )
@@ -2677,7 +2676,6 @@ export default function AdminProductsPage() {
                       disabled={
                         isImporting ||
                         importPreview.length === 0 ||
-                        skuValidation.missingSkusCount > 0 ||
                         skuValidation.duplicatesInFile.length > 0 ||
                         skuValidation.existingInDb.length > 0
                       }
