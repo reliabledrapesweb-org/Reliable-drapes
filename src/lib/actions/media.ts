@@ -168,7 +168,9 @@ export async function uploadMediaItem(
     const bucket = options.bucket || "products";
     const folder = options.folder || "general";
 
-    const uploadResult = await uploadFile(file, bucket, folder);
+    const supabase = getAdminSupabase();
+
+    const uploadResult = await uploadFile(file, bucket, folder, supabase);
 
     if (!uploadResult.success || !uploadResult.url) {
       return {
@@ -176,8 +178,6 @@ export async function uploadMediaItem(
         error: uploadResult.error || "Failed to upload file",
       };
     }
-
-    const supabase = getAdminSupabase();
 
     const fileExt = file.name.split(".").pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -332,7 +332,11 @@ export async function deleteMediaItem(id: string): Promise<{
       };
     }
 
-    const deleteResult = await deleteFile(mediaItem.file_url, mediaItem.bucket);
+    const deleteResult = await deleteFile(
+      mediaItem.file_url,
+      mediaItem.bucket,
+      supabase,
+    );
 
     if (!deleteResult.success) {
       console.warn(

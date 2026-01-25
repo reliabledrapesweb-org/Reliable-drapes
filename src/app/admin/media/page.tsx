@@ -699,6 +699,16 @@ export default function MediaLibraryPage() {
                       >
                         <Copy className="h-5 w-5" />
                       </button>
+                      <button
+                        onClick={() => {
+                          setSelectedMedia(item);
+                          setShowDeleteModal(true);
+                        }}
+                        className="translate-y-4 transform rounded-full bg-white p-3 text-red-600 transition-transform delay-100 duration-500 group-hover:translate-y-0 hover:bg-red-50"
+                        title="Delete"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -805,6 +815,15 @@ export default function MediaLibraryPage() {
                           className="rounded-full p-2 text-gray-400 shadow-sm hover:bg-white hover:text-gray-900"
                         >
                           <Copy className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedMedia(item);
+                            setShowDeleteModal(true);
+                          }}
+                          className="rounded-full p-2 text-gray-400 shadow-sm hover:bg-white hover:text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </td>

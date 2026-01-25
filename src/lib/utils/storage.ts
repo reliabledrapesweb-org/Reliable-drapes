@@ -15,15 +15,18 @@ export interface UploadResult {
  * @param file - The file to upload
  * @param bucket - The storage bucket name (e.g., 'catalogues', 'thumbnails')
  * @param folder - Optional folder path within the bucket
+ * @param supabase - Optional custom Supabase client (e.g. for server-side use)
  * @returns Upload result with public URL or error
  */
 export async function uploadFile(
   file: File,
   bucket: string,
   folder?: string,
+  supabase?: any,
 ): Promise<UploadResult> {
   try {
-    if (!supabaseClient) {
+    const client = supabase || supabaseClient;
+    if (!client) {
       return {
         success: false,
         error: "Supabase client not available",
@@ -36,7 +39,7 @@ export async function uploadFile(
     const filePath = folder ? `${folder}/${fileName}` : fileName;
 
     // Upload file
-    const { data, error } = await supabaseClient.storage
+    const { data, error } = await client.storage
       .from(bucket)
       .upload(filePath, file, {
         cacheControl: "3600",
@@ -44,15 +47,15 @@ export async function uploadFile(
       });
 
     if (error) {
-      console.error("Upload error:", error);
+      console.error(`Upload error in bucket "${bucket}":`, error);
       return {
         success: false,
-        error: error.message || "Failed to upload file",
+        error: error.message || `Failed to upload file to ${bucket}`,
       };
     }
 
     // Get public URL
-    const { data: urlData } = supabaseClient.storage
+    const { data: urlData } = client.storage
       .from(bucket)
       .getPublicUrl(data.path);
 
@@ -73,14 +76,17 @@ export async function uploadFile(
  * Delete a file from Supabase Storage
  * @param url - The public URL of the file to delete
  * @param bucket - The storage bucket name
+ * @param supabase - Optional custom Supabase client
  * @returns Success status
  */
 export async function deleteFile(
   url: string,
   bucket: string,
+  supabase?: any,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    if (!supabaseClient) {
+    const client = supabase || supabaseClient;
+    if (!client) {
       return { success: false, error: "Supabase client not available" };
     }
 
@@ -92,9 +98,7 @@ export async function deleteFile(
 
     const filePath = urlParts[1];
 
-    const { error } = await supabaseClient.storage
-      .from(bucket)
-      .remove([filePath]);
+    const { error } = await client.storage.from(bucket).remove([filePath]);
 
     if (error) {
       console.error("Delete error:", error);
