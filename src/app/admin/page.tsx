@@ -20,6 +20,8 @@ import {
   Truck,
   AlertCircle,
   XCircle,
+  Image as ImageIcon,
+  FileText,
 } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -28,9 +30,11 @@ import { getProducts } from "@/lib/actions/products";
 import { getContactSubmissions } from "@/lib/actions/communications";
 import { getApplicationStats } from "@/lib/actions/job-applications";
 import { getAdminOrdersAction } from "@/lib/actions/orders";
+import { getMediaItems, type MediaItem } from "@/lib/actions/media";
 import { useAuthStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { AdminDashboardSkeleton } from "@/components/ui/AdminSkeletons";
+import Image from "next/image";
 
 interface StatCardProps {
   title: string;
@@ -225,17 +229,20 @@ export default function AdminDashboard() {
 
   // Orders state
   const [recentOrders, setRecentOrders] = useState<AdminOrder[]>([]);
+  // Media state
+  const [recentMedia, setRecentMedia] = useState<MediaItem[]>([]);
 
   useEffect(() => {
     async function fetchDashboardData() {
       try {
-        const [userStats, products, applications, contacts, orders] =
+        const [userStats, products, applications, contacts, orders, media] =
           await Promise.all([
             getUserStats(),
             getProducts({ limit: 1 }),
             getApplicationStats(),
             getContactSubmissions(),
             getAdminOrdersAction(1, 5, "all"),
+            getMediaItems({ limit: 6 }),
           ]);
 
         // Customer stats
@@ -261,6 +268,11 @@ export default function AdminDashboard() {
         // Orders
         if (orders.success && orders.orders) {
           setRecentOrders((orders.orders as AdminOrder[]) || []);
+        }
+
+        // Media
+        if (media.success && media.data) {
+          setRecentMedia(media.data);
         }
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
@@ -410,187 +422,220 @@ export default function AdminDashboard() {
         </div>
       </motion.div>
 
-      {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
-        <h2 className="mb-3 text-base font-semibold text-gray-900 sm:mb-4 sm:text-lg dark:text-white">
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-          {quickActions.map((action, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 + index * 0.05 }}
-            >
-              <QuickAction {...action} />
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Recent Orders */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
-      >
-        <div className="border-b border-gray-200 p-4 sm:p-6 dark:border-gray-700">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
-                Recent Orders
-              </h2>
-              <p className="mt-0.5 text-xs text-gray-600 sm:mt-1 sm:text-sm dark:text-gray-400">
-                Latest customer orders and their status
-              </p>
-            </div>
-            <Link href="/admin/orders">
-              <Button
-                variant="outline"
-                className="w-full border-[#2F2582] text-[#2F2582] hover:bg-[#2F2582]/10 sm:w-auto dark:border-[#a099ff] dark:text-[#a099ff] dark:hover:bg-[#a099ff]/10"
-              >
-                View All
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        <div className="p-0">
-          {recentOrders.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="m-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-center sm:m-6 dark:border-gray-700 dark:bg-gray-700/50"
-            >
-              <ShoppingCart className="mx-auto h-6 w-6 text-gray-400 sm:h-8 sm:w-8 dark:text-gray-500" />
-              <p className="mt-2 text-xs text-gray-600 sm:text-sm dark:text-gray-400">
-                No orders found.
-              </p>
-            </motion.div>
-          ) : (
-            <>
-              {/* Mobile Card View */}
-              <div className="divide-y divide-gray-100 sm:hidden dark:divide-gray-700">
-                {recentOrders.map((order, index) => {
-                  const status =
-                    statusConfig[order.status] || statusConfig.pending;
-                  const StatusIcon = status.icon;
-
-                  return (
-                    <motion.div
-                      key={order.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.4 + index * 0.05 }}
-                      className="space-y-2 p-4"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-mono text-xs text-gray-500">
-                          #{order.id.slice(0, 8)}
-                        </span>
-                        <span
-                          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${status.color}`}
-                        >
-                          <StatusIcon className="h-3 w-3" />
-                          {status.label}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-700 dark:text-gray-300">
-                          {order.user?.full_name || "Guest"}
-                        </span>
-                        <span className="font-semibold text-gray-900 dark:text-white">
-                          ₹
-                          {(order.total || 0).toLocaleString("en-IN", {
-                            minimumFractionDigits: 2,
-                          })}
-                        </span>
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {format(
-                          new Date(order.created_at),
-                          "MMM d, yyyy • h:mm a",
-                        )}
-                      </div>
-                    </motion.div>
-                  );
-                })}
+      {/* Main Content Split */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Recent Orders Section (Larger) */}
+        <div className="space-y-6 lg:col-span-2">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+          >
+            <div className="border-b border-gray-200 p-4 sm:p-6 dark:border-gray-700">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
+                    Recent Orders
+                  </h2>
+                  <p className="mt-0.5 text-xs text-gray-600 sm:mt-1 sm:text-sm dark:text-gray-400">
+                    Latest customer orders and their status
+                  </p>
+                </div>
+                <Link href="/admin/orders">
+                  <Button
+                    variant="outline"
+                    className="w-full border-[#2F2582] text-[#2F2582] hover:bg-[#2F2582]/10 sm:w-auto dark:border-[#a099ff] dark:text-[#a099ff] dark:hover:bg-[#a099ff]/10"
+                  >
+                    View All
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
               </div>
+            </div>
 
-              {/* Desktop Table View */}
-              <div className="hidden overflow-x-auto sm:block">
-                <div className="min-w-[800px] space-y-3 p-6">
-                  {/* Table Header */}
-                  <div className="grid grid-cols-5 gap-4 border-b border-gray-200 pb-3 text-sm font-medium text-gray-600 dark:border-gray-700 dark:text-gray-400">
-                    <div>Order ID</div>
-                    <div>Customer</div>
-                    <div>Date</div>
-                    <div>Total</div>
-                    <div>Status</div>
-                  </div>
+            <div className="p-0">
+              {recentOrders.length === 0 ? (
+                <div className="m-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-center sm:m-6 dark:border-gray-700 dark:bg-gray-700/50">
+                  <ShoppingCart className="mx-auto h-6 w-6 text-gray-400 sm:h-8 sm:w-8 dark:text-gray-500" />
+                  <p className="mt-2 text-xs text-gray-600 sm:text-sm dark:text-gray-400">
+                    No orders found.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* Mobile Card View */}
+                  <div className="divide-y divide-gray-100 sm:hidden dark:divide-gray-700">
+                    {recentOrders.map((order, index) => {
+                      const status =
+                        statusConfig[order.status] || statusConfig.pending;
+                      const StatusIcon = status.icon;
 
-                  {/* Rows */}
-                  {recentOrders.map((order, index) => {
-                    const status =
-                      statusConfig[order.status] || statusConfig.pending;
-                    const StatusIcon = status.icon;
-
-                    return (
-                      <motion.div
-                        key={order.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.4 + index * 0.05 }}
-                        className="grid grid-cols-5 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm dark:border-gray-700 dark:bg-gray-700/50"
-                      >
-                        <div className="font-mono text-gray-500">
-                          #{order.id.slice(0, 8)}
-                        </div>
-                        <div className="text-gray-700 dark:text-gray-300">
-                          {order.user?.full_name || "Guest"}
-                          {order.user?.email && (
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {order.user.email}
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-gray-600 dark:text-gray-400">
-                          {format(new Date(order.created_at), "MMM d, yyyy")}
-                          <div className="text-xs text-gray-500">
-                            {format(new Date(order.created_at), "h:mm a")}
+                      return (
+                        <div key={order.id} className="space-y-2 p-4">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-xs text-gray-500">
+                              #{order.id.slice(0, 8)}
+                            </span>
+                            <span
+                              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${status.color}`}
+                            >
+                              <StatusIcon className="h-3 w-3" />
+                              {status.label}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-gray-700 dark:text-gray-300">
+                              {order.user?.full_name || "Guest"}
+                            </span>
+                            <span className="font-semibold text-gray-900 dark:text-white">
+                              ₹
+                              {(order.total || 0).toLocaleString("en-IN", {
+                                minimumFractionDigits: 2,
+                              })}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {format(
+                              new Date(order.created_at),
+                              "MMM d, yyyy • h:mm a",
+                            )}
                           </div>
                         </div>
-                        <div className="font-semibold text-gray-900 dark:text-white">
-                          ₹
-                          {(order.total || 0).toLocaleString("en-IN", {
-                            minimumFractionDigits: 2,
-                          })}
-                        </div>
-                        <div>
-                          <span
-                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${status.color}`}
+                      );
+                    })}
+                  </div>
+
+                  {/* Desktop Table View */}
+                  <div className="hidden overflow-x-auto sm:block">
+                    <div className="min-w-[600px] space-y-3 p-6">
+                      {/* Table Header */}
+                      <div className="grid grid-cols-5 gap-4 border-b border-gray-200 pb-3 text-sm font-medium text-gray-600 dark:border-gray-700 dark:text-gray-400">
+                        <div>Order ID</div>
+                        <div>Customer</div>
+                        <div>Date</div>
+                        <div>Total</div>
+                        <div>Status</div>
+                      </div>
+
+                      {/* Rows */}
+                      {recentOrders.map((order) => {
+                        const status =
+                          statusConfig[order.status] || statusConfig.pending;
+                        const StatusIcon = status.icon;
+
+                        return (
+                          <div
+                            key={order.id}
+                            className="grid grid-cols-5 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm dark:border-gray-700 dark:bg-gray-700/50"
                           >
-                            <StatusIcon className="h-3 w-3" />
-                            {status.label}
-                          </span>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </div>
-            </>
-          )}
+                            <div className="font-mono text-gray-500">
+                              #{order.id.slice(0, 8)}
+                            </div>
+                            <div className="text-gray-700 dark:text-gray-300">
+                              {order.user?.full_name || "Guest"}
+                            </div>
+                            <div className="text-gray-600 dark:text-gray-400">
+                              {format(
+                                new Date(order.created_at),
+                                "MMM d, yyyy",
+                              )}
+                            </div>
+                            <div className="font-semibold text-gray-900 dark:text-white">
+                              ₹
+                              {(order.total || 0).toLocaleString("en-IN", {
+                                minimumFractionDigits: 0,
+                              })}
+                            </div>
+                            <div>
+                              <span
+                                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${status.color}`}
+                              >
+                                <StatusIcon className="h-3 w-3" />
+                                {status.label}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </motion.div>
         </div>
-      </motion.div>
+
+        {/* Quick Actions & Recent Media Section (Smaller) */}
+        <div className="space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <h2 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
+              Quick Actions
+            </h2>
+            <div className="grid grid-cols-1 gap-3">
+              {quickActions.map((action, index) => (
+                <QuickAction key={index} {...action} />
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white">
+                Recent Media
+              </h2>
+              <Link
+                href="/admin/media"
+                className="text-xs font-medium text-[#2F2582] hover:underline dark:text-[#a099ff]"
+              >
+                View All
+              </Link>
+            </div>
+
+            {recentMedia.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <ImageIcon className="h-8 w-8 text-gray-300" />
+                <p className="mt-2 text-xs text-gray-500">
+                  No media uploaded recently
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-2">
+                {recentMedia.map((item) => (
+                  <Link
+                    key={item.id}
+                    href="/admin/media"
+                    className="group relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-700"
+                  >
+                    {item.mime_type.startsWith("image/") ? (
+                      <Image
+                        src={item.file_url}
+                        alt={item.original_name}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-110"
+                        sizes="100px"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <FileText className="h-6 w-6 text-gray-400" />
+                      </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        </div>
+      </div>
     </div>
   );
 }

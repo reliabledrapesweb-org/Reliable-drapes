@@ -129,6 +129,7 @@ export async function getOrdersAction() {
     .select(
       `
       id, status, total, created_at,
+      tracking_number, tracking_url, expected_delivery_date, current_location, invoice_url,
       order_items (
         id, 
         product_id, 

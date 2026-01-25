@@ -651,3 +651,62 @@ export async function getStorageBucketsInfo(): Promise<{
     };
   }
 }
+
+/**
+ * Get usage information for a specific media item
+ */
+export async function getMediaUsage(fileUrl: string): Promise<{
+  success: boolean;
+  data?: {
+    products: Array<{ id: string; name: string }>;
+    productImages: Array<{
+      id: string;
+      product_id: string;
+      product_name: string;
+    }>;
+    catalogues: Array<{ id: string; name: string }>;
+  };
+  error?: string;
+}> {
+  try {
+    const supabase = getAdminSupabase();
+
+    // 1. Check main product images
+    const { data: products } = await supabase
+      .from("products")
+      .select("id, name")
+      .eq("image_url", fileUrl);
+
+    // 2. Check product gallery images
+    // We need to join with products to get names
+    const { data: galleryImages } = await supabase
+      .from("product_images")
+      .select("id, product_id, products(name)")
+      .eq("image_url", fileUrl);
+
+    // 3. Check catalogues
+    const { data: catalogues } = await supabase
+      .from("catalogues")
+      .select("id, name")
+      .or(`thumbnail_url.eq.${fileUrl},pdf_url.eq.${fileUrl}`);
+
+    return {
+      success: true,
+      data: {
+        products: products || [],
+        productImages: (galleryImages || []).map((gi: any) => ({
+          id: gi.id,
+          product_id: gi.product_id,
+          product_name: gi.products?.name || "Unknown Product",
+        })),
+        catalogues: catalogues || [],
+      },
+    };
+  } catch (error) {
+    console.error("Get media usage exception:", error);
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}

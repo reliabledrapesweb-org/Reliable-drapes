@@ -19,8 +19,12 @@ import {
   CheckCircle,
   FileSpreadsheet,
   RefreshCw,
+  Edit,
+  Package,
+  FileWarning,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { format } from "date-fns";
 import {
   getMediaItems,
@@ -29,6 +33,7 @@ import {
   updateMediaItem,
   getStorageStats,
   getFolders,
+  getMediaUsage,
   type MediaItem,
 } from "@/lib/actions/media";
 import { useAdmin } from "@/lib/hooks/useAdmin";
@@ -94,9 +99,20 @@ export default function MediaLibraryPage() {
 
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [showUnusedOnly, setShowUnusedOnly] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const [editingTags, setEditingTags] = useState("");
   const [editingAltText, setEditingAltText] = useState("");
+  const [mediaUsage, setMediaUsage] = useState<{
+    products: Array<{ id: string; name: string }>;
+    productImages: Array<{
+      id: string;
+      product_id: string;
+      product_name: string;
+    }>;
+    catalogues: Array<{ id: string; name: string }>;
+  } | null>(null);
+  const [isUsageLoading, setIsUsageLoading] = useState(false);
 
   useEffect(() => {
     if (isAdmin) {
@@ -343,6 +359,7 @@ export default function MediaLibraryPage() {
     id: string,
     updates: {
       alt_text?: string;
+      folder?: string;
       tags?: string[];
     },
   ) => {
@@ -353,6 +370,15 @@ export default function MediaLibraryPage() {
     } else {
       addToast(result.error || "Failed to update media item", "error");
     }
+  };
+
+  const fetchUsage = async (url: string) => {
+    setIsUsageLoading(true);
+    const result = await getMediaUsage(url);
+    if (result.success && result.data) {
+      setMediaUsage(result.data);
+    }
+    setIsUsageLoading(false);
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -388,13 +414,6 @@ export default function MediaLibraryPage() {
       return "Document";
     if (mimeType.startsWith("text/")) return "Text";
     return "File";
-  };
-
-  const getIconForMimeType = (mimeType: string) => {
-    if (mimeType.startsWith("image/")) {
-      return <ImageIcon className="h-5 w-5" />;
-    }
-    return <FileText className="h-5 w-5" />;
   };
 
   if (adminLoading || isLoading) {
@@ -488,6 +507,33 @@ export default function MediaLibraryPage() {
           />
         </div>
         <div className="flex gap-2">
+          <div className="flex overflow-hidden rounded-lg border border-gray-200">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={cn(
+                "p-2.5 transition-colors",
+                viewMode === "grid"
+                  ? "bg-gray-100 text-[#2F2582]"
+                  : "bg-white text-gray-500 hover:bg-gray-50",
+              )}
+              title="Grid View"
+            >
+              <FolderKanban className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={cn(
+                "border-l border-gray-200 p-2.5 transition-colors",
+                viewMode === "list"
+                  ? "bg-gray-100 text-[#2F2582]"
+                  : "bg-white text-gray-500 hover:bg-gray-50",
+              )}
+              title="List View"
+            >
+              <FileText className="h-4 w-4" />
+            </button>
+          </div>
+
           <select
             value={selectedFolder}
             onChange={(e) => setSelectedFolder(e.target.value)}
@@ -545,10 +591,10 @@ export default function MediaLibraryPage() {
         </motion.div>
       )}
 
-      {/* Media Grid */}
+      {/* Media Content Area */}
       <div className="rounded-xl border border-gray-200 bg-white">
         {/* Grid Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 p-4 sm:p-6">
+        <div className="flex items-center justify-between border-b border-gray-100 p-4 sm:p-6">
           <div className="flex items-center gap-3">
             <input
               type="checkbox"
@@ -566,7 +612,7 @@ export default function MediaLibraryPage() {
           </div>
         </div>
 
-        {/* Grid Content */}
+        {/* Content Body */}
         {filteredItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
             <FolderKanban className="h-12 w-12 text-gray-400" />
@@ -581,8 +627,8 @@ export default function MediaLibraryPage() {
                 : "Upload your first media file to get started"}
             </p>
           </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 lg:p-6 xl:grid-cols-5">
+        ) : viewMode === "grid" ? (
+          <div className="grid grid-cols-2 gap-4 p-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4 lg:p-8 xl:grid-cols-5">
             {filteredItems.map((item, index) => (
               <motion.div
                 key={item.id}
@@ -590,83 +636,182 @@ export default function MediaLibraryPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03 }}
                 className={cn(
-                  "group relative aspect-square overflow-hidden rounded-lg border-2 transition-all",
+                  "group relative overflow-hidden rounded-2xl border shadow-sm transition-all duration-300",
                   selectedItems.has(item.id)
-                    ? "border-[#2F2582] ring-2 ring-[#2F2582]/20"
-                    : "border-gray-200 hover:border-gray-300",
+                    ? "border-[#2F2582] ring-4 ring-[#2F2582]/10"
+                    : "border-gray-100 hover:border-gray-300 hover:shadow-md",
                 )}
               >
-                {/* Checkbox */}
-                <div className="absolute top-2 left-2 z-10">
-                  <input
-                    type="checkbox"
-                    checked={selectedItems.has(item.id)}
-                    onChange={() => handleSelectItem(item.id)}
-                    className="h-4 w-4 rounded border-gray-300 text-[#2F2582] focus:ring-[#2F2582]"
-                  />
+                {/* Media Container */}
+                <div className="relative aspect-square w-full overflow-hidden bg-gray-50">
+                  {/* Checkbox */}
+                  <div className="absolute top-3 left-3 z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.has(item.id)}
+                      onChange={() => handleSelectItem(item.id)}
+                      className="h-5 w-5 cursor-pointer rounded-md border-gray-300 text-[#2F2582] focus:ring-[#2F2582]"
+                    />
+                  </div>
+                  {/* Selected indicator */}
+                  {selectedItems.has(item.id) && (
+                    <div className="pointer-events-none absolute inset-0 bg-[#2F2582]/5" />
+                  )}
+
+                  {/* Media Content */}
+                  {item.mime_type.startsWith("image/") ? (
+                    <Image
+                      src={item.file_url}
+                      alt={item.alt_text || item.original_name}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center">
+                      <div className="rounded-xl bg-white p-4 shadow-sm">
+                        {getFileIcon(item.mime_type)}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Hover Overlay Buttons */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setSelectedMedia(item);
+                          setEditingAltText(item.alt_text || "");
+                          setEditingTags(item.tags?.join(", ") || "");
+                          setMediaUsage(null);
+                          fetchUsage(item.file_url);
+                          setShowPreviewModal(true);
+                        }}
+                        className="translate-y-4 transform rounded-full bg-white p-3 text-[#2F2582] transition-transform duration-300 group-hover:translate-y-0 hover:bg-gray-100"
+                        title="View Details"
+                      >
+                        <Eye className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => handleCopyUrl(item.file_url)}
+                        className="translate-y-4 transform rounded-full bg-white p-3 text-gray-700 transition-transform delay-75 duration-500 group-hover:translate-y-0 hover:bg-gray-100"
+                        title="Copy URL"
+                      >
+                        <Copy className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Media Preview */}
-                {item.mime_type.startsWith("image/") ? (
-                  <Image
-                    src={item.file_url}
-                    alt={item.alt_text || item.original_name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center bg-gray-100">
-                    {getFileIcon(item.mime_type)}
-                  </div>
-                )}
-
-                {/* Hover Overlay */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
-                  className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 p-2 opacity-0 transition-opacity"
-                >
-                  <div className="flex flex-wrap justify-center gap-2">
-                    <button
-                      onClick={() => {
-                        setSelectedMedia(item);
-                        setEditingAltText(item.alt_text || "");
-                        setEditingTags(item.tags?.join(", ") || "");
-                        setShowPreviewModal(true);
-                      }}
-                      className="rounded-full bg-white p-2 text-gray-800 hover:bg-gray-100"
-                      title="Preview"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleCopyUrl(item.file_url)}
-                      className="rounded-full bg-white p-2 text-gray-800 hover:bg-gray-100"
-                      title="Copy URL"
-                    >
-                      <Copy className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedMedia(item);
-                        setShowDeleteModal(true);
-                      }}
-                      className="rounded-full bg-white p-2 text-red-600 hover:bg-red-50"
-                      title="Delete"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <p className="mt-2 truncate text-center text-xs text-white">
+                {/* Info Bar */}
+                <div className="bg-white p-3 dark:bg-gray-800">
+                  <p
+                    className="truncate text-sm font-semibold text-gray-900 dark:text-white"
+                    title={item.original_name}
+                  >
                     {item.original_name}
                   </p>
-                  <p className="text-xs text-gray-300">
-                    {formatFileSize(item.file_size)}
-                  </p>
-                </motion.div>
+                  <div className="mt-1 flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase">
+                      {item.mime_type.split("/")[1]}
+                    </span>
+                    <span className="text-[10px] text-gray-500">
+                      {formatFileSize(item.file_size)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Status Badges */}
+                <div className="pointer-events-none absolute top-3 right-3 flex flex-col gap-1">
+                  {item.usage_count > 0 ? (
+                    <div className="rounded-full bg-green-500/90 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-sm">
+                      USED
+                    </div>
+                  ) : (
+                    <div className="rounded-full bg-amber-500/90 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-sm">
+                      UNUSED
+                    </div>
+                  )}
+                </div>
               </motion.div>
             ))}
+          </div>
+        ) : (
+          /* List View */
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left">
+              <thead>
+                <tr className="border-b border-gray-100 text-[10px] font-bold tracking-wider text-gray-400 uppercase">
+                  <th className="px-6 py-4">Preview</th>
+                  <th className="px-6 py-4">Name</th>
+                  <th className="px-6 py-4">Type</th>
+                  <th className="px-6 py-4">Size</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {filteredItems.map((item) => (
+                  <tr
+                    key={item.id}
+                    className="group transition-colors hover:bg-gray-50/50"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="relative h-12 w-12 overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
+                        {item.mime_type.startsWith("image/") ? (
+                          <Image
+                            src={item.file_url}
+                            alt=""
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center">
+                            {getFileIcon(item.mime_type)}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="line-clamp-1 text-sm font-semibold text-gray-900">
+                        {item.original_name}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Added {format(new Date(item.created_at), "MMM d, yyyy")}
+                      </p>
+                    </td>
+                    <td className="px-6 py-4 text-xs font-medium text-gray-500 uppercase">
+                      {item.mime_type.split("/")[1]}
+                    </td>
+                    <td className="px-6 py-4 text-xs text-gray-500">
+                      {formatFileSize(item.file_size)}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-end gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                        <button
+                          onClick={() => {
+                            setSelectedMedia(item);
+                            setEditingAltText(item.alt_text || "");
+                            setEditingTags(item.tags?.join(", ") || "");
+                            setMediaUsage(null);
+                            fetchUsage(item.file_url);
+                            setShowPreviewModal(true);
+                          }}
+                          className="rounded-full p-2 text-gray-400 shadow-sm hover:bg-white hover:text-[#2F2582]"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleCopyUrl(item.file_url)}
+                          className="rounded-full p-2 text-gray-400 shadow-sm hover:bg-white hover:text-gray-900"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
@@ -754,92 +899,253 @@ export default function MediaLibraryPage() {
       {/* Preview Modal */}
       <AnimatePresence>
         {showPreviewModal && selectedMedia && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#161616]/90 p-4 backdrop-blur-sm sm:p-6 lg:p-8">
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="relative max-w-5xl"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative flex h-full max-h-[900px] w-full max-w-7xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl lg:flex-row"
             >
+              {/* Close Button Mobile */}
               <button
                 onClick={() => {
                   setShowPreviewModal(false);
                   setSelectedMedia(null);
                 }}
-                className="absolute -top-12 right-0 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+                className="absolute top-4 right-4 z-20 rounded-full bg-black/20 p-2 text-white hover:bg-black/40 lg:hidden"
               >
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5" />
               </button>
 
-              {selectedMedia.mime_type.startsWith("image/") ? (
-                <Image
-                  src={selectedMedia.file_url}
-                  alt={selectedMedia.alt_text || selectedMedia.original_name}
-                  width={1200}
-                  height={800}
-                  className="max-h-[80vh] w-auto rounded-lg"
-                />
-              ) : (
-                <div className="flex h-64 items-center justify-center rounded-lg bg-white">
-                  <FileText className="h-12 w-12 text-gray-400" />
-                </div>
-              )}
-
-              <div className="mt-4 rounded-lg bg-white/10 p-4 backdrop-blur">
-                <h3 className="text-lg font-semibold text-white">
-                  {selectedMedia.original_name}
-                </h3>
-                <div className="mt-2 grid grid-cols-2 gap-4 text-sm text-gray-300">
-                  <div>
-                    <span className="font-medium">Size:</span>{" "}
-                    {formatFileSize(selectedMedia.file_size)}
-                  </div>
-                  <div>
-                    <span className="font-medium">Type:</span>{" "}
-                    {selectedMedia.mime_type}
-                  </div>
-                  <div>
-                    <span className="font-medium">Folder:</span>{" "}
-                    {selectedMedia.folder}
-                  </div>
-                  <div>
-                    <span className="font-medium">Uploaded:</span>{" "}
-                    {format(new Date(selectedMedia.created_at), "MMM d, yyyy")}
-                  </div>
+              {/* Left: Media Preview Area */}
+              <div className="relative flex flex-1 flex-col overflow-hidden bg-gray-100 dark:bg-gray-900">
+                <div className="flex h-full items-center justify-center p-6 lg:p-12">
+                  {selectedMedia.mime_type.startsWith("image/") ? (
+                    <div className="group relative h-full w-full">
+                      <Image
+                        src={selectedMedia.file_url}
+                        alt={
+                          selectedMedia.alt_text || selectedMedia.original_name
+                        }
+                        fill
+                        className="object-contain drop-shadow-2xl"
+                        priority
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="rounded-2xl bg-white p-8 shadow-sm dark:bg-gray-800">
+                        {getFileIcon(selectedMedia.mime_type)}
+                      </div>
+                      <p className="text-sm font-medium text-gray-500">
+                        {getFileTypeCategory(selectedMedia.mime_type)} File
+                      </p>
+                    </div>
+                  )}
                 </div>
 
-                <div className="mt-4 flex flex-col gap-3">
+                {/* Image Actions Overlay */}
+                <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2 rounded-full bg-white/80 p-2 shadow-lg backdrop-blur dark:bg-gray-800/80">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleCopyUrl(selectedMedia.file_url)}
+                    className="h-9 rounded-full border-none px-4 hover:bg-white dark:hover:bg-gray-700"
+                  >
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy Link
+                  </Button>
+                  <a
+                    href={selectedMedia.file_url}
+                    download
+                    className="inline-flex h-9 items-center rounded-full bg-[#2F2582] px-4 text-sm font-medium text-white hover:bg-[#241c66]"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </a>
+                </div>
+              </div>
+
+              {/* Right: Info Sidebar */}
+              <div className="flex w-full flex-col border-l border-gray-100 bg-white lg:w-[400px] dark:border-gray-800 dark:bg-gray-900">
+                {/* Sidebar Header */}
+                <div className="flex items-center justify-between border-b border-gray-50 p-6 dark:border-gray-800">
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-300">
-                      Alt Text
-                    </label>
-                    <div className="flex gap-2">
+                    <h3
+                      className="line-clamp-1 font-bold text-gray-900 dark:text-white"
+                      title={selectedMedia.original_name}
+                    >
+                      {selectedMedia.original_name}
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      ID: {selectedMedia.id.slice(0, 8)}...
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowPreviewModal(false);
+                      setSelectedMedia(null);
+                    }}
+                    className="hidden rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900 lg:block"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div className="scrollbar-thin flex-1 overflow-y-auto p-6">
+                  {/* Metadata Grid */}
+                  <div className="mb-8 grid grid-cols-2 gap-4">
+                    <div className="rounded-xl bg-gray-50 p-3 dark:bg-gray-800/50">
+                      <p className="text-[10px] font-bold tracking-wider text-gray-400 uppercase">
+                        Size
+                      </p>
+                      <p className="mt-0.5 text-sm font-semibold text-gray-700 dark:text-gray-200">
+                        {formatFileSize(selectedMedia.file_size)}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-gray-50 p-3 dark:bg-gray-800/50">
+                      <p className="text-[10px] font-bold tracking-wider text-gray-400 uppercase">
+                        Type
+                      </p>
+                      <p className="mt-0.5 text-sm font-semibold text-gray-700 dark:text-gray-200">
+                        {selectedMedia.mime_type.split("/")[1].toUpperCase()}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-gray-50 p-3 dark:bg-gray-800/50">
+                      <p className="text-[10px] font-bold tracking-wider text-gray-400 uppercase">
+                        Folder
+                      </p>
+                      <p className="mt-0.5 text-sm font-semibold text-gray-700 dark:text-gray-200">
+                        {selectedMedia.folder}
+                      </p>
+                    </div>
+                    <div className="rounded-xl bg-gray-50 p-3 dark:bg-gray-800/50">
+                      <p className="text-[10px] font-bold tracking-wider text-gray-400 uppercase">
+                        Added
+                      </p>
+                      <p className="mt-0.5 text-sm font-semibold text-gray-700 dark:text-gray-200">
+                        {format(
+                          new Date(selectedMedia.created_at),
+                          "MMM d, yyyy",
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Usage Section */}
+                  <div className="mb-8">
+                    <h4 className="mb-3 flex items-center gap-2 text-xs font-bold tracking-wider text-gray-400 uppercase">
+                      <CheckCircle className="h-3 w-3" />
+                      Usage info
+                    </h4>
+                    {isUsageLoading ? (
+                      <div className="flex items-center gap-2 py-2 text-sm text-gray-500">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Checking usage...
+                      </div>
+                    ) : mediaUsage &&
+                      (mediaUsage.products.length > 0 ||
+                        mediaUsage.productImages.length > 0 ||
+                        mediaUsage.catalogues.length > 0) ? (
+                      <div className="space-y-2">
+                        {mediaUsage.products.map((p) => (
+                          <div
+                            key={p.id}
+                            className="flex items-center justify-between rounded-lg border border-blue-100 bg-blue-50/50 px-3 py-2 text-xs text-blue-700"
+                          >
+                            <span className="flex items-center gap-2">
+                              <Package className="h-3 w-3" />
+                              Main Image: {p.name}
+                            </span>
+                            <Link
+                              href="/admin/products"
+                              className="font-bold hover:underline"
+                            >
+                              Edit
+                            </Link>
+                          </div>
+                        ))}
+                        {mediaUsage.productImages.map((gi) => (
+                          <div
+                            key={gi.id}
+                            className="flex items-center justify-between rounded-lg border border-purple-100 bg-purple-50/50 px-3 py-2 text-xs text-purple-700"
+                          >
+                            <span className="flex items-center gap-2">
+                              <ImageIcon className="h-3 w-3" />
+                              Gallery: {gi.product_name}
+                            </span>
+                            <Link
+                              href="/admin/products"
+                              className="font-bold hover:underline"
+                            >
+                              Edit
+                            </Link>
+                          </div>
+                        ))}
+                        {mediaUsage.catalogues.map((c) => (
+                          <div
+                            key={c.id}
+                            className="flex items-center justify-between rounded-lg border border-green-100 bg-green-50/50 px-3 py-2 text-xs text-green-700"
+                          >
+                            <span className="flex items-center gap-2">
+                              <FileText className="h-3 w-3" />
+                              Catalogue: {c.name}
+                            </span>
+                            <Link
+                              href="/admin/catalogues"
+                              className="font-bold hover:underline"
+                            >
+                              Edit
+                            </Link>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="rounded-lg border border-dashed border-gray-200 p-4 text-center">
+                        <p className="text-xs text-gray-400 italic">
+                          This file is currently not being used in any products
+                          or catalogues.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Edit Form */}
+                  <div className="space-y-4">
+                    <h4 className="flex items-center gap-2 text-xs font-bold tracking-wider text-gray-400 uppercase">
+                      <Edit className="h-3 w-3" />
+                      Edit Details
+                    </h4>
+
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-semibold text-gray-500 uppercase">
+                        Alt Text
+                      </label>
                       <input
                         type="text"
                         value={editingAltText}
                         onChange={(e) => setEditingAltText(e.target.value)}
-                        placeholder="Add alt text..."
-                        className="flex-1 rounded border border-gray-600 bg-white/10 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-[#2F2582] focus:outline-none"
+                        placeholder="Describe this image for SEO..."
+                        className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/10 focus:outline-none dark:border-gray-700 dark:bg-gray-800"
                       />
                     </div>
-                  </div>
 
-                  <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-300">
-                      Tags (comma separated)
-                    </label>
-                    <div className="flex gap-2">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-semibold text-gray-500 uppercase">
+                        Tags
+                      </label>
                       <input
                         type="text"
                         value={editingTags}
                         onChange={(e) => setEditingTags(e.target.value)}
-                        placeholder="furniture, living room, sale..."
-                        className="flex-1 rounded border border-gray-600 bg-white/10 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-[#2F2582] focus:outline-none"
+                        placeholder="living-room, blue, velvet..."
+                        className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/10 focus:outline-none dark:border-gray-700 dark:bg-gray-800"
                       />
+                      <p className="text-[10px] text-gray-400">
+                        Separate with commas
+                      </p>
                     </div>
-                  </div>
 
-                  <div className="flex justify-end">
                     <Button
                       onClick={() => {
                         const tags = editingTags
@@ -852,30 +1158,24 @@ export default function MediaLibraryPage() {
                           tags: tags.length > 0 ? tags : undefined,
                         });
                       }}
-                      size="sm"
-                      className="bg-[#2F2582] text-white hover:bg-[#2F2582]/90"
+                      className="w-full bg-[#2F2582] hover:bg-[#241c66]"
                     >
-                      Save Changes
+                      Save Metadata
                     </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      onClick={() => handleCopyUrl(selectedMedia.file_url)}
-                      variant="outline"
-                      size="sm"
-                      className="border-white/20 text-white hover:bg-white/10"
-                    >
-                      <Copy className="mr-2 h-4 w-4" />
-                      Copy URL
-                    </Button>
-                    <a
-                      href={selectedMedia.file_url}
-                      download
-                      className="inline-flex items-center rounded-md border border-white/20 px-4 py-2 text-sm text-white hover:bg-white/10"
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
-                    </a>
+
+                    <div className="pt-4">
+                      <Button
+                        variant="ghost"
+                        onClick={() => {
+                          setSelectedMedia(selectedMedia);
+                          setShowDeleteModal(true);
+                        }}
+                        className="w-full text-red-500 hover:bg-red-50 hover:text-red-600"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete File permanently
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -88,6 +88,7 @@ export function OrdersSection() {
       case "shipped":
         return "bg-blue-50 text-blue-700 border-blue-200 ring-blue-500/10";
       case "processing":
+      case "paid":
         return "bg-yellow-50 text-yellow-700 border-yellow-200 ring-yellow-500/10";
       case "cancelled":
         return "bg-red-50 text-red-700 border-red-200 ring-red-500/10";
@@ -103,6 +104,7 @@ export function OrdersSection() {
       case "shipped":
         return <Truck className="h-4 w-4" />;
       case "processing":
+      case "paid":
         return <Clock className="h-4 w-4" />;
       case "cancelled":
         return <AlertCircle className="h-4 w-4" />;
@@ -117,6 +119,17 @@ export function OrdersSection() {
       currency: "INR",
       minimumFractionDigits: 0,
     }).format(price);
+  };
+
+  const formatSafeDate = (dateStr: string | undefined | null) => {
+    if (!dateStr) return null;
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return null;
+      return format(date, "MMM d, yyyy");
+    } catch (e) {
+      return null;
+    }
   };
 
   if (isLoading) {
@@ -399,15 +412,17 @@ export function OrdersSection() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-hidden overflow-y-auto rounded-2xl bg-white shadow-2xl sm:rounded-[2.5rem]"
+              className="relative z-10 flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-2xl sm:rounded-[2.5rem]"
             >
               {/* Modal Header */}
-              <div className="relative border-b border-gray-100 p-4 pb-4 sm:p-6 sm:pb-6 lg:p-8">
+              <div className="sticky top-0 z-20 border-b border-gray-100 bg-white p-4 pb-4 sm:p-6 sm:pb-6 lg:p-8">
                 <h3 className="pr-10 text-lg font-bold text-[#161616] sm:text-xl lg:text-2xl">
                   Track Order #{trackingOrder.id.slice(0, 8)}
                 </h3>
                 <p className="mt-1 text-xs text-gray-500 sm:text-sm">
-                  Real-time status of your shipment
+                  {trackingOrder.status === "cancelled"
+                    ? "This order has been cancelled"
+                    : "Real-time status of your shipment"}
                 </p>
                 <button
                   onClick={() => setTrackingOrder(null)}
@@ -417,128 +432,168 @@ export function OrdersSection() {
                 </button>
               </div>
 
-              <div className="p-4 sm:p-6 lg:p-8">
-                {/* Visual Progress Bar */}
-                <div className="relative mb-6 sm:mb-10">
-                  <div className="absolute top-4 left-0 h-1 w-full rounded-full bg-gray-100 sm:top-5 sm:h-1.5" />
-                  <div
-                    className="absolute top-4 left-0 h-1 rounded-full bg-[#2f2582] transition-all duration-1000 sm:top-5 sm:h-1.5"
-                    style={{
-                      width:
-                        trackingOrder.status === "delivered"
-                          ? "100%"
-                          : trackingOrder.status === "shipped"
-                            ? "66%"
-                            : trackingOrder.status === "processing"
-                              ? "33%"
-                              : "5%",
-                    }}
-                  />
-                  <div className="relative flex justify-between">
-                    {[
-                      { label: "Pending", icon: Package, status: "pending" },
-                      {
-                        label: "Processing",
-                        icon: Clock,
-                        status: "processing",
-                      },
-                      { label: "Shipped", icon: Truck, status: "shipped" },
-                      {
-                        label: "Delivered",
-                        icon: CheckCircle,
-                        status: "delivered",
-                      },
-                    ].map((step, i) => {
-                      const isActive =
-                        [
-                          "pending",
-                          "processing",
-                          "shipped",
-                          "delivered",
-                        ].indexOf(trackingOrder.status.toLowerCase()) >= i;
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+                {trackingOrder.status === "cancelled" ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <div className="mb-4 rounded-full bg-red-50 p-4">
+                      <AlertCircle className="h-12 w-12 text-red-500" />
+                    </div>
+                    <h4 className="mb-2 text-xl font-bold text-[#161616]">
+                      Order Cancelled
+                    </h4>
+                    <p className="max-w-xs text-sm text-gray-500">
+                      This order was cancelled. If you have any questions,
+                      please contact our support team.
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Visual Progress Bar */}
+                    <div className="relative mb-6 sm:mb-10">
+                      <div className="absolute top-4 left-0 h-1 w-full rounded-full bg-gray-100 sm:top-5 sm:h-1.5" />
+                      <div
+                        className="absolute top-4 left-0 h-1 rounded-full bg-[#2f2582] transition-all duration-1000 sm:top-5 sm:h-1.5"
+                        style={{
+                          width:
+                            trackingOrder.status === "delivered"
+                              ? "100%"
+                              : trackingOrder.status === "shipped"
+                                ? "66%"
+                                : ["processing", "paid"].includes(
+                                      trackingOrder.status.toLowerCase(),
+                                    )
+                                  ? "33%"
+                                  : "5%",
+                        }}
+                      />
+                      <div className="relative flex justify-between">
+                        {[
+                          {
+                            label: "Pending",
+                            icon: Package,
+                            statuses: ["pending"],
+                          },
+                          {
+                            label: "Processing",
+                            icon: Clock,
+                            statuses: ["processing", "paid"],
+                          },
+                          {
+                            label: "Shipped",
+                            icon: Truck,
+                            statuses: ["shipped"],
+                          },
+                          {
+                            label: "Delivered",
+                            icon: CheckCircle,
+                            statuses: ["delivered"],
+                          },
+                        ].map((step, i) => {
+                          const activeIndex = [
+                            "pending",
+                            "processing",
+                            "paid",
+                            "shipped",
+                            "delivered",
+                          ].indexOf(trackingOrder.status.toLowerCase());
 
-                      return (
-                        <div
-                          key={i}
-                          className="flex flex-col items-center gap-1.5 sm:gap-3"
-                        >
-                          <div
-                            className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white shadow-sm transition-all duration-300 sm:h-10 sm:w-10 sm:border-4 ${isActive ? "bg-[#2f2582] text-white" : "bg-gray-200 text-gray-400"}`}
-                          >
-                            <step.icon className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
-                          </div>
-                          <span
-                            className={`text-center text-[9px] leading-tight font-bold tracking-tight uppercase sm:text-xs ${isActive ? "text-[#2f2582]" : "text-gray-400"}`}
-                          >
-                            <span className="hidden sm:inline">
-                              {step.label}
-                            </span>
-                            <span className="sm:hidden">
-                              {step.label.slice(0, 4)}
-                            </span>
+                          const stepIndex = i === 0 ? 0 : i === 1 ? 2 : i + 1; // Map UI steps to status array indices
+                          // Actually simpler logic:
+                          const currentStatusIndex = [
+                            "pending",
+                            "paid",
+                            "processing",
+                            "shipped",
+                            "delivered",
+                          ].indexOf(trackingOrder.status.toLowerCase());
+
+                          let isActive = false;
+                          if (i === 0) isActive = currentStatusIndex >= 0;
+                          if (i === 1) isActive = currentStatusIndex >= 1;
+                          if (i === 2) isActive = currentStatusIndex >= 3;
+                          if (i === 3) isActive = currentStatusIndex >= 4;
+
+                          return (
+                            <div
+                              key={i}
+                              className="flex flex-col items-center gap-1.5 sm:gap-3"
+                            >
+                              <div
+                                className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white shadow-sm transition-all duration-300 sm:h-10 sm:w-10 sm:border-4 ${isActive ? "bg-[#2f2582] text-white" : "bg-gray-200 text-gray-400"}`}
+                              >
+                                <step.icon className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
+                              </div>
+                              <span
+                                className={`text-center text-[9px] leading-tight font-bold tracking-tight uppercase sm:text-xs ${isActive ? "text-[#2f2582]" : "text-gray-400"}`}
+                              >
+                                <span className="hidden sm:inline">
+                                  {step.label}
+                                </span>
+                                <span className="sm:hidden">
+                                  {step.label.slice(0, 4)}
+                                </span>
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Tracking Details */}
+                    <div className="space-y-4 sm:space-y-6">
+                      <div className="grid grid-cols-1 gap-4 rounded-xl border border-gray-100 bg-gray-50/80 p-4 sm:grid-cols-2 sm:gap-6 sm:rounded-3xl sm:p-6">
+                        <div className="space-y-0.5 sm:space-y-1">
+                          <span className="text-[9px] font-bold tracking-[1px] text-gray-400 uppercase sm:text-[10px]">
+                            Tracking Number
                           </span>
+                          <p className="flex items-center gap-2 text-sm font-bold text-[#161616] sm:text-base">
+                            {trackingOrder.tracking_number || "Awaiting Number"}
+                            {trackingOrder.tracking_url && (
+                              <a
+                                href={trackingOrder.tracking_url}
+                                target="_blank"
+                                className="text-[#2f2582] hover:underline"
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            )}
+                          </p>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
+                        <div className="space-y-0.5 sm:space-y-1">
+                          <span className="text-[9px] font-bold tracking-[1px] text-gray-400 uppercase sm:text-[10px]">
+                            Expected Delivery
+                          </span>
+                          <p className="flex items-center gap-1.5 text-sm font-bold text-[#161616] sm:text-base">
+                            <Calendar className="h-3 w-3 text-[#2f2582] sm:h-3.5 sm:w-3.5" />
+                            {formatSafeDate(
+                              trackingOrder.expected_delivery_date,
+                            ) || "Calculating..."}
+                          </p>
+                        </div>
+                        <div className="space-y-0.5 sm:col-span-2 sm:space-y-1">
+                          <span className="text-[9px] font-bold tracking-[1px] text-gray-400 uppercase sm:text-[10px]">
+                            Current Location
+                          </span>
+                          <p className="flex items-center gap-1.5 text-sm font-bold text-[#161616] sm:text-base">
+                            <MapPin className="h-3 w-3 text-[#2f2582] sm:h-3.5 sm:w-3.5" />
+                            {trackingOrder.current_location ||
+                              "Processing at Warehouse"}
+                          </p>
+                        </div>
+                      </div>
 
-                {/* Tracking Details */}
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="grid grid-cols-1 gap-4 rounded-xl border border-gray-100 bg-gray-50/80 p-4 sm:grid-cols-2 sm:gap-6 sm:rounded-3xl sm:p-6">
-                    <div className="space-y-0.5 sm:space-y-1">
-                      <span className="text-[9px] font-bold tracking-[1px] text-gray-400 uppercase sm:text-[10px]">
-                        Tracking Number
-                      </span>
-                      <p className="flex items-center gap-2 text-sm font-bold text-[#161616] sm:text-base">
-                        {trackingOrder.tracking_number || "Awaiting Number"}
-                        {trackingOrder.tracking_url && (
-                          <a
-                            href={trackingOrder.tracking_url}
-                            target="_blank"
-                            className="text-[#2f2582] hover:underline"
-                          >
-                            <ExternalLink className="h-3 w-3" />
-                          </a>
-                        )}
-                      </p>
+                      {!trackingOrder.tracking_number && (
+                        <div className="flex items-start gap-2 rounded-xl border border-amber-100 bg-amber-50 p-3 sm:items-center sm:gap-3 sm:rounded-2xl sm:p-4">
+                          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 sm:mt-0 sm:h-5 sm:w-5" />
+                          <p className="text-[11px] font-medium text-amber-700 sm:text-xs">
+                            Shipment details are usually updated within 24-48
+                            hours after processing.
+                          </p>
+                        </div>
+                      )}
                     </div>
-                    <div className="space-y-0.5 sm:space-y-1">
-                      <span className="text-[9px] font-bold tracking-[1px] text-gray-400 uppercase sm:text-[10px]">
-                        Expected Delivery
-                      </span>
-                      <p className="flex items-center gap-1.5 text-sm font-bold text-[#161616] sm:text-base">
-                        <Calendar className="h-3 w-3 text-[#2f2582] sm:h-3.5 sm:w-3.5" />
-                        {trackingOrder.expected_delivery_date
-                          ? format(
-                              new Date(trackingOrder.expected_delivery_date),
-                              "MMM d, yyyy",
-                            )
-                          : "Calculating..."}
-                      </p>
-                    </div>
-                    <div className="space-y-0.5 sm:col-span-2 sm:space-y-1">
-                      <span className="text-[9px] font-bold tracking-[1px] text-gray-400 uppercase sm:text-[10px]">
-                        Current Location
-                      </span>
-                      <p className="flex items-center gap-1.5 text-sm font-bold text-[#161616] sm:text-base">
-                        <MapPin className="h-3 w-3 text-[#2f2582] sm:h-3.5 sm:w-3.5" />
-                        {trackingOrder.current_location ||
-                          "Processing at Warehouse"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {!trackingOrder.tracking_number && (
-                    <div className="flex items-start gap-2 rounded-xl border border-amber-100 bg-amber-50 p-3 sm:items-center sm:gap-3 sm:rounded-2xl sm:p-4">
-                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 sm:mt-0 sm:h-5 sm:w-5" />
-                      <p className="text-[11px] font-medium text-amber-700 sm:text-xs">
-                        Shipment details are usually updated within 24-48 hours
-                        after processing.
-                      </p>
-                    </div>
-                  )}
-                </div>
+                  </>
+                )}
               </div>
 
               <div className="flex flex-col gap-3 border-t border-gray-100 bg-gray-50 p-4 sm:flex-row sm:gap-4 sm:p-6 lg:p-8">
@@ -549,16 +604,17 @@ export function OrdersSection() {
                 >
                   Close
                 </Button>
-                {trackingOrder.tracking_url && (
-                  <Button
-                    className="order-1 w-full rounded-xl bg-[#2f2582] text-sm text-white shadow-lg shadow-[#2f2582]/20 hover:bg-[#241c66] sm:order-2 sm:flex-1 sm:rounded-2xl sm:text-base"
-                    onClick={() =>
-                      window.open(trackingOrder.tracking_url, "_blank")
-                    }
-                  >
-                    Track on Website
-                  </Button>
-                )}
+                {trackingOrder.tracking_url &&
+                  trackingOrder.status !== "cancelled" && (
+                    <Button
+                      className="order-1 w-full rounded-xl bg-[#2f2582] text-sm text-white shadow-lg shadow-[#2f2582]/20 hover:bg-[#241c66] sm:order-2 sm:flex-1 sm:rounded-2xl sm:text-base"
+                      onClick={() =>
+                        window.open(trackingOrder.tracking_url, "_blank")
+                      }
+                    >
+                      Track on Website
+                    </Button>
+                  )}
               </div>
             </motion.div>
           </div>
