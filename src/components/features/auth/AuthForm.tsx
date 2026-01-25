@@ -29,7 +29,12 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
   const [isAppleLoading, setIsAppleLoading] = useState(false);
   const { toasts, addToast, removeToast } = useToast();
 
-  const { setUser, setSession, setLoading, setError: setStoreError } = useAuthStore();
+  const {
+    setUser,
+    setSession,
+    setLoading,
+    setError: setStoreError,
+  } = useAuthStore();
 
   const isLogin = mode === "login";
   const defaultTitle = isLogin ? "Log into Reliable" : "Create Account";
@@ -60,10 +65,11 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
       try {
         if (isLogin) {
           // LOGIN: Use client-side Supabase for session persistence
-          const { data: authData, error } = await supabaseClient.auth.signInWithPassword({
-            email,
-            password,
-          });
+          const { data: authData, error } =
+            await supabaseClient.auth.signInWithPassword({
+              email,
+              password,
+            });
 
           if (error) {
             addToast("Login failed", "error");
@@ -76,23 +82,28 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
           if (authData.user) {
             setUser({
               id: authData.user.id,
-              email: authData.user.email || '',
-              full_name: (authData.user.user_metadata?.full_name as string) || undefined,
+              email: authData.user.email || "",
+              full_name:
+                (authData.user.user_metadata?.full_name as string) || undefined,
             });
           }
           if (authData.session) {
             setSession({
               access_token: authData.session.access_token,
-              refresh_token: authData.session.refresh_token || '',
+              refresh_token: authData.session.refresh_token || "",
               expires_at: authData.session.expires_at,
-              user: authData.user ? {
-                id: authData.user.id,
-                email: authData.user.email || '',
-                full_name: (authData.user.user_metadata?.full_name as string) || undefined,
-              } : {
-                id: '',
-                email: '',
-              },
+              user: authData.user
+                ? {
+                    id: authData.user.id,
+                    email: authData.user.email || "",
+                    full_name:
+                      (authData.user.user_metadata?.full_name as string) ||
+                      undefined,
+                  }
+                : {
+                    id: "",
+                    email: "",
+                  },
             });
           }
           setLoading(false);
@@ -141,9 +152,10 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
 
     try {
       // Use dynamic redirect URL based on current environment
-      const redirectUrl = typeof window !== 'undefined'
-        ? `${window.location.origin}/auth/callback`
-        : `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`;
+      const redirectUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/auth/callback`
+          : `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`;
 
       console.log("Initiating Google OAuth with redirect:", redirectUrl);
 
@@ -152,8 +164,8 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
         options: {
           redirectTo: redirectUrl,
           queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
+            access_type: "offline",
+            prompt: "consent",
           },
         },
       });
@@ -182,9 +194,10 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
 
     try {
       // Use dynamic redirect URL based on current environment
-      const redirectUrl = typeof window !== 'undefined'
-        ? `${window.location.origin}/auth/callback`
-        : `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`;
+      const redirectUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/auth/callback`
+          : `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`;
 
       console.log("Initiating Apple OAuth with redirect:", redirectUrl);
 
@@ -192,6 +205,10 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
         provider: "apple",
         options: {
           redirectTo: redirectUrl,
+          scopes: "email name",
+          queryParams: {
+            response_mode: "form_post",
+          },
         },
       });
 
@@ -221,7 +238,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
         <motion.h1
-          className="mb-6 mt-14 text-center text-3xl font-semibold text-gray-900 md:mt-16 lg:mt-[72px]"
+          className="mt-14 mb-6 text-center text-3xl font-semibold text-gray-900 md:mt-16 lg:mt-[72px]"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
@@ -238,8 +255,6 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
             {subtitle}
           </motion.p>
         )}
-
-
 
         <motion.form
           onSubmit={handleSubmit}
@@ -276,7 +291,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     disabled={isPending}
-                    className="w-full border-0 border-b border-gray-900 bg-transparent py-3 px-2 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
+                    className="w-full border-0 border-b border-gray-900 bg-transparent px-2 py-3 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
                     required={!isLogin}
                   />
                 </motion.div>
@@ -302,7 +317,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isPending}
-                  className="w-full border-0 border-b border-gray-900 bg-transparent py-3 px-2 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
+                  className="w-full border-0 border-b border-gray-900 bg-transparent px-2 py-3 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
                   required
                 />
               </motion.div>
@@ -328,7 +343,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isPending}
-                    className="w-full border-0 border-b border-gray-300 bg-transparent py-3 px-2 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
+                    className="w-full border-0 border-b border-gray-300 bg-transparent px-2 py-3 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
                     required
                   />
                   <button
@@ -369,12 +384,14 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       disabled={isPending}
-                      className="w-full border-0 border-b border-gray-300 bg-transparent py-3 px-2 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
+                      className="w-full border-0 border-b border-gray-300 bg-transparent px-2 py-3 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
                       required={!isLogin}
                     />
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       disabled={isPending}
                       aria-label="Toggle confirm password visibility"
                       className="absolute top-1/2 right-0 -translate-y-1/2 cursor-pointer disabled:opacity-50"
@@ -393,7 +410,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
               <motion.button
                 type="submit"
                 disabled={isPending}
-                className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 bg-gray-200 text-xs tracking-widest text-gray-600 uppercase font-medium transition-colors hover:bg-gray-300 disabled:opacity-50"
+                className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 bg-gray-200 text-xs font-medium tracking-widest text-gray-600 uppercase transition-colors hover:bg-gray-300 disabled:opacity-50"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.55 }}
@@ -414,7 +431,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                 >
                   <Link
                     href="/forgot-password"
-                    className="text-xs tracking-widest text-gray-600 uppercase hover:text-[#2f2581] transition-colors"
+                    className="text-xs tracking-widest text-gray-600 uppercase transition-colors hover:text-[#2f2581]"
                   >
                     Forgot Password?
                   </Link>
@@ -431,7 +448,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
               style={{ originY: 0 }}
             >
               <div className="w-px flex-1 bg-gray-300" />
-              <p className="my-8 text-xs tracking-widest text-gray-600 uppercase font-medium">
+              <p className="my-8 text-xs font-medium tracking-widest text-gray-600 uppercase">
                 or
               </p>
               <div className="w-px flex-1 bg-gray-300" />
@@ -448,7 +465,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                 type="button"
                 onClick={handleGoogleLogin}
                 disabled={isGoogleLoading || isPending}
-                className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
@@ -459,7 +476,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                 whileTap={{ scale: 0.98 }}
               >
                 {isGoogleLoading && (
-                  <Loader className="h-5 w-5 animate-spin mr-2" />
+                  <Loader className="mr-2 h-5 w-5 animate-spin" />
                 )}
                 <svg className="h-5 w-5" viewBox="0 0 18 18" fill="none">
                   <path
@@ -494,7 +511,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                 type="button"
                 onClick={handleAppleLogin}
                 disabled={isAppleLoading || isPending}
-                className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex h-12 w-full cursor-pointer items-center justify-center gap-3 border-2 border-gray-900 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
@@ -505,8 +522,8 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                 whileTap={{ scale: 0.98 }}
               >
                 {isAppleLoading && (
-                  <Loader className="h-5 w-5 animate-spin mr-2" />
-                )} 
+                  <Loader className="mr-2 h-5 w-5 animate-spin" />
+                )}
                 <svg className="h-5 w-4" viewBox="0 0 16 20" fill="none">
                   <path
                     d="M15.665 15.586c-.276.677-.618 1.325-1.022 1.934-.537.806-.976 1.364-1.315 1.674-.525.509-1.088.769-1.69.784-.434 0-.955-.13-1.563-.393-.609-.262-1.169-.391-1.681-.391-.537 0-1.113.13-1.729.391-.617.263-1.114.4-1.494.413-.578.026-1.154-.242-1.729-.805-.367-.337-.826-.915-1.376-1.733C.476 16.587-.009 15.573-.389 14.417c-.407-1.247-.611-2.456-.611-3.626 0-1.34.275-2.497.826-3.465a5.083 5.083 0 0 1 1.73-1.843A4.68 4.68 0 0 1 4.895 4.788c.459 0 1.061.15 1.809.443.745.295 1.224.445 1.434.445.157 0 .689-.175 1.591-.524.853-.323 1.573-.457 2.163-.404 1.598.136 2.798.8 3.597 1.994-1.43.912-2.136 2.19-2.122 3.827.013 1.277.452 2.339 1.316 3.182.392.391.83.694 1.316.906-.105.323-.217.631-.335.927v-.001zM12 .401c0 1-.348 1.934-1.039 2.798-.835 1.028-1.845 1.622-2.94 1.528a3.023 3.023 0 0 1-.022-.38c0-.96.396-1.987 1.101-2.827A4.26 4.26 0 0 1 10.443.459C10.986.18 11.498.027 11.98 0c.013.134.02.268.02.4z"
@@ -531,7 +548,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
               Don't have an account?{" "}
               <Link
                 href="/signup"
-                className="font-semibold text-gray-900 hover:text-[#2f2581] transition-colors"
+                className="font-semibold text-gray-900 transition-colors hover:text-[#2f2581]"
               >
                 Sign up
               </Link>
@@ -548,7 +565,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
               Already have an account?{" "}
               <Link
                 href="/login"
-                className="font-semibold text-gray-900 hover:text-[#2f2581] transition-colors"
+                className="font-semibold text-gray-900 transition-colors hover:text-[#2f2581]"
               >
                 Log in
               </Link>
@@ -568,14 +585,14 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
           <div className="mt-2 flex items-center justify-center gap-1">
             <Link
               href="/terms-of-service"
-              className="text-xs text-gray-600 hover:text-[#2f2581] transition-colors"
+              className="text-xs text-gray-600 transition-colors hover:text-[#2f2581]"
             >
               Terms
             </Link>
             <span className="text-xs text-gray-600">&</span>
             <Link
               href="/privacy-policy"
-              className="text-xs text-gray-600 hover:text-[#2f2581] transition-colors"
+              className="text-xs text-gray-600 transition-colors hover:text-[#2f2581]"
             >
               Privacy
             </Link>

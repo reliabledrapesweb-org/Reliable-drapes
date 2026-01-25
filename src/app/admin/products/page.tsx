@@ -124,7 +124,8 @@ export default function AdminProductsPage() {
   const [skuValidation, setSkuValidation] = useState<{
     duplicatesInFile: string[];
     existingInDb: string[];
-  }>({ duplicatesInFile: [], existingInDb: [] });
+    missingSkusCount: number;
+  }>({ duplicatesInFile: [], existingInDb: [], missingSkusCount: 0 });
 
   const [formData, setFormData] = useState({
     name: "",
@@ -474,6 +475,64 @@ export default function AdminProductsPage() {
     }
   };
 
+  // Validate SKUs in the import preview
+  const validateImportSkus = async (data: any[]) => {
+    const skusInFile = data
+      .map((item) => item.sku)
+      .filter((sku): sku is string => !!sku && sku.trim() !== "");
+
+    const missingSkusCount = data.filter(
+      (item) => !item.sku || !item.sku.trim(),
+    ).length;
+
+    const skuCounts: Record<string, number> = {};
+    skusInFile.forEach((sku) => {
+      skuCounts[sku] = (skuCounts[sku] || 0) + 1;
+    });
+
+    const duplicatesInFile = Object.entries(skuCounts)
+      .filter(([, count]) => count > 1)
+      .map(([sku]) => sku);
+
+    let existingInDb: string[] = [];
+    if (skusInFile.length > 0) {
+      const result = await checkSkusExist(skusInFile);
+      if (result.success) {
+        existingInDb = result.existing;
+      }
+    }
+
+    setSkuValidation({ duplicatesInFile, existingInDb, missingSkusCount });
+  };
+
+  // Update a SKU in the import preview
+  const handleUpdatePreviewSku = (index: number, newSku: string) => {
+    const updated = [...importPreview];
+    updated[index].sku = newSku.toUpperCase().trim() || null;
+    setImportPreview(updated);
+    validateImportSkus(updated);
+  };
+
+  // Auto-generate missing SKUs
+  const handleAutoGenerateSkus = () => {
+    const updated = importPreview.map((item) => {
+      if (!item.sku || !item.sku.trim()) {
+        // Simple logic: Product Initials + Random 4-digit number
+        const initials = item.name
+          .split(" ")
+          .map((word: string) => (word[0] || "").toUpperCase())
+          .join("")
+          .replace(/[^A-Z]/g, "")
+          .slice(0, 3);
+        const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+        return { ...item, sku: `${initials || "PRD"}-${randomSuffix}` };
+      }
+      return item;
+    });
+    setImportPreview(updated);
+    validateImportSkus(updated);
+  };
+
   // Handle file upload for import
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -482,7 +541,11 @@ export default function AdminProductsPage() {
     setIsParsing(true);
     setSkippedRows([]);
     setImportSummary(null);
-    setSkuValidation({ duplicatesInFile: [], existingInDb: [] });
+    setSkuValidation({
+      duplicatesInFile: [],
+      existingInDb: [],
+      missingSkusCount: 0,
+    });
 
     const reader = new FileReader();
     reader.onload = async (evt) => {
@@ -570,30 +633,9 @@ export default function AdminProductsPage() {
           return;
         }
 
-        // SKU Validation - Check for duplicates within the file
-        const skusInFile = validatedData
-          .map((item) => item.sku)
-          .filter((sku): sku is string => sku !== null && sku.trim() !== "");
+        // SKU Validation
+        await validateImportSkus(validatedData);
 
-        const skuCounts: Record<string, number> = {};
-        skusInFile.forEach((sku) => {
-          skuCounts[sku] = (skuCounts[sku] || 0) + 1;
-        });
-
-        const duplicatesInFile = Object.entries(skuCounts)
-          .filter(([, count]) => count > 1)
-          .map(([sku]) => sku);
-
-        // SKU Validation - Check for existing SKUs in database
-        let existingInDb: string[] = [];
-        if (skusInFile.length > 0) {
-          const result = await checkSkusExist(skusInFile);
-          if (result.success) {
-            existingInDb = result.existing;
-          }
-        }
-
-        setSkuValidation({ duplicatesInFile, existingInDb });
         setImportPreview(validatedData);
         setShowImportModal(true);
       } catch (error) {
@@ -719,7 +761,11 @@ export default function AdminProductsPage() {
     setSkippedRows([]);
     setImportSummary(null);
     setImportProgress({ current: 0, total: 0 });
-    setSkuValidation({ duplicatesInFile: [], existingInDb: [] });
+    setSkuValidation({
+      duplicatesInFile: [],
+      existingInDb: [],
+      missingSkusCount: 0,
+    });
   };
 
   // Handle close mass upload modal
@@ -2333,6 +2379,34 @@ export default function AdminProductsPage() {
                       </div>
                     )}
 
+                    {/* Missing SKUs Warning */}
+                    {skuValidation.missingSkusCount > 0 && (
+                      <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-700 dark:bg-red-900/20">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-start gap-3">
+                            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600 dark:text-red-400" />
+                            <div className="flex-1">
+                              <p className="font-semibold text-red-800 dark:text-red-300">
+                                Missing SKUs detected
+                              </p>
+                              <p className="mt-1 text-sm text-red-700 dark:text-red-400">
+                                {skuValidation.missingSkusCount} product(s) are
+                                missing SKUs. Every product must have a SKU
+                                before import.
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            onClick={handleAutoGenerateSkus}
+                            size="sm"
+                            className="bg-[#2F2582] text-xs hover:bg-[#241c66]"
+                          >
+                            Auto-generate Missing
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Duplicate SKUs in File Warning */}
                     {skuValidation.duplicatesInFile.length > 0 && (
                       <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-700 dark:bg-red-900/20">
@@ -2427,46 +2501,63 @@ export default function AdminProductsPage() {
                                   )}
                                 </td>
                                 <td className="px-4 py-3 font-mono text-sm">
-                                  {item.sku ? (
-                                    <span
-                                      className={`inline-flex items-center rounded-md px-2 py-0.5 ${
-                                        skuValidation.duplicatesInFile.includes(
-                                          item.sku,
+                                  <div className="relative">
+                                    <input
+                                      type="text"
+                                      value={item.sku || ""}
+                                      onChange={(e) =>
+                                        handleUpdatePreviewSku(
+                                          index,
+                                          e.target.value,
                                         )
-                                          ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-                                          : skuValidation.existingInDb.includes(
-                                                item.sku,
-                                              )
-                                            ? "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
-                                            : "text-gray-600 dark:text-gray-400"
-                                      }`}
-                                      title={
-                                        skuValidation.duplicatesInFile.includes(
-                                          item.sku,
-                                        )
-                                          ? "Duplicate SKU in file"
-                                          : skuValidation.existingInDb.includes(
-                                                item.sku,
-                                              )
-                                            ? "SKU already exists in database"
-                                            : "Valid SKU"
                                       }
-                                    >
-                                      {skuValidation.duplicatesInFile.includes(
-                                        item.sku,
-                                      ) ||
+                                      placeholder="Enter SKU"
+                                      className={`w-full rounded border px-2 py-1 font-mono text-xs uppercase transition-colors focus:ring-2 focus:outline-none ${
+                                        !item.sku
+                                          ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-200"
+                                          : skuValidation.duplicatesInFile.includes(
+                                                item.sku,
+                                              )
+                                            ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-200"
+                                            : skuValidation.existingInDb.includes(
+                                                  item.sku,
+                                                )
+                                              ? "border-orange-300 bg-orange-50 focus:border-orange-500 focus:ring-orange-200"
+                                              : "border-gray-200 focus:border-[#2F2582] focus:ring-[#2F2582]/20 dark:border-gray-600 dark:bg-gray-700"
+                                      }`}
+                                    />
+                                    {(skuValidation.duplicatesInFile.includes(
+                                      item.sku,
+                                    ) ||
                                       skuValidation.existingInDb.includes(
                                         item.sku,
-                                      ) ? (
-                                        <AlertCircle className="mr-1.5 h-3.5 w-3.5" />
-                                      ) : null}
-                                      {item.sku}
-                                    </span>
-                                  ) : (
-                                    <span className="text-gray-400 dark:text-gray-500">
-                                      —
-                                    </span>
-                                  )}
+                                      ) ||
+                                      !item.sku) && (
+                                      <div
+                                        className="absolute top-1/2 right-2 -translate-y-1/2"
+                                        title={
+                                          !item.sku
+                                            ? "SKU is required"
+                                            : skuValidation.duplicatesInFile.includes(
+                                                  item.sku,
+                                                )
+                                              ? "Duplicate SKU in file"
+                                              : "SKU already exists in database"
+                                        }
+                                      >
+                                        <AlertCircle
+                                          className={`h-3.5 w-3.5 ${
+                                            !item.sku ||
+                                            skuValidation.duplicatesInFile.includes(
+                                              item.sku,
+                                            )
+                                              ? "text-red-500"
+                                              : "text-orange-500"
+                                          }`}
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
                                 </td>
                                 <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
                                   {item.parsedCategories &&
@@ -2583,7 +2674,13 @@ export default function AdminProductsPage() {
                     </Button>
                     <Button
                       onClick={handleBulkImport}
-                      disabled={isImporting || importPreview.length === 0}
+                      disabled={
+                        isImporting ||
+                        importPreview.length === 0 ||
+                        skuValidation.missingSkusCount > 0 ||
+                        skuValidation.duplicatesInFile.length > 0 ||
+                        skuValidation.existingInDb.length > 0
+                      }
                       className="flex-1 bg-[#2F2582] hover:bg-[#241c66]"
                     >
                       {isImporting ? (

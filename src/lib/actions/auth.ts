@@ -7,7 +7,6 @@ import type { AuthResponse } from "@/lib/types";
 import { supabaseServer } from "../supabase";
 import { getBaseUrl } from "@/lib/utils/url";
 
-
 export async function signupAction(
   formData: FormData | { email: string; password: string; full_name?: string },
 ): Promise<AuthResponse> {
@@ -66,17 +65,20 @@ export async function signupAction(
   console.log("User created successfully with ID:", userId);
 
   // Check if user should be promoted to admin based on environment variable
-  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim().toLowerCase()) || [];
+  const adminEmails =
+    process.env.ADMIN_EMAILS?.split(",").map((e) => e.trim().toLowerCase()) ||
+    [];
   const isAdminEmail = adminEmails.includes(email.toLowerCase());
 
   // Upsert profile row with admin role if applicable (using admin client for this)
-  const { error: upsertErr } = await admin
-    .from("profiles")
-    .upsert({ 
-      id: userId, 
+  const { error: upsertErr } = await admin.from("profiles").upsert(
+    {
+      id: userId,
       full_name: full_name ?? null,
-      role: isAdminEmail ? 'admin' : 'customer'
-    }, { onConflict: "id" });
+      role: isAdminEmail ? "admin" : "customer",
+    },
+    { onConflict: "id" },
+  );
 
   if (upsertErr) {
     // Log but don't fail - profile creation is not critical
@@ -91,11 +93,14 @@ export async function signupAction(
     message: "Verification code sent to your email",
     userId,
     requiresVerification: true,
-    user: created.user ? {
-      id: created.user.id,
-      email: created.user.email || '',
-      full_name: (created.user.user_metadata?.full_name as string) || undefined,
-    } : undefined,
+    user: created.user
+      ? {
+          id: created.user.id,
+          email: created.user.email || "",
+          full_name:
+            (created.user.user_metadata?.full_name as string) || undefined,
+        }
+      : undefined,
   };
 }
 
@@ -146,11 +151,14 @@ export async function resetPasswordAction(
   };
 }
 
-export async function googleOAuthAction(): Promise<{ url?: string; error?: string }> {
+export async function googleOAuthAction(): Promise<{
+  url?: string;
+  error?: string;
+}> {
   try {
     const supabase = getAnonSupabase();
     const baseUrl = getBaseUrl();
-    
+
     console.log("Google OAuth redirectTo URL:", `${baseUrl}/`);
 
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -182,17 +190,24 @@ export async function googleOAuthAction(): Promise<{ url?: string; error?: strin
   }
 }
 
-export async function appleOAuthAction(): Promise<{ url?: string; error?: string }> {
+export async function appleOAuthAction(): Promise<{
+  url?: string;
+  error?: string;
+}> {
   try {
     const supabase = getAnonSupabase();
     const baseUrl = getBaseUrl();
-    
+
     console.log("Apple OAuth redirectTo URL:", `${baseUrl}/`);
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "apple",
       options: {
         redirectTo: `${baseUrl}/auth/callback`,
+        scopes: "email name",
+        queryParams: {
+          response_mode: "form_post",
+        },
       },
     });
 
@@ -226,20 +241,23 @@ export async function handleOAuthSignup(
   email: string,
 ): Promise<AuthResponse> {
   console.log("Handling OAuth signup for user:", userId, email);
-  
+
   const admin = getAdminSupabase();
 
   // Check if user should be promoted to admin based on environment variable
-  const adminEmails = process.env.ADMIN_EMAILS?.split(',').map(e => e.trim().toLowerCase()) || [];
+  const adminEmails =
+    process.env.ADMIN_EMAILS?.split(",").map((e) => e.trim().toLowerCase()) ||
+    [];
   const isAdminEmail = adminEmails.includes(email.toLowerCase());
 
   // Upsert profile row with admin role if applicable
-  const { error: upsertErr } = await admin
-    .from("profiles")
-    .upsert({ 
-      id: userId, 
-      role: isAdminEmail ? 'admin' : 'customer'
-    }, { onConflict: "id" });
+  const { error: upsertErr } = await admin.from("profiles").upsert(
+    {
+      id: userId,
+      role: isAdminEmail ? "admin" : "customer",
+    },
+    { onConflict: "id" },
+  );
 
   if (upsertErr) {
     console.error("Profile upsert error during OAuth signup", {
@@ -253,7 +271,10 @@ export async function handleOAuthSignup(
     };
   }
 
-  console.log("OAuth signup handled successfully", { userId, isAdmin: isAdminEmail });
+  console.log("OAuth signup handled successfully", {
+    userId,
+    isAdmin: isAdminEmail,
+  });
 
   return {
     success: true,
@@ -281,10 +302,11 @@ export async function loginAction(
 
   // Use browser client for login to persist session
   const { supabaseClient } = await import("@/lib/supabase/client");
-  const { data: authData, error } = await supabaseClient.auth.signInWithPassword({
-    email: parse.data.email,
-    password: parse.data.password,
-  });
+  const { data: authData, error } =
+    await supabaseClient.auth.signInWithPassword({
+      email: parse.data.email,
+      password: parse.data.password,
+    });
 
   if (error) {
     return {
@@ -297,23 +319,32 @@ export async function loginAction(
   return {
     success: true,
     message: "Logged in successfully",
-    user: authData.user ? {
-      id: authData.user.id,
-      email: authData.user.email || '',
-      full_name: (authData.user.user_metadata?.full_name as string) || undefined,
-    } : undefined,
-    session: authData.session ? {
-      access_token: authData.session.access_token,
-      refresh_token: authData.session.refresh_token || '',
-      expires_at: authData.session.expires_at,
-      user: authData.user ? {
-        id: authData.user.id,
-        email: authData.user.email || '',
-        full_name: (authData.user.user_metadata?.full_name as string) || undefined,
-      } : {
-        id: '',
-        email: '',
-      },
-    } : undefined,
+    user: authData.user
+      ? {
+          id: authData.user.id,
+          email: authData.user.email || "",
+          full_name:
+            (authData.user.user_metadata?.full_name as string) || undefined,
+        }
+      : undefined,
+    session: authData.session
+      ? {
+          access_token: authData.session.access_token,
+          refresh_token: authData.session.refresh_token || "",
+          expires_at: authData.session.expires_at,
+          user: authData.user
+            ? {
+                id: authData.user.id,
+                email: authData.user.email || "",
+                full_name:
+                  (authData.user.user_metadata?.full_name as string) ||
+                  undefined,
+              }
+            : {
+                id: "",
+                email: "",
+              },
+        }
+      : undefined,
   };
 }
