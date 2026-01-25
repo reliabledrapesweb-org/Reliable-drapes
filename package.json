@@ -11,7 +11,7 @@
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
     "test:ui": "vitest --ui",
-    "cf:build": "opennextjs-cloudflare build && (test -f .open-next/worker.js && mv .open-next/worker.js .open-next/_worker.js || true) && (test -d .open-next/assets && cp -r .open-next/assets/* .open-next/ || true)",
+    "cf:build": "opennextjs-cloudflare build && node scripts/flatten-assets.js",
     "cf:preview": "npm run cf:build && wrangler pages dev",
     "cf:deploy": "npm run cf:build && wrangler pages deploy",
     "preview": "npm run cf:preview",
