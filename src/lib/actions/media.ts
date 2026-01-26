@@ -165,19 +165,43 @@ export async function uploadMediaItem(
   },
 ): Promise<MediaItemResponse> {
   try {
-    const bucket = options.bucket || "products";
+    const requestedBucket = options.bucket || "products";
     const folder = options.folder || "general";
 
     const supabase = getAdminSupabase();
 
-    const uploadResult = await uploadFile(file, bucket, folder, supabase);
+    // Try to upload to requested bucket, fallback to 'products' if it fails with bucket error
+    let uploadResult = await uploadFile(
+      file,
+      requestedBucket,
+      folder,
+      supabase,
+    );
+
+    if (
+      !uploadResult.success &&
+      uploadResult.error?.toLowerCase().includes("bucket")
+    ) {
+      console.warn(
+        `Bucket "${requestedBucket}" not found, falling back to "products"`,
+      );
+      uploadResult = await uploadFile(file, "products", folder, supabase);
+    }
 
     if (!uploadResult.success || !uploadResult.url) {
       return {
         success: false,
-        error: uploadResult.error || "Failed to upload file",
+        error:
+          uploadResult.error ||
+          "Failed to upload file. Make sure storage buckets are created.",
       };
     }
+
+    const bucketUsed = uploadResult.url.includes(
+      "/storage/v1/object/public/products/",
+    )
+      ? "products"
+      : requestedBucket;
 
     const fileExt = file.name.split(".").pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -193,17 +217,17 @@ export async function uploadMediaItem(
         mime_type: file.type,
         alt_text: options.altText || null,
         folder,
-        bucket,
+        bucket: bucketUsed,
         tags: options.tags || [],
       })
       .select()
       .single();
 
     if (error) {
-      console.error("Error creating media item:", error);
+      console.error("Error creating media item record:", error);
       return {
         success: false,
-        error: "Failed to create media item",
+        error: "Uploaded file but failed to create database record.",
       };
     }
 
@@ -215,7 +239,7 @@ export async function uploadMediaItem(
     console.error("Upload media item exception:", error);
     return {
       success: false,
-      error: "An unexpected error occurred",
+      error: "An unexpected error occurred during upload process.",
     };
   }
 }
@@ -510,6 +534,12 @@ export async function syncExistingFiles(): Promise<{
           });
 
         if (listError) {
+          if (listError.message.toLowerCase().includes("not found")) {
+            console.warn(
+              `Bucket ${bucket} not found, skipping sync for this bucket.`,
+            );
+            continue;
+          }
           errors.push(
             `Failed to list files in ${bucket}: ${listError.message}`,
           );

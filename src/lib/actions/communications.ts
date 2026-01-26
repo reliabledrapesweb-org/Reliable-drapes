@@ -588,10 +588,6 @@ export async function sendNewsletterCampaign(
       },
     );
 
-    console.log(
-      `[Newsletter] Sending campaign "${campaign.name}" to ${recipientEmails.length} recipients`,
-    );
-
     // Send emails using SendGrid
     const result = await sendBulkEmail({
       recipients: recipientEmails,

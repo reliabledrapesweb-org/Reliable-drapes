@@ -255,10 +255,6 @@ export async function sendNewsletterEmail(
   htmlContent: string,
   campaignName?: string,
 ): Promise<BulkSendResult> {
-  console.log(
-    `[SendGrid] Sending newsletter "${campaignName || subject}" to ${recipients.length} recipients`,
-  );
-
   return sendBulkEmail({
     recipients,
     subject,

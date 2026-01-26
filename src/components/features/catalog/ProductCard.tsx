@@ -102,12 +102,6 @@ export function ProductCard({
                 console.error("Image failed to load:", imageSrc);
                 setImageError(true);
               }}
-              onLoad={() => {
-                console.log(
-                  "Image loaded successfully:",
-                  imageError ? fallbackImage : imageSrc,
-                );
-              }}
             />
           </div>
 

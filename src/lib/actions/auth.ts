@@ -26,7 +26,6 @@ export async function signupAction(
   }
 
   const { email, password, full_name } = parse.data;
-  console.log("Creating user with email:", email);
   const admin = getAdminSupabase();
 
   // Create user via anon client to trigger OTP email
@@ -61,8 +60,6 @@ export async function signupAction(
       error: "User created but no id returned",
     };
   }
-
-  console.log("User created successfully with ID:", userId);
 
   // Check if user should be promoted to admin based on environment variable
   const adminEmails =
@@ -159,8 +156,6 @@ export async function googleOAuthAction(): Promise<{
     const supabase = getAnonSupabase();
     const baseUrl = getBaseUrl();
 
-    console.log("Google OAuth redirectTo URL:", `${baseUrl}/`);
-
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -197,8 +192,6 @@ export async function appleOAuthAction(): Promise<{
   try {
     const supabase = getAnonSupabase();
     const baseUrl = getBaseUrl();
-
-    console.log("Apple OAuth redirectTo URL:", `${baseUrl}/`);
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "apple",
@@ -240,8 +233,6 @@ export async function handleOAuthSignup(
   userId: string,
   email: string,
 ): Promise<AuthResponse> {
-  console.log("Handling OAuth signup for user:", userId, email);
-
   const admin = getAdminSupabase();
 
   // Check if user should be promoted to admin based on environment variable
@@ -270,11 +261,6 @@ export async function handleOAuthSignup(
       details: upsertErr.message,
     };
   }
-
-  console.log("OAuth signup handled successfully", {
-    userId,
-    isAdmin: isAdminEmail,
-  });
 
   return {
     success: true,

@@ -20,21 +20,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Clean up OAuth parameters from URL if present
         // The /auth/callback route has already handled the code exchange
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('code') || urlParams.has('error')) {
-          console.log("AuthProvider - Cleaning up OAuth parameters from URL");
+        if (urlParams.has("code") || urlParams.has("error")) {
           router.replace(window.location.pathname);
         }
 
         // Check for existing session (either from OAuth or regular login)
-        const { data, error: sessionError } = await supabaseClient.auth.getSession();
+        const { data, error: sessionError } =
+          await supabaseClient.auth.getSession();
 
         if (!sessionError && data.session) {
           const session = data.session;
           const user = session.user;
 
           if (user) {
-            console.log("AuthProvider - Session restored for user:", user.email);
-            
             // Fetch profile to get avatar_url
             const { data: profile } = await supabaseClient
               .from("profiles")
@@ -43,14 +41,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               .single();
 
             // Use profile avatar, or fallback to Google avatar from metadata
-            const avatarUrl = profile?.avatar_url || 
-              user.user_metadata?.avatar_url || 
+            const avatarUrl =
+              profile?.avatar_url ||
+              user.user_metadata?.avatar_url ||
               user.user_metadata?.picture;
 
             setUser({
               id: user.id,
               email: user.email || "",
-              full_name: profile?.full_name || (user.user_metadata?.full_name as string) || undefined,
+              full_name:
+                profile?.full_name ||
+                (user.user_metadata?.full_name as string) ||
+                undefined,
               avatar_url: avatarUrl || undefined,
             });
 
@@ -61,19 +63,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               user: {
                 id: user.id,
                 email: user.email || "",
-                full_name: profile?.full_name || (user.user_metadata?.full_name as string) || undefined,
+                full_name:
+                  profile?.full_name ||
+                  (user.user_metadata?.full_name as string) ||
+                  undefined,
                 avatar_url: avatarUrl || undefined,
               },
             });
           }
         } else {
-          console.log("AuthProvider - No session found");
         }
       } catch (error) {
         console.error("AuthProvider - Failed to restore session:", error);
       } finally {
         // Mark restoration as complete
-        console.log("AuthProvider - Restoration complete");
         setIsRestored(true);
       }
     };

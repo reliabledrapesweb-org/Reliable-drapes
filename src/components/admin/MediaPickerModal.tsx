@@ -119,7 +119,7 @@ export function MediaPickerModal({
       }
 
       const result = await uploadMediaItem(file, {
-        bucket: "media",
+        bucket: "products", // Use products bucket as default (safer)
         folder: selectedFolder === "all" ? "general" : selectedFolder,
       });
 

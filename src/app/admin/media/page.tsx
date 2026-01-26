@@ -193,7 +193,7 @@ export default function MediaLibraryPage() {
       }
 
       const result = await uploadMediaItem(file, {
-        bucket: "media", // Use dedicated media bucket for general uploads
+        bucket: "products", // Use products bucket as default (safer)
         folder: selectedFolder === "all" ? "general" : selectedFolder,
       });
 
@@ -237,7 +237,7 @@ export default function MediaLibraryPage() {
       }
 
       const result = await uploadMediaItem(file, {
-        bucket: "media", // Use dedicated media bucket for general uploads
+        bucket: "products", // Use products bucket as default (safer)
         folder: selectedFolder === "all" ? "general" : selectedFolder,
       });
 
@@ -467,77 +467,78 @@ export default function MediaLibraryPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-3">
-        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
-          <p className="text-xs font-medium text-gray-600 sm:text-sm">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
+        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase">
             Total Files
           </p>
-          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">
+          <p className="mt-2 text-2xl font-black text-gray-900 sm:text-3xl dark:text-white">
             {storageStats?.totalItems || 0}
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
-          <p className="text-xs font-medium text-gray-600 sm:text-sm">
+        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase">
             Storage Used
           </p>
-          <p className="mt-1 text-lg font-bold text-[#2F2582] sm:text-2xl">
-            {storageStats?.totalSizeFormatted || "0 Bytes"}
+          <p className="mt-2 text-2xl font-black text-[#2F2582] sm:text-3xl dark:text-[#a099ff]">
+            {storageStats?.totalSizeFormatted?.split(" ")[0] || "0"}{" "}
+            <span className="text-sm font-bold text-gray-400">
+              {storageStats?.totalSizeFormatted?.split(" ")[1] || "Bytes"}
+            </span>
           </p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
-          <p className="text-xs font-medium text-gray-600 sm:text-sm">
+        <div className="col-span-2 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:col-span-1 dark:border-gray-800 dark:bg-gray-900">
+          <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase">
             Folders
           </p>
-          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">
+          <p className="mt-2 text-2xl font-black text-gray-900 sm:text-3xl dark:text-white">
             {folders.length}
           </p>
         </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="relative flex-1">
-          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search media..."
-            className="w-full rounded-lg border border-gray-200 py-2.5 pr-4 pl-10 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
+            placeholder="Search filenames, tags, or alt text..."
+            className="w-full rounded-2xl border border-gray-100 py-3 pr-4 pl-12 text-sm shadow-sm transition-all focus:border-[#2F2582] focus:ring-4 focus:ring-[#2F2582]/5 focus:outline-none dark:border-gray-800 dark:bg-gray-900"
           />
         </div>
-        <div className="flex gap-2">
-          <div className="flex overflow-hidden rounded-lg border border-gray-200">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-1 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm sm:flex-none dark:border-gray-800 dark:bg-gray-900">
             <button
               onClick={() => setViewMode("grid")}
               className={cn(
-                "p-2.5 transition-colors",
+                "flex-1 p-2.5 px-4 transition-colors sm:flex-none",
                 viewMode === "grid"
-                  ? "bg-gray-100 text-[#2F2582]"
-                  : "bg-white text-gray-500 hover:bg-gray-50",
+                  ? "bg-gray-100 text-[#2F2582] dark:bg-gray-800 dark:text-[#a099ff]"
+                  : "text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50",
               )}
-              title="Grid View"
             >
-              <FolderKanban className="h-4 w-4" />
+              <FolderKanban className="mx-auto h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode("list")}
               className={cn(
-                "border-l border-gray-200 p-2.5 transition-colors",
+                "flex-1 border-l border-gray-100 p-2.5 px-4 transition-colors sm:flex-none dark:border-gray-800",
                 viewMode === "list"
-                  ? "bg-gray-100 text-[#2F2582]"
-                  : "bg-white text-gray-500 hover:bg-gray-50",
+                  ? "bg-gray-100 text-[#2F2582] dark:bg-gray-800 dark:text-[#a099ff]"
+                  : "text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50",
               )}
-              title="List View"
             >
-              <FileText className="h-4 w-4" />
+              <FileText className="mx-auto h-4 w-4" />
             </button>
           </div>
 
           <select
             value={selectedFolder}
             onChange={(e) => setSelectedFolder(e.target.value)}
-            className="rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
+            className="flex-1 rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-[#2F2582] focus:outline-none sm:flex-none dark:border-gray-800 dark:bg-gray-900"
           >
             <option value="all">All Folders</option>
             {folders.map((folder) => (
@@ -546,202 +547,226 @@ export default function MediaLibraryPage() {
               </option>
             ))}
           </select>
+
           <Button
             variant={showUnusedOnly ? "default" : "outline"}
             onClick={() => setShowUnusedOnly(!showUnusedOnly)}
             className={cn(
-              "whitespace-nowrap",
+              "flex-1 rounded-xl shadow-sm sm:flex-none",
               showUnusedOnly
-                ? "bg-[#2F2582] text-white hover:bg-[#2F2582]/90"
-                : "border-gray-200 text-gray-700",
+                ? "bg-[#2F2582] text-white hover:bg-[#241c66]"
+                : "border-gray-100 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900",
             )}
           >
-            {showUnusedOnly ? "Showing Unused" : "Show Unused"}
+            {showUnusedOnly ? "Unused Only" : "Show Unused"}
           </Button>
         </div>
       </div>
 
       {/* Bulk Actions */}
-      {selectedItems.size > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-3 sm:p-4"
-        >
-          <p className="text-sm font-medium text-blue-900">
-            {selectedItems.size} item(s) selected
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSelectedItems(new Set())}
-            >
-              Clear Selection
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={handleDeleteSelected}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete Selected
-            </Button>
-          </div>
-        </motion.div>
-      )}
+      <AnimatePresence>
+        {selectedItems.size > 0 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -20 }}
+            className="flex flex-col gap-4 rounded-3xl border-2 border-[#2F2582] bg-[#2F2582]/5 p-6 sm:flex-row sm:items-center sm:justify-between dark:bg-[#a099ff]/5"
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#2F2582] text-white shadow-lg">
+                <CheckCircle className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-lg font-black text-gray-900 dark:text-white">
+                  {selectedItems.size}{" "}
+                  <span className="text-gray-500">Items Selected</span>
+                </p>
+                <p className="text-xs font-medium text-gray-500">
+                  You can now perform bulk actions on these files
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                onClick={() => setSelectedItems(new Set())}
+                className="flex-1 rounded-xl font-bold text-[#2F2582] hover:bg-[#2F2582]/10 sm:flex-none"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteSelected}
+                className="flex-1 rounded-xl bg-red-600 font-bold text-white shadow-lg shadow-red-200 hover:bg-red-700 sm:flex-none dark:shadow-none"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Permanently
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Media Content Area */}
-      <div className="rounded-xl border border-gray-200 bg-white">
+      <div className="overflow-hidden rounded-[2.5rem] border border-gray-100 bg-white shadow-xl shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
         {/* Grid Header */}
-        <div className="flex items-center justify-between border-b border-gray-100 p-4 sm:p-6">
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              checked={
-                selectedItems.size === filteredItems.length &&
-                filteredItems.length > 0
-              }
-              onChange={handleSelectAll}
-              disabled={filteredItems.length === 0}
-              className="h-4 w-4 rounded border-gray-300 text-[#2F2582] focus:ring-[#2F2582]"
-            />
-            <p className="text-sm font-medium text-gray-900">
-              {filteredItems.length} item(s)
-            </p>
+        <div className="flex items-center justify-between border-b border-gray-50 p-6 sm:px-8 dark:border-gray-800">
+          <div className="flex items-center gap-4">
+            <div className="relative flex items-center">
+              <input
+                type="checkbox"
+                checked={
+                  selectedItems.size === filteredItems.length &&
+                  filteredItems.length > 0
+                }
+                onChange={handleSelectAll}
+                disabled={filteredItems.length === 0}
+                className="h-5 w-5 rounded-md border-2 border-gray-200 text-[#2F2582] transition-all checked:border-[#2F2582] focus:ring-[#2F2582]/20"
+              />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-gray-900 dark:text-white">
+                All Files
+              </p>
+              <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                {filteredItems.length} Total items
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Content Body */}
         {filteredItems.length === 0 ? (
-          <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
-            <FolderKanban className="h-12 w-12 text-gray-400" />
-            <h3 className="mt-4 text-base font-medium text-gray-900 sm:text-lg">
-              {searchQuery || selectedFolder !== "all"
-                ? "No media found"
-                : "No media files yet"}
+          <div className="flex flex-col items-center justify-center px-6 py-24 text-center">
+            <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800">
+              <FolderKanban className="h-12 w-12 text-gray-300" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+              No media items found
             </h3>
-            <p className="mt-2 text-xs text-gray-500 sm:text-sm">
-              {searchQuery || selectedFolder !== "all"
-                ? "Try adjusting your search or filters"
-                : "Upload your first media file to get started"}
+            <p className="mt-2 max-w-xs text-sm font-medium text-gray-500">
+              Try adjusting your search or filters to find what you&apos;re
+              looking for.
             </p>
+            <Button
+              onClick={() => setShowUploadModal(true)}
+              className="mt-8 rounded-2xl bg-[#2F2582] px-8 hover:bg-[#241c66]"
+            >
+              Upload First File
+            </Button>
           </div>
         ) : viewMode === "grid" ? (
-          <div className="grid grid-cols-2 gap-4 p-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4 lg:p-8 xl:grid-cols-5">
+          <div className="grid grid-cols-2 gap-4 p-4 sm:grid-cols-3 sm:gap-6 md:grid-cols-4 lg:grid-cols-5 lg:p-8 xl:grid-cols-6">
             {filteredItems.map((item, index) => (
               <motion.div
                 key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.03 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.02 }}
                 className={cn(
-                  "group relative overflow-hidden rounded-2xl border shadow-sm transition-all duration-300",
+                  "group relative aspect-square overflow-hidden rounded-[2rem] border-2 transition-all duration-500",
                   selectedItems.has(item.id)
-                    ? "border-[#2F2582] ring-4 ring-[#2F2582]/10"
-                    : "border-gray-100 hover:border-gray-300 hover:shadow-md",
+                    ? "border-[#2F2582] ring-8 ring-[#2F2582]/5"
+                    : "border-transparent bg-gray-50 dark:bg-gray-800",
                 )}
               >
-                {/* Media Container */}
-                <div className="relative aspect-square w-full overflow-hidden bg-gray-50">
-                  {/* Checkbox */}
-                  <div className="absolute top-3 left-3 z-10 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    <input
-                      type="checkbox"
-                      checked={selectedItems.has(item.id)}
-                      onChange={() => handleSelectItem(item.id)}
-                      className="h-5 w-5 cursor-pointer rounded-md border-gray-300 text-[#2F2582] focus:ring-[#2F2582]"
-                    />
+                {/* Checkbox Overlay */}
+                <div
+                  className={cn(
+                    "absolute top-4 left-4 z-20 transition-all duration-300",
+                    selectedItems.has(item.id)
+                      ? "scale-110 opacity-100"
+                      : "scale-50 opacity-0 group-hover:scale-100 group-hover:opacity-100",
+                  )}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.has(item.id)}
+                    onChange={() => handleSelectItem(item.id)}
+                    className="h-6 w-6 cursor-pointer rounded-lg border-2 border-white/50 bg-white/20 text-[#2F2582] backdrop-blur-md transition-all checked:border-white focus:ring-0"
+                  />
+                </div>
+
+                {/* Media Content */}
+                {item.mime_type.startsWith("image/") ? (
+                  <Image
+                    src={item.file_url}
+                    alt={item.alt_text || item.original_name}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 15vw"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center p-8">
+                    <div className="flex flex-col items-center gap-2">
+                      {getFileIcon(item.mime_type)}
+                      <span className="text-[10px] font-black text-gray-400 uppercase">
+                        {item.mime_type.split("/")[1]}
+                      </span>
+                    </div>
                   </div>
-                  {/* Selected indicator */}
-                  {selectedItems.has(item.id) && (
-                    <div className="pointer-events-none absolute inset-0 bg-[#2F2582]/5" />
-                  )}
+                )}
 
-                  {/* Media Content */}
-                  {item.mime_type.startsWith("image/") ? (
-                    <Image
-                      src={item.file_url}
-                      alt={item.alt_text || item.original_name}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <div className="rounded-xl bg-white p-4 shadow-sm">
-                        {getFileIcon(item.mime_type)}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Hover Overlay Buttons */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          setSelectedMedia(item);
-                          setEditingAltText(item.alt_text || "");
-                          setEditingTags(item.tags?.join(", ") || "");
-                          setMediaUsage(null);
-                          fetchUsage(item.file_url);
-                          setShowPreviewModal(true);
-                        }}
-                        className="translate-y-4 transform rounded-full bg-white p-3 text-[#2F2582] transition-transform duration-300 group-hover:translate-y-0 hover:bg-gray-100"
-                        title="View Details"
-                      >
-                        <Eye className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => handleCopyUrl(item.file_url)}
-                        className="translate-y-4 transform rounded-full bg-white p-3 text-gray-700 transition-transform delay-75 duration-500 group-hover:translate-y-0 hover:bg-gray-100"
-                        title="Copy URL"
-                      >
-                        <Copy className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSelectedMedia(item);
-                          setShowDeleteModal(true);
-                        }}
-                        className="translate-y-4 transform rounded-full bg-white p-3 text-red-600 transition-transform delay-100 duration-500 group-hover:translate-y-0 hover:bg-red-50"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </button>
-                    </div>
+                {/* Hover UI */}
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#2F2582]/40 opacity-0 backdrop-blur-[2px] transition-all duration-500 group-hover:opacity-100">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setSelectedMedia(item);
+                        setEditingAltText(item.alt_text || "");
+                        setEditingTags(item.tags?.join(", ") || "");
+                        setMediaUsage(null);
+                        fetchUsage(item.file_url);
+                        setShowPreviewModal(true);
+                      }}
+                      className="flex h-12 w-12 translate-y-4 items-center justify-center rounded-2xl bg-white text-[#2F2582] shadow-xl transition-all duration-500 group-hover:translate-y-0 hover:scale-110"
+                      title="View Details"
+                    >
+                      <Eye className="h-6 w-6" />
+                    </button>
+                    <button
+                      onClick={() => handleCopyUrl(item.file_url)}
+                      className="flex h-12 w-12 translate-y-4 items-center justify-center rounded-2xl bg-white text-gray-700 shadow-xl transition-all delay-75 duration-500 group-hover:translate-y-0 hover:scale-110"
+                      title="Copy URL"
+                    >
+                      <Copy className="h-6 w-6" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedMedia(item);
+                        setShowDeleteModal(true);
+                      }}
+                      className="flex h-12 w-12 translate-y-4 items-center justify-center rounded-2xl bg-white text-red-600 shadow-xl transition-all delay-100 duration-500 group-hover:translate-y-0 hover:scale-110"
+                      title="Delete"
+                    >
+                      <Trash2 className="h-6 w-6" />
+                    </button>
                   </div>
                 </div>
 
-                {/* Info Bar */}
-                <div className="bg-white p-3 dark:bg-gray-800">
-                  <p
-                    className="truncate text-sm font-semibold text-gray-900 dark:text-white"
-                    title={item.original_name}
-                  >
+                {/* Info Overlay (Always visible on mobile, hover on desktop) */}
+                <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-10 opacity-0 transition-opacity duration-500 group-hover:opacity-100 sm:opacity-0 lg:group-hover:opacity-100">
+                  <p className="truncate text-xs font-bold text-white">
                     {item.original_name}
                   </p>
-                  <div className="mt-1 flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase">
-                      {item.mime_type.split("/")[1]}
-                    </span>
-                    <span className="text-[10px] text-gray-500">
-                      {formatFileSize(item.file_size)}
-                    </span>
-                  </div>
+                  <p className="mt-1 text-[10px] font-medium text-white/60">
+                    {formatFileSize(item.file_size)}
+                  </p>
                 </div>
 
-                {/* Status Badges */}
-                <div className="pointer-events-none absolute top-3 right-3 flex flex-col gap-1">
-                  {item.usage_count > 0 ? (
-                    <div className="rounded-full bg-green-500/90 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-sm">
-                      USED
-                    </div>
-                  ) : (
-                    <div className="rounded-full bg-amber-500/90 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-sm">
-                      UNUSED
-                    </div>
-                  )}
+                {/* Status Badge */}
+                <div className="absolute top-4 right-4 z-10">
+                  <div
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-[8px] font-black tracking-widest text-white uppercase shadow-sm backdrop-blur-md",
+                      item.usage_count > 0
+                        ? "bg-green-500/80"
+                        : "bg-amber-500/80",
+                    )}
+                  >
+                    {item.usage_count > 0 ? "In Use" : "Unused"}
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -918,12 +943,12 @@ export default function MediaLibraryPage() {
       {/* Preview Modal */}
       <AnimatePresence>
         {showPreviewModal && selectedMedia && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#161616]/90 p-4 backdrop-blur-sm sm:p-6 lg:p-8">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#161616]/95 p-0 backdrop-blur-md sm:p-6 lg:p-8">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.9, y: 100 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative flex h-full max-h-[900px] w-full max-w-7xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl lg:flex-row"
+              exit={{ opacity: 0, scale: 0.9, y: 100 }}
+              className="relative flex h-full w-full flex-col overflow-hidden bg-white shadow-2xl sm:max-h-[900px] sm:max-w-7xl sm:rounded-[3rem] lg:flex-row dark:bg-gray-900"
             >
               {/* Close Button Mobile */}
               <button
@@ -931,16 +956,16 @@ export default function MediaLibraryPage() {
                   setShowPreviewModal(false);
                   setSelectedMedia(null);
                 }}
-                className="absolute top-4 right-4 z-20 rounded-full bg-black/20 p-2 text-white hover:bg-black/40 lg:hidden"
+                className="absolute top-6 right-6 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-all hover:bg-white/40 lg:hidden"
               >
-                <X className="h-5 w-5" />
+                <X className="h-6 w-6" />
               </button>
 
               {/* Left: Media Preview Area */}
-              <div className="relative flex flex-1 flex-col overflow-hidden bg-gray-100 dark:bg-gray-900">
-                <div className="flex h-full items-center justify-center p-6 lg:p-12">
+              <div className="relative flex min-h-[40vh] flex-1 flex-col overflow-hidden bg-gray-50 lg:min-h-0 dark:bg-gray-950">
+                <div className="flex h-full items-center justify-center p-8 lg:p-20">
                   {selectedMedia.mime_type.startsWith("image/") ? (
-                    <div className="group relative h-full w-full">
+                    <div className="relative h-full w-full">
                       <Image
                         src={selectedMedia.file_url}
                         alt={
@@ -952,32 +977,31 @@ export default function MediaLibraryPage() {
                       />
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="rounded-2xl bg-white p-8 shadow-sm dark:bg-gray-800">
+                    <div className="flex flex-col items-center gap-6">
+                      <div className="rounded-[2.5rem] bg-white p-12 shadow-xl dark:bg-gray-800">
                         {getFileIcon(selectedMedia.mime_type)}
                       </div>
-                      <p className="text-sm font-medium text-gray-500">
+                      <p className="text-sm font-black tracking-[0.2em] text-gray-400 uppercase">
                         {getFileTypeCategory(selectedMedia.mime_type)} File
                       </p>
                     </div>
                   )}
                 </div>
 
-                {/* Image Actions Overlay */}
-                <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2 rounded-full bg-white/80 p-2 shadow-lg backdrop-blur dark:bg-gray-800/80">
+                {/* Floating Actions Overlay */}
+                <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 gap-3 rounded-2xl bg-white/10 p-2 shadow-2xl backdrop-blur-xl dark:bg-black/20">
                   <Button
-                    variant="outline"
-                    size="sm"
+                    variant="ghost"
                     onClick={() => handleCopyUrl(selectedMedia.file_url)}
-                    className="h-9 rounded-full border-none px-4 hover:bg-white dark:hover:bg-gray-700"
+                    className="h-12 rounded-xl border-none bg-white px-6 font-bold text-gray-900 shadow-sm transition-all hover:scale-105"
                   >
                     <Copy className="mr-2 h-4 w-4" />
-                    Copy Link
+                    Copy URL
                   </Button>
                   <a
                     href={selectedMedia.file_url}
                     download
-                    className="inline-flex h-9 items-center rounded-full bg-[#2F2582] px-4 text-sm font-medium text-white hover:bg-[#241c66]"
+                    className="flex h-12 items-center justify-center rounded-xl bg-[#2F2582] px-6 font-bold text-white shadow-lg transition-all hover:scale-105 hover:bg-[#241c66]"
                   >
                     <Download className="mr-2 h-4 w-4" />
                     Download
@@ -986,18 +1010,18 @@ export default function MediaLibraryPage() {
               </div>
 
               {/* Right: Info Sidebar */}
-              <div className="flex w-full flex-col border-l border-gray-100 bg-white lg:w-[400px] dark:border-gray-800 dark:bg-gray-900">
+              <div className="flex w-full flex-col border-l border-gray-50 bg-white lg:w-[450px] dark:border-gray-800 dark:bg-gray-900">
                 {/* Sidebar Header */}
-                <div className="flex items-center justify-between border-b border-gray-50 p-6 dark:border-gray-800">
-                  <div>
+                <div className="flex items-center justify-between border-b border-gray-50 p-8 dark:border-gray-800">
+                  <div className="min-w-0">
                     <h3
-                      className="line-clamp-1 font-bold text-gray-900 dark:text-white"
+                      className="truncate text-xl font-black text-gray-900 dark:text-white"
                       title={selectedMedia.original_name}
                     >
                       {selectedMedia.original_name}
                     </h3>
-                    <p className="text-xs text-gray-500">
-                      ID: {selectedMedia.id.slice(0, 8)}...
+                    <p className="mt-1 font-mono text-[10px] font-bold text-gray-400">
+                      ID: {selectedMedia.id}
                     </p>
                   </div>
                   <button
@@ -1005,195 +1029,194 @@ export default function MediaLibraryPage() {
                       setShowPreviewModal(false);
                       setSelectedMedia(null);
                     }}
-                    className="hidden rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-900 lg:block"
+                    className="hidden h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-gray-400 transition-all hover:bg-gray-100 hover:text-gray-900 lg:flex dark:bg-gray-800 dark:hover:bg-gray-700"
                   >
                     <X className="h-5 w-5" />
                   </button>
                 </div>
 
-                <div className="scrollbar-thin flex-1 overflow-y-auto p-6">
+                <div className="scrollbar-thin flex-1 overflow-y-auto p-8">
                   {/* Metadata Grid */}
-                  <div className="mb-8 grid grid-cols-2 gap-4">
-                    <div className="rounded-xl bg-gray-50 p-3 dark:bg-gray-800/50">
-                      <p className="text-[10px] font-bold tracking-wider text-gray-400 uppercase">
-                        Size
-                      </p>
-                      <p className="mt-0.5 text-sm font-semibold text-gray-700 dark:text-gray-200">
-                        {formatFileSize(selectedMedia.file_size)}
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-gray-50 p-3 dark:bg-gray-800/50">
-                      <p className="text-[10px] font-bold tracking-wider text-gray-400 uppercase">
-                        Type
-                      </p>
-                      <p className="mt-0.5 text-sm font-semibold text-gray-700 dark:text-gray-200">
-                        {selectedMedia.mime_type.split("/")[1].toUpperCase()}
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-gray-50 p-3 dark:bg-gray-800/50">
-                      <p className="text-[10px] font-bold tracking-wider text-gray-400 uppercase">
-                        Folder
-                      </p>
-                      <p className="mt-0.5 text-sm font-semibold text-gray-700 dark:text-gray-200">
-                        {selectedMedia.folder}
-                      </p>
-                    </div>
-                    <div className="rounded-xl bg-gray-50 p-3 dark:bg-gray-800/50">
-                      <p className="text-[10px] font-bold tracking-wider text-gray-400 uppercase">
-                        Added
-                      </p>
-                      <p className="mt-0.5 text-sm font-semibold text-gray-700 dark:text-gray-200">
-                        {format(
+                  <div className="mb-10 grid grid-cols-2 gap-4">
+                    {[
+                      {
+                        label: "Size",
+                        value: formatFileSize(selectedMedia.file_size),
+                      },
+                      {
+                        label: "Type",
+                        value: selectedMedia.mime_type
+                          .split("/")[1]
+                          .toUpperCase(),
+                      },
+                      { label: "Folder", value: selectedMedia.folder },
+                      {
+                        label: "Added",
+                        value: format(
                           new Date(selectedMedia.created_at),
                           "MMM d, yyyy",
-                        )}
-                      </p>
-                    </div>
+                        ),
+                      },
+                    ].map((item, i) => (
+                      <div
+                        key={i}
+                        className="rounded-2xl bg-gray-50 p-4 dark:bg-gray-800/50"
+                      >
+                        <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase">
+                          {item.label}
+                        </p>
+                        <p className="mt-1 text-sm font-bold text-gray-900 dark:text-white">
+                          {item.value}
+                        </p>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Usage Section */}
-                  <div className="mb-8">
-                    <h4 className="mb-3 flex items-center gap-2 text-xs font-bold tracking-wider text-gray-400 uppercase">
-                      <CheckCircle className="h-3 w-3" />
-                      Usage info
-                    </h4>
+                  <div className="mb-10">
+                    <div className="mb-4 flex items-center gap-2">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#2F2582] dark:bg-[#a099ff]" />
+                      <h4 className="text-[10px] font-black tracking-widest text-gray-400 uppercase">
+                        Used in
+                      </h4>
+                    </div>
                     {isUsageLoading ? (
-                      <div className="flex items-center gap-2 py-2 text-sm text-gray-500">
+                      <div className="flex items-center gap-3 py-4 text-sm font-medium text-gray-500">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        Checking usage...
+                        Scanning database...
                       </div>
                     ) : mediaUsage &&
                       (mediaUsage.products.length > 0 ||
                         mediaUsage.productImages.length > 0 ||
                         mediaUsage.catalogues.length > 0) ? (
-                      <div className="space-y-2">
+                      <div className="grid gap-2">
                         {mediaUsage.products.map((p) => (
                           <div
                             key={p.id}
-                            className="flex items-center justify-between rounded-lg border border-blue-100 bg-blue-50/50 px-3 py-2 text-xs text-blue-700"
+                            className="flex items-center justify-between rounded-xl bg-blue-50/50 p-3 text-xs dark:bg-blue-900/10"
                           >
-                            <span className="flex items-center gap-2">
+                            <span className="flex items-center gap-2 font-bold text-blue-700 dark:text-blue-400">
                               <Package className="h-3 w-3" />
-                              Main Image: {p.name}
+                              Main: {p.name}
                             </span>
                             <Link
                               href="/admin/products"
-                              className="font-bold hover:underline"
+                              className="rounded-lg bg-white px-3 py-1 font-black text-blue-700 shadow-sm transition-all hover:scale-105 dark:bg-gray-800"
                             >
-                              Edit
+                              EDIT
                             </Link>
                           </div>
                         ))}
                         {mediaUsage.productImages.map((gi) => (
                           <div
                             key={gi.id}
-                            className="flex items-center justify-between rounded-lg border border-purple-100 bg-purple-50/50 px-3 py-2 text-xs text-purple-700"
+                            className="flex items-center justify-between rounded-xl bg-purple-50/50 p-3 text-xs dark:bg-purple-900/10"
                           >
-                            <span className="flex items-center gap-2">
+                            <span className="flex items-center gap-2 font-bold text-purple-700 dark:text-purple-400">
                               <ImageIcon className="h-3 w-3" />
                               Gallery: {gi.product_name}
                             </span>
                             <Link
                               href="/admin/products"
-                              className="font-bold hover:underline"
+                              className="rounded-lg bg-white px-3 py-1 font-black text-purple-700 shadow-sm transition-all hover:scale-105 dark:bg-gray-800"
                             >
-                              Edit
+                              EDIT
                             </Link>
                           </div>
                         ))}
                         {mediaUsage.catalogues.map((c) => (
                           <div
                             key={c.id}
-                            className="flex items-center justify-between rounded-lg border border-green-100 bg-green-50/50 px-3 py-2 text-xs text-green-700"
+                            className="flex items-center justify-between rounded-xl bg-green-50/50 p-3 text-xs dark:bg-green-900/10"
                           >
-                            <span className="flex items-center gap-2">
+                            <span className="flex items-center gap-2 font-bold text-green-700 dark:text-green-400">
                               <FileText className="h-3 w-3" />
-                              Catalogue: {c.name}
+                              Catalog: {c.name}
                             </span>
                             <Link
                               href="/admin/catalogues"
-                              className="font-bold hover:underline"
+                              className="rounded-lg bg-white px-3 py-1 font-black text-green-700 shadow-sm transition-all hover:scale-105 dark:bg-gray-800"
                             >
-                              Edit
+                              EDIT
                             </Link>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="rounded-lg border border-dashed border-gray-200 p-4 text-center">
-                        <p className="text-xs text-gray-400 italic">
-                          This file is currently not being used in any products
-                          or catalogues.
+                      <div className="rounded-2xl border-2 border-dashed border-gray-100 p-6 text-center">
+                        <p className="text-xs font-medium text-gray-400 italic">
+                          This file is currently not being used anywhere in your
+                          store.
                         </p>
                       </div>
                     )}
                   </div>
 
                   {/* Edit Form */}
-                  <div className="space-y-4">
-                    <h4 className="flex items-center gap-2 text-xs font-bold tracking-wider text-gray-400 uppercase">
-                      <Edit className="h-3 w-3" />
-                      Edit Details
-                    </h4>
-
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-semibold text-gray-500 uppercase">
-                        Alt Text
-                      </label>
-                      <input
-                        type="text"
-                        value={editingAltText}
-                        onChange={(e) => setEditingAltText(e.target.value)}
-                        placeholder="Describe this image for SEO..."
-                        className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/10 focus:outline-none dark:border-gray-700 dark:bg-gray-800"
-                      />
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-2">
+                      <div className="h-1.5 w-1.5 rounded-full bg-[#2F2582] dark:bg-[#a099ff]" />
+                      <h4 className="text-[10px] font-black tracking-widest text-gray-400 uppercase">
+                        Edit Metadata
+                      </h4>
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-semibold text-gray-500 uppercase">
-                        Tags
-                      </label>
-                      <input
-                        type="text"
-                        value={editingTags}
-                        onChange={(e) => setEditingTags(e.target.value)}
-                        placeholder="living-room, blue, velvet..."
-                        className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/10 focus:outline-none dark:border-gray-700 dark:bg-gray-800"
-                      />
-                      <p className="text-[10px] text-gray-400">
-                        Separate with commas
-                      </p>
-                    </div>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase">
+                          Alt Text (SEO)
+                        </label>
+                        <input
+                          type="text"
+                          value={editingAltText}
+                          onChange={(e) => setEditingAltText(e.target.value)}
+                          placeholder="Describe this image..."
+                          className="w-full rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm focus:border-[#2F2582] focus:ring-4 focus:ring-[#2F2582]/5 focus:outline-none dark:border-gray-800 dark:bg-gray-800/50"
+                        />
+                      </div>
 
-                    <Button
-                      onClick={() => {
-                        const tags = editingTags
-                          .split(",")
-                          .map((t) => t.trim())
-                          .filter(Boolean);
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-500 uppercase">
+                          Tags (Comma separated)
+                        </label>
+                        <input
+                          type="text"
+                          value={editingTags}
+                          onChange={(e) => setEditingTags(e.target.value)}
+                          placeholder="blue, velvet, living-room..."
+                          className="w-full rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm focus:border-[#2F2582] focus:ring-4 focus:ring-[#2F2582]/5 focus:outline-none dark:border-gray-800 dark:bg-gray-800/50"
+                        />
+                      </div>
 
-                        handleUpdateMedia(selectedMedia.id, {
-                          alt_text: editingAltText || undefined,
-                          tags: tags.length > 0 ? tags : undefined,
-                        });
-                      }}
-                      className="w-full bg-[#2F2582] hover:bg-[#241c66]"
-                    >
-                      Save Metadata
-                    </Button>
-
-                    <div className="pt-4">
                       <Button
-                        variant="ghost"
                         onClick={() => {
-                          setSelectedMedia(selectedMedia);
-                          setShowDeleteModal(true);
+                          const tags = editingTags
+                            .split(",")
+                            .map((t) => t.trim())
+                            .filter(Boolean);
+
+                          handleUpdateMedia(selectedMedia.id, {
+                            alt_text: editingAltText || undefined,
+                            tags: tags.length > 0 ? tags : undefined,
+                          });
                         }}
-                        className="w-full text-red-500 hover:bg-red-50 hover:text-red-600"
+                        className="w-full rounded-xl bg-[#2F2582] py-6 font-bold hover:bg-[#241c66]"
                       >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete File permanently
+                        Update File Info
                       </Button>
+
+                      <div className="pt-4">
+                        <button
+                          onClick={() => {
+                            setSelectedMedia(selectedMedia);
+                            setShowDeleteModal(true);
+                          }}
+                          className="flex w-full items-center justify-center gap-2 rounded-xl p-4 text-xs font-bold text-red-500 transition-all hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/20"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Delete File Permanently
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

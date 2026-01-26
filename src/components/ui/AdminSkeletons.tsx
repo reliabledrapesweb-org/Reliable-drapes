@@ -165,86 +165,50 @@ export function FormPageSkeleton() {
  */
 export function AdminDashboardSkeleton() {
   return (
-    <div className="space-y-6 lg:space-y-8">
-      {/* Welcome Section */}
-      <div className="space-y-2">
-        <div className="h-8 w-64 animate-pulse rounded-lg bg-gray-200 sm:h-10 sm:w-80 dark:bg-gray-700" />
-        <div className="h-5 w-96 animate-pulse rounded-md bg-gray-100 sm:w-[32rem] dark:bg-gray-800" />
+    <div className="mx-auto max-w-[1600px] space-y-8 p-4 sm:p-6 lg:p-8">
+      {/* Header Skeleton */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-3">
+          <div className="h-10 w-48 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-800" />
+          <div className="h-4 w-64 animate-pulse rounded-md bg-gray-100 dark:bg-gray-800/50" />
+        </div>
+        <div className="flex gap-3">
+          <div className="h-10 w-24 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-800" />
+          <div className="h-10 w-32 animate-pulse rounded-2xl bg-gray-200 dark:bg-gray-800" />
+        </div>
       </div>
 
-      {/* Stats Grid - 4 cards */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      {/* Stats Grid Skeleton */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i} className="border-none shadow-sm dark:bg-gray-800/50">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1 space-y-2">
-                  <div className="h-3 w-20 animate-pulse rounded bg-gray-200 sm:w-24 dark:bg-gray-700" />
-                  <div className="h-8 w-12 animate-pulse rounded-lg bg-gray-300 sm:h-10 sm:w-16 dark:bg-gray-600" />
-                  <div className="h-3 w-16 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
-                </div>
-                <div className="h-10 w-10 animate-pulse rounded-xl bg-gray-200 sm:h-12 sm:w-12 dark:bg-gray-700" />
-              </div>
-            </CardContent>
-          </Card>
+          <div
+            key={i}
+            className="h-32 animate-pulse rounded-3xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900"
+          />
         ))}
       </div>
 
-      {/* Main Content Split */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Recent Orders Section (Larger) */}
-        <div className="space-y-4 lg:col-span-2">
-          <div className="h-6 w-32 animate-pulse rounded-md bg-gray-200 dark:bg-gray-700" />
-          <Card className="border-none shadow-sm dark:bg-gray-800/50">
-            <CardContent className="p-0">
-              <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between p-4 sm:px-6"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-700" />
-                      <div className="space-y-2">
-                        <div className="h-4 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-                        <div className="h-3 w-48 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
-                      </div>
-                    </div>
-                    <div className="hidden items-center gap-8 sm:flex">
-                      <div className="h-4 w-16 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
-                      <div className="h-6 w-20 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+      {/* Main Content Split Skeleton */}
+      <div className="grid gap-8 lg:grid-cols-3">
+        {/* Recent Orders Skeleton */}
+        <div className="lg:col-span-2">
+          <div className="h-[500px] animate-pulse rounded-[2.5rem] border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900" />
         </div>
 
-        {/* Quick Actions / Recent Media Section (Smaller) */}
-        <div className="space-y-6">
+        {/* Sidebar Skeleton */}
+        <div className="space-y-8">
           <div className="space-y-4">
-            <div className="h-6 w-32 animate-pulse rounded-md bg-gray-200 dark:bg-gray-700" />
-            <div className="grid gap-3">
+            <div className="h-6 w-32 animate-pulse rounded bg-gray-200 dark:bg-gray-800" />
+            <div className="grid gap-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-20 animate-pulse rounded-xl bg-gray-100 dark:bg-gray-800/50"
+                  className="h-28 animate-pulse rounded-3xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900"
                 />
               ))}
             </div>
           </div>
-          <div className="space-y-4">
-            <div className="h-6 w-32 animate-pulse rounded-md bg-gray-200 dark:bg-gray-700" />
-            <div className="grid grid-cols-3 gap-2">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="aspect-square animate-pulse rounded-lg bg-gray-100 dark:bg-gray-800/50"
-                />
-              ))}
-            </div>
-          </div>
+          <div className="h-80 animate-pulse rounded-[2rem] border border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900" />
         </div>
       </div>
     </div>

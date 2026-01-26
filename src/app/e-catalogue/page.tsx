@@ -13,14 +13,6 @@ import { DEFAULT_CATALOG_IMAGE } from "@/lib/constants/app";
 function transformCatalogueToProduct(catalogue: Catalogue) {
   const fallbackImage = DEFAULT_CATALOG_IMAGE;
 
-  // Debug: Log the catalogue data to see what image URLs we're getting
-  console.log("Catalogue data:", {
-    id: catalogue.id,
-    title: catalogue.title,
-    thumbnail_url: catalogue.thumbnail_url,
-    image_url: catalogue.image_url,
-  });
-
   // Use thumbnail_url first, then image_url, then fallback
   const imageUrl =
     catalogue.thumbnail_url || catalogue.image_url || fallbackImage;
@@ -49,7 +41,6 @@ export default function CataloguePage() {
       setIsLoading(true);
       try {
         const result = await getCatalogues();
-        console.log("Catalogues API response:", result);
         if (result.success && result.data) {
           setCatalogues(result.data);
         } else {

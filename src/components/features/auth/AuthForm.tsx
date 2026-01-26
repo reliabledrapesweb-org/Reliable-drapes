@@ -157,8 +157,6 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
           ? `${window.location.origin}/auth/callback`
           : `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`;
 
-      console.log("Initiating Google OAuth with redirect:", redirectUrl);
-
       const { data, error } = await supabaseClient.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -180,7 +178,6 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
 
       // OAuth redirect will happen automatically
       // Keep loading state until redirect occurs
-      console.log("Google OAuth initiated successfully");
     } catch (error) {
       console.error("Google OAuth exception:", error);
       addToast("Failed to initiate Google sign-in", "error");
@@ -198,8 +195,6 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
         typeof window !== "undefined"
           ? `${window.location.origin}/auth/callback`
           : `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`;
-
-      console.log("Initiating Apple OAuth with redirect:", redirectUrl);
 
       const { data, error } = await supabaseClient.auth.signInWithOAuth({
         provider: "apple",
@@ -221,7 +216,6 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
       }
 
       // OAuth redirect will happen automatically
-      console.log("Apple OAuth initiated successfully");
     } catch (error) {
       console.error("Apple OAuth exception:", error);
       addToast("Failed to initiate Apple sign-in", "error");

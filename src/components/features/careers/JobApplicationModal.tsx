@@ -14,7 +14,11 @@ interface JobApplicationModalProps {
   onClose: () => void;
 }
 
-export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModalProps) {
+export function JobApplicationModal({
+  job,
+  isOpen,
+  onClose,
+}: JobApplicationModalProps) {
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -28,7 +32,9 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
   const [uploadProgress, setUploadProgress] = useState(0);
   const { toasts, addToast, removeToast } = useToast();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -57,13 +63,13 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
     try {
       setIsUploading(true);
       setUploadProgress(10);
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split(".").pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `resumes/${fileName}`;
 
       setUploadProgress(30);
       const { error: uploadError } = await supabaseClient.storage
-        .from('job-applications')
+        .from("job-applications")
         .upload(filePath, file);
 
       if (uploadError) {
@@ -74,14 +80,18 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
       setUploadProgress(70);
       // Get public URL
       const { data } = supabaseClient.storage
-        .from('job-applications')
+        .from("job-applications")
         .getPublicUrl(filePath);
 
       setUploadProgress(100);
       return data.publicUrl;
     } catch (error) {
       console.error("Error uploading resume:", error);
-      setError(error instanceof Error ? error.message : "Failed to upload resume. Please try again.");
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to upload resume. Please try again.",
+      );
       return null;
     } finally {
       setIsUploading(false);
@@ -91,9 +101,7 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    console.log("[JobApplicationModal] Form submitted", { job: job?.id, resumeFile: resumeFile?.name });
-    
+
     if (!job) {
       console.error("[JobApplicationModal] No job selected");
       return;
@@ -104,22 +112,17 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
       return;
     }
 
-    console.log("[JobApplicationModal] Starting submission process...");
     setIsSubmitting(true);
     setError(null);
 
     try {
       // Upload resume first
-      console.log("[JobApplicationModal] Uploading resume...");
       const resumeUrl = await uploadResume(resumeFile);
-      
+
       if (!resumeUrl) {
         throw new Error("Failed to upload resume. Please try again.");
       }
 
-      console.log("[JobApplicationModal] Resume uploaded successfully:", resumeUrl);
-      console.log("[JobApplicationModal] Submitting application to database...");
-      
       // Submit application
       const result = await submitJobApplication({
         job_id: job.id,
@@ -130,29 +133,35 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
         cover_letter: formData.cover_letter || undefined,
       });
 
-      console.log("[JobApplicationModal] Application submission result:", result);
-
       if (!result.success) {
         throw new Error(result.error || "Failed to submit application");
       }
 
       // Success - show success message and close modal
-      console.log("[JobApplicationModal] Application submitted successfully!");
       setError(null);
-      
+
       // Show success toast
-      addToast("Application submitted successfully! We'll review your application and get back to you soon.", "success");
-      
+      addToast(
+        "Application submitted successfully! We'll review your application and get back to you soon.",
+        "success",
+      );
+
       // Small delay before closing modal
       setTimeout(() => {
         handleClose();
       }, 500);
     } catch (error) {
-      console.error("[JobApplicationModal] Error submitting application:", error);
-      setError(error instanceof Error ? error.message : "Failed to submit application. Please try again.");
+      console.error(
+        "[JobApplicationModal] Error submitting application:",
+        error,
+      );
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to submit application. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
-      console.log("[JobApplicationModal] Submission process completed");
     }
   };
 
@@ -190,197 +199,222 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-2xl md:rounded-[2rem] shadow-2xl max-h-[90vh] overflow-y-auto scrollbar-hide"
+              className="scrollbar-hide relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-2xl md:rounded-[2rem]"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="sticky top-0 bg-white z-10 px-4 md:px-6 pt-4 md:pt-6 pb-3 border-b border-gray-100">
+              <div className="sticky top-0 z-10 border-b border-gray-100 bg-white px-4 pt-4 pb-3 md:px-6 md:pt-6">
                 {/* Close Button */}
                 <button
                   onClick={handleClose}
-                  className="absolute top-3 right-3 md:top-4 md:right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  className="absolute top-3 right-3 rounded-full p-2 transition-colors hover:bg-gray-100 md:top-4 md:right-4"
                   aria-label="Close"
                 >
-                  <X className="h-4 w-4 md:h-5 md:w-5 text-gray-600" />
+                  <X className="h-4 w-4 text-gray-600 md:h-5 md:w-5" />
                 </button>
 
                 {/* Header */}
                 <div>
-                  <h2 className="text-xl md:text-2xl font-bold text-[#2a2a2a] mb-1">
+                  <h2 className="mb-1 text-xl font-bold text-[#2a2a2a] md:text-2xl">
                     Apply for Position
                   </h2>
-                  <p className="text-base md:text-lg font-semibold text-[#2f2582] line-clamp-1">{job.title}</p>
-                  <p className="text-xs md:text-sm text-[#6a6a6a] mt-0.5">
+                  <p className="line-clamp-1 text-base font-semibold text-[#2f2582] md:text-lg">
+                    {job.title}
+                  </p>
+                  <p className="mt-0.5 text-xs text-[#6a6a6a] md:text-sm">
                     {job.type} • {job.location}
                   </p>
                 </div>
               </div>
 
-              <div className="px-4 md:px-6 py-4 md:py-5">
+              <div className="px-4 py-4 md:px-6 md:py-5">
+                {/* Error Message */}
+                {error && (
+                  <div className="mb-3 rounded-xl border border-red-200 bg-red-50 p-3">
+                    <p className="text-xs text-red-600 md:text-sm">{error}</p>
+                  </div>
+                )}
 
-              {/* Error Message */}
-              {error && (
-                <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-xl">
-                  <p className="text-xs md:text-sm text-red-600">{error}</p>
-                </div>
-              )}
-
-              {/* Application Form */}
-              <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
-                {/* Full Name */}
-                <div>
-                  <label htmlFor="full_name" className="block text-xs md:text-sm font-medium text-[#2a2a2a] mb-1.5">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    id="full_name"
-                    name="full_name"
-                    value={formData.full_name}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-[#2f2582] focus:outline-none transition-colors"
-                    placeholder="John Doe"
-                  />
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label htmlFor="email" className="block text-xs md:text-sm font-medium text-[#2a2a2a] mb-1.5">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-[#2f2582] focus:outline-none transition-colors"
-                    placeholder="john@example.com"
-                  />
-                </div>
-
-                {/* Phone */}
-                <div>
-                  <label htmlFor="phone" className="block text-xs md:text-sm font-medium text-[#2a2a2a] mb-1.5">
-                    Phone Number *
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-[#2f2582] focus:outline-none transition-colors"
-                    placeholder="+91 98765 43210"
-                  />
-                </div>
-
-                {/* Resume Upload */}
-                <div>
-                  <label htmlFor="resume" className="block text-xs md:text-sm font-medium text-[#2a2a2a] mb-1.5">
-                    Resume (PDF) *
-                  </label>
-                  <div className="relative">
+                {/* Application Form */}
+                <form
+                  onSubmit={handleSubmit}
+                  className="space-y-3 md:space-y-4"
+                >
+                  {/* Full Name */}
+                  <div>
+                    <label
+                      htmlFor="full_name"
+                      className="mb-1.5 block text-xs font-medium text-[#2a2a2a] md:text-sm"
+                    >
+                      Full Name *
+                    </label>
                     <input
-                      type="file"
-                      id="resume"
-                      accept=".pdf"
-                      onChange={handleFileChange}
+                      type="text"
+                      id="full_name"
+                      name="full_name"
+                      value={formData.full_name}
+                      onChange={handleInputChange}
                       required
-                      className="hidden"
+                      className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-colors focus:border-[#2f2582] focus:outline-none md:rounded-xl md:px-4 md:py-2.5 md:text-base"
+                      placeholder="John Doe"
                     />
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label
+                      htmlFor="email"
+                      className="mb-1.5 block text-xs font-medium text-[#2a2a2a] md:text-sm"
+                    >
+                      Email Address *
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-colors focus:border-[#2f2582] focus:outline-none md:rounded-xl md:px-4 md:py-2.5 md:text-base"
+                      placeholder="john@example.com"
+                    />
+                  </div>
+
+                  {/* Phone */}
+                  <div>
+                    <label
+                      htmlFor="phone"
+                      className="mb-1.5 block text-xs font-medium text-[#2a2a2a] md:text-sm"
+                    >
+                      Phone Number *
+                    </label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-colors focus:border-[#2f2582] focus:outline-none md:rounded-xl md:px-4 md:py-2.5 md:text-base"
+                      placeholder="+91 98765 43210"
+                    />
+                  </div>
+
+                  {/* Resume Upload */}
+                  <div>
                     <label
                       htmlFor="resume"
-                      className={`flex items-center justify-center gap-2 w-full px-3 md:px-4 py-2.5 md:py-3 text-sm rounded-lg md:rounded-xl border-2 border-dashed transition-colors ${
-                        resumeFile 
-                          ? "border-green-500 bg-green-50" 
-                          : "border-gray-300 hover:border-[#2f2582] bg-white"
-                      } cursor-pointer`}
+                      className="mb-1.5 block text-xs font-medium text-[#2a2a2a] md:text-sm"
                     >
-                      {resumeFile ? (
+                      Resume (PDF) *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        id="resume"
+                        accept=".pdf"
+                        onChange={handleFileChange}
+                        required
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor="resume"
+                        className={`flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed px-3 py-2.5 text-sm transition-colors md:rounded-xl md:px-4 md:py-3 ${
+                          resumeFile
+                            ? "border-green-500 bg-green-50"
+                            : "border-gray-300 bg-white hover:border-[#2f2582]"
+                        } cursor-pointer`}
+                      >
+                        {resumeFile ? (
+                          <>
+                            <CheckCircle className="h-4 w-4 text-green-600 md:h-5 md:w-5" />
+                            <span className="truncate text-xs font-medium text-green-700 md:text-sm">
+                              {resumeFile.name}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="h-4 w-4 text-gray-400 md:h-5 md:w-5" />
+                            <span className="truncate text-xs text-gray-600 md:text-sm">
+                              Upload resume (PDF, max 5MB)
+                            </span>
+                          </>
+                        )}
+                      </label>
+                      {/* Upload Progress */}
+                      {isUploading && uploadProgress > 0 && (
+                        <div className="mt-2">
+                          <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                            <div
+                              className="h-full bg-[#2f2582] transition-all duration-300"
+                              style={{ width: `${uploadProgress}%` }}
+                            />
+                          </div>
+                          <p className="mt-1 text-center text-xs text-gray-500">
+                            Uploading... {uploadProgress}%
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Cover Letter */}
+                  <div>
+                    <label
+                      htmlFor="cover_letter"
+                      className="mb-1.5 block text-xs font-medium text-[#2a2a2a] md:text-sm"
+                    >
+                      Cover Letter (Optional)
+                    </label>
+                    <textarea
+                      id="cover_letter"
+                      name="cover_letter"
+                      value={formData.cover_letter}
+                      onChange={handleInputChange}
+                      rows={3}
+                      className="w-full resize-none rounded-lg border-2 border-gray-200 px-3 py-2 text-sm transition-colors focus:border-[#2f2582] focus:outline-none md:rounded-xl md:px-4 md:py-2.5 md:text-base"
+                      placeholder="Tell us why you're interested..."
+                    />
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="flex flex-col-reverse gap-2 pt-2 md:flex-row md:gap-3 md:pt-3">
+                    <button
+                      type="button"
+                      onClick={handleClose}
+                      className="flex-1 rounded-full border-2 border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 md:px-6 md:py-3 md:text-base"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting || isUploading}
+                      className="relative flex flex-1 items-center justify-center gap-2 overflow-hidden rounded-full bg-[#2f2582] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#251e66] disabled:cursor-not-allowed disabled:opacity-50 md:px-6 md:py-3 md:text-base"
+                    >
+                      {isSubmitting || isUploading ? (
                         <>
-                          <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-600" />
-                          <span className="text-xs md:text-sm text-green-700 truncate font-medium">
-                            {resumeFile.name}
+                          <Loader2 className="h-4 w-4 animate-spin md:h-5 md:w-5" />
+                          <span className="font-semibold">
+                            {isUploading
+                              ? "Uploading Resume..."
+                              : "Submitting Application..."}
                           </span>
                         </>
                       ) : (
                         <>
-                          <Upload className="h-4 w-4 md:h-5 md:w-5 text-gray-400" />
-                          <span className="text-xs md:text-sm text-gray-600 truncate">
-                            Upload resume (PDF, max 5MB)
+                          <span className="font-semibold">
+                            Submit Application
                           </span>
                         </>
                       )}
-                    </label>
-                    {/* Upload Progress */}
-                    {isUploading && uploadProgress > 0 && (
-                      <div className="mt-2">
-                        <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-[#2f2582] transition-all duration-300"
-                            style={{ width: `${uploadProgress}%` }}
-                          />
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1 text-center">Uploading... {uploadProgress}%</p>
-                      </div>
-                    )}
+                    </button>
                   </div>
-                </div>
-
-                {/* Cover Letter */}
-                <div>
-                  <label htmlFor="cover_letter" className="block text-xs md:text-sm font-medium text-[#2a2a2a] mb-1.5">
-                    Cover Letter (Optional)
-                  </label>
-                  <textarea
-                    id="cover_letter"
-                    name="cover_letter"
-                    value={formData.cover_letter}
-                    onChange={handleInputChange}
-                    rows={3}
-                    className="w-full px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base rounded-lg md:rounded-xl border-2 border-gray-200 focus:border-[#2f2582] focus:outline-none transition-colors resize-none"
-                    placeholder="Tell us why you're interested..."
-                  />
-                </div>
-
-                {/* Submit Button */}
-                <div className="flex flex-col-reverse md:flex-row gap-2 md:gap-3 pt-2 md:pt-3">
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base rounded-full border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || isUploading}
-                    className="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base rounded-full bg-[#2f2582] text-white font-semibold hover:bg-[#251e66] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 relative overflow-hidden"
-                  >
-                    {isSubmitting || isUploading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 md:h-5 md:w-5 animate-spin" />
-                        <span className="font-semibold">
-                          {isUploading ? "Uploading Resume..." : "Submitting Application..."}
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="font-semibold">Submit Application</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
+                </form>
               </div>
             </motion.div>
           </div>
 
           {/* Toast Container - Higher z-index to appear above modal */}
-          <div className="fixed bottom-4 left-4 right-4 z-[10000] flex max-w-md flex-col gap-2 md:left-auto md:right-4">
+          <div className="fixed right-4 bottom-4 left-4 z-[10000] flex max-w-md flex-col gap-2 md:right-4 md:left-auto">
             <AnimatePresence>
               {toasts.map((toast) => {
                 const icons = {
@@ -401,10 +435,11 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
                   warning: "text-yellow-600",
                   info: "text-blue-600",
                 };
-                
+
                 const Icon = icons[toast.type as keyof typeof icons];
                 const bgColor = bgColors[toast.type as keyof typeof bgColors];
-                const textColor = textColors[toast.type as keyof typeof textColors];
+                const textColor =
+                  textColors[toast.type as keyof typeof textColors];
 
                 return (
                   <motion.div
@@ -416,7 +451,9 @@ export function JobApplicationModal({ job, isOpen, onClose }: JobApplicationModa
                     className={`flex items-start gap-3 rounded-lg border ${bgColor} p-4 shadow-lg`}
                   >
                     <Icon className={`h-5 w-5 flex-shrink-0 ${textColor}`} />
-                    <p className={`flex-1 text-sm ${textColor}`}>{toast.message}</p>
+                    <p className={`flex-1 text-sm ${textColor}`}>
+                      {toast.message}
+                    </p>
                     <button
                       onClick={() => removeToast(toast.id)}
                       className={`flex-shrink-0 transition-colors hover:opacity-70`}

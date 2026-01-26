@@ -191,8 +191,6 @@ export async function updateUser(input: UpdateUserInput) {
 
   const { id, ...updateData } = input;
 
-  console.log("Updating user:", id, "with data:", updateData);
-
   const { data, error } = await supabase
     .from("profiles")
     .update(updateData)
@@ -204,8 +202,6 @@ export async function updateUser(input: UpdateUserInput) {
     console.error("Error updating user:", error);
     return { success: false, error: error.message, data: null };
   }
-
-  console.log("User updated successfully:", data);
 
   revalidatePath("/admin/customers");
 

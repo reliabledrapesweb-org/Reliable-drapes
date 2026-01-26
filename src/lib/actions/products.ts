@@ -550,22 +550,66 @@ export async function deleteProduct(id: string): Promise<{
   try {
     const supabase = getAdminSupabase();
 
-    // Delete related records first (if cascade is not set up)
-    await Promise.all([
-      supabase.from("product_categories").delete().eq("product_id", id),
-      supabase.from("product_images").delete().eq("product_id", id),
-      supabase.from("product_specifications").delete().eq("product_id", id),
-      supabase.from("product_variants").delete().eq("product_id", id),
-    ]);
+    // 1. Check if product is referenced in any orders
+    const { count: orderCount, error: orderCheckError } = await supabase
+      .from("order_items")
+      .select("id", { count: "exact", head: true })
+      .eq("product_id", id);
 
-    // Delete the product
+    if (orderCheckError) {
+      console.error("Error checking orders for product:", orderCheckError);
+    }
+
+    if (orderCount && orderCount > 0) {
+      return {
+        success: false,
+        error:
+          "This product cannot be deleted because it is part of an existing order. For data integrity, products with order history must be kept. Try unpublishing it instead.",
+      };
+    }
+
+    // 2. Delete related records that might not have ON DELETE CASCADE or to be safe
+    // We do these sequentially to avoid potential race conditions or complex inter-dependencies
+    const relatedTables = [
+      "product_categories",
+      "product_images",
+      "product_specifications",
+      "product_variants",
+      "product_collections",
+    ];
+
+    for (const table of relatedTables) {
+      const { error: deleteErr } = await supabase
+        .from(table)
+        .delete()
+        .eq("product_id", id);
+
+      if (deleteErr) {
+        console.warn(
+          `Warning: Failed to delete from ${table}:`,
+          deleteErr.message,
+        );
+        // We continue anyway as the main product delete might still work if cascade is actually set up
+      }
+    }
+
+    // 3. Delete the main product record
     const { error } = await supabase.from("products").delete().eq("id", id);
 
     if (error) {
       console.error("Error deleting product:", error);
+
+      if (error.code === "23503") {
+        return {
+          success: false,
+          error:
+            "This product is still referenced by other records (e.g. cart, wishlist, or orders) and cannot be deleted.",
+        };
+      }
+
       return {
         success: false,
-        error: "Failed to delete product",
+        error: error.message || "Failed to delete product",
       };
     }
 
@@ -576,7 +620,7 @@ export async function deleteProduct(id: string): Promise<{
     console.error("Delete product exception:", error);
     return {
       success: false,
-      error: "An unexpected error occurred",
+      error: "An unexpected error occurred during deletion.",
     };
   }
 }

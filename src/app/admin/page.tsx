@@ -58,42 +58,39 @@ function StatCard({
   isLoading,
 }: StatCardProps) {
   const content = (
-    <div className="relative flex items-start justify-between">
-      <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium text-gray-600 sm:text-sm dark:text-gray-400">
-          {title}
-        </p>
-        {isLoading ? (
-          <div className="mt-1 h-7 w-16 animate-pulse rounded bg-gray-200 sm:mt-2 sm:h-8 sm:w-20" />
-        ) : (
-          <h3 className="mt-1 text-xl font-bold text-gray-900 sm:mt-2 sm:text-3xl dark:text-white">
-            {value}
-          </h3>
-        )}
+    <div className="relative flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <div
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${color} shadow-sm transition-transform duration-300 group-hover:scale-110`}
+        >
+          {icon}
+        </div>
         {change && trend && !isLoading && (
-          <div className="mt-1 flex items-center gap-1 sm:mt-2">
+          <div
+            className={`flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold ${
+              trend === "up"
+                ? "bg-green-50 text-green-600 dark:bg-green-900/20"
+                : "bg-red-50 text-red-600 dark:bg-red-900/20"
+            }`}
+          >
             <TrendingUp
-              className={`h-3 w-3 ${
-                trend === "up" ? "text-green-600" : "rotate-180 text-red-600"
-              }`}
+              className={`h-3 w-3 ${trend === "down" ? "rotate-180" : ""}`}
             />
-            <span
-              className={`text-xs font-semibold ${
-                trend === "up" ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {change}
-            </span>
-            <span className="hidden text-xs text-gray-500 sm:inline dark:text-gray-400">
-              vs last month
-            </span>
+            <span>{change}</span>
           </div>
         )}
       </div>
-      <div
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${color} transition-transform duration-300 group-hover:scale-110 sm:h-12 sm:w-12`}
-      >
-        {icon}
+      <div className="min-w-0">
+        <p className="text-xs font-semibold tracking-wider text-gray-500 uppercase dark:text-gray-400">
+          {title}
+        </p>
+        {isLoading ? (
+          <div className="mt-1 h-8 w-24 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+        ) : (
+          <h3 className="mt-1 text-2xl font-black text-gray-900 sm:text-3xl dark:text-white">
+            {typeof value === "number" ? value.toLocaleString() : value}
+          </h3>
+        )}
       </div>
     </div>
   );
@@ -104,7 +101,7 @@ function StatCard({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="group h-full cursor-pointer rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition-all hover:border-[#2F2582] hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-[#a099ff]"
+          className="group h-full cursor-pointer rounded-3xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:border-[#2F2582] hover:shadow-xl dark:border-gray-800 dark:bg-gray-900 dark:hover:border-[#a099ff]"
         >
           {content}
         </motion.div>
@@ -116,7 +113,7 @@ function StatCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="group h-full rounded-xl border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+      className="group h-full rounded-3xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
     >
       {content}
     </motion.div>
@@ -143,23 +140,30 @@ function QuickAction({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        whileHover={{ y: -2 }}
-        className="group flex h-full cursor-pointer items-start gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition-all hover:border-[#2F2582] hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:border-[#a099ff]"
+        whileHover={{ y: -4, scale: 1.02 }}
+        className="group relative flex h-full cursor-pointer flex-col gap-4 overflow-hidden rounded-3xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:border-[#2F2582] hover:shadow-xl dark:border-gray-800 dark:bg-gray-900"
       >
         <div
-          className={`rounded-lg ${color} p-2 transition-transform group-hover:scale-110 sm:p-3`}
+          className={`flex h-12 w-12 items-center justify-center rounded-2xl ${color} transition-transform duration-500 group-hover:rotate-[360deg]`}
         >
           {icon}
         </div>
-        <div className="min-w-0 flex-1">
-          <h4 className="text-sm font-semibold text-gray-900 transition-colors group-hover:text-[#2F2582] sm:text-base dark:text-white">
+        <div className="min-w-0">
+          <h4 className="text-lg font-bold text-gray-900 transition-colors group-hover:text-[#2F2582] dark:text-white">
             {title}
           </h4>
-          <p className="mt-0.5 line-clamp-2 text-xs text-gray-600 sm:mt-1 sm:text-sm dark:text-gray-400">
+          <p className="mt-1 line-clamp-2 text-sm text-gray-500 dark:text-gray-400">
             {description}
           </p>
         </div>
-        <ArrowRight className="h-4 w-4 shrink-0 text-gray-400 transition-all group-hover:translate-x-1 group-hover:text-[#2F2582] sm:h-5 sm:w-5 dark:text-gray-500" />
+        <div className="mt-auto pt-2">
+          <div className="flex items-center gap-1 text-xs font-bold tracking-widest text-[#2F2582] uppercase opacity-0 transition-all group-hover:opacity-100 dark:text-[#a099ff]">
+            Go Now <ArrowRight className="h-3 w-3" />
+          </div>
+        </div>
+
+        {/* Decorative element */}
+        <div className="absolute -right-4 -bottom-4 h-16 w-16 rounded-full bg-[#2F2582]/5 transition-transform duration-500 group-hover:scale-[3]" />
       </motion.div>
     </Link>
   );
@@ -380,126 +384,135 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-8">
+    <div className="mx-auto max-w-[1600px] space-y-8 p-4 sm:p-6 lg:p-8">
       {/* Page Header */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
       >
-        <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl dark:text-white">
-          Welcome back, {firstName}! 👋
-        </h1>
-        <p className="mt-1 text-xs text-gray-600 sm:mt-2 sm:text-base dark:text-gray-400">
-          Here's an overview of your store's performance and quick access to key
-          features.
-        </p>
-      </motion.div>
-
-      {/* Stats Grid */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <h2 className="mb-3 text-base font-semibold text-gray-900 sm:mb-4 sm:text-lg dark:text-white">
-          Overview
-        </h2>
-        <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
-          {dashboardStats.map((stat, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{
-                delay: 0.1 + index * 0.05,
-                type: "spring",
-                stiffness: 100,
-              }}
-            >
-              <StatCard {...stat} />
-            </motion.div>
-          ))}
+        <div>
+          <h1 className="text-3xl font-black tracking-tight text-gray-900 sm:text-4xl dark:text-white">
+            Dashboard
+          </h1>
+          <p className="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400">
+            Welcome back,{" "}
+            <span className="text-[#2F2582] dark:text-[#a099ff]">
+              {firstName}
+            </span>
+            . Here's what's happening today.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link href="/admin/settings">
+            <Button variant="outline" className="rounded-2xl border-gray-200">
+              Settings
+            </Button>
+          </Link>
+          <Link href="/admin/products">
+            <Button className="rounded-2xl bg-[#2F2582] px-6 hover:bg-[#241c66]">
+              Add Product
+            </Button>
+          </Link>
         </div>
       </motion.div>
 
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+        {dashboardStats.map((stat, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <StatCard {...stat} />
+          </motion.div>
+        ))}
+      </div>
+
       {/* Main Content Split */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-8 lg:grid-cols-3">
         {/* Recent Orders Section (Larger) */}
         <div className="space-y-6 lg:col-span-2">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            transition={{ delay: 0.4 }}
+            className="overflow-hidden rounded-[2.5rem] border border-gray-100 bg-white shadow-xl shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none"
           >
-            <div className="border-b border-gray-200 p-4 sm:p-6 dark:border-gray-700">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className="text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
-                    Recent Orders
-                  </h2>
-                  <p className="mt-0.5 text-xs text-gray-600 sm:mt-1 sm:text-sm dark:text-gray-400">
-                    Latest customer orders and their status
-                  </p>
-                </div>
-                <Link href="/admin/orders">
-                  <Button
-                    variant="outline"
-                    className="w-full border-[#2F2582] text-[#2F2582] hover:bg-[#2F2582]/10 sm:w-auto dark:border-[#a099ff] dark:text-[#a099ff] dark:hover:bg-[#a099ff]/10"
-                  >
-                    View All
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
+            <div className="flex items-center justify-between border-b border-gray-50 p-6 sm:px-8 dark:border-gray-800">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  Recent Orders
+                </h2>
+                <p className="mt-1 text-sm font-medium text-gray-400">
+                  Total {recentOrders.length} orders this week
+                </p>
               </div>
+              <Link href="/admin/orders">
+                <Button
+                  variant="ghost"
+                  className="rounded-xl text-sm font-bold text-[#2F2582] hover:bg-[#2F2582]/5 dark:text-[#a099ff]"
+                >
+                  View All <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
 
             <div className="p-0">
               {recentOrders.length === 0 ? (
-                <div className="m-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-center sm:m-6 dark:border-gray-700 dark:bg-gray-700/50">
-                  <ShoppingCart className="mx-auto h-6 w-6 text-gray-400 sm:h-8 sm:w-8 dark:text-gray-500" />
-                  <p className="mt-2 text-xs text-gray-600 sm:text-sm dark:text-gray-400">
-                    No orders found.
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800">
+                    <ShoppingCart className="h-10 w-10 text-gray-300" />
+                  </div>
+                  <h3 className="mt-4 text-lg font-bold text-gray-900 dark:text-white">
+                    No orders yet
+                  </h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    When customers buy products, they will appear here.
                   </p>
                 </div>
               ) : (
                 <>
                   {/* Mobile Card View */}
-                  <div className="divide-y divide-gray-100 sm:hidden dark:divide-gray-700">
-                    {recentOrders.map((order, index) => {
+                  <div className="divide-y divide-gray-50 sm:hidden dark:divide-gray-800">
+                    {recentOrders.map((order) => {
                       const status =
                         statusConfig[order.status] || statusConfig.pending;
                       const StatusIcon = status.icon;
 
                       return (
-                        <div key={order.id} className="space-y-2 p-4">
+                        <div
+                          key={order.id}
+                          className="group p-6 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                        >
                           <div className="flex items-center justify-between">
-                            <span className="font-mono text-xs text-gray-500">
+                            <span className="font-mono text-xs font-bold tracking-tighter text-gray-400 uppercase">
                               #{order.id.slice(0, 8)}
                             </span>
                             <span
-                              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${status.color}`}
+                              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-black tracking-widest uppercase ${status.color}`}
                             >
                               <StatusIcon className="h-3 w-3" />
                               {status.label}
                             </span>
                           </div>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-700 dark:text-gray-300">
-                              {order.user?.full_name || "Guest"}
-                            </span>
-                            <span className="font-semibold text-gray-900 dark:text-white">
-                              ₹
-                              {(order.total || 0).toLocaleString("en-IN", {
-                                minimumFractionDigits: 2,
-                              })}
-                            </span>
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {format(
-                              new Date(order.created_at),
-                              "MMM d, yyyy • h:mm a",
-                            )}
+                          <div className="mt-4 flex items-center justify-between">
+                            <div>
+                              <p className="font-bold text-gray-900 dark:text-white">
+                                {order.user?.full_name || "Guest Customer"}
+                              </p>
+                              <p className="text-xs font-medium text-gray-400">
+                                {format(
+                                  new Date(order.created_at),
+                                  "MMM d, h:mm a",
+                                )}
+                              </p>
+                            </div>
+                            <p className="text-lg font-black text-gray-900 dark:text-white">
+                              ₹{(order.total || 0).toLocaleString("en-IN")}
+                            </p>
                           </div>
                         </div>
                       );
@@ -508,57 +521,68 @@ export default function AdminDashboard() {
 
                   {/* Desktop Table View */}
                   <div className="hidden overflow-x-auto sm:block">
-                    <div className="min-w-[600px] space-y-3 p-6">
-                      {/* Table Header */}
-                      <div className="grid grid-cols-5 gap-4 border-b border-gray-200 pb-3 text-sm font-medium text-gray-600 dark:border-gray-700 dark:text-gray-400">
-                        <div>Order ID</div>
-                        <div>Customer</div>
-                        <div>Date</div>
-                        <div>Total</div>
-                        <div>Status</div>
-                      </div>
+                    <table className="w-full border-collapse">
+                      <thead>
+                        <tr className="bg-gray-50/50 text-left text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase dark:bg-gray-800/50">
+                          <th className="px-8 py-5">Order</th>
+                          <th className="px-6 py-5">Customer</th>
+                          <th className="px-6 py-5">Date</th>
+                          <th className="px-6 py-5 text-right">Amount</th>
+                          <th className="px-8 py-5 text-center">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
+                        {recentOrders.map((order) => {
+                          const status =
+                            statusConfig[order.status] || statusConfig.pending;
+                          const StatusIcon = status.icon;
 
-                      {/* Rows */}
-                      {recentOrders.map((order) => {
-                        const status =
-                          statusConfig[order.status] || statusConfig.pending;
-                        const StatusIcon = status.icon;
-
-                        return (
-                          <div
-                            key={order.id}
-                            className="grid grid-cols-5 gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm dark:border-gray-700 dark:bg-gray-700/50"
-                          >
-                            <div className="font-mono text-gray-500">
-                              #{order.id.slice(0, 8)}
-                            </div>
-                            <div className="text-gray-700 dark:text-gray-300">
-                              {order.user?.full_name || "Guest"}
-                            </div>
-                            <div className="text-gray-600 dark:text-gray-400">
-                              {format(
-                                new Date(order.created_at),
-                                "MMM d, yyyy",
-                              )}
-                            </div>
-                            <div className="font-semibold text-gray-900 dark:text-white">
-                              ₹
-                              {(order.total || 0).toLocaleString("en-IN", {
-                                minimumFractionDigits: 0,
-                              })}
-                            </div>
-                            <div>
-                              <span
-                                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${status.color}`}
-                              >
-                                <StatusIcon className="h-3 w-3" />
-                                {status.label}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                          return (
+                            <tr
+                              key={order.id}
+                              className="group transition-colors hover:bg-gray-50/80 dark:hover:bg-gray-800/80"
+                            >
+                              <td className="px-8 py-6">
+                                <span className="font-mono text-xs font-bold text-gray-400">
+                                  #{order.id.slice(0, 8)}
+                                </span>
+                              </td>
+                              <td className="px-6 py-6">
+                                <div className="flex flex-col">
+                                  <span className="font-bold text-gray-900 dark:text-white">
+                                    {order.user?.full_name || "Guest Customer"}
+                                  </span>
+                                  <span className="text-xs text-gray-400">
+                                    {order.user?.email || "No email provided"}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-6">
+                                <span className="text-sm font-medium text-gray-500">
+                                  {format(
+                                    new Date(order.created_at),
+                                    "MMM d, yyyy",
+                                  )}
+                                </span>
+                              </td>
+                              <td className="px-6 py-6 text-right">
+                                <span className="text-base font-black text-gray-900 dark:text-white">
+                                  ₹{(order.total || 0).toLocaleString("en-IN")}
+                                </span>
+                              </td>
+                              <td className="px-8 py-6 text-center">
+                                <span
+                                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[10px] font-black tracking-widest uppercase ${status.color}`}
+                                >
+                                  <StatusIcon className="h-3 w-3" />
+                                  {status.label}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
                 </>
               )}
@@ -566,73 +590,88 @@ export default function AdminDashboard() {
           </motion.div>
         </div>
 
-        {/* Quick Actions & Recent Media Section (Smaller) */}
-        <div className="space-y-6">
+        {/* Right Sidebar */}
+        <div className="space-y-8">
+          {/* Quick Actions */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
           >
-            <h2 className="mb-3 text-base font-semibold text-gray-900 sm:text-lg dark:text-white">
-              Quick Actions
-            </h2>
-            <div className="grid grid-cols-1 gap-3">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                Quick Actions
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
               {quickActions.map((action, index) => (
                 <QuickAction key={index} {...action} />
               ))}
             </div>
           </motion.div>
 
+          {/* Recent Media */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.6 }}
+            className="rounded-[2rem] border border-gray-100 bg-white p-8 shadow-xl shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none"
           >
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-gray-900 dark:text-white">
-                Recent Media
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                Media
               </h2>
               <Link
                 href="/admin/media"
-                className="text-xs font-medium text-[#2F2582] hover:underline dark:text-[#a099ff]"
+                className="text-xs font-bold tracking-widest text-[#2F2582] uppercase hover:underline dark:text-[#a099ff]"
               >
-                View All
+                All
               </Link>
             </div>
 
             {recentMedia.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <ImageIcon className="h-8 w-8 text-gray-300" />
-                <p className="mt-2 text-xs text-gray-500">
-                  No media uploaded recently
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800">
+                  <ImageIcon className="h-6 w-6 text-gray-300" />
+                </div>
+                <p className="text-xs font-medium text-gray-400">
+                  No media found
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-3">
                 {recentMedia.map((item) => (
                   <Link
                     key={item.id}
                     href="/admin/media"
-                    className="group relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-700"
+                    className="group relative aspect-square overflow-hidden rounded-2xl bg-gray-50 transition-transform hover:scale-105 dark:bg-gray-800"
                   >
                     {item.mime_type.startsWith("image/") ? (
                       <Image
                         src={item.file_url}
                         alt={item.original_name}
                         fill
-                        className="object-cover transition-transform group-hover:scale-110"
+                        className="object-cover transition-transform duration-500 group-hover:scale-110"
                         sizes="100px"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center">
-                        <FileText className="h-6 w-6 text-gray-400" />
+                        <FileText className="h-6 w-6 text-gray-300" />
                       </div>
                     )}
                   </Link>
                 ))}
               </div>
             )}
+
+            <Link href="/admin/media">
+              <Button
+                variant="outline"
+                className="mt-8 w-full rounded-xl border-gray-100 dark:border-gray-800"
+              >
+                Upload New File
+              </Button>
+            </Link>
           </motion.div>
         </div>
       </div>
