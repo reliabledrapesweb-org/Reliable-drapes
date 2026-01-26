@@ -60,7 +60,7 @@ export default function CollectionDetailPage() {
           setProducts(productsResult.data);
         }
       } catch (err) {
-        console.error("Error fetching collection:", err);
+
         setError("Failed to load collection");
       }
 

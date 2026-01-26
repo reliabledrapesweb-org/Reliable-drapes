@@ -45,7 +45,7 @@ export function ProductGrid({ filteredProducts }: ProductGridProps) {
         const { incrementDownloadCount } = await import("@/lib/actions/catalogues");
         await incrementDownloadCount(catalogueId);
       } catch (error) {
-        console.error("Failed to increment download count:", error);
+
       }
     }
   };

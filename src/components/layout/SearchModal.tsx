@@ -48,7 +48,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
           setSearchResults([]);
         }
       } catch (error) {
-        console.error("Search error:", error);
+
         setSearchResults([]);
       }
 

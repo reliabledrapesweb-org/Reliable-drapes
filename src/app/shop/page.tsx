@@ -59,7 +59,7 @@ export default function ShopPage() {
           setCategories(categoriesResult.data);
         }
       } catch (error) {
-        console.error("Error fetching categories:", error);
+
       }
     }
     fetchCategories();
@@ -105,7 +105,7 @@ export default function ShopPage() {
         }
       }
     } catch (error) {
-      console.error("Error fetching products:", error);
+
       setProducts([]);
     }
     setIsLoading(false);

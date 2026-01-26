@@ -212,7 +212,7 @@ export default function AdminCollectionsPage() {
         }
       }
     } catch (error) {
-      console.error("Submit error:", error);
+
       addToast("An unexpected error occurred", "error");
     } finally {
       setActionLoading((prev) => ({ ...prev, [actionKey]: null }));

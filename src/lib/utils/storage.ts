@@ -47,7 +47,7 @@ export async function uploadFile(
       });
 
     if (error) {
-      console.error(`Upload error in bucket "${bucket}":`, error);
+
       return {
         success: false,
         error: error.message || `Failed to upload file to ${bucket}`,
@@ -64,7 +64,7 @@ export async function uploadFile(
       url: urlData.publicUrl,
     };
   } catch (error) {
-    console.error("Upload exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred during upload",
@@ -101,7 +101,7 @@ export async function deleteFile(
     const { error } = await client.storage.from(bucket).remove([filePath]);
 
     if (error) {
-      console.error("Delete error:", error);
+
       return {
         success: false,
         error: error.message || "Failed to delete file",
@@ -110,7 +110,7 @@ export async function deleteFile(
 
     return { success: true };
   } catch (error) {
-    console.error("Delete exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred during deletion",

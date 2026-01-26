@@ -48,7 +48,7 @@ export async function createOrderAction(data: {
     .single();
 
   if (insertErr || !inserted?.id) {
-    console.error("order insert err", insertErr);
+
     return {
       success: false,
       error: "Failed to create order",
@@ -69,7 +69,7 @@ export async function createOrderAction(data: {
         })),
       );
     } catch (e) {
-      console.warn("order_items insert failed (non-fatal)", e);
+
     }
   }
 
@@ -101,7 +101,7 @@ export async function createOrderAction(data: {
       }
     }
   } catch (e) {
-    console.warn("Failed to create admin notifications:", e);
+
   }
 
   revalidatePath("/profile?tab=orders");
@@ -146,7 +146,7 @@ export async function getOrdersAction() {
     .order("created_at", { ascending: false });
 
   if (ordersErr) {
-    console.error("orders fetch err", ordersErr);
+
     return {
       success: false,
       error: "Failed to fetch orders",
@@ -186,7 +186,7 @@ export async function getAdminOrdersAction(
   const { data: ordersData, count, error: ordersError } = await ordersQuery;
 
   if (ordersError) {
-    console.error("Admin fetch orders error:", ordersError);
+
     return { success: false, error: ordersError.message };
   }
 

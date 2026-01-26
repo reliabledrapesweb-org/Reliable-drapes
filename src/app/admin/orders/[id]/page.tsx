@@ -91,7 +91,7 @@ export default function OrderDetailsPage() {
           addToast(result.error || "Failed to fetch order", "error");
         }
       } catch (error) {
-        console.error("Fetch order error", error);
+
       } finally {
         setIsLoading(false);
       }

@@ -165,7 +165,7 @@ export default function AdminOrdersPage() {
         setTotalOrders(result.total || 0);
       }
     } catch (error) {
-      console.error("Failed to fetch orders:", error);
+
     } finally {
       setIsLoading(false);
     }

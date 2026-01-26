@@ -57,7 +57,7 @@ export function CategoriesSection() {
           setCategories(fallbackCategories as CategoryFull[]);
         }
       } catch (error) {
-        console.error("Error fetching categories:", error);
+
         setCategories(fallbackCategories as CategoryFull[]);
       }
       setIsLoading(false);

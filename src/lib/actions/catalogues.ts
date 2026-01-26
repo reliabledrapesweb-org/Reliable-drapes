@@ -51,13 +51,13 @@ export async function getCatalogues() {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching catalogues:", error);
+
       return { success: false, error: error.message, data: null };
     }
 
     return { success: true, data, error: null };
   } catch (err) {
-    console.error("Unexpected error:", err);
+
     return { success: false, error: "Failed to fetch catalogues", data: null };
   }
 }
@@ -74,7 +74,7 @@ export async function getAllCatalogues() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching all catalogues:", error);
+
     return { success: false, error: error.message, data: null };
   }
 
@@ -94,7 +94,7 @@ export async function getCatalogueById(id: string) {
     .single();
 
   if (error) {
-    console.error("Error fetching catalogue:", error);
+
     return { success: false, error: error.message, data: null };
   }
 
@@ -123,7 +123,7 @@ export async function createCatalogue(input: CreateCatalogueInput) {
     .single();
 
   if (error) {
-    console.error("Error creating catalogue:", error);
+
     return { success: false, error: error.message, data: null };
   }
 
@@ -149,7 +149,7 @@ export async function updateCatalogue(input: UpdateCatalogueInput) {
     .single();
 
   if (error) {
-    console.error("Error updating catalogue:", error);
+
     return { success: false, error: error.message, data: null };
   }
 
@@ -168,7 +168,7 @@ export async function deleteCatalogue(id: string) {
   const { error } = await supabase.from("catalogues").delete().eq("id", id);
 
   if (error) {
-    console.error("Error deleting catalogue:", error);
+
     return { success: false, error: error.message };
   }
 

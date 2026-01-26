@@ -77,7 +77,7 @@ export default function AdminCareersPage() {
         setJobs(result.data);
       }
     } catch (error) {
-      console.error("Error fetching jobs:", error);
+
     } finally {
       setIsLoading(false);
     }
@@ -119,7 +119,7 @@ export default function AdminCareersPage() {
         }
       }
     } catch (error) {
-      console.error("Error saving job:", error);
+
       addToast("Failed to save job", "error");
     } finally {
       setIsSubmitting(false);
@@ -161,7 +161,7 @@ export default function AdminCareersPage() {
         setConfirmAction({ type: null });
       }
     } catch (error) {
-      console.error("Error deleting job:", error);
+
       addToast("Failed to delete job", "error");
       setConfirmAction({ type: null });
     }
@@ -196,7 +196,7 @@ export default function AdminCareersPage() {
         setConfirmAction({ type: null });
       }
     } catch (error) {
-      console.error("Error toggling job status:", error);
+
       addToast("Failed to update job status", "error");
       setConfirmAction({ type: null });
     }

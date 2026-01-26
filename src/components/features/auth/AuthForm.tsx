@@ -139,7 +139,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
           addToast("Account created! Please check your email.", "success");
         }
       } catch (error) {
-        console.error("Auth error:", error);
+
         addToast("Authentication failed", "error");
         setLoading(false);
       }
@@ -169,7 +169,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
       });
 
       if (error) {
-        console.error("Google OAuth error:", error);
+
         addToast(error.message || "Failed to initiate Google sign-in", "error");
         setStoreError(error.message);
         setIsGoogleLoading(false);
@@ -179,7 +179,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
       // OAuth redirect will happen automatically
       // Keep loading state until redirect occurs
     } catch (error) {
-      console.error("Google OAuth exception:", error);
+
       addToast("Failed to initiate Google sign-in", "error");
       setIsGoogleLoading(false);
     }
@@ -208,7 +208,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
       });
 
       if (error) {
-        console.error("Apple OAuth error:", error);
+
         addToast(error.message || "Failed to initiate Apple sign-in", "error");
         setStoreError(error.message);
         setIsAppleLoading(false);
@@ -217,7 +217,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
 
       // OAuth redirect will happen automatically
     } catch (error) {
-      console.error("Apple OAuth exception:", error);
+
       addToast("Failed to initiate Apple sign-in", "error");
       setIsAppleLoading(false);
     }

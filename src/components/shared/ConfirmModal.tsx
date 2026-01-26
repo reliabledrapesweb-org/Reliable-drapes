@@ -35,7 +35,7 @@ export function ConfirmModal({
             await onConfirm();
             onClose();
         } catch (error) {
-            console.error("Confirm error:", error);
+
         } finally {
             setIsLoading(false);
         }

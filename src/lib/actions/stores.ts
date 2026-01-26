@@ -67,7 +67,7 @@ export async function getStores(): Promise<StoresResponse> {
       .order("name", { ascending: true });
 
     if (error) {
-      console.error("Error fetching stores:", error);
+
       return {
         success: false,
         error: "Failed to fetch stores",
@@ -79,7 +79,7 @@ export async function getStores(): Promise<StoresResponse> {
       stores: data as Store[],
     };
   } catch (error) {
-    console.error("Get stores exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -100,7 +100,7 @@ export async function getAllStoresAdmin(): Promise<StoresResponse> {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching stores (admin):", error);
+
       return {
         success: false,
         error: "Failed to fetch stores",
@@ -112,7 +112,7 @@ export async function getAllStoresAdmin(): Promise<StoresResponse> {
       stores: data as Store[],
     };
   } catch (error) {
-    console.error("Get all stores (admin) exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -135,7 +135,7 @@ export async function getStoreById(id: string): Promise<StoreResponse> {
       .single();
 
     if (error) {
-      console.error("Error fetching store:", error);
+
       return {
         success: false,
         error: "Store not found",
@@ -147,7 +147,7 @@ export async function getStoreById(id: string): Promise<StoreResponse> {
       store: data as Store,
     };
   } catch (error) {
-    console.error("Get store by ID exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -186,7 +186,7 @@ export async function createStore(
       .single();
 
     if (error) {
-      console.error("Error creating store:", error);
+
       return {
         success: false,
         error: "Failed to create store",
@@ -201,7 +201,7 @@ export async function createStore(
       store: data as Store,
     };
   } catch (error) {
-    console.error("Create store exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -230,7 +230,7 @@ export async function updateStore(
       .single();
 
     if (error) {
-      console.error("Error updating store:", error);
+
       return {
         success: false,
         error: "Failed to update store",
@@ -245,7 +245,7 @@ export async function updateStore(
       store: data as Store,
     };
   } catch (error) {
-    console.error("Update store exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -263,7 +263,7 @@ export async function deleteStore(id: string): Promise<{ success: boolean; error
     const { error } = await admin.from("stores").delete().eq("id", id);
 
     if (error) {
-      console.error("Error deleting store:", error);
+
       return {
         success: false,
         error: "Failed to delete store",
@@ -277,7 +277,7 @@ export async function deleteStore(id: string): Promise<{ success: boolean; error
       success: true,
     };
   } catch (error) {
-    console.error("Delete store exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -306,7 +306,7 @@ export async function toggleStoreStatus(
       .single();
 
     if (error) {
-      console.error("Error toggling store status:", error);
+
       return {
         success: false,
         error: "Failed to update store status",
@@ -321,7 +321,7 @@ export async function toggleStoreStatus(
       store: data as Store,
     };
   } catch (error) {
-    console.error("Toggle store status exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -344,7 +344,7 @@ export async function searchStores(query: string): Promise<StoresResponse> {
       .order("name", { ascending: true });
 
     if (error) {
-      console.error("Error searching stores:", error);
+
       return {
         success: false,
         error: "Failed to search stores",
@@ -356,7 +356,7 @@ export async function searchStores(query: string): Promise<StoresResponse> {
       stores: data as Store[],
     };
   } catch (error) {
-    console.error("Search stores exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",

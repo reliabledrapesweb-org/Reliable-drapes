@@ -28,7 +28,7 @@ export default function CareersPage() {
 
         setJobs(result.data);
       } catch (error) {
-        console.error("Error fetching jobs:", error);
+
         setError(
           error instanceof Error ? error.message : "Failed to load jobs",
         );

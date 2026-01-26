@@ -132,7 +132,7 @@ export async function getProducts(
     const { data, error, count } = await query;
 
     if (error) {
-      console.error("Error fetching products:", error);
+
       return {
         success: false,
         error: "Failed to fetch products",
@@ -145,7 +145,7 @@ export async function getProducts(
       total: count || 0,
     };
   } catch (error) {
-    console.error("Get products exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -223,7 +223,7 @@ export async function getProductById(id: string): Promise<ProductResponse> {
       data: productWithDetails,
     };
   } catch (error) {
-    console.error("Get product by ID exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -262,7 +262,7 @@ export async function checkSkusExist(skus: string[]): Promise<{
       .in("sku", normalizedSkus);
 
     if (error) {
-      console.error("Error checking SKUs:", error);
+
       return {
         success: false,
         existing: [],
@@ -279,7 +279,7 @@ export async function checkSkusExist(skus: string[]): Promise<{
       existing: existingSkus,
     };
   } catch (error) {
-    console.error("Check SKUs exception:", error);
+
     return {
       success: false,
       existing: [],
@@ -306,7 +306,7 @@ export async function getCategories(): Promise<{
       .order("name");
 
     if (error) {
-      console.error("Error fetching categories:", error);
+
       return {
         success: false,
         error: "Failed to fetch categories",
@@ -318,7 +318,7 @@ export async function getCategories(): Promise<{
       data: data as Category[],
     };
   } catch (error) {
-    console.error("Get categories exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -412,7 +412,7 @@ export async function getProductsByCategory(
     const { data, error, count } = await query;
 
     if (error) {
-      console.error("Error fetching category products:", error);
+
       return {
         success: false,
         error: "Failed to fetch products",
@@ -425,7 +425,7 @@ export async function getProductsByCategory(
       total: count || 0,
     };
   } catch (error) {
-    console.error("Get products by category exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -458,7 +458,7 @@ export async function createProduct(
       .single();
 
     if (error) {
-      console.error("Error creating product:", error);
+
       // Check for unique constraint violation on SKU
       if (error.code === "23505" && error.message.includes("sku")) {
         return {
@@ -477,7 +477,7 @@ export async function createProduct(
       data: data as ProductWithDetails,
     };
   } catch (error) {
-    console.error("Create product exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -513,7 +513,7 @@ export async function updateProduct(
       .single();
 
     if (error) {
-      console.error("Error updating product:", error);
+
       // Check for unique constraint violation on SKU
       if (error.code === "23505" && error.message.includes("sku")) {
         return {
@@ -532,7 +532,7 @@ export async function updateProduct(
       data: data as ProductWithDetails,
     };
   } catch (error) {
-    console.error("Update product exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -557,7 +557,7 @@ export async function deleteProduct(id: string): Promise<{
       .eq("product_id", id);
 
     if (orderCheckError) {
-      console.error("Error checking orders for product:", orderCheckError);
+
     }
 
     if (orderCount && orderCount > 0) {
@@ -597,7 +597,6 @@ export async function deleteProduct(id: string): Promise<{
     const { error } = await supabase.from("products").delete().eq("id", id);
 
     if (error) {
-      console.error("Error deleting product:", error);
 
       if (error.code === "23503") {
         return {
@@ -617,7 +616,7 @@ export async function deleteProduct(id: string): Promise<{
       success: true,
     };
   } catch (error) {
-    console.error("Delete product exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred during deletion.",
@@ -647,7 +646,7 @@ export async function getProductCategoryMappings(
       .in("product_id", productIds);
 
     if (error) {
-      console.error("Error fetching product categories:", error);
+
       return { success: false, error: "Failed to fetch product categories" };
     }
 
@@ -661,7 +660,7 @@ export async function getProductCategoryMappings(
 
     return { success: true, data: mapping };
   } catch (error) {
-    console.error("Get product category mappings exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -710,7 +709,7 @@ export async function getAllCategories(): Promise<CategoriesResponse> {
       .order("name");
 
     if (error) {
-      console.error("Error fetching all categories:", error);
+
       return { success: false, error: "Failed to fetch categories" };
     }
 
@@ -731,7 +730,7 @@ export async function getAllCategories(): Promise<CategoriesResponse> {
 
     return { success: true, data: categoriesWithCounts as CategoryFull[] };
   } catch (error) {
-    console.error("Get all categories exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -752,13 +751,13 @@ export async function getFeaturedCategories(): Promise<CategoriesResponse> {
       .limit(8);
 
     if (error) {
-      console.error("Error fetching featured categories:", error);
+
       return { success: false, error: "Failed to fetch categories" };
     }
 
     return { success: true, data: data as CategoryFull[] };
   } catch (error) {
-    console.error("Get featured categories exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -798,7 +797,7 @@ export async function createCategory(
       .single();
 
     if (error) {
-      console.error("Error creating category:", error);
+
       return {
         success: false,
         error: error.message || "Failed to create category",
@@ -807,7 +806,7 @@ export async function createCategory(
 
     return { success: true, data: data as CategoryFull };
   } catch (error) {
-    console.error("Create category exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -848,7 +847,7 @@ export async function updateCategory(
       .single();
 
     if (error) {
-      console.error("Error updating category:", error);
+
       return {
         success: false,
         error: error.message || "Failed to update category",
@@ -857,7 +856,7 @@ export async function updateCategory(
 
     return { success: true, data: data as CategoryFull };
   } catch (error) {
-    console.error("Update category exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -878,13 +877,13 @@ export async function deleteCategory(
     const { error } = await supabase.from("categories").delete().eq("id", id);
 
     if (error) {
-      console.error("Error deleting category:", error);
+
       return { success: false, error: "Failed to delete category" };
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Delete category exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -910,13 +909,13 @@ export async function assignProductToCategory(
     );
 
     if (error) {
-      console.error("Error assigning product to category:", error);
+
       return { success: false, error: "Failed to assign product to category" };
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Assign product to category exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -938,7 +937,7 @@ export async function removeProductFromCategory(
       .eq("category_id", categoryId);
 
     if (error) {
-      console.error("Error removing product from category:", error);
+
       return {
         success: false,
         error: "Failed to remove product from category",
@@ -947,7 +946,7 @@ export async function removeProductFromCategory(
 
     return { success: true };
   } catch (error) {
-    console.error("Remove product from category exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -997,7 +996,7 @@ export async function getAllCollections(): Promise<CollectionsResponse> {
       .order("name");
 
     if (error) {
-      console.error("Error fetching collections:", error);
+
       return { success: false, error: "Failed to fetch collections" };
     }
 
@@ -1018,7 +1017,7 @@ export async function getAllCollections(): Promise<CollectionsResponse> {
 
     return { success: true, data: collectionsWithCounts as Collection[] };
   } catch (error) {
-    console.error("Get all collections exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -1038,13 +1037,13 @@ export async function getActiveCollections(): Promise<CollectionsResponse> {
       .order("name");
 
     if (error) {
-      console.error("Error fetching active collections:", error);
+
       return { success: false, error: "Failed to fetch collections" };
     }
 
     return { success: true, data: data as Collection[] };
   } catch (error) {
-    console.error("Get active collections exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -1094,7 +1093,7 @@ export async function getCollectionProducts(
       .in("id", productIds);
 
     if (error) {
-      console.error("Error fetching collection products:", error);
+
       return { success: false, error: "Failed to fetch products" };
     }
 
@@ -1111,7 +1110,7 @@ export async function getCollectionProducts(
 
     return { success: true, data: sortedData as Product[], total: count || 0 };
   } catch (error) {
-    console.error("Get collection products exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -1151,7 +1150,7 @@ export async function createCollection(
       .single();
 
     if (error) {
-      console.error("Error creating collection:", error);
+
       return {
         success: false,
         error: error.message || "Failed to create collection",
@@ -1160,7 +1159,7 @@ export async function createCollection(
 
     return { success: true, data: data as Collection };
   } catch (error) {
-    console.error("Create collection exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -1205,7 +1204,7 @@ export async function updateCollection(
       .single();
 
     if (error) {
-      console.error("Error updating collection:", error);
+
       return {
         success: false,
         error: error.message || "Failed to update collection",
@@ -1214,7 +1213,7 @@ export async function updateCollection(
 
     return { success: true, data: data as Collection };
   } catch (error) {
-    console.error("Update collection exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -1235,13 +1234,13 @@ export async function deleteCollection(
     const { error } = await supabase.from("collections").delete().eq("id", id);
 
     if (error) {
-      console.error("Error deleting collection:", error);
+
       return { success: false, error: "Failed to delete collection" };
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Delete collection exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -1267,13 +1266,13 @@ export async function addProductToCollection(
     );
 
     if (error) {
-      console.error("Error adding product to collection:", error);
+
       return { success: false, error: "Failed to add product to collection" };
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Add product to collection exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -1295,7 +1294,7 @@ export async function removeProductFromCollection(
       .eq("collection_id", collectionId);
 
     if (error) {
-      console.error("Error removing product from collection:", error);
+
       return {
         success: false,
         error: "Failed to remove product from collection",
@@ -1304,7 +1303,7 @@ export async function removeProductFromCollection(
 
     return { success: true };
   } catch (error) {
-    console.error("Remove product from collection exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -1332,7 +1331,7 @@ export async function getProductCollectionMappings(
       .in("product_id", productIds);
 
     if (error) {
-      console.error("Error fetching product collections:", error);
+
       return { success: false, error: "Failed to fetch product collections" };
     }
 
@@ -1348,7 +1347,7 @@ export async function getProductCollectionMappings(
 
     return { success: true, data: mapping };
   } catch (error) {
-    console.error("Get product collection mappings exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -1376,7 +1375,7 @@ export async function getCollectionProductMappings(
       .in("collection_id", collectionIds);
 
     if (error) {
-      console.error("Error fetching collection products:", error);
+
       return { success: false, error: "Failed to fetch collection products" };
     }
 
@@ -1392,7 +1391,7 @@ export async function getCollectionProductMappings(
 
     return { success: true, data: mapping };
   } catch (error) {
-    console.error("Get collection product mappings exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -1427,13 +1426,13 @@ export async function getProductImages(productId: string): Promise<{
       .order("created_at");
 
     if (error) {
-      console.error("Error fetching product images:", error);
+
       return { success: false, error: "Failed to fetch product images" };
     }
 
     return { success: true, data: data as ProductImage[] };
   } catch (error) {
-    console.error("Get product images exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -1472,13 +1471,13 @@ export async function addProductImage(imageData: ProductImageInput): Promise<{
       .single();
 
     if (error) {
-      console.error("Error adding product image:", error);
+
       return { success: false, error: "Failed to add product image" };
     }
 
     return { success: true, data: data as ProductImage };
   } catch (error) {
-    console.error("Add product image exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -1522,13 +1521,13 @@ export async function updateProductImage(
       .single();
 
     if (error) {
-      console.error("Error updating product image:", error);
+
       return { success: false, error: "Failed to update product image" };
     }
 
     return { success: true, data: data as ProductImage };
   } catch (error) {
-    console.error("Update product image exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -1549,13 +1548,13 @@ export async function deleteProductImage(imageId: string): Promise<{
       .eq("id", imageId);
 
     if (error) {
-      console.error("Error deleting product image:", error);
+
       return { success: false, error: "Failed to delete product image" };
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Delete product image exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -1655,7 +1654,7 @@ export async function getRelatedProducts(
       .in("id", sortedProductIds);
 
     if (error) {
-      console.error("Error fetching related products:", error);
+
       return { success: false, error: "Failed to fetch related products" };
     }
 
@@ -1670,7 +1669,7 @@ export async function getRelatedProducts(
       total: sortedData.length,
     };
   } catch (error) {
-    console.error("Get related products exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }
@@ -1699,7 +1698,7 @@ export async function reorderProductImages(
 
     return { success: true };
   } catch (error) {
-    console.error("Reorder product images exception:", error);
+
     return { success: false, error: "An unexpected error occurred" };
   }
 }

@@ -81,7 +81,7 @@ export function FileUpload({
               altText: "", // Could be enhanced to accept alt text
             });
           } catch (mediaError) {
-            console.warn("Failed to register with media library:", mediaError);
+
             // Don't fail the upload if media library registration fails
           }
         }

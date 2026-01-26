@@ -116,7 +116,7 @@ export default function VerifyOTPPage() {
         router.push("/");
       }
     } catch (error) {
-      console.error("OTP verification error:", error);
+
       addToast("Verification failed. Please try again.", "error");
     } finally {
       setIsVerifying(false);
@@ -143,7 +143,7 @@ export default function VerifyOTPPage() {
         inputRefs.current[0]?.focus();
       }
     } catch (error) {
-      console.error("Resend OTP error:", error);
+
       addToast("Failed to resend code", "error");
     } finally {
       setIsResending(false);

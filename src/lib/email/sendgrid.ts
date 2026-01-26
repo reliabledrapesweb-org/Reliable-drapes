@@ -60,7 +60,7 @@ export async function sendEmail(
   options: EmailOptions,
 ): Promise<SendEmailResult> {
   if (!isSendGridConfigured()) {
-    console.error("[SendGrid] API key not configured");
+
     return {
       success: false,
       error:
@@ -108,7 +108,7 @@ export async function sendEmail(
 
     if (!response.ok) {
       const errorBody = await response.text();
-      console.error("[SendGrid] API error:", response.status, errorBody);
+
       return {
         success: false,
         error: `SendGrid API error: ${response.status} - ${errorBody}`,
@@ -122,7 +122,6 @@ export async function sendEmail(
       messageId,
     };
   } catch (error) {
-    console.error("[SendGrid] Error sending email:", error);
 
     const errorMessage =
       error instanceof Error
@@ -144,7 +143,7 @@ export async function sendBulkEmail(
   options: BulkEmailOptions,
 ): Promise<BulkSendResult> {
   if (!isSendGridConfigured()) {
-    console.error("[SendGrid] API key not configured");
+
     return {
       success: false,
       error:
@@ -224,7 +223,7 @@ export async function sendBulkEmail(
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
     } catch (error) {
-      console.error("[SendGrid] Batch send error:", error);
+
       failed += batch.length;
 
       batch.forEach((email) => {

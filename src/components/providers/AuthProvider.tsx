@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
         }
       } catch (error) {
-        console.error("AuthProvider - Failed to restore session:", error);
+
       } finally {
         // Mark restoration as complete
         setIsRestored(true);

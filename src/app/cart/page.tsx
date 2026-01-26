@@ -70,7 +70,7 @@ export default function CartPage() {
           setHasAddress(false);
         }
       } catch (error) {
-        console.error("Error checking address:", error);
+
         setHasAddress(false);
       }
     }
@@ -140,7 +140,7 @@ export default function CartPage() {
         addToast(result.error || "Failed to place order", "error", 3000);
       }
     } catch (error) {
-      console.error("Checkout error:", error);
+
       addToast("An unexpected error occurred", "error", 3000);
     } finally {
       setIsCheckingOut(false);

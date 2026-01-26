@@ -91,7 +91,7 @@ export async function createCategoryAction(data: {
     .single();
 
   if (insertError) {
-    console.error("category insert error", insertError);
+
     return {
       success: false,
       error: "Failed to create category",

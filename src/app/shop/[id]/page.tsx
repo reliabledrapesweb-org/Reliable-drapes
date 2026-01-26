@@ -70,7 +70,7 @@ export default function ProductDetailPage() {
           router.push("/shop");
         }
       } catch (error) {
-        console.error("Error fetching product:", error);
+
         addToast("Failed to load product", "error");
         router.push("/shop");
       }

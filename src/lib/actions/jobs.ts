@@ -47,7 +47,7 @@ export async function getActiveJobs() {
 
     return { success: true, data: data as Job[], error: null };
   } catch (error) {
-    console.error("Error fetching active jobs:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch jobs",
@@ -86,7 +86,7 @@ export async function getAllJobs() {
 
     return { success: true, data: data as Job[], error: null };
   } catch (error) {
-    console.error("Error fetching all jobs:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch jobs",
@@ -129,7 +129,7 @@ export async function createJob(jobData: Omit<Job, "id" | "created_at" | "update
 
     return { success: true, data: data as Job, error: null };
   } catch (error) {
-    console.error("Error creating job:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to create job",
@@ -173,7 +173,7 @@ export async function updateJob(id: string, updates: Partial<Omit<Job, "id" | "c
 
     return { success: true, data: data as Job, error: null };
   } catch (error) {
-    console.error("Error updating job:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to update job",
@@ -215,7 +215,7 @@ export async function deleteJob(id: string) {
 
     return { success: true, data: null, error: null };
   } catch (error) {
-    console.error("Error deleting job:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to delete job",

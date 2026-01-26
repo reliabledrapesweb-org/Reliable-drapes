@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       const { data, error } = await supabase.auth.exchangeCodeForSession(code);
       
       if (error) {
-        console.error("Auth session exchange error:", error);
+
         return NextResponse.redirect(
           new URL(`/login?error=${encodeURIComponent(error.message)}`, requestUrl.origin)
         );
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.redirect(new URL("/", requestUrl.origin));
     } catch (error) {
-      console.error("Auth callback error:", error);
+
       return NextResponse.redirect(
         new URL("/login?error=Authentication failed", requestUrl.origin)
       );

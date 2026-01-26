@@ -73,7 +73,7 @@ export function JobApplicationModal({
         .upload(filePath, file);
 
       if (uploadError) {
-        console.error("Upload error:", uploadError);
+
         throw new Error(uploadError.message || "Failed to upload resume");
       }
 
@@ -86,7 +86,7 @@ export function JobApplicationModal({
       setUploadProgress(100);
       return data.publicUrl;
     } catch (error) {
-      console.error("Error uploading resume:", error);
+
       setError(
         error instanceof Error
           ? error.message
@@ -103,11 +103,11 @@ export function JobApplicationModal({
     e.preventDefault();
 
     if (!job) {
-      console.error("[JobApplicationModal] No job selected");
+
       return;
     }
     if (!resumeFile) {
-      console.error("[JobApplicationModal] No resume file selected");
+
       setError("Please upload your resume");
       return;
     }

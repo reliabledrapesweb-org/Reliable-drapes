@@ -44,13 +44,13 @@ export async function createContactSubmission(
       .single();
 
     if (error) {
-      console.error("Error creating contact submission:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true, data: submission };
   } catch (error) {
-    console.error("Error in createContactSubmission:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -70,13 +70,13 @@ export async function getContactSubmissions(): Promise<
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching contact submissions:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true, data: data || [] };
   } catch (error) {
-    console.error("Error in getContactSubmissions:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -97,13 +97,13 @@ export async function updateContactSubmission(
       .eq("id", id);
 
     if (error) {
-      console.error("Error updating contact submission:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Error in updateContactSubmission:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -123,13 +123,13 @@ export async function deleteContactSubmission(
       .eq("id", id);
 
     if (error) {
-      console.error("Error deleting contact submission:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Error in deleteContactSubmission:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -210,13 +210,13 @@ export async function createConsultationRequest(
       .single();
 
     if (error) {
-      console.error("Error creating consultation request:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true, data: request };
   } catch (error) {
-    console.error("Error in createConsultationRequest:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -236,13 +236,13 @@ export async function getConsultationRequests(): Promise<
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching consultation requests:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true, data: data || [] };
   } catch (error) {
-    console.error("Error in getConsultationRequests:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -276,13 +276,13 @@ export async function updateConsultationRequest(
       .eq("id", id);
 
     if (error) {
-      console.error("Error updating consultation request:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Error in updateConsultationRequest:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -302,13 +302,13 @@ export async function deleteConsultationRequest(
       .eq("id", id);
 
     if (error) {
-      console.error("Error deleting consultation request:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Error in deleteConsultationRequest:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -370,13 +370,13 @@ export async function createNewsletterSubscriber(
       .single();
 
     if (error) {
-      console.error("Error creating newsletter subscriber:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true, data: subscriber };
   } catch (error) {
-    console.error("Error in createNewsletterSubscriber:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -396,13 +396,13 @@ export async function getNewsletterSubscribers(): Promise<
       .order("subscribed_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching newsletter subscribers:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true, data: data || [] };
   } catch (error) {
-    console.error("Error in getNewsletterSubscribers:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -428,13 +428,13 @@ export async function updateNewsletterSubscriber(
       .eq("id", id);
 
     if (error) {
-      console.error("Error updating newsletter subscriber:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Error in updateNewsletterSubscriber:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -454,13 +454,13 @@ export async function deleteNewsletterSubscriber(
       .eq("id", id);
 
     if (error) {
-      console.error("Error deleting newsletter subscriber:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Error in deleteNewsletterSubscriber:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -498,13 +498,13 @@ export async function createNewsletterCampaign(
       .single();
 
     if (error) {
-      console.error("Error creating newsletter campaign:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true, data: campaign };
   } catch (error) {
-    console.error("Error in createNewsletterCampaign:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -524,13 +524,13 @@ export async function getNewsletterCampaigns(): Promise<
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching newsletter campaigns:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true, data: data || [] };
   } catch (error) {
-    console.error("Error in getNewsletterCampaigns:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -614,7 +614,7 @@ export async function sendNewsletterCampaign(
       .eq("id", campaignId);
 
     if (updateError) {
-      console.error("Error updating campaign status:", updateError);
+
       return { success: false, error: "Failed to update campaign status" };
     }
 
@@ -630,7 +630,6 @@ export async function sendNewsletterCampaign(
       },
     };
   } catch (error) {
-    console.error("Error in sendNewsletterCampaign:", error);
 
     // Update campaign status to failed
     const supabase = await supabaseServer();

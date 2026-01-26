@@ -28,7 +28,7 @@ export async function supabaseServer() {
             });
           } catch (error) {
             // Ignore cookie setting errors in server context
-            console.error('Failed to set cookies:', error);
+
           }
         },
       },

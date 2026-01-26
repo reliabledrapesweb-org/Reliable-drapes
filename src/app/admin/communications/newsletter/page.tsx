@@ -179,7 +179,7 @@ export default function NewsletterPage() {
         addToast(sendResult.error || "Failed to send campaign", "error");
       }
     } catch (error) {
-      console.error("Error sending campaign:", error);
+
       addToast("An unexpected error occurred", "error");
     } finally {
       setIsSending(false);

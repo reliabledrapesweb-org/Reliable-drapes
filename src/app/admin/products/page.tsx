@@ -276,7 +276,7 @@ export default function AdminProductsPage() {
         }
       }
     } catch (error) {
-      console.error("Submit error:", error);
+
       addToast("An unexpected error occurred", "error");
     } finally {
       setActionLoading((prev) => ({ ...prev, [actionKey]: null }));
@@ -639,7 +639,7 @@ export default function AdminProductsPage() {
         setImportPreview(validatedData);
         setShowImportModal(true);
       } catch (error) {
-        console.error("Error parsing file:", error);
+
         addToast("Failed to parse file. Please check the format.", "error");
       } finally {
         setIsParsing(false);
@@ -746,7 +746,7 @@ export default function AdminProductsPage() {
         }, 2000);
       }
     } catch (error) {
-      console.error("Bulk import error:", error);
+
       addToast("Failed to import products", "error");
     } finally {
       setIsImporting(false);
@@ -1000,7 +1000,7 @@ export default function AdminProductsPage() {
       setMassUploadMatches({});
       fetchProducts();
     } catch (error) {
-      console.error("Mass upload error:", error);
+
       addToast("Failed to complete mass upload", "error");
     } finally {
       setIsMassUploading(false);

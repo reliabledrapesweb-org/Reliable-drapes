@@ -38,7 +38,7 @@ export async function submitJobApplication(applicationData: {
 
     return { success: true, data: data as JobApplication, error: null };
   } catch (error) {
-    console.error("Error submitting job application:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to submit application",
@@ -90,7 +90,7 @@ export async function getAllJobApplications() {
 
     return { success: true, data: formattedData, error: null };
   } catch (error) {
-    console.error("Error fetching job applications:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch applications",
@@ -130,7 +130,7 @@ export async function getJobApplicationsByJobId(jobId: string) {
 
     return { success: true, data: data as JobApplication[], error: null };
   } catch (error) {
-    console.error("Error fetching job applications:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch applications",
@@ -176,7 +176,7 @@ export async function updateApplicationStatus(
 
     return { success: true, data: data as JobApplication, error: null };
   } catch (error) {
-    console.error("Error updating application status:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to update status",
@@ -217,7 +217,7 @@ export async function deleteJobApplication(id: string) {
 
     return { success: true, data: null, error: null };
   } catch (error) {
-    console.error("Error deleting application:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to delete application",
@@ -263,7 +263,7 @@ export async function getApplicationStats() {
 
     return { success: true, data: stats, error: null };
   } catch (error) {
-    console.error("Error fetching application stats:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to fetch stats",

@@ -44,11 +44,11 @@ export default function CataloguePage() {
         if (result.success && result.data) {
           setCatalogues(result.data);
         } else {
-          console.error("Failed to fetch catalogues:", result.error);
+
           setCatalogues([]);
         }
       } catch (error) {
-        console.error("Network error fetching catalogues:", error);
+
         setCatalogues([]);
       }
       setIsLoading(false);

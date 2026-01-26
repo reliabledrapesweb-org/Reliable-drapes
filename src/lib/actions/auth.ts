@@ -17,7 +17,7 @@ export async function signupAction(
   // Validate input
   const parse = authSignupSchema.safeParse(data);
   if (!parse.success) {
-    console.error("Signup validation failed:", parse.error.flatten());
+
     return {
       success: false,
       error: "Invalid signup payload",
@@ -54,7 +54,7 @@ export async function signupAction(
 
   const userId = created.user?.id;
   if (!userId) {
-    console.error("User created but no ID returned");
+
     return {
       success: false,
       error: "User created but no id returned",
@@ -111,7 +111,7 @@ export async function forgotPasswordAction(
   });
 
   if (error) {
-    console.error("Password reset email error:", error);
+
     return {
       success: false,
       error: error.message || "Failed to send reset email",
@@ -164,7 +164,7 @@ export async function googleOAuthAction(): Promise<{
     });
 
     if (error) {
-      console.error("Google OAuth error:", error);
+
       return {
         error: error.message || "Failed to initiate Google sign-in",
       };
@@ -178,7 +178,7 @@ export async function googleOAuthAction(): Promise<{
       error: "No OAuth URL returned",
     };
   } catch (error) {
-    console.error("Google OAuth exception:", error);
+
     return {
       error: "An unexpected error occurred",
     };
@@ -205,7 +205,7 @@ export async function appleOAuthAction(): Promise<{
     });
 
     if (error) {
-      console.error("Apple OAuth error:", error);
+
       return {
         error: error.message || "Failed to initiate Apple sign-in",
       };
@@ -219,7 +219,7 @@ export async function appleOAuthAction(): Promise<{
       error: "No OAuth URL returned",
     };
   } catch (error) {
-    console.error("Apple OAuth exception:", error);
+
     return {
       error: "An unexpected error occurred",
     };

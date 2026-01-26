@@ -63,7 +63,7 @@ export default function AdminApplicationsPage() {
         setApplications(result.data);
       }
     } catch (error) {
-      console.error("Error fetching applications:", error);
+
     } finally {
       setIsLoading(false);
     }
@@ -90,7 +90,7 @@ export default function AdminApplicationsPage() {
         addToast(result.error || "Failed to update status", "error");
       }
     } catch (error) {
-      console.error("Error updating status:", error);
+
       addToast("Failed to update status", "error");
     }
   };
@@ -118,7 +118,7 @@ export default function AdminApplicationsPage() {
         setConfirmAction({ type: null });
       }
     } catch (error) {
-      console.error("Error deleting application:", error);
+
       addToast("Failed to delete application", "error");
       setConfirmAction({ type: null });
     }

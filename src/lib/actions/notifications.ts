@@ -51,13 +51,13 @@ export async function getNotifications(
     const { data, error } = await query;
 
     if (error) {
-      console.error("Error fetching notifications:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true, data: data || [] };
   } catch (error) {
-    console.error("Error in getNotifications:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -86,13 +86,13 @@ export async function getUnreadCount(): Promise<ActionResult<number>> {
       .eq("is_read", false);
 
     if (error) {
-      console.error("Error fetching unread count:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true, data: count || 0 };
   } catch (error) {
-    console.error("Error in getUnreadCount:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -123,13 +123,13 @@ export async function markAsRead(
       .eq("user_id", user.id);
 
     if (error) {
-      console.error("Error marking notification as read:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Error in markAsRead:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -158,13 +158,13 @@ export async function markAllAsRead(): Promise<ActionResult> {
       .eq("is_read", false);
 
     if (error) {
-      console.error("Error marking all as read:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Error in markAllAsRead:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -195,13 +195,13 @@ export async function deleteNotification(
       .eq("user_id", user.id);
 
     if (error) {
-      console.error("Error deleting notification:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-    console.error("Error in deleteNotification:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -236,13 +236,13 @@ export async function createNotification(data: {
       .single();
 
     if (error) {
-      console.error("Error creating notification:", error);
+
       return { success: false, error: error.message };
     }
 
     return { success: true, data: notification };
   } catch (error) {
-    console.error("Error in createNotification:", error);
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",

@@ -176,7 +176,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
         addToast(result.error || "Failed to update profile", "error");
       }
     } catch (error) {
-      console.error("Update error:", error);
+
       addToast("An unexpected error occurred", "error");
     } finally {
       setIsSubmitting(false);

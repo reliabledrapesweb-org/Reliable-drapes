@@ -51,7 +51,7 @@ export async function getAllUsers() {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    console.error("Authentication error:", authError);
+
     return { success: false, error: "Authentication required", data: null };
   }
 
@@ -63,7 +63,7 @@ export async function getAllUsers() {
     .single();
 
   if (profileError) {
-    console.error("Error fetching current user profile:", profileError);
+
     return {
       success: false,
       error: "Failed to verify admin status",
@@ -72,7 +72,7 @@ export async function getAllUsers() {
   }
 
   if (currentUserProfile?.role !== "admin") {
-    console.error("Non-admin user attempted to fetch all users:", user.id);
+
     return { success: false, error: "Admin privileges required", data: null };
   }
 
@@ -83,7 +83,7 @@ export async function getAllUsers() {
     .order("created_at", { ascending: false });
 
   if (profilesError) {
-    console.error("Error fetching profiles:", profilesError);
+
     return { success: false, error: profilesError.message, data: null };
   }
 
@@ -105,7 +105,7 @@ export async function getAllUsers() {
     await adminSupabase.auth.admin.listUsers();
 
   if (authError2) {
-    console.error("Error fetching auth users:", authError2);
+
     // Return profiles without auth data
     return { success: true, data: profiles, error: null };
   }
@@ -134,7 +134,7 @@ export async function getUserStats() {
     .select("role");
 
   if (error) {
-    console.error("Error fetching user stats:", error);
+
     return {
       success: false,
       error: error.message,
@@ -164,7 +164,7 @@ export async function updateUser(input: UpdateUserInput) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    console.error("Authentication error:", authError);
+
     return { success: false, error: "Authentication required", data: null };
   }
 
@@ -176,7 +176,7 @@ export async function updateUser(input: UpdateUserInput) {
     .single();
 
   if (profileError) {
-    console.error("Error fetching current user profile:", profileError);
+
     return {
       success: false,
       error: "Failed to verify admin status",
@@ -185,7 +185,7 @@ export async function updateUser(input: UpdateUserInput) {
   }
 
   if (currentUserProfile?.role !== "admin") {
-    console.error("Non-admin user attempted to update user:", user.id);
+
     return { success: false, error: "Admin privileges required", data: null };
   }
 
@@ -199,7 +199,7 @@ export async function updateUser(input: UpdateUserInput) {
     .single();
 
   if (error) {
-    console.error("Error updating user:", error);
+
     return { success: false, error: error.message, data: null };
   }
 
@@ -230,7 +230,7 @@ export async function getProfile() {
     .single();
 
   if (error) {
-    console.error("Error fetching profile:", error);
+
     return { success: false, error: error.message, data: null };
   }
 
@@ -274,7 +274,7 @@ export async function updateProfile(input: UpdateProfileInput) {
     .single();
 
   if (error) {
-    console.error("Error updating profile:", error);
+
     return { success: false, error: error.message, data: null };
   }
 
@@ -297,7 +297,7 @@ export async function deleteUser(userId: string) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    console.error("Authentication error:", authError);
+
     return { success: false, error: "Authentication required" };
   }
 
@@ -309,12 +309,12 @@ export async function deleteUser(userId: string) {
     .single();
 
   if (profileError) {
-    console.error("Error fetching current user profile:", profileError);
+
     return { success: false, error: "Failed to verify admin status" };
   }
 
   if (currentUserProfile?.role !== "admin") {
-    console.error("Non-admin user attempted to delete user:", user.id);
+
     return { success: false, error: "Admin privileges required" };
   }
 
@@ -335,7 +335,7 @@ export async function deleteUser(userId: string) {
   const { error } = await adminSupabase.auth.admin.deleteUser(userId);
 
   if (error) {
-    console.error("Error deleting user:", error);
+
     return { success: false, error: error.message };
   }
 
@@ -356,7 +356,7 @@ export async function promoteToAdmin(userId: string) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    console.error("Authentication error:", authError);
+
     return { success: false, error: "Authentication required", data: null };
   }
 
@@ -367,7 +367,7 @@ export async function promoteToAdmin(userId: string) {
     .single();
 
   if (profileError) {
-    console.error("Error fetching current user profile:", profileError);
+
     return {
       success: false,
       error: "Failed to verify admin status",
@@ -376,7 +376,7 @@ export async function promoteToAdmin(userId: string) {
   }
 
   if (currentUserProfile?.role !== "admin") {
-    console.error("Non-admin user attempted to promote user:", user.id);
+
     return { success: false, error: "Admin privileges required", data: null };
   }
 
@@ -388,7 +388,7 @@ export async function promoteToAdmin(userId: string) {
     .single();
 
   if (error) {
-    console.error("Error promoting user:", error);
+
     return { success: false, error: error.message, data: null };
   }
 
@@ -409,7 +409,7 @@ export async function demoteFromAdmin(userId: string) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    console.error("Authentication error:", authError);
+
     return { success: false, error: "Authentication required", data: null };
   }
 
@@ -420,7 +420,7 @@ export async function demoteFromAdmin(userId: string) {
     .single();
 
   if (profileError) {
-    console.error("Error fetching current user profile:", profileError);
+
     return {
       success: false,
       error: "Failed to verify admin status",
@@ -429,7 +429,7 @@ export async function demoteFromAdmin(userId: string) {
   }
 
   if (currentUserProfile?.role !== "admin") {
-    console.error("Non-admin user attempted to demote user:", user.id);
+
     return { success: false, error: "Admin privileges required", data: null };
   }
 
@@ -441,7 +441,7 @@ export async function demoteFromAdmin(userId: string) {
     .single();
 
   if (error) {
-    console.error("Error demoting user:", error);
+
     return { success: false, error: error.message, data: null };
   }
 
@@ -463,7 +463,7 @@ export async function searchUsers(query: string) {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Error searching users:", error);
+
     return { success: false, error: error.message, data: null };
   }
 

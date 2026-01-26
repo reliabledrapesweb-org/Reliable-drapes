@@ -203,7 +203,7 @@ export default function StyleExpertPage() {
         addToast(result.error || "Failed to submit request", "error");
       }
     } catch (error) {
-      console.error("Error submitting consultation:", error);
+
       addToast("An unexpected error occurred", "error");
     } finally {
       setIsSubmitting(false);

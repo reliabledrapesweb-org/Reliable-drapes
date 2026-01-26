@@ -62,7 +62,7 @@ export default function ResetPasswordPage() {
       await supabaseClient.auth.signOut();
       setSuccess(true);
     } catch (err) {
-      console.error("Password reset error:", err);
+
       setError("An unexpected error occurred");
     } finally {
       setIsPending(false);

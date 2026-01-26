@@ -18,7 +18,7 @@ export function BestsellerSection() {
           setProducts(result.data.slice(0, 5)); // Take first 5 products
         }
       } catch (error) {
-        console.error("Error fetching bestsellers:", error);
+
       }
       setIsLoading(false);
     }

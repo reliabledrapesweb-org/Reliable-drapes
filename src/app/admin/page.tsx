@@ -279,7 +279,7 @@ export default function AdminDashboard() {
           setRecentMedia(media.data);
         }
       } catch (error) {
-        console.error("Failed to fetch dashboard data:", error);
+
       } finally {
         setIsLoading(false);
       }

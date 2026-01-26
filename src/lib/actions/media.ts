@@ -98,7 +98,7 @@ export async function getMediaItems(
     const { data, error, count } = await query;
 
     if (error) {
-      console.error("Error fetching media items:", error);
+
       return {
         success: false,
         error: "Failed to fetch media items",
@@ -111,7 +111,7 @@ export async function getMediaItems(
       total: count || 0,
     };
   } catch (error) {
-    console.error("Get media items exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -144,7 +144,7 @@ export async function getMediaItemById(id: string): Promise<MediaItemResponse> {
       data: data as MediaItem,
     };
   } catch (error) {
-    console.error("Get media item exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -179,7 +179,7 @@ export async function uploadMediaItem(
         await supabase.storage.createBucket(requestedBucket, { public: true });
       }
     } catch (e) {
-      console.warn("Could not verify/create bucket, attempting upload anyway");
+
     }
 
     // 2. Perform the upload
@@ -229,7 +229,7 @@ export async function uploadMediaItem(
       .single();
 
     if (error) {
-      console.error("Error creating media item record:", error);
+
       return {
         success: false,
         error: "File uploaded but database registration failed.",
@@ -241,7 +241,7 @@ export async function uploadMediaItem(
       data: data as MediaItem,
     };
   } catch (error) {
-    console.error("Upload media item exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred during upload.",
@@ -288,7 +288,7 @@ export async function uploadMultipleMediaItems(
       failed,
     };
   } catch (error) {
-    console.error("Upload multiple media items exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -318,7 +318,7 @@ export async function updateMediaItem(
       .single();
 
     if (error) {
-      console.error("Error updating media item:", error);
+
       return {
         success: false,
         error: "Failed to update media item",
@@ -330,7 +330,7 @@ export async function updateMediaItem(
       data: data as MediaItem,
     };
   } catch (error) {
-    console.error("Update media item exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -379,7 +379,7 @@ export async function deleteMediaItem(id: string): Promise<{
       .eq("id", id);
 
     if (deleteError) {
-      console.error("Error deleting media item:", deleteError);
+
       return {
         success: false,
         error: "Failed to delete media item",
@@ -390,7 +390,7 @@ export async function deleteMediaItem(id: string): Promise<{
       success: true,
     };
   } catch (error) {
-    console.error("Delete media item exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -420,7 +420,7 @@ export async function getStorageStats(): Promise<{
       .select("file_size, folder, bucket");
 
     if (error) {
-      console.error("Error fetching storage stats:", error);
+
       return {
         success: false,
         error: "Failed to fetch storage stats",
@@ -458,7 +458,7 @@ export async function getStorageStats(): Promise<{
       },
     };
   } catch (error) {
-    console.error("Get storage stats exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -482,7 +482,7 @@ export async function getFolders(): Promise<{
       .select("folder");
 
     if (error) {
-      console.error("Error fetching folders:", error);
+
       return {
         success: false,
         error: "Failed to fetch folders",
@@ -498,7 +498,7 @@ export async function getFolders(): Promise<{
       data: folders,
     };
   } catch (error) {
-    console.error("Get folders exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -617,7 +617,7 @@ export async function syncExistingFiles(): Promise<{
       },
     };
   } catch (error) {
-    console.error("Sync existing files exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -646,7 +646,7 @@ export async function getStorageBucketsInfo(): Promise<{
       .select("bucket, file_size");
 
     if (error) {
-      console.error("Error fetching bucket info:", error);
+
       return {
         success: false,
         error: "Failed to fetch bucket info",
@@ -683,7 +683,7 @@ export async function getStorageBucketsInfo(): Promise<{
       data: result,
     };
   } catch (error) {
-    console.error("Get storage buckets info exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -742,7 +742,7 @@ export async function getMediaUsage(fileUrl: string): Promise<{
       },
     };
   } catch (error) {
-    console.error("Get media usage exception:", error);
+
     return {
       success: false,
       error: "An unexpected error occurred",
