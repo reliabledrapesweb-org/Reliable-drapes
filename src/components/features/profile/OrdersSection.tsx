@@ -20,10 +20,14 @@ import {
   MapPin,
   Calendar,
   FileText,
+  XCircle,
+  Info,
+  Copy,
 } from "lucide-react";
 import { getOrdersAction } from "@/lib/actions/orders";
 import { Button } from "@/components/ui/button";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
+import { cn } from "@/lib/utils";
 
 interface OrderItem {
   id: string;
@@ -400,219 +404,247 @@ export function OrdersSection() {
       {/* Tracking Modal */}
       <AnimatePresence>
         {trackingOrder && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setTrackingOrder(null)}
-              className="absolute inset-0 bg-[#161616]/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-[#161616]/40 backdrop-blur-md"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative z-10 flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl bg-white shadow-2xl sm:rounded-[2.5rem]"
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative z-10 flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-[2.5rem] border border-white/20 bg-white shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] dark:bg-gray-900"
             >
               {/* Modal Header */}
-              <div className="sticky top-0 z-20 border-b border-gray-100 bg-white p-4 pb-4 sm:p-6 sm:pb-6 lg:p-8">
-                <h3 className="pr-10 text-lg font-bold text-[#161616] sm:text-xl lg:text-2xl">
-                  Track Order #{trackingOrder.id.slice(0, 8)}
-                </h3>
-                <p className="mt-1 text-xs text-gray-500 sm:text-sm">
-                  {trackingOrder.status === "cancelled"
-                    ? "This order has been cancelled"
-                    : "Real-time status of your shipment"}
-                </p>
+              <div className="flex items-center justify-between border-b border-gray-50 bg-white px-6 py-6 sm:px-8 dark:border-gray-800 dark:bg-gray-900">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-[#2f2582]" />
+                    <h3 className="text-xl font-bold tracking-tight text-[#161616] sm:text-2xl dark:text-white">
+                      Track Shipment
+                    </h3>
+                  </div>
+                  <p className="mt-1 font-mono text-[10px] font-medium tracking-widest text-gray-400 uppercase sm:text-xs">
+                    Order #{trackingOrder.id.slice(0, 8)}
+                  </p>
+                </div>
                 <button
                   onClick={() => setTrackingOrder(null)}
-                  className="absolute top-3 right-3 rounded-full p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-[#161616] sm:top-6 sm:right-6 sm:p-2"
+                  className="group flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 transition-all hover:rotate-90 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700"
                 >
-                  <X className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <X className="h-5 w-5 text-gray-400 group-hover:text-[#161616] dark:group-hover:text-white" />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+              <div className="flex-1 overflow-y-auto p-6 sm:p-8 lg:p-10">
                 {trackingOrder.status === "cancelled" ? (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <div className="mb-4 rounded-full bg-red-50 p-4">
-                      <AlertCircle className="h-12 w-12 text-red-500" />
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-50 text-red-500 shadow-inner">
+                      <XCircle className="h-10 w-10" />
                     </div>
-                    <h4 className="mb-2 text-xl font-bold text-[#161616]">
+                    <h4 className="mb-2 text-2xl font-bold text-[#161616] dark:text-white">
                       Order Cancelled
                     </h4>
-                    <p className="max-w-xs text-sm text-gray-500">
-                      This order was cancelled. If you have any questions,
-                      please contact our support team.
+                    <p className="max-w-xs text-sm leading-relaxed text-gray-500">
+                      This order has been cancelled and is no longer being
+                      processed. Please contact support for more information.
                     </p>
                   </div>
                 ) : (
-                  <>
-                    {/* Visual Progress Bar */}
-                    <div className="relative mb-6 sm:mb-10">
-                      <div className="absolute top-4 left-0 h-1 w-full rounded-full bg-gray-100 sm:top-5 sm:h-1.5" />
-                      <div
-                        className="absolute top-4 left-0 h-1 rounded-full bg-[#2f2582] transition-all duration-1000 sm:top-5 sm:h-1.5"
-                        style={{
-                          width:
-                            trackingOrder.status === "delivered"
-                              ? "100%"
-                              : trackingOrder.status === "shipped"
-                                ? "66%"
-                                : ["processing", "paid"].includes(
-                                      trackingOrder.status.toLowerCase(),
-                                    )
-                                  ? "33%"
-                                  : "5%",
-                        }}
-                      />
-                      <div className="relative flex justify-between">
-                        {[
-                          {
-                            label: "Pending",
-                            icon: Package,
-                            statuses: ["pending"],
-                          },
-                          {
-                            label: "Processing",
-                            icon: Clock,
-                            statuses: ["processing", "paid"],
-                          },
-                          {
-                            label: "Shipped",
-                            icon: Truck,
-                            statuses: ["shipped"],
-                          },
-                          {
-                            label: "Delivered",
-                            icon: CheckCircle,
-                            statuses: ["delivered"],
-                          },
-                        ].map((step, i) => {
-                          const activeIndex = [
-                            "pending",
-                            "processing",
-                            "paid",
-                            "shipped",
-                            "delivered",
-                          ].indexOf(trackingOrder.status.toLowerCase());
+                  <div className="space-y-10">
+                    {/* Status Summary Card */}
+                    <div className="overflow-hidden rounded-3xl border border-[#2f2582]/10 bg-[#2f2582]/5 p-6 dark:border-[#2f2582]/20">
+                      <div className="mb-4 flex items-center justify-between">
+                        <span className="text-[10px] font-black tracking-[0.2em] text-[#2f2582]/60 uppercase dark:text-[#a099ff]/60">
+                          Current Status
+                        </span>
+                        <div
+                          className={cn(
+                            "rounded-full px-3 py-1 text-[10px] font-black tracking-widest uppercase",
+                            getStatusColor(trackingOrder.status),
+                          )}
+                        >
+                          {trackingOrder.status}
+                        </div>
+                      </div>
+                      <h4 className="text-lg font-bold text-[#161616] dark:text-white">
+                        {trackingOrder.status === "delivered"
+                          ? "Package delivered successfully"
+                          : trackingOrder.status === "shipped"
+                            ? "Your order is on the way"
+                            : "We're preparing your order"}
+                      </h4>
+                      <p className="mt-1 text-sm text-gray-500">
+                        {trackingOrder.current_location ||
+                          "Processing at our main fulfillment center"}
+                      </p>
+                    </div>
 
-                          const stepIndex = i === 0 ? 0 : i === 1 ? 2 : i + 1; // Map UI steps to status array indices
-                          // Actually simpler logic:
-                          const currentStatusIndex = [
-                            "pending",
-                            "paid",
-                            "processing",
-                            "shipped",
-                            "delivered",
-                          ].indexOf(trackingOrder.status.toLowerCase());
+                    {/* Timeline Steps */}
+                    <div className="relative flex flex-col gap-10">
+                      <div className="absolute top-2 bottom-2 left-[19px] w-0.5 bg-gray-100 dark:bg-gray-800" />
 
-                          let isActive = false;
-                          if (i === 0) isActive = currentStatusIndex >= 0;
-                          if (i === 1) isActive = currentStatusIndex >= 1;
-                          if (i === 2) isActive = currentStatusIndex >= 3;
-                          if (i === 3) isActive = currentStatusIndex >= 4;
+                      {[
+                        {
+                          label: "Order Placed",
+                          desc: "We've received your order",
+                          icon: Package,
+                          statuses: ["pending"],
+                        },
+                        {
+                          label: "Processing",
+                          desc: "Quality check and packaging",
+                          icon: Clock,
+                          statuses: ["processing", "paid"],
+                        },
+                        {
+                          label: "In Transit",
+                          desc: "Handed over to delivery partner",
+                          icon: Truck,
+                          statuses: ["shipped"],
+                        },
+                        {
+                          label: "Delivered",
+                          desc: "Package received at destination",
+                          icon: CheckCircle,
+                          statuses: ["delivered"],
+                        },
+                      ].map((step, i) => {
+                        const currentStatusIndex = [
+                          "pending",
+                          "paid",
+                          "processing",
+                          "shipped",
+                          "delivered",
+                        ].indexOf(trackingOrder.status.toLowerCase());
 
-                          return (
+                        let isActive = false;
+                        if (i === 0) isActive = currentStatusIndex >= 0;
+                        if (i === 1) isActive = currentStatusIndex >= 1;
+                        if (i === 2) isActive = currentStatusIndex >= 3;
+                        if (i === 3) isActive = currentStatusIndex >= 4;
+
+                        const isPast =
+                          (i === 0 && currentStatusIndex > 0) ||
+                          (i === 1 && currentStatusIndex > 2) ||
+                          (i === 2 && currentStatusIndex > 3);
+
+                        return (
+                          <div key={i} className="group relative flex gap-6">
                             <div
-                              key={i}
-                              className="flex flex-col items-center gap-1.5 sm:gap-3"
+                              className={cn(
+                                "relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-4 border-white shadow-sm transition-all duration-500 dark:border-gray-900",
+                                isActive
+                                  ? "scale-110 bg-[#2f2582] text-white shadow-lg shadow-[#2f2582]/20"
+                                  : "bg-gray-100 text-gray-400",
+                              )}
                             >
-                              <div
-                                className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white shadow-sm transition-all duration-300 sm:h-10 sm:w-10 sm:border-4 ${isActive ? "bg-[#2f2582] text-white" : "bg-gray-200 text-gray-400"}`}
-                              >
-                                <step.icon className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
-                              </div>
-                              <span
-                                className={`text-center text-[9px] leading-tight font-bold tracking-tight uppercase sm:text-xs ${isActive ? "text-[#2f2582]" : "text-gray-400"}`}
-                              >
-                                <span className="hidden sm:inline">
-                                  {step.label}
-                                </span>
-                                <span className="sm:hidden">
-                                  {step.label.slice(0, 4)}
-                                </span>
-                              </span>
+                              <step.icon
+                                className={cn(
+                                  "h-4 w-4",
+                                  isActive && "animate-pulse",
+                                )}
+                              />
+                              {isActive && !isPast && i !== 3 && (
+                                <motion.div
+                                  layoutId="active-indicator"
+                                  className="absolute -inset-1 rounded-full border-2 border-[#2f2582] opacity-20"
+                                  animate={{ scale: [1, 1.2, 1] }}
+                                  transition={{ repeat: Infinity, duration: 2 }}
+                                />
+                              )}
                             </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Tracking Details */}
-                    <div className="space-y-4 sm:space-y-6">
-                      <div className="grid grid-cols-1 gap-4 rounded-xl border border-gray-100 bg-gray-50/80 p-4 sm:grid-cols-2 sm:gap-6 sm:rounded-3xl sm:p-6">
-                        <div className="space-y-0.5 sm:space-y-1">
-                          <span className="text-[9px] font-bold tracking-[1px] text-gray-400 uppercase sm:text-[10px]">
-                            Tracking Number
-                          </span>
-                          <p className="flex items-center gap-2 text-sm font-bold text-[#161616] sm:text-base">
-                            {trackingOrder.tracking_number || "Awaiting Number"}
-                            {trackingOrder.tracking_url && (
-                              <a
-                                href={trackingOrder.tracking_url}
-                                target="_blank"
-                                className="text-[#2f2582] hover:underline"
+                            <div className="flex flex-col pt-1">
+                              <h5
+                                className={cn(
+                                  "text-sm font-bold tracking-tight transition-colors duration-300",
+                                  isActive
+                                    ? "text-[#161616] dark:text-white"
+                                    : "text-gray-400",
+                                )}
                               >
-                                <ExternalLink className="h-3 w-3" />
-                              </a>
-                            )}
-                          </p>
-                        </div>
-                        <div className="space-y-0.5 sm:space-y-1">
-                          <span className="text-[9px] font-bold tracking-[1px] text-gray-400 uppercase sm:text-[10px]">
-                            Expected Delivery
-                          </span>
-                          <p className="flex items-center gap-1.5 text-sm font-bold text-[#161616] sm:text-base">
-                            <Calendar className="h-3 w-3 text-[#2f2582] sm:h-3.5 sm:w-3.5" />
-                            {formatSafeDate(
-                              trackingOrder.expected_delivery_date,
-                            ) || "Calculating..."}
-                          </p>
-                        </div>
-                        <div className="space-y-0.5 sm:col-span-2 sm:space-y-1">
-                          <span className="text-[9px] font-bold tracking-[1px] text-gray-400 uppercase sm:text-[10px]">
-                            Current Location
-                          </span>
-                          <p className="flex items-center gap-1.5 text-sm font-bold text-[#161616] sm:text-base">
-                            <MapPin className="h-3 w-3 text-[#2f2582] sm:h-3.5 sm:w-3.5" />
-                            {trackingOrder.current_location ||
-                              "Processing at Warehouse"}
-                          </p>
-                        </div>
-                      </div>
-
-                      {!trackingOrder.tracking_number && (
-                        <div className="flex items-start gap-2 rounded-xl border border-amber-100 bg-amber-50 p-3 sm:items-center sm:gap-3 sm:rounded-2xl sm:p-4">
-                          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 sm:mt-0 sm:h-5 sm:w-5" />
-                          <p className="text-[11px] font-medium text-amber-700 sm:text-xs">
-                            Shipment details are usually updated within 24-48
-                            hours after processing.
-                          </p>
-                        </div>
-                      )}
+                                {step.label}
+                              </h5>
+                              <p
+                                className={cn(
+                                  "mt-0.5 text-xs transition-colors duration-300",
+                                  isActive ? "text-gray-500" : "text-gray-400",
+                                )}
+                              >
+                                {step.desc}
+                              </p>
+                              {isActive && i === 0 && (
+                                <p className="mt-2 text-[10px] font-medium text-gray-400">
+                                  {format(
+                                    new Date(trackingOrder.created_at),
+                                    "MMM d, h:mm a",
+                                  )}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  </>
+
+                    {/* Logistics Card */}
+                    <div className="grid grid-cols-2 gap-4 rounded-3xl bg-gray-50 p-6 dark:bg-gray-800/50">
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-black tracking-widest text-gray-400 uppercase">
+                          Tracking ID
+                        </span>
+                        <p className="flex items-center gap-2 text-sm font-bold text-[#161616] dark:text-white">
+                          {trackingOrder.tracking_number || "PENDING"}
+                          {trackingOrder.tracking_number && (
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(
+                                  trackingOrder.tracking_number!,
+                                );
+                                addToast("Tracking ID copied", "success");
+                              }}
+                              className="text-gray-400 hover:text-[#2f2582]"
+                            >
+                              <Copy className="h-3 w-3" />
+                            </button>
+                          )}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-black tracking-widest text-gray-400 uppercase">
+                          Delivery Est.
+                        </span>
+                        <p className="text-sm font-bold text-[#161616] dark:text-white">
+                          {formatSafeDate(
+                            trackingOrder.expected_delivery_date,
+                          ) || "TBD"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
 
-              <div className="flex flex-col gap-3 border-t border-gray-100 bg-gray-50 p-4 sm:flex-row sm:gap-4 sm:p-6 lg:p-8">
+              <div className="flex gap-4 border-t border-gray-100 bg-white p-6 sm:p-8 dark:border-gray-800 dark:bg-gray-900">
                 <Button
-                  className="order-2 w-full rounded-xl border-gray-200 bg-white text-sm text-[#161616] hover:bg-gray-100 sm:order-1 sm:flex-1 sm:rounded-2xl sm:text-base"
+                  className="h-12 flex-1 rounded-2xl border-gray-200 text-sm font-bold hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800"
                   variant="outline"
                   onClick={() => setTrackingOrder(null)}
                 >
-                  Close
+                  Dismiss
                 </Button>
                 {trackingOrder.tracking_url &&
                   trackingOrder.status !== "cancelled" && (
                     <Button
-                      className="order-1 w-full rounded-xl bg-[#2f2582] text-sm text-white shadow-lg shadow-[#2f2582]/20 hover:bg-[#241c66] sm:order-2 sm:flex-1 sm:rounded-2xl sm:text-base"
+                      className="h-12 flex-1 rounded-2xl bg-[#2f2582] text-sm font-bold text-white shadow-xl shadow-[#2f2582]/20 transition-transform hover:scale-[1.02] hover:bg-[#241c66]"
                       onClick={() =>
                         window.open(trackingOrder.tracking_url, "_blank")
                       }
                     >
-                      Track on Website
+                      Partner Tracking <ExternalLink className="ml-2 h-4 w-4" />
                     </Button>
                   )}
               </div>
@@ -620,6 +652,7 @@ export function OrdersSection() {
           </div>
         )}
       </AnimatePresence>
+
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </div>
   );
