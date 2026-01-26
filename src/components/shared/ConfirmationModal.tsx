@@ -5,11 +5,12 @@ import { useEffect } from "react";
 interface ConfirmationModalProps {
   isOpen: boolean;
   title: string;
-  message: string;
+  message: React.ReactNode;
   confirmText?: string;
   cancelText?: string;
-  variant?: "default" | "danger" | "warning";
+  variant?: "default" | "danger" | "warning" | "info";
   isLoading?: boolean;
+  showCancel?: boolean;
   icon?: React.ReactNode;
   onConfirm: () => void;
   onCancel: () => void;
@@ -23,6 +24,7 @@ export function ConfirmationModal({
   cancelText = "Cancel",
   variant = "default",
   isLoading = false,
+  showCancel = true,
   icon,
   onConfirm,
   onCancel,
@@ -66,6 +68,12 @@ export function ConfirmationModal({
           iconColor: "text-yellow-600",
           confirmButton: "bg-yellow-600 hover:bg-yellow-700",
         };
+      case "info":
+        return {
+          iconBg: "bg-blue-100",
+          iconColor: "text-blue-600",
+          confirmButton: "bg-[#2f2582] hover:bg-[#251e66]",
+        };
       default:
         return {
           iconBg: "bg-blue-100",
@@ -83,7 +91,7 @@ export function ConfirmationModal({
     <AnimatePresence>
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
           data-testid="modal-overlay"
           onClick={onCancel}
         >
@@ -116,7 +124,7 @@ export function ConfirmationModal({
             </button>
 
             {/* Icon */}
-            <div className="mb-4 flex items-center gap-4">
+            <div className="mb-4 flex items-center gap-4 text-left">
               <div
                 className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full ${styles.iconBg}`}
               >
@@ -130,17 +138,19 @@ export function ConfirmationModal({
             </div>
 
             {/* Message */}
-            <p className="mb-6 text-sm text-gray-600">{message}</p>
+            <div className="mb-6 text-sm text-gray-600">{message}</div>
 
             {/* Actions */}
             <div className="flex justify-end gap-3">
-              <button
-                onClick={onCancel}
-                disabled={isLoading}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {cancelText}
-              </button>
+              {showCancel && (
+                <button
+                  onClick={onCancel}
+                  disabled={isLoading}
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {cancelText}
+                </button>
+              )}
               <button
                 onClick={onConfirm}
                 disabled={isLoading}

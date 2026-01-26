@@ -19,6 +19,7 @@ import {
   Loader2,
   Copy,
   FileWarning,
+  Info,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -1030,7 +1031,9 @@ export default function AdminProductsPage() {
         image_url: p.image_url || "",
         price: p.price,
         categories: categoryNames,
-        created_at: new Date(p.created_at!).toLocaleDateString(),
+        created_at: p.created_at
+          ? new Date(p.created_at).toLocaleDateString()
+          : "—",
       };
     });
 
@@ -1086,23 +1089,26 @@ export default function AdminProductsPage() {
   // Filter products by search query
   const filteredProducts = products.filter(
     (product) =>
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.description?.toLowerCase().includes(searchQuery.toLowerCase()),
+      (product.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (product.description || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()),
   );
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: number | null | undefined) => {
+    const amount = typeof price === "number" ? price : 0;
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
       minimumFractionDigits: 0,
-    }).format(price);
+    }).format(amount);
   };
 
   const fallbackImage = DEFAULT_PRODUCT_IMAGE;
 
   // Stats calculations
   const totalProducts = products.length;
-  const totalValue = products.reduce((sum, p) => sum + p.price, 0);
+  const totalValue = products.reduce((sum, p) => sum + (p.price || 0), 0);
   const averagePrice = totalProducts > 0 ? totalValue / totalProducts : 0;
 
   // Loading check
@@ -1425,7 +1431,9 @@ export default function AdminProductsPage() {
                           </div>
                         </td>
                         <td className="hidden px-4 py-3 text-sm text-gray-500 lg:table-cell">
-                          {new Date(product.created_at).toLocaleDateString()}
+                          {product.created_at
+                            ? new Date(product.created_at).toLocaleDateString()
+                            : "—"}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center justify-end gap-1">
@@ -2278,7 +2286,7 @@ export default function AdminProductsPage() {
       {/* Import Preview Modal */}
       <AnimatePresence>
         {showImportModal && (
-          <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50 p-4 dark:bg-black/70">
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4 dark:bg-black/70">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
