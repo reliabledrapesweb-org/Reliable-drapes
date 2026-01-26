@@ -170,113 +170,44 @@ export async function uploadMediaItem(
 
     const supabase = getAdminSupabase();
 
-    // 1. Ensure bucket exists (Stress-free approach)
+    // 1. Ensure bucket exists
     try {
       const { data: buckets } = await supabase.storage.listBuckets();
       const bucketExists = buckets?.some((b) => b.id === requestedBucket);
 
       if (!bucketExists) {
-        console.info(`Bucket "${requestedBucket}" missing, attempting to create...`);
-        const { error: createError } = await supabase.storage.createBucket(
-          requestedBucket,
-          {
-            public: true,
-            allowedMimeTypes: ["image/*", "application/pdf"],
-          },
-        );
-        if (createError) {
-          console.error("Failed to create bucket:", createError);
-          // Fallback to 'products' if creation failed
-          if (requestedBucket !== "products") {
-             return uploadMediaItem(file, { ...options, bucket: "products" });
-          }
-        }
+        await supabase.storage.createBucket(requestedBucket, { public: true });
       }
-    } catch (bucketCheckError) {
-      console.warn("Bucket check failed, proceeding with upload attempt anyway");
+    } catch (e) {
+      console.warn("Could not verify/create bucket, attempting upload anyway");
     }
 
     // 2. Perform the upload
-    const uploadResult = await uploadFile(file, requestedBucket, folder, supabase);
+    let uploadResult = await uploadFile(
+      file,
+      requestedBucket,
+      folder,
+      supabase,
+    );
 
-    if (!uploadResult.success || !uploadResult.url) {
-      // Final fallback if first attempt failed
-      if (requestedBucket !== "products") {
-        console.warn("Primary upload failed, trying fallback to 'products' bucket");
-        const fallbackResult = await uploadFile(file, "products", folder, supabase);
-        if (fallbackResult.success && fallbackResult.url) {
-          uploadResult.success = true;
-          uploadResult.url = fallbackResult.url;
-        }
-      }
-
-      if (!uploadResult.success || !uploadResult.url) {
-        return {
-          success: false,
-          error: uploadResult.error || "Failed to upload file. Please ensure storage is configured.",
-        };
-      }
+    // Fallback if bucket missing
+    if (
+      !uploadResult.success &&
+      uploadResult.error?.toLowerCase().includes("not found")
+    ) {
+      uploadResult = await uploadFile(file, "products", folder, supabase);
     }
-
-    const finalBucket = uploadResult.url.includes("/public/products/") ? "products" : requestedBucket;
-
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-
-    const { data, error } = await supabase
-      .from("media_library")
-      .insert({
-        file_name: fileName,
-        original_name: file.name,
-        file_path: folder ? `${folder}/${fileName}` : fileName,
-        file_url: uploadResult.url,
-        file_size: file.size,
-        mime_type: file.type,
-        alt_text: options.altText || null,
-        folder,
-        bucket: finalBucket,
-        tags: options.tags || [],
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Error creating media item record:", error);
-      return {
-        success: false,
-        error: "File uploaded but failed to register in database.",
-      };
-    }
-
-    return {
-      success: true,
-      data: data as MediaItem,
-    };
-  } catch (error) {
-    console.error("Upload media item exception:", error);
-    return {
-      success: false,
-      error: "An unexpected error occurred during the upload process.",
-    };
-  }
-}
-
 
     if (!uploadResult.success || !uploadResult.url) {
       return {
         success: false,
-        error:
-          uploadResult.error ||
-          "Failed to upload file. Make sure storage buckets are created.",
+        error: uploadResult.error || "Failed to upload file to storage.",
       };
     }
 
-    const bucketUsed = uploadResult.url.includes(
-      "/storage/v1/object/public/products/",
-    )
+    const bucketUsed = uploadResult.url.includes("/public/products/")
       ? "products"
       : requestedBucket;
-
     const fileExt = file.name.split(".").pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
@@ -301,7 +232,7 @@ export async function uploadMediaItem(
       console.error("Error creating media item record:", error);
       return {
         success: false,
-        error: "Uploaded file but failed to create database record.",
+        error: "File uploaded but database registration failed.",
       };
     }
 
@@ -313,7 +244,7 @@ export async function uploadMediaItem(
     console.error("Upload media item exception:", error);
     return {
       success: false,
-      error: "An unexpected error occurred during upload process.",
+      error: "An unexpected error occurred during upload.",
     };
   }
 }

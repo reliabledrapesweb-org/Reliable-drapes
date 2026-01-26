@@ -135,8 +135,8 @@ export default function AdminApplicationsPage() {
         app.full_name.toLowerCase().includes(searchLower) ||
         app.email.toLowerCase().includes(searchLower) ||
         app.phone.includes(searchQuery) ||
-        app.job_title.toLowerCase().includes(searchLower) ||
-        app.job_type.toLowerCase().includes(searchLower)
+        (app.job_title?.toLowerCase().includes(searchLower) ?? false) ||
+        (app.job_type?.toLowerCase().includes(searchLower) ?? false)
       );
     });
 

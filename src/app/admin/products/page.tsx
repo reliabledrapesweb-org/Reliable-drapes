@@ -946,19 +946,19 @@ export default function AdminProductsPage() {
 
             // If it's the first image, set as primary product image
             if (i === 0) {
-              const updateResult = await updateProduct(productId, {
+              const pResult = await updateProduct(productId, {
                 image_url: fileUrl,
               });
-              if (!updateResult.success) {
+              if (!pResult.success) {
                 console.warn(
                   `Failed to update product ${productId} main image:`,
-                  updateResult.error,
+                  pResult.error,
                 );
               }
             }
 
             // Add to product gallery
-            const galleryResult = await addProductImage({
+            const gResult = await addProductImage({
               product_id: productId,
               image_url: fileUrl,
               alt_text: altText,
@@ -966,12 +966,12 @@ export default function AdminProductsPage() {
               sort_order: i,
             });
 
-            if (galleryResult.success) {
+            if (gResult.success) {
               successCount++;
             } else {
               console.warn(
                 `Failed to add image to gallery for product ${productId}:`,
-                galleryResult.error,
+                gResult.error,
               );
             }
           } else {

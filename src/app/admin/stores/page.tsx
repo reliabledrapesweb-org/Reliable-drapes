@@ -2,7 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, MapPin, Phone, Mail, Edit, Trash2, Eye, EyeOff, X } from "lucide-react";
+import {
+  Plus,
+  MapPin,
+  Phone,
+  Mail,
+  Edit,
+  Trash2,
+  Eye,
+  EyeOff,
+  X,
+  Search,
+} from "lucide-react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AdminPageSkeleton } from "@/components/ui/AdminPageSkeleton";
@@ -23,11 +35,14 @@ export default function StoresAdminPage() {
   const { isAdmin, isLoading: adminLoading } = useAdmin();
   const [stores, setStores] = useState<Store[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingStore, setEditingStore] = useState<Store | null>(null);
-  const [actionLoading, setActionLoading] = useState<{[key: string]: string | null}>({});
+  const [actionLoading, setActionLoading] = useState<{
+    [key: string]: string | null;
+  }>({});
   const { toasts, addToast, removeToast } = useToast();
-  
+
   const [confirmAction, setConfirmAction] = useState<{
     type: "delete" | "toggle" | null;
     storeId?: string;
@@ -64,6 +79,19 @@ export default function StoresAdminPage() {
     }
     setIsLoading(false);
   };
+
+  const filteredStores = stores.filter((store) => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      store.name.toLowerCase().includes(searchLower) ||
+      store.city.toLowerCase().includes(searchLower) ||
+      store.address.toLowerCase().includes(searchLower) ||
+      (store.state && store.state.toLowerCase().includes(searchLower)) ||
+      store.country.toLowerCase().includes(searchLower) ||
+      (store.email && store.email.toLowerCase().includes(searchLower)) ||
+      (store.phone && store.phone.includes(searchQuery))
+    );
+  });
 
   const handleDelete = (id: string, name: string) => {
     setConfirmAction({ type: "delete", storeId: id, storeName: name });
@@ -123,7 +151,7 @@ export default function StoresAdminPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const actionKey = editingStore ? "update" : "create";
-    setActionLoading(prev => ({ ...prev, [actionKey]: actionKey }));
+    setActionLoading((prev) => ({ ...prev, [actionKey]: actionKey }));
 
     try {
       if (editingStore) {
@@ -146,13 +174,16 @@ export default function StoresAdminPage() {
         }
       }
     } finally {
-      setActionLoading(prev => ({ ...prev, [actionKey]: null }));
+      setActionLoading((prev) => ({ ...prev, [actionKey]: null }));
     }
   };
 
   const executeDelete = async () => {
     if (!confirmAction.storeId) return;
-    setActionLoading(prev => ({ ...prev, [`delete-${confirmAction.storeId}`]: "delete" }));
+    setActionLoading((prev) => ({
+      ...prev,
+      [`delete-${confirmAction.storeId}`]: "delete",
+    }));
 
     try {
       const result = await deleteStore(confirmAction.storeId);
@@ -165,18 +196,30 @@ export default function StoresAdminPage() {
         setConfirmAction({ type: null });
       }
     } finally {
-      setActionLoading(prev => ({ ...prev, [`delete-${confirmAction.storeId}`]: null }));
+      setActionLoading((prev) => ({
+        ...prev,
+        [`delete-${confirmAction.storeId}`]: null,
+      }));
     }
   };
 
   const executeToggleStatus = async () => {
     if (!confirmAction.storeId || confirmAction.isActive === undefined) return;
-    setActionLoading(prev => ({ ...prev, [`toggle-${confirmAction.storeId}`]: "toggle" }));
+    setActionLoading((prev) => ({
+      ...prev,
+      [`toggle-${confirmAction.storeId}`]: "toggle",
+    }));
 
     try {
-      const result = await toggleStoreStatus(confirmAction.storeId, confirmAction.isActive);
+      const result = await toggleStoreStatus(
+        confirmAction.storeId,
+        confirmAction.isActive,
+      );
       if (result.success) {
-        addToast(`Store ${confirmAction.isActive ? "activated" : "deactivated"} successfully`, "success");
+        addToast(
+          `Store ${confirmAction.isActive ? "activated" : "deactivated"} successfully`,
+          "success",
+        );
         fetchStores();
         setConfirmAction({ type: null });
       } else {
@@ -184,7 +227,10 @@ export default function StoresAdminPage() {
         setConfirmAction({ type: null });
       }
     } finally {
-      setActionLoading(prev => ({ ...prev, [`toggle-${confirmAction.storeId}`]: null }));
+      setActionLoading((prev) => ({
+        ...prev,
+        [`toggle-${confirmAction.storeId}`]: null,
+      }));
     }
   };
 
@@ -223,19 +269,39 @@ export default function StoresAdminPage() {
         </Button>
       </div>
 
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search stores by name, city, or address..."
+          className="w-full rounded-lg border border-gray-200 py-2.5 pr-4 pl-10 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-800 dark:bg-gray-900"
+        />
+      </div>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-600 sm:text-sm">Total</p>
-          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">{stats.total}</p>
+          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">
+            {stats.total}
+          </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-600 sm:text-sm">Active</p>
-          <p className="mt-1 text-lg font-bold text-green-600 sm:text-2xl">{stats.active}</p>
+          <p className="mt-1 text-lg font-bold text-green-600 sm:text-2xl">
+            {stats.active}
+          </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
-          <p className="text-xs font-medium text-gray-600 sm:text-sm">Inactive</p>
-          <p className="mt-1 text-lg font-bold text-gray-600 sm:text-2xl">{stats.inactive}</p>
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">
+            Inactive
+          </p>
+          <p className="mt-1 text-lg font-bold text-gray-600 sm:text-2xl">
+            {stats.inactive}
+          </p>
         </div>
       </div>
 
@@ -243,37 +309,61 @@ export default function StoresAdminPage() {
       <Card>
         <CardHeader className="px-4 py-3 sm:px-6 sm:py-4">
           <CardTitle className="text-base font-semibold sm:text-lg">
-            Stores ({stores.length})
+            Stores ({filteredStores.length})
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          {stores.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center px-4">
-              <MapPin className="h-12 w-12 text-gray-400" />
-              <h3 className="mt-4 text-base font-medium text-gray-900 sm:text-lg">No stores yet</h3>
-              <p className="mt-2 text-xs text-gray-500 sm:text-sm">Get started by creating your first store.</p>
-              <Button
-                onClick={() => handleOpenModal()}
-                className="mt-4 bg-[#2F2582] hover:bg-[#251e66]"
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add Store
-              </Button>
+          {filteredStores.length === 0 ? (
+            <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
+              {searchQuery ? (
+                <>
+                  <Search className="h-12 w-12 text-gray-300" />
+                  <h3 className="mt-4 text-base font-medium text-gray-900 sm:text-lg">
+                    No matching stores
+                  </h3>
+                  <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+                    No stores found for &quot;{searchQuery}&quot;
+                  </p>
+                </>
+              ) : (
+                <>
+                  <MapPin className="h-12 w-12 text-gray-300" />
+                  <h3 className="mt-4 text-base font-medium text-gray-900 sm:text-lg">
+                    No stores yet
+                  </h3>
+                  <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+                    Get started by creating your first store.
+                  </p>
+                </>
+              )}
+              {!searchQuery && (
+                <Button
+                  onClick={() => handleOpenModal()}
+                  className="mt-4 bg-[#2F2582] hover:bg-[#251e66]"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Store
+                </Button>
+              )}
             </div>
           ) : (
             <>
               {/* Mobile Card View */}
               <div className="divide-y divide-gray-100 sm:hidden">
-                {stores.map((store) => (
-                  <div key={store.id} className="p-4 space-y-3">
+                {filteredStores.map((store) => (
+                  <div key={store.id} className="space-y-3 p-4">
                     <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
+                      <div className="flex min-w-0 items-center gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2F2582] text-white">
                           <MapPin className="h-5 w-5" />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-medium text-gray-900 truncate">{store.name}</h3>
-                          <p className="text-xs text-gray-500 truncate">{store.address}</p>
+                          <h3 className="truncate font-medium text-gray-900">
+                            {store.name}
+                          </h3>
+                          <p className="truncate text-xs text-gray-500">
+                            {store.address}
+                          </p>
                         </div>
                       </div>
                       <button
@@ -288,9 +378,12 @@ export default function StoresAdminPage() {
                         {store.is_active ? "Active" : "Inactive"}
                       </button>
                     </div>
-                    
-                    <div className="text-xs text-gray-600 space-y-1">
-                      <p>{store.city}, {store.state && `${store.state}, `}{store.country}</p>
+
+                    <div className="space-y-1 text-xs text-gray-600">
+                      <p>
+                        {store.city}, {store.state && `${store.state}, `}
+                        {store.country}
+                      </p>
                       {store.phone && (
                         <p className="flex items-center gap-1">
                           <Phone className="h-3 w-3" /> {store.phone}
@@ -308,7 +401,7 @@ export default function StoresAdminPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleOpenModal(store)}
-                        className="flex-1 h-9"
+                        className="h-9 flex-1"
                       >
                         <Edit className="mr-1 h-3 w-3" />
                         Edit
@@ -318,7 +411,7 @@ export default function StoresAdminPage() {
                         size="sm"
                         onClick={() => handleDelete(store.id, store.name)}
                         disabled={!!actionLoading[`delete-${store.id}`]}
-                        className="flex-1 h-9 text-red-600 border-red-200 hover:bg-red-50"
+                        className="h-9 flex-1 border-red-200 text-red-600 hover:bg-red-50"
                       >
                         <Trash2 className="mr-1 h-3 w-3" />
                         Delete
@@ -329,19 +422,29 @@ export default function StoresAdminPage() {
               </div>
 
               {/* Desktop Table View */}
-              <div className="hidden sm:block overflow-x-auto">
+              <div className="hidden overflow-x-auto sm:block">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200 bg-gray-50">
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Store</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Location</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600 hidden lg:table-cell">Contact</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-600">Status</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-600">Actions</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                        Store
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                        Location
+                      </th>
+                      <th className="hidden px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase lg:table-cell">
+                        Contact
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {stores.map((store) => (
+                    {filteredStores.map((store) => (
                       <tr key={store.id} className="hover:bg-gray-50">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
@@ -349,21 +452,26 @@ export default function StoresAdminPage() {
                               <MapPin className="h-5 w-5" />
                             </div>
                             <div className="min-w-0">
-                              <p className="font-medium text-gray-900 truncate">{store.name}</p>
-                              <p className="text-xs text-gray-500 truncate max-w-[200px]">{store.address}</p>
+                              <p className="truncate font-medium text-gray-900">
+                                {store.name}
+                              </p>
+                              <p className="max-w-[200px] truncate text-xs text-gray-500">
+                                {store.address}
+                              </p>
                             </div>
                           </div>
                         </td>
                         <td className="px-4 py-3">
                           <div className="text-sm">
                             <p className="font-medium">{store.city}</p>
-                            <p className="text-gray-500 text-xs">
-                              {store.state && `${store.state}, `}{store.country}
+                            <p className="text-xs text-gray-500">
+                              {store.state && `${store.state}, `}
+                              {store.country}
                             </p>
                           </div>
                         </td>
-                        <td className="px-4 py-3 hidden lg:table-cell">
-                          <div className="text-xs space-y-1">
+                        <td className="hidden px-4 py-3 lg:table-cell">
+                          <div className="space-y-1 text-xs">
                             {store.phone && (
                               <p className="flex items-center gap-1 text-gray-600">
                                 <Phone className="h-3 w-3" /> {store.phone}
@@ -460,7 +568,7 @@ export default function StoresAdminPage() {
               initial={{ opacity: 0, y: 100 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 100 }}
-              className="w-full max-h-[90vh] overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-w-2xl sm:rounded-2xl"
+              className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-w-2xl sm:rounded-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-3 sm:px-6 sm:py-4">
@@ -475,7 +583,7 @@ export default function StoresAdminPage() {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4 p-4 sm:p-6">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <label className="mb-1.5 block text-sm font-medium text-gray-700">
@@ -485,8 +593,10 @@ export default function StoresAdminPage() {
                       type="text"
                       required
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                       placeholder="Enter store name"
                     />
                   </div>
@@ -498,8 +608,10 @@ export default function StoresAdminPage() {
                       type="text"
                       required
                       value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      onChange={(e) =>
+                        setFormData({ ...formData, city: e.target.value })
+                      }
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                       placeholder="e.g., Lagos"
                     />
                   </div>
@@ -513,8 +625,10 @@ export default function StoresAdminPage() {
                     type="text"
                     required
                     value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                    onChange={(e) =>
+                      setFormData({ ...formData, address: e.target.value })
+                    }
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                     placeholder="Street address"
                   />
                 </div>
@@ -527,8 +641,10 @@ export default function StoresAdminPage() {
                     <input
                       type="text"
                       value={formData.state}
-                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      onChange={(e) =>
+                        setFormData({ ...formData, state: e.target.value })
+                      }
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                       placeholder="e.g., Lagos State"
                     />
                   </div>
@@ -540,8 +656,10 @@ export default function StoresAdminPage() {
                       type="text"
                       required
                       value={formData.country}
-                      onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      onChange={(e) =>
+                        setFormData({ ...formData, country: e.target.value })
+                      }
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                       placeholder="e.g., Nigeria"
                     />
                   </div>
@@ -552,8 +670,13 @@ export default function StoresAdminPage() {
                     <input
                       type="text"
                       value={formData.postal_code}
-                      onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          postal_code: e.target.value,
+                        })
+                      }
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                       placeholder="100001"
                     />
                   </div>
@@ -567,8 +690,10 @@ export default function StoresAdminPage() {
                     <input
                       type="tel"
                       value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                       placeholder="+234 XXX XXX XXXX"
                     />
                   </div>
@@ -579,8 +704,10 @@ export default function StoresAdminPage() {
                     <input
                       type="email"
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                       placeholder="store@example.com"
                     />
                   </div>
@@ -595,8 +722,15 @@ export default function StoresAdminPage() {
                       type="number"
                       step="any"
                       value={formData.latitude || ""}
-                      onChange={(e) => setFormData({ ...formData, latitude: e.target.value ? parseFloat(e.target.value) : undefined })}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          latitude: e.target.value
+                            ? parseFloat(e.target.value)
+                            : undefined,
+                        })
+                      }
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                       placeholder="6.5244"
                     />
                   </div>
@@ -608,8 +742,15 @@ export default function StoresAdminPage() {
                       type="number"
                       step="any"
                       value={formData.longitude || ""}
-                      onChange={(e) => setFormData({ ...formData, longitude: e.target.value ? parseFloat(e.target.value) : undefined })}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          longitude: e.target.value
+                            ? parseFloat(e.target.value)
+                            : undefined,
+                        })
+                      }
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                       placeholder="3.3792"
                     />
                   </div>
@@ -629,13 +770,15 @@ export default function StoresAdminPage() {
                     disabled={!!actionLoading.create || !!actionLoading.update}
                     className="w-full bg-[#2F2582] hover:bg-[#251e66] sm:flex-1"
                   >
-                    {(actionLoading.create || actionLoading.update) ? (
+                    {actionLoading.create || actionLoading.update ? (
                       <div className="flex items-center gap-2">
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                         {editingStore ? "Updating..." : "Creating..."}
                       </div>
+                    ) : editingStore ? (
+                      "Update Store"
                     ) : (
-                      editingStore ? "Update Store" : "Create Store"
+                      "Create Store"
                     )}
                   </Button>
                 </div>
