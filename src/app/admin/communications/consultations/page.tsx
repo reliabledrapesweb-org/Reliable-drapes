@@ -19,6 +19,7 @@ import {
   Check,
   X,
   AlertCircle,
+  Search,
 } from "lucide-react";
 import {
   getConsultationRequests,
@@ -35,6 +36,7 @@ export default function ConsultationsPage() {
     useState<ConsultationRequest | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filter, setFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchRequests = async () => {
     setIsLoading(true);
@@ -174,6 +176,17 @@ export default function ConsultationsPage() {
   const filteredRequests =
     filter === "all" ? requests : requests.filter((r) => r.status === filter);
 
+  const finalFilteredRequests = filteredRequests.filter((r) => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      r.name.toLowerCase().includes(searchLower) ||
+      r.email.toLowerCase().includes(searchLower) ||
+      r.phone.includes(searchQuery) ||
+      (r.message && r.message.toLowerCase().includes(searchLower)) ||
+      (r.service_type && r.service_type.toLowerCase().includes(searchLower))
+    );
+  });
+
   const stats = {
     total: requests.length,
     pending: requests.filter((r) => r.status === "pending").length,
@@ -274,25 +287,51 @@ export default function ConsultationsPage() {
         )}
       </div>
 
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Search by name, email, phone or service..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full rounded-lg border border-gray-200 py-2.5 pr-4 pl-10 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-800 dark:bg-gray-900"
+        />
+      </div>
+
       {/* Requests List */}
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2F2582] border-t-transparent" />
           </div>
-        ) : filteredRequests.length === 0 ? (
+        ) : finalFilteredRequests.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
-            <Calendar className="mb-3 h-12 w-12 text-gray-300" />
-            <p className="text-base font-medium text-gray-900 sm:text-lg">
-              No requests found
-            </p>
-            <p className="mt-1 text-xs text-gray-500 sm:text-sm">
-              Consultation requests will appear here
-            </p>
+            {searchQuery ? (
+              <>
+                <Search className="h-12 w-12 text-gray-300" />
+                <h3 className="mt-4 text-base font-medium text-gray-900 sm:text-lg">
+                  No matching requests
+                </h3>
+                <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+                  No consultation requests found for &quot;{searchQuery}&quot;
+                </p>
+              </>
+            ) : (
+              <>
+                <Calendar className="mb-3 h-12 w-12 text-gray-300" />
+                <p className="text-base font-medium text-gray-900 sm:text-lg">
+                  No requests found
+                </p>
+                <p className="mt-1 text-xs text-gray-500 sm:text-sm">
+                  Consultation requests will appear here
+                </p>
+              </>
+            )}
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
-            {filteredRequests.map((request, index) => (
+            {finalFilteredRequests.map((request, index) => (
               <motion.div
                 key={request.id}
                 initial={{ opacity: 0, y: 20 }}

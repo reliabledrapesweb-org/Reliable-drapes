@@ -32,6 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Search,
   Plus,
   BookOpen,
   Download,
@@ -63,6 +64,7 @@ export default function CataloguesPage() {
   const [actionLoading, setActionLoading] = useState<{
     [key: string]: string | null;
   }>({});
+  const [searchQuery, setSearchQuery] = useState("");
   const { toasts, addToast, removeToast } = useToast();
 
   // Form state
@@ -167,6 +169,18 @@ export default function CataloguesPage() {
       setActionLoading((prev) => ({ ...prev, [actionKey]: null }));
     }
   };
+
+  const filteredCatalogues = catalogues.filter((catalogue) => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      catalogue.title.toLowerCase().includes(searchLower) ||
+      catalogue.category.toLowerCase().includes(searchLower) ||
+      (catalogue.description &&
+        catalogue.description.toLowerCase().includes(searchLower)) ||
+      (catalogue.subtitle &&
+        catalogue.subtitle.toLowerCase().includes(searchLower))
+    );
+  });
 
   const [confirmAction, setConfirmAction] = useState<{
     type: "delete" | "toggle" | null;
@@ -321,36 +335,66 @@ export default function CataloguesPage() {
         </div>
       </div>
 
+      {/* Search and Filters */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search catalogues by title or category..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full rounded-lg border border-gray-200 py-2.5 pr-4 pl-10 text-sm transition-all focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-800 dark:bg-gray-900"
+          />
+        </div>
+      </div>
+
       {/* Catalogues List */}
       <Card>
         <CardHeader className="px-4 py-3 sm:px-6 sm:py-4">
           <CardTitle className="text-base font-semibold sm:text-lg">
-            Catalogues ({catalogues.length})
+            Catalogues ({filteredCatalogues.length})
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          {catalogues.length === 0 ? (
+          {filteredCatalogues.length === 0 ? (
             <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
-              <BookOpen className="h-12 w-12 text-gray-400" />
-              <h3 className="mt-4 text-base font-medium text-gray-900 sm:text-lg">
-                No catalogues yet
-              </h3>
-              <p className="mt-2 text-xs text-gray-500 sm:text-sm">
-                Get started by creating your first catalogue.
-              </p>
-              <Button
-                onClick={() => handleOpenModal()}
-                className="mt-4 bg-[#2F2582] hover:bg-[#251e66]"
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add Catalogue
-              </Button>
+              {searchQuery ? (
+                <>
+                  <Search className="h-12 w-12 text-gray-300" />
+                  <h3 className="mt-4 text-base font-medium text-gray-900 sm:text-lg">
+                    No matching catalogues
+                  </h3>
+                  <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+                    No catalogues found for &quot;{searchQuery}&quot;
+                  </p>
+                </>
+              ) : (
+                <>
+                  <BookOpen className="h-12 w-12 text-gray-300" />
+                  <h3 className="mt-4 text-base font-medium text-gray-900 sm:text-lg">
+                    No catalogues yet
+                  </h3>
+                  <p className="mt-2 text-xs text-gray-500 sm:text-sm">
+                    Get started by creating your first catalogue.
+                  </p>
+                </>
+              )}
+              {!searchQuery && (
+                <Button
+                  onClick={() => handleOpenModal()}
+                  className="mt-4 bg-[#2F2582] hover:bg-[#251e66]"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Catalogue
+                </Button>
+              )}
             </div>
           ) : (
             <>
               {/* Mobile Card View */}
               <div className="divide-y divide-gray-100 sm:hidden">
-                {catalogues.map((catalogue) => (
+                {filteredCatalogues.map((catalogue) => (
                   <div key={catalogue.id} className="space-y-3 p-4">
                     <div className="flex items-start gap-3">
                       <div className="shrink-0">
@@ -475,7 +519,7 @@ export default function CataloguesPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {catalogues.map((catalogue) => (
+                    {filteredCatalogues.map((catalogue) => (
                       <tr key={catalogue.id} className="hover:bg-gray-50">
                         <td className="px-4 py-3">
                           <div className="flex items-center space-x-3">

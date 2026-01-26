@@ -186,27 +186,24 @@ export default function OrderDetailsPage() {
           </div>
         </div>
 
-                <div className="flex items-center gap-3">
-                    {/* Status Changer */}
-                    <Select 
-                        value={order.status} 
-                        onValueChange={handleStatusUpdate}
-                        disabled={isUpdating}
-                    >
-                        <SelectTrigger className="w-[180px] bg-white">
-                            <SelectValue placeholder="Select Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {statusOptions.map(option => (
-                                <SelectItem key={option} value={option}>
-                                    {option.charAt(0).toUpperCase() + option.slice(1)}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-
-          </div>
+        <div className="flex items-center gap-3">
+          {/* Status Changer */}
+          <Select
+            value={order.status}
+            onValueChange={handleStatusUpdate}
+            disabled={isUpdating}
+          >
+            <SelectTrigger className="w-[180px] bg-white">
+              <SelectValue placeholder="Select Status" />
+            </SelectTrigger>
+            <SelectContent>
+              {statusOptions.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option.charAt(0).toUpperCase() + option.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

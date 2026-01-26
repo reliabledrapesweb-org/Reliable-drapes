@@ -946,20 +946,39 @@ export default function AdminProductsPage() {
 
             // If it's the first image, set as primary product image
             if (i === 0) {
-              await updateProduct(productId, {
+              const updateResult = await updateProduct(productId, {
                 image_url: fileUrl,
               });
+              if (!updateResult.success) {
+                console.warn(
+                  `Failed to update product ${productId} main image:`,
+                  updateResult.error,
+                );
+              }
             }
 
             // Add to product gallery
-            await addProductImage({
+            const galleryResult = await addProductImage({
               product_id: productId,
               image_url: fileUrl,
               alt_text: altText,
               is_primary: i === 0,
               sort_order: i,
             });
-            successCount++;
+
+            if (galleryResult.success) {
+              successCount++;
+            } else {
+              console.warn(
+                `Failed to add image to gallery for product ${productId}:`,
+                galleryResult.error,
+              );
+            }
+          } else {
+            console.error(
+              `Upload failed for file ${file.name}:`,
+              uploadResult.error,
+            );
           }
           processedCount++;
           setMassUploadProgress((prev) => ({

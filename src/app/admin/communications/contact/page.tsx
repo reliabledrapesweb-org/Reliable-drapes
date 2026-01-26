@@ -18,6 +18,7 @@ import {
   Check,
   Clock,
   Archive,
+  Search,
 } from "lucide-react";
 import {
   getContactSubmissions,
@@ -34,6 +35,7 @@ export default function ContactSubmissionsPage() {
     useState<ContactSubmission | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filter, setFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchSubmissions = async () => {
     setIsLoading(true);
@@ -102,10 +104,18 @@ export default function ContactSubmissionsPage() {
     }
   };
 
-  const filteredSubmissions =
-    filter === "all"
-      ? submissions
-      : submissions.filter((s) => s.status === filter);
+  const filteredSubmissions = submissions
+    .filter((s) => (filter === "all" ? true : s.status === filter))
+    .filter((s) => {
+      const searchLower = searchQuery.toLowerCase();
+      return (
+        s.name.toLowerCase().includes(searchLower) ||
+        s.email.toLowerCase().includes(searchLower) ||
+        s.subject.toLowerCase().includes(searchLower) ||
+        s.message.toLowerCase().includes(searchLower) ||
+        (s.phone && s.phone.includes(searchQuery))
+      );
+    });
 
   const stats = {
     total: submissions.length,
@@ -203,6 +213,18 @@ export default function ContactSubmissionsPage() {
         ))}
       </div>
 
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Search by name, email, subject or message..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full rounded-lg border border-gray-200 py-2.5 pr-4 pl-10 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-800 dark:bg-gray-900"
+        />
+      </div>
+
       {/* Submissions List */}
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
         {isLoading ? (
@@ -211,13 +233,27 @@ export default function ContactSubmissionsPage() {
           </div>
         ) : filteredSubmissions.length === 0 ? (
           <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
-            <Mail className="mb-3 h-12 w-12 text-gray-300" />
-            <p className="text-base font-medium text-gray-900 sm:text-lg">
-              No submissions found
-            </p>
-            <p className="mt-1 text-xs text-gray-500 sm:text-sm">
-              Contact submissions will appear here
-            </p>
+            {searchQuery ? (
+              <>
+                <Search className="h-12 w-12 text-gray-300" />
+                <h3 className="mt-4 text-base font-medium text-gray-900 sm:text-lg">
+                  No matching submissions
+                </h3>
+                <p className="mt-1 text-xs text-gray-500 sm:text-sm">
+                  No contact submissions found for &quot;{searchQuery}&quot;
+                </p>
+              </>
+            ) : (
+              <>
+                <Mail className="mb-3 h-12 w-12 text-gray-300" />
+                <p className="text-base font-medium text-gray-900 sm:text-lg">
+                  No submissions found
+                </p>
+                <p className="mt-1 text-xs text-gray-500 sm:text-sm">
+                  Contact submissions will appear here
+                </p>
+              </>
+            )}
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
