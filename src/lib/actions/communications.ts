@@ -44,13 +44,11 @@ export async function createContactSubmission(
       .single();
 
     if (error) {
-
       return { success: false, error: error.message };
     }
 
     return { success: true, data: submission };
   } catch (error) {
-
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -70,13 +68,11 @@ export async function getContactSubmissions(): Promise<
       .order("created_at", { ascending: false });
 
     if (error) {
-
       return { success: false, error: error.message };
     }
 
     return { success: true, data: data || [] };
   } catch (error) {
-
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -97,13 +93,11 @@ export async function updateContactSubmission(
       .eq("id", id);
 
     if (error) {
-
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -123,13 +117,11 @@ export async function deleteContactSubmission(
       .eq("id", id);
 
     if (error) {
-
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -210,13 +202,11 @@ export async function createConsultationRequest(
       .single();
 
     if (error) {
-
       return { success: false, error: error.message };
     }
 
     return { success: true, data: request };
   } catch (error) {
-
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -236,13 +226,11 @@ export async function getConsultationRequests(): Promise<
       .order("created_at", { ascending: false });
 
     if (error) {
-
       return { success: false, error: error.message };
     }
 
     return { success: true, data: data || [] };
   } catch (error) {
-
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -276,13 +264,11 @@ export async function updateConsultationRequest(
       .eq("id", id);
 
     if (error) {
-
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -302,13 +288,11 @@ export async function deleteConsultationRequest(
       .eq("id", id);
 
     if (error) {
-
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -351,8 +335,8 @@ export async function createNewsletterSubscriber(
           .eq("id", existing.id)
           .select()
           .single();
-
         if (error) {
+          console.error("Error creating contact submission:", error);
           return { success: false, error: error.message };
         }
 
@@ -370,13 +354,11 @@ export async function createNewsletterSubscriber(
       .single();
 
     if (error) {
-
       return { success: false, error: error.message };
     }
 
     return { success: true, data: subscriber };
   } catch (error) {
-
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -396,13 +378,11 @@ export async function getNewsletterSubscribers(): Promise<
       .order("subscribed_at", { ascending: false });
 
     if (error) {
-
       return { success: false, error: error.message };
     }
 
     return { success: true, data: data || [] };
   } catch (error) {
-
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -428,13 +408,11 @@ export async function updateNewsletterSubscriber(
       .eq("id", id);
 
     if (error) {
-
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -454,13 +432,11 @@ export async function deleteNewsletterSubscriber(
       .eq("id", id);
 
     if (error) {
-
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -498,13 +474,11 @@ export async function createNewsletterCampaign(
       .single();
 
     if (error) {
-
       return { success: false, error: error.message };
     }
 
     return { success: true, data: campaign };
   } catch (error) {
-
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -524,13 +498,11 @@ export async function getNewsletterCampaigns(): Promise<
       .order("created_at", { ascending: false });
 
     if (error) {
-
       return { success: false, error: error.message };
     }
 
     return { success: true, data: data || [] };
   } catch (error) {
-
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -614,7 +586,6 @@ export async function sendNewsletterCampaign(
       .eq("id", campaignId);
 
     if (updateError) {
-
       return { success: false, error: "Failed to update campaign status" };
     }
 
@@ -630,7 +601,6 @@ export async function sendNewsletterCampaign(
       },
     };
   } catch (error) {
-
     // Update campaign status to failed
     const supabase = await supabaseServer();
     await supabase

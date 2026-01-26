@@ -104,6 +104,10 @@ export default function AdminProductsPage() {
     productId?: string;
     productName?: string;
   }>({ type: null });
+  const [dependencyErrorModal, setDependencyErrorModal] = useState<{
+    isOpen: boolean;
+    productName: string;
+  }>({ isOpen: false, productName: "" });
 
   const [productsMissingImages, setProductsMissingImages] = useState<
     Array<{ id: string; name: string; sku: string | null }>
@@ -276,7 +280,6 @@ export default function AdminProductsPage() {
         }
       }
     } catch (error) {
-
       addToast("An unexpected error occurred", "error");
     } finally {
       setActionLoading((prev) => ({ ...prev, [actionKey]: null }));
@@ -446,7 +449,18 @@ export default function AdminProductsPage() {
         fetchProducts();
         setConfirmAction({ type: null });
       } else {
-        addToast(result.error || "Failed to delete product", "error");
+        // Check if it's a dependency error (linked to orders)
+        if (
+          result.error?.toLowerCase().includes("referenced") ||
+          result.error?.toLowerCase().includes("order")
+        ) {
+          setDependencyErrorModal({
+            isOpen: true,
+            productName: confirmAction.productName || "this product",
+          });
+        } else {
+          addToast(result.error || "Failed to delete product", "error");
+        }
         setConfirmAction({ type: null });
       }
     } finally {
@@ -639,7 +653,6 @@ export default function AdminProductsPage() {
         setImportPreview(validatedData);
         setShowImportModal(true);
       } catch (error) {
-
         addToast("Failed to parse file. Please check the format.", "error");
       } finally {
         setIsParsing(false);
@@ -746,7 +759,6 @@ export default function AdminProductsPage() {
         }, 2000);
       }
     } catch (error) {
-
       addToast("Failed to import products", "error");
     } finally {
       setIsImporting(false);
@@ -980,6 +992,13 @@ export default function AdminProductsPage() {
               uploadResult.error,
             );
           }
+
+          } else {
+            console.error(
+              `Upload failed for file ${file.name}:`,
+              uploadResult.error,
+            );
+          }
           processedCount++;
           setMassUploadProgress((prev) => ({
             ...prev,
@@ -1000,7 +1019,6 @@ export default function AdminProductsPage() {
       setMassUploadMatches({});
       fetchProducts();
     } catch (error) {
-
       addToast("Failed to complete mass upload", "error");
     } finally {
       setIsMassUploading(false);
@@ -2735,6 +2753,63 @@ export default function AdminProductsPage() {
       />
 
       <ToastContainer toasts={toasts} removeToast={removeToast} />
+
+      {/* Dependency Warning Modal */}
+      <ConfirmationModal
+        isOpen={dependencyErrorModal.isOpen}
+        title="Cannot Delete Product"
+        message={
+          <div className="space-y-4 text-left">
+            <p className="text-sm text-gray-600">
+              The product{" "}
+              <span className="font-bold text-gray-900">
+                &quot;{dependencyErrorModal.productName}&quot;
+              </span>{" "}
+              is currently linked to existing customer orders.
+            </p>
+            <div className="rounded-xl border border-amber-100 bg-amber-50 p-4">
+              <div className="flex gap-3">
+                <AlertCircle className="h-5 w-5 shrink-0 text-amber-600" />
+                <div>
+                  <p className="text-xs font-bold tracking-wider text-amber-800 uppercase">
+                    Business Rule
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-amber-700">
+                    To preserve order history and ensure customer receipts
+                    remain accurate, products that have been purchased cannot be
+                    permanently deleted from the database.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+              <div className="flex gap-3">
+                <Info className="h-5 w-5 shrink-0 text-blue-600" />
+                <div>
+                  <p className="text-xs font-bold tracking-wider text-blue-800 uppercase">
+                    Pro-Tip
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-blue-700">
+                    If you want to stop selling this product, we recommend{" "}
+                    <span className="font-bold">Deactivating</span> it or
+                    removing it from all categories. This keeps it hidden from
+                    the shop while maintaining record integrity.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+        confirmText="I Understand"
+        variant="info"
+        onConfirm={() =>
+          setDependencyErrorModal({ isOpen: false, productName: "" })
+        }
+        onCancel={() =>
+          setDependencyErrorModal({ isOpen: false, productName: "" })
+        }
+        showCancel={false}
+      />
     </div>
   );
 }

@@ -98,7 +98,6 @@ export async function getMediaItems(
     const { data, error, count } = await query;
 
     if (error) {
-
       return {
         success: false,
         error: "Failed to fetch media items",
@@ -111,7 +110,6 @@ export async function getMediaItems(
       total: count || 0,
     };
   } catch (error) {
-
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -144,7 +142,6 @@ export async function getMediaItemById(id: string): Promise<MediaItemResponse> {
       data: data as MediaItem,
     };
   } catch (error) {
-
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -178,9 +175,7 @@ export async function uploadMediaItem(
       if (!bucketExists) {
         await supabase.storage.createBucket(requestedBucket, { public: true });
       }
-    } catch (e) {
-
-    }
+    } catch (e) {}
 
     // 2. Perform the upload
     let uploadResult = await uploadFile(
@@ -229,7 +224,7 @@ export async function uploadMediaItem(
       .single();
 
     if (error) {
-
+      console.error("Error creating media item record:", error);
       return {
         success: false,
         error: "File uploaded but database registration failed.",
@@ -241,7 +236,7 @@ export async function uploadMediaItem(
       data: data as MediaItem,
     };
   } catch (error) {
-
+    console.error("Upload media item exception:", error);
     return {
       success: false,
       error: "An unexpected error occurred during upload.",
@@ -288,7 +283,6 @@ export async function uploadMultipleMediaItems(
       failed,
     };
   } catch (error) {
-
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -318,7 +312,6 @@ export async function updateMediaItem(
       .single();
 
     if (error) {
-
       return {
         success: false,
         error: "Failed to update media item",
@@ -330,7 +323,6 @@ export async function updateMediaItem(
       data: data as MediaItem,
     };
   } catch (error) {
-
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -379,7 +371,6 @@ export async function deleteMediaItem(id: string): Promise<{
       .eq("id", id);
 
     if (deleteError) {
-
       return {
         success: false,
         error: "Failed to delete media item",
@@ -390,7 +381,6 @@ export async function deleteMediaItem(id: string): Promise<{
       success: true,
     };
   } catch (error) {
-
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -420,7 +410,6 @@ export async function getStorageStats(): Promise<{
       .select("file_size, folder, bucket");
 
     if (error) {
-
       return {
         success: false,
         error: "Failed to fetch storage stats",
@@ -458,7 +447,6 @@ export async function getStorageStats(): Promise<{
       },
     };
   } catch (error) {
-
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -482,7 +470,6 @@ export async function getFolders(): Promise<{
       .select("folder");
 
     if (error) {
-
       return {
         success: false,
         error: "Failed to fetch folders",
@@ -498,7 +485,6 @@ export async function getFolders(): Promise<{
       data: folders,
     };
   } catch (error) {
-
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -617,7 +603,6 @@ export async function syncExistingFiles(): Promise<{
       },
     };
   } catch (error) {
-
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -646,7 +631,6 @@ export async function getStorageBucketsInfo(): Promise<{
       .select("bucket, file_size");
 
     if (error) {
-
       return {
         success: false,
         error: "Failed to fetch bucket info",
@@ -683,7 +667,6 @@ export async function getStorageBucketsInfo(): Promise<{
       data: result,
     };
   } catch (error) {
-
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -742,7 +725,6 @@ export async function getMediaUsage(fileUrl: string): Promise<{
       },
     };
   } catch (error) {
-
     return {
       success: false,
       error: "An unexpected error occurred",

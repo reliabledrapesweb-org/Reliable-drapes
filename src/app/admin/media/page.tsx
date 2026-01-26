@@ -440,20 +440,20 @@ export default function MediaLibraryPage() {
       <ToastContainer toasts={toasts} removeToast={removeToast} />
 
       {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl lg:text-3xl">
+          <h1 className="text-3xl font-black tracking-tight text-gray-900 sm:text-4xl dark:text-white">
             Media Library
           </h1>
-          <p className="mt-1 text-xs text-gray-600 sm:text-sm">
+          <p className="mt-2 text-sm font-medium text-gray-500 dark:text-gray-400">
             Manage and organize all your media files
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 min-[400px]:flex-row sm:gap-3">
           <Button
             onClick={() => setShowSyncModal(true)}
             variant="outline"
-            className="w-full sm:w-auto"
+            className="w-full rounded-xl border-gray-200 sm:w-auto"
             disabled={isSyncing}
           >
             {isSyncing ? (
@@ -465,7 +465,7 @@ export default function MediaLibraryPage() {
           </Button>
           <Button
             onClick={() => setShowUploadModal(true)}
-            className="w-full bg-[#2F2582] hover:bg-[#241c66] sm:w-auto"
+            className="w-full rounded-xl bg-[#2F2582] hover:bg-[#241c66] sm:w-auto"
           >
             <Upload className="mr-2 h-4 w-4" />
             Upload Media
@@ -474,7 +474,7 @@ export default function MediaLibraryPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
           <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase">
             Total Files
@@ -494,7 +494,7 @@ export default function MediaLibraryPage() {
             </span>
           </p>
         </div>
-        <div className="col-span-2 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:col-span-1 dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm min-[400px]:col-span-2 lg:col-span-1 dark:border-gray-800 dark:bg-gray-900">
           <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase">
             Folders
           </p>
@@ -505,8 +505,8 @@ export default function MediaLibraryPage() {
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="relative flex-1">
+      <div className="flex flex-col gap-4">
+        <div className="relative w-full">
           <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
@@ -516,45 +516,47 @@ export default function MediaLibraryPage() {
             className="w-full rounded-2xl border border-gray-100 py-3 pr-4 pl-12 text-sm shadow-sm transition-all focus:border-[#2F2582] focus:ring-4 focus:ring-[#2F2582]/5 focus:outline-none dark:border-gray-800 dark:bg-gray-900"
           />
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex flex-1 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm sm:flex-none dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <button
               onClick={() => setViewMode("grid")}
               className={cn(
-                "flex-1 p-2.5 px-4 transition-colors sm:flex-none",
+                "p-2.5 px-4 transition-colors",
                 viewMode === "grid"
                   ? "bg-gray-100 text-[#2F2582] dark:bg-gray-800 dark:text-[#a099ff]"
                   : "text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50",
               )}
             >
-              <FolderKanban className="mx-auto h-4 w-4" />
+              <FolderKanban className="h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode("list")}
               className={cn(
-                "flex-1 border-l border-gray-100 p-2.5 px-4 transition-colors sm:flex-none dark:border-gray-800",
+                "border-l border-gray-100 p-2.5 px-4 transition-colors dark:border-gray-800",
                 viewMode === "list"
                   ? "bg-gray-100 text-[#2F2582] dark:bg-gray-800 dark:text-[#a099ff]"
                   : "text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50",
               )}
             >
-              <FileText className="mx-auto h-4 w-4" />
+              <FileText className="h-4 w-4" />
             </button>
           </div>
 
-          <Select value={selectedFolder} onValueChange={setSelectedFolder}>
-            <SelectTrigger className="flex-1 rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-[#2F2582] focus:outline-none sm:flex-none dark:border-gray-800 dark:bg-gray-900">
-              <SelectValue placeholder="All Folders" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Folders</SelectItem>
-              {folders.map((folder) => (
-                <SelectItem key={folder} value={folder}>
-                  {folder}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="min-w-[140px] flex-1 sm:flex-none">
+            <Select value={selectedFolder} onValueChange={setSelectedFolder}>
+              <SelectTrigger className="w-full rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-[#2F2582] focus:outline-none sm:w-[180px] dark:border-gray-800 dark:bg-gray-900">
+                <SelectValue placeholder="All Folders" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Folders</SelectItem>
+                {folders.map((folder) => (
+                  <SelectItem key={folder} value={folder}>
+                    {folder}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <Button
             variant={showUnusedOnly ? "default" : "outline"}

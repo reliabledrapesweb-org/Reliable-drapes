@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
   Package,
@@ -22,7 +22,9 @@ import {
   XCircle,
   Image as ImageIcon,
   FileText,
+  Info,
 } from "lucide-react";
+
 import Link from "next/link";
 import { format } from "date-fns";
 import { getUserStats } from "@/lib/actions/users";
@@ -128,43 +130,50 @@ interface QuickActionProps {
   color: string;
 }
 
-function QuickAction({
+function ShortcutIcon({
   title,
   description,
   href,
   icon,
   color,
 }: QuickActionProps) {
-  return (
-    <Link href={href}>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        whileHover={{ y: -4, scale: 1.02 }}
-        className="group relative flex h-full cursor-pointer flex-col gap-4 overflow-hidden rounded-3xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:border-[#2F2582] hover:shadow-xl dark:border-gray-800 dark:bg-gray-900"
-      >
-        <div
-          className={`flex h-12 w-12 items-center justify-center rounded-2xl ${color} transition-transform duration-500 group-hover:rotate-[360deg]`}
-        >
-          {icon}
-        </div>
-        <div className="min-w-0">
-          <h4 className="text-lg font-bold text-gray-900 transition-colors group-hover:text-[#2F2582] dark:text-white">
-            {title}
-          </h4>
-          <p className="mt-1 line-clamp-2 text-sm text-gray-500 dark:text-gray-400">
-            {description}
-          </p>
-        </div>
-        <div className="mt-auto pt-2">
-          <div className="flex items-center gap-1 text-xs font-bold tracking-widest text-[#2F2582] uppercase opacity-0 transition-all group-hover:opacity-100 dark:text-[#a099ff]">
-            Go Now <ArrowRight className="h-3 w-3" />
-          </div>
-        </div>
+  const [isHovered, setIsHovered] = useState(false);
 
-        {/* Decorative element */}
-        <div className="absolute -right-4 -bottom-4 h-16 w-16 rounded-full bg-[#2F2582]/5 transition-transform duration-500 group-hover:scale-[3]" />
+  return (
+    <Link href={href} className="relative">
+      <motion.div
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        whileHover={{ y: -5, scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        className={`flex h-14 w-14 items-center justify-center rounded-2xl ${color} cursor-pointer shadow-sm transition-all duration-300 hover:shadow-lg`}
+      >
+        {icon}
       </motion.div>
+
+      <AnimatePresence>
+        {isHovered && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="absolute bottom-full left-1/2 z-50 mb-3 w-48 -translate-x-1/2 overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-2xl dark:border-gray-800 dark:bg-gray-900"
+          >
+            <div className="relative z-10">
+              <h4 className="text-sm font-bold text-gray-900 dark:text-white">
+                {title}
+              </h4>
+              <p className="mt-1 text-[10px] leading-relaxed text-gray-500 dark:text-gray-400">
+                {description}
+              </p>
+              <div className="mt-2 flex items-center gap-1 text-[10px] font-bold tracking-widest text-[#2F2582] uppercase dark:text-[#a099ff]">
+                Open <ArrowRight className="h-2 w-2" />
+              </div>
+            </div>
+            <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-white dark:bg-gray-900" />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Link>
   );
 }
@@ -279,7 +288,6 @@ export default function AdminDashboard() {
           setRecentMedia(media.data);
         }
       } catch (error) {
-
       } finally {
         setIsLoading(false);
       }
@@ -414,6 +422,26 @@ export default function AdminDashboard() {
               Add Product
             </Button>
           </Link>
+        </div>
+      </motion.div>
+
+      {/* Shortcuts Bar */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="scrollbar-hide flex items-center gap-4 overflow-x-auto pb-2"
+      >
+        <div className="flex h-14 items-center gap-2 border-r border-gray-100 pr-4 dark:border-gray-800">
+          <Info className="h-4 w-4 text-gray-400" />
+          <span className="text-xs font-bold tracking-widest whitespace-nowrap text-gray-400 uppercase">
+            Shortcuts
+          </span>
+        </div>
+        <div className="flex items-center gap-4">
+          {quickActions.map((action, index) => (
+            <ShortcutIcon key={index} {...action} />
+          ))}
         </div>
       </motion.div>
 
@@ -592,24 +620,6 @@ export default function AdminDashboard() {
 
         {/* Right Sidebar */}
         <div className="space-y-8">
-          {/* Quick Actions */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                Quick Actions
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
-              {quickActions.map((action, index) => (
-                <QuickAction key={index} {...action} />
-              ))}
-            </div>
-          </motion.div>
-
           {/* Recent Media */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
