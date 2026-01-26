@@ -1,13 +1,16 @@
 <svg width="800" height="800" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="800" fill="#F8F9FB"/>
+  <circle cx="400" cy="400" r="300" fill="url(#paint0_radial_placeholder)" fill-opacity="0.4"/>
+  <path d="M360 340H440V460H360V340Z" stroke="#2F2582" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.15"/>
+  <path d="M380 340V460" stroke="#2F2582" stroke-width="1" opacity="0.1"/>
+  <path d="M400 340V460" stroke="#2F2582" stroke-width="1" opacity="0.1"/>
+  <path d="M420 340V460" stroke="#2F2582" stroke-width="1" opacity="0.1"/>
+  <path d="M360 380H440" stroke="#2F2582" stroke-width="1" opacity="0.1"/>
+  <path d="M360 420H440" stroke="#2F2582" stroke-width="1" opacity="0.1"/>
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#F9FAFB"/>
-      <stop offset="100%" stop-color="#F3F4F6"/>
-    </linearGradient>
+    <radialGradient id="paint0_radial_placeholder" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(400 400) rotate(90) scale(300)">
+      <stop stop-color="#2F2582" stop-opacity="0.1"/>
+      <stop offset="1" stop-color="#F8F9FB" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-  <rect width="800" height="800" fill="url(#bg)"/>
-  <rect x="330" y="300" width="140" height="110" rx="16" fill="white" stroke="#E5E7EB" stroke-width="2"/>
-  <circle cx="365" cy="335" r="10" fill="#F3F4F6"/>
-  <path d="M331 390L370 345L405 385L445 335L469 365V400C469 405.523 464.523 410 459 410H341C335.477 410 331 405.523 331 400V390Z" fill="#F3F4F6"/>
-  <text x="400" y="470" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="500" fill="#9CA3AF">No Image Available</text>
 </svg>

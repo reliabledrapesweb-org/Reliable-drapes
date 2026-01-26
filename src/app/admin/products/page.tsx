@@ -2040,19 +2040,19 @@ export default function AdminProductsPage() {
       {/* Mass Image Upload Modal */}
       <AnimatePresence>
         {showMassUploadModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl"
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:max-w-2xl sm:rounded-2xl"
             >
-              <div className="mb-6 flex items-center justify-between">
+              <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-4 py-3 sm:px-6 sm:py-4">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">
+                  <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
                     Product Image Matching
                   </h2>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-0.5 text-xs text-gray-500 sm:text-sm">
                     Upload images to match with {productsMissingImages.length}{" "}
                     products in your catalog
                   </p>
@@ -2065,8 +2065,8 @@ export default function AdminProductsPage() {
                 </button>
               </div>
 
-              <div className="space-y-6">
-                <div className="rounded-lg bg-blue-50 p-4 text-sm text-blue-800">
+              <div className="space-y-6 p-4 sm:p-6">
+                <div className="rounded-lg bg-blue-50 p-4 text-xs text-blue-800 sm:text-sm">
                   <p className="font-medium">How this works:</p>
                   <ul className="mt-2 list-disc space-y-1 pl-4">
                     <li>
@@ -2086,7 +2086,7 @@ export default function AdminProductsPage() {
 
                 {/* SKU Helper Section */}
                 <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-                  <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50 px-4 py-3">
+                  <div className="flex flex-col gap-3 border-b border-gray-100 bg-gray-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                     <h3 className="text-sm font-semibold text-gray-900">
                       Target Product List
                     </h3>
@@ -2095,29 +2095,29 @@ export default function AdminProductsPage() {
                         variant="outline"
                         size="sm"
                         onClick={handleCopySkus}
-                        className="h-8 px-3 text-xs"
+                        className="h-8 flex-1 px-3 text-[10px] sm:flex-none sm:text-xs"
                       >
-                        <Copy className="mr-1.5 h-3.5 w-3.5" />
+                        <Copy className="mr-1.5 h-3 w-3 sm:h-3.5 sm:w-3.5" />
                         Copy SKUs
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={handleDownloadSkuList}
-                        className="h-8 px-3 text-xs"
+                        className="h-8 flex-1 px-3 text-[10px] sm:flex-none sm:text-xs"
                       >
-                        <Download className="mr-1.5 h-3.5 w-3.5" />
+                        <Download className="mr-1.5 h-3 w-3 sm:h-3.5 sm:w-3.5" />
                         Download List
                       </Button>
                     </div>
                   </div>
-                  <div className="max-h-48 overflow-y-auto">
+                  <div className="max-h-48 overflow-auto">
                     <table className="w-full text-left text-sm">
-                      <thead className="sticky top-0 bg-white text-xs font-semibold text-gray-500 uppercase">
+                      <thead className="sticky top-0 z-10 bg-white text-[10px] font-semibold text-gray-500 uppercase sm:text-xs">
                         <tr className="border-b border-gray-100">
                           <th className="px-4 py-2">Product Name</th>
                           <th className="px-4 py-2">SKU</th>
-                          <th className="px-4 py-2">Status</th>
+                          <th className="px-4 py-2 text-right">Status</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-50">
@@ -2125,18 +2125,23 @@ export default function AdminProductsPage() {
                           const isMatched = !!massUploadMatches[product.id];
                           return (
                             <tr key={product.id} className="hover:bg-gray-50">
-                              <td className="px-4 py-2 font-medium text-gray-700">
+                              <td className="px-4 py-2 text-xs font-medium text-gray-700 sm:text-sm">
                                 {product.name}
                               </td>
-                              <td className="px-4 py-2 font-mono text-xs text-gray-600">
+                              <td className="px-4 py-2 font-mono text-[10px] text-gray-600 sm:text-xs">
                                 {product.sku || "—"}
                               </td>
-                              <td className="px-4 py-2 text-xs">
+                              <td className="px-4 py-2 text-right text-[10px] sm:text-xs">
                                 {isMatched ? (
                                   <span className="inline-flex items-center text-green-600">
                                     <CheckCircle className="mr-1 h-3 w-3" />
-                                    Matched (
-                                    {massUploadMatches[product.id].length})
+                                    <span className="hidden sm:inline">
+                                      Matched (
+                                      {massUploadMatches[product.id].length})
+                                    </span>
+                                    <span className="sm:hidden">
+                                      {massUploadMatches[product.id].length}
+                                    </span>
                                   </span>
                                 ) : (
                                   <span className="inline-flex items-center text-gray-400">
@@ -2155,18 +2160,18 @@ export default function AdminProductsPage() {
 
                 <div className="space-y-4">
                   <div
-                    className="flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-8 transition-colors hover:border-[#2F2582]"
+                    className="flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-4 py-6 transition-colors hover:border-[#2F2582] sm:px-6 sm:py-8"
                     onDrop={handleMassUploadDrop}
                     onDragOver={handleMassUploadDragOver}
                   >
                     <div className="text-center">
-                      <ImageIcon className="mx-auto h-10 w-10 text-gray-300" />
+                      <ImageIcon className="mx-auto h-8 w-8 text-gray-300 sm:h-10 sm:w-10" />
                       <div className="mt-4 flex text-sm leading-6 text-gray-600">
                         <label
                           htmlFor="mass-file-upload"
                           className="relative cursor-pointer rounded-md bg-white font-semibold text-[#2F2582] focus-within:ring-2 focus-within:ring-[#2F2582] focus-within:ring-offset-2 focus-within:outline-none hover:text-[#241c66]"
                         >
-                          <span>Upload folder/files</span>
+                          <span>Upload files</span>
                           <input
                             id="mass-file-upload"
                             name="mass-file-upload"
@@ -2179,16 +2184,16 @@ export default function AdminProductsPage() {
                         </label>
                         <p className="pl-1">or drag and drop</p>
                       </div>
-                      <p className="text-xs leading-5 text-gray-600">
+                      <p className="text-[10px] leading-5 text-gray-600 sm:text-xs">
                         PNG, JPG, WEBP up to 10MB
                       </p>
                     </div>
                   </div>
 
                   {massUploadFiles.length > 0 && (
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {/* Matched Summary */}
-                      <div className="flex items-center justify-between rounded-lg bg-green-50 px-4 py-3 text-sm font-medium text-green-800">
+                      <div className="flex flex-col gap-2 rounded-lg bg-green-50 px-4 py-3 text-xs font-medium text-green-800 sm:flex-row sm:items-center sm:justify-between sm:text-sm">
                         <div className="flex items-center gap-2">
                           <CheckCircle className="h-4 w-4" />
                           Matched {
@@ -2204,11 +2209,11 @@ export default function AdminProductsPage() {
                       {/* Unmatched Files Warning */}
                       {unmatchedFiles.length > 0 && (
                         <div className="rounded-lg border border-red-100 bg-red-50 p-3">
-                          <div className="flex items-center gap-2 text-sm font-semibold text-red-800">
+                          <div className="flex items-center gap-2 text-xs font-semibold text-red-800 sm:text-sm">
                             <FileWarning className="h-4 w-4" />
                             {unmatchedFiles.length} files could not be matched
                           </div>
-                          <div className="mt-2 max-h-24 overflow-y-auto text-xs text-red-600">
+                          <div className="mt-2 max-h-24 overflow-auto text-[10px] text-red-600 sm:text-xs">
                             <ul className="list-inside list-disc space-y-0.5">
                               {unmatchedFiles.map((file, i) => (
                                 <li key={i} className="truncate">
@@ -2217,49 +2222,18 @@ export default function AdminProductsPage() {
                               ))}
                             </ul>
                           </div>
-                          <p className="mt-2 text-[10px] text-red-500 italic">
-                            Tip: Ensure the file name starts with the exact SKU
-                            or Product Name.
-                          </p>
-                        </div>
-                      )}
-
-                      {/* Still Missing Images Warning */}
-                      {productsMissingImages.some(
-                        (p) => !massUploadMatches[p.id],
-                      ) && (
-                        <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
-                          <div className="flex items-center gap-2 text-sm font-semibold text-amber-800">
-                            <AlertCircle className="h-4 w-4" />
-                            {
-                              productsMissingImages.filter(
-                                (p) => !massUploadMatches[p.id],
-                              ).length
-                            }{" "}
-                            products still need images
-                          </div>
-                          <div className="mt-1 text-xs text-amber-700">
-                            Provide images named with these SKUs:{" "}
-                            {productsMissingImages
-                              .filter((p) => !massUploadMatches[p.id])
-                              .slice(0, 5)
-                              .map((p) => p.sku || p.name)
-                              .join(", ")}
-                            {productsMissingImages.filter(
-                              (p) => !massUploadMatches[p.id],
-                            ).length > 5 && " ..."}
-                          </div>
                         </div>
                       )}
                     </div>
                   )}
                 </div>
 
-                <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">
+                <div className="sticky bottom-0 flex flex-col-reverse gap-3 border-t border-gray-100 bg-white pt-4 sm:flex-row sm:justify-end">
                   <Button
                     variant="outline"
                     onClick={handleCloseMassUploadModal}
                     disabled={isMassUploading}
+                    className="w-full sm:w-auto"
                   >
                     Skip & Close
                   </Button>
@@ -2269,7 +2243,7 @@ export default function AdminProductsPage() {
                       isMassUploading ||
                       Object.keys(massUploadMatches).length === 0
                     }
-                    className="min-w-[140px] bg-[#2F2582] hover:bg-[#241c66]"
+                    className="w-full bg-[#2F2582] hover:bg-[#241c66] sm:min-w-[140px]"
                   >
                     {isMassUploading ? (
                       <>
