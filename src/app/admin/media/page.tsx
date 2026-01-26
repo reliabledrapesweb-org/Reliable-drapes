@@ -544,7 +544,7 @@ export default function MediaLibraryPage() {
 
           <div className="min-w-[160px] flex-1 sm:flex-none">
             <Select value={selectedFolder} onValueChange={setSelectedFolder}>
-              <SelectTrigger className="w-full rounded-2xl border border-gray-100 bg-white h-[52px] px-5 text-sm shadow-sm focus:border-[#2F2582] focus:outline-none dark:border-gray-800 dark:bg-gray-900 sm:w-[200px]">
+              <SelectTrigger className="h-[52px] w-full rounded-2xl border border-gray-100 bg-white px-5 text-sm shadow-sm focus:border-[#2F2582] focus:outline-none sm:w-[200px] dark:border-gray-800 dark:bg-gray-900">
                 <SelectValue placeholder="All Folders" />
               </SelectTrigger>
               <SelectContent className="rounded-2xl border-gray-100">
@@ -562,64 +562,7 @@ export default function MediaLibraryPage() {
             variant={showUnusedOnly ? "default" : "outline"}
             onClick={() => setShowUnusedOnly(!showUnusedOnly)}
             className={cn(
-              "h-[52px] flex-1 rounded-2xl px-6 shadow-sm sm:flex-none font-bold",
-              showUnusedOnly
-                ? "bg-[#2F2582] text-white hover:bg-[#241c66]"
-                : "border-gray-100 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900",
-            )}
-          >
-            {showUnusedOnly ? "Unused Only" : "Show Unused"}
-          </Button>
-        </div>
-      </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={cn(
-                "p-2.5 px-4 transition-colors",
-                viewMode === "grid"
-                  ? "bg-gray-100 text-[#2F2582] dark:bg-gray-800 dark:text-[#a099ff]"
-                  : "text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50",
-              )}
-            >
-              <FolderKanban className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={cn(
-                "border-l border-gray-100 p-2.5 px-4 transition-colors dark:border-gray-800",
-                viewMode === "list"
-                  ? "bg-gray-100 text-[#2F2582] dark:bg-gray-800 dark:text-[#a099ff]"
-                  : "text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50",
-              )}
-            >
-              <FileText className="h-4 w-4" />
-            </button>
-          </div>
-
-          <div className="min-w-[140px] flex-1 sm:flex-none">
-            <Select value={selectedFolder} onValueChange={setSelectedFolder}>
-              <SelectTrigger className="w-full rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-[#2F2582] focus:outline-none sm:w-[180px] dark:border-gray-800 dark:bg-gray-900">
-                <SelectValue placeholder="All Folders" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Folders</SelectItem>
-                {folders.map((folder) => (
-                  <SelectItem key={folder} value={folder}>
-                    {folder}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button
-            variant={showUnusedOnly ? "default" : "outline"}
-            onClick={() => setShowUnusedOnly(!showUnusedOnly)}
-            className={cn(
-              "flex-1 rounded-xl shadow-sm sm:flex-none",
+              "h-[52px] flex-1 rounded-2xl px-6 font-bold shadow-sm sm:flex-none",
               showUnusedOnly
                 ? "bg-[#2F2582] text-white hover:bg-[#241c66]"
                 : "border-gray-100 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900",
