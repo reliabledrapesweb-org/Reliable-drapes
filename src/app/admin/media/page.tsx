@@ -3,6 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Upload,
   Search,
   Filter,
@@ -535,18 +542,19 @@ export default function MediaLibraryPage() {
             </button>
           </div>
 
-          <select
-            value={selectedFolder}
-            onChange={(e) => setSelectedFolder(e.target.value)}
-            className="flex-1 rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-[#2F2582] focus:outline-none sm:flex-none dark:border-gray-800 dark:bg-gray-900"
-          >
-            <option value="all">All Folders</option>
-            {folders.map((folder) => (
-              <option key={folder} value={folder}>
-                {folder}
-              </option>
-            ))}
-          </select>
+          <Select value={selectedFolder} onValueChange={setSelectedFolder}>
+            <SelectTrigger className="flex-1 rounded-xl border border-gray-100 bg-white px-4 py-2.5 text-sm shadow-sm focus:border-[#2F2582] focus:outline-none sm:flex-none dark:border-gray-800 dark:bg-gray-900">
+              <SelectValue placeholder="All Folders" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Folders</SelectItem>
+              {folders.map((folder) => (
+                <SelectItem key={folder} value={folder}>
+                  {folder}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <Button
             variant={showUnusedOnly ? "default" : "outline"}

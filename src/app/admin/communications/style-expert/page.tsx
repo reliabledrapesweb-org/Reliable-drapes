@@ -3,6 +3,13 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Calendar,
   Clock,
   Mail,
@@ -30,9 +37,9 @@ import {
   deleteConsultationRequest,
   type ConsultationRequest,
 } from "@/lib/actions/communications";
-import { 
-  BUDGET_RANGES, 
-  TIMELINES, 
+import {
+  BUDGET_RANGES,
+  TIMELINES,
   PRIORITY_LEVELS,
   PROJECT_TYPES,
   PROPERTY_TYPES,
@@ -43,7 +50,8 @@ import {
 export default function StyleExpertPage() {
   const [requests, setRequests] = useState<ConsultationRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedRequest, setSelectedRequest] = useState<ConsultationRequest | null>(null);
+  const [selectedRequest, setSelectedRequest] =
+    useState<ConsultationRequest | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filter, setFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
@@ -64,7 +72,7 @@ export default function StyleExpertPage() {
 
   const handleStatusChange = async (
     id: string,
-    status: ConsultationRequest["status"]
+    status: ConsultationRequest["status"],
   ) => {
     const result = await updateConsultationRequest(id, { status });
     if (result.success) {
@@ -74,7 +82,7 @@ export default function StyleExpertPage() {
 
   const handlePriorityChange = async (
     id: string,
-    priority: ConsultationRequest["priority"]
+    priority: ConsultationRequest["priority"],
   ) => {
     const result = await updateConsultationRequest(id, { priority });
     if (result.success) {
@@ -144,32 +152,34 @@ export default function StyleExpertPage() {
   const getServiceTypeDisplay = (serviceType: string) => {
     const serviceTypes: Record<string, string> = {
       "interior-design": "Interior Design Consultation",
-      "color-consultation": "Color & Style Consultation", 
+      "color-consultation": "Color & Style Consultation",
       "space-planning": "Space Planning",
-      "custom-design": "Custom Design Solutions"
+      "custom-design": "Custom Design Solutions",
     };
     return serviceTypes[serviceType] || serviceType;
   };
 
   const getBudgetDisplay = (budgetId?: string) => {
     if (!budgetId) return "-";
-    return BUDGET_RANGES.find(b => b.id === budgetId)?.value || budgetId;
+    return BUDGET_RANGES.find((b) => b.id === budgetId)?.value || budgetId;
   };
 
   const getTimelineDisplay = (timelineId?: string) => {
     if (!timelineId) return "-";
-    return TIMELINES.find(t => t.id === timelineId)?.label || timelineId;
+    return TIMELINES.find((t) => t.id === timelineId)?.label || timelineId;
   };
 
   const filteredRequests = requests
     .filter((r) => (filter === "all" ? true : r.status === filter))
-    .filter((r) => (priorityFilter === "all" ? true : r.priority === priorityFilter))
+    .filter((r) =>
+      priorityFilter === "all" ? true : r.priority === priorityFilter,
+    )
     .filter((r) =>
       searchQuery
         ? r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           r.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
           r.phone.includes(searchQuery)
-        : true
+        : true,
     );
 
   const stats = {
@@ -177,9 +187,10 @@ export default function StyleExpertPage() {
     pending: requests.filter((r) => r.status === "pending").length,
     confirmed: requests.filter((r) => r.status === "confirmed").length,
     completed: requests.filter((r) => r.status === "completed").length,
-    highPriority: requests.filter((r) => r.priority === "high" || r.priority === "urgent").length,
+    highPriority: requests.filter(
+      (r) => r.priority === "high" || r.priority === "urgent",
+    ).length,
   };
-
 
   if (isLoading) {
     return (
@@ -188,14 +199,20 @@ export default function StyleExpertPage() {
           <div className="h-6 w-48 animate-pulse rounded bg-gray-200 sm:h-8 sm:w-64" />
           <div className="mt-2 h-4 w-64 animate-pulse rounded bg-gray-200 sm:w-96" />
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5 sm:gap-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-lg bg-gray-200 sm:h-24" />
+            <div
+              key={i}
+              className="h-20 animate-pulse rounded-lg bg-gray-200 sm:h-24"
+            />
           ))}
         </div>
         <div className="-mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-9 w-20 shrink-0 animate-pulse rounded-lg bg-gray-200 sm:h-10 sm:w-24" />
+            <div
+              key={i}
+              className="h-9 w-20 shrink-0 animate-pulse rounded-lg bg-gray-200 sm:h-10 sm:w-24"
+            />
           ))}
         </div>
         <div className="h-64 animate-pulse rounded-xl bg-gray-200 sm:h-96" />
@@ -256,15 +273,15 @@ export default function StyleExpertPage() {
                 <button
                   key={status}
                   onClick={() => setFilter(status)}
-                  className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                  className={`rounded-lg px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
                     filter === status
                       ? "bg-[#2F2582] text-white"
-                      : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                      : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
                   }`}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
                 </button>
-              )
+              ),
             )}
           </div>
           <div className="flex gap-2">
@@ -272,13 +289,13 @@ export default function StyleExpertPage() {
               <button
                 key={priority}
                 onClick={() => setPriorityFilter(priority)}
-                className={`whitespace-nowrap rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                className={`rounded-lg px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
                   priorityFilter === priority
                     ? "bg-[#2F2582] text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                    : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
                 }`}
               >
-                <Filter className="inline h-4 w-4 mr-1" />
+                <Filter className="mr-1 inline h-4 w-4" />
                 {priority.charAt(0).toUpperCase() + priority.slice(1)}
               </button>
             ))}
@@ -291,7 +308,7 @@ export default function StyleExpertPage() {
           placeholder="Search by name, email, or phone..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full rounded-lg border border-gray-200 px-4 py-2 text-sm focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20"
+          className="w-full rounded-lg border border-gray-200 px-4 py-2 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
         />
       </div>
 
@@ -301,25 +318,25 @@ export default function StyleExpertPage() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Customer
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Service Type
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Contact
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Priority
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
                   Actions
                 </th>
               </tr>
@@ -337,7 +354,7 @@ export default function StyleExpertPage() {
               ) : (
                 filteredRequests.map((request) => (
                   <tr key={request.id} className="hover:bg-gray-50">
-                    <td className="whitespace-nowrap px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2F2582]/10">
                           <User className="h-5 w-5 text-[#2F2582]" />
@@ -349,12 +366,12 @@ export default function StyleExpertPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-900">
                         {getServiceTypeDisplay(request.service_type || "")}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm">
                         <div className="flex items-center gap-1 text-gray-900">
                           <Mail className="h-3 w-3" />
@@ -366,48 +383,60 @@ export default function StyleExpertPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
                       {new Date(request.created_at).toLocaleDateString()}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      <select
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Select
                         value={request.priority || "medium"}
-                        onChange={(e) =>
+                        onValueChange={(value) =>
                           handlePriorityChange(
                             request.id,
-                            e.target.value as ConsultationRequest["priority"]
+                            value as ConsultationRequest["priority"],
                           )
                         }
-                        className={`rounded-full border px-3 py-1 text-xs font-medium ${getPriorityColor(
-                          request.priority
-                        )}`}
                       >
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="urgent">Urgent</option>
-                      </select>
+                        <SelectTrigger
+                          className={`h-8 w-[110px] rounded-full border px-3 text-xs font-medium ${getPriorityColor(
+                            request.priority,
+                          )}`}
+                        >
+                          <SelectValue placeholder="Priority" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="urgent">Urgent</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      <select
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Select
                         value={request.status}
-                        onChange={(e) =>
+                        onValueChange={(value) =>
                           handleStatusChange(
                             request.id,
-                            e.target.value as ConsultationRequest["status"]
+                            value as ConsultationRequest["status"],
                           )
                         }
-                        className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(
-                          request.status
-                        )}`}
                       >
-                        <option value="pending">Pending</option>
-                        <option value="confirmed">Confirmed</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
-                      </select>
+                        <SelectTrigger
+                          className={`h-8 w-[120px] rounded-full border px-3 text-xs font-medium ${getStatusColor(
+                            request.status,
+                          )}`}
+                        >
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="confirmed">Confirmed</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleView(request)}
@@ -461,7 +490,7 @@ export default function StyleExpertPage() {
             <div className="space-y-6">
               {/* Customer Info */}
               <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-700">
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold tracking-wide text-gray-700 uppercase">
                   <User className="h-4 w-4" />
                   Customer Information
                 </h3>
@@ -495,7 +524,9 @@ export default function StyleExpertPage() {
                       Service Type
                     </label>
                     <p className="mt-1 text-sm font-medium text-gray-900">
-                      {getServiceTypeDisplay(selectedRequest.service_type || "")}
+                      {getServiceTypeDisplay(
+                        selectedRequest.service_type || "",
+                      )}
                     </p>
                   </div>
                 </div>
@@ -503,7 +534,7 @@ export default function StyleExpertPage() {
 
               {/* Project Details */}
               <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-700">
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold tracking-wide text-gray-700 uppercase">
                   <Building2 className="h-4 w-4" />
                   Project Details
                 </h3>
@@ -514,7 +545,9 @@ export default function StyleExpertPage() {
                         Project Type
                       </label>
                       <p className="mt-1 text-sm font-medium text-gray-900">
-                        {PROJECT_TYPES.find(p => p.id === selectedRequest.project_type)?.label || selectedRequest.project_type}
+                        {PROJECT_TYPES.find(
+                          (p) => p.id === selectedRequest.project_type,
+                        )?.label || selectedRequest.project_type}
                       </p>
                     </div>
                   )}
@@ -524,7 +557,9 @@ export default function StyleExpertPage() {
                         Property Type
                       </label>
                       <p className="mt-1 text-sm font-medium text-gray-900">
-                        {PROPERTY_TYPES.find(p => p.id === selectedRequest.property_type)?.label || selectedRequest.property_type}
+                        {PROPERTY_TYPES.find(
+                          (p) => p.id === selectedRequest.property_type,
+                        )?.label || selectedRequest.property_type}
                       </p>
                     </div>
                   )}
@@ -534,8 +569,14 @@ export default function StyleExpertPage() {
                         Room Types
                       </label>
                       <p className="mt-1 text-sm font-medium text-gray-900">
-                        {Array.isArray(selectedRequest.room_types) 
-                          ? selectedRequest.room_types.map(rt => ROOM_TYPES.find(r => r.id === rt)?.label || rt).join(", ")
+                        {Array.isArray(selectedRequest.room_types)
+                          ? selectedRequest.room_types
+                              .map(
+                                (rt) =>
+                                  ROOM_TYPES.find((r) => r.id === rt)?.label ||
+                                  rt,
+                              )
+                              .join(", ")
                           : selectedRequest.room_types}
                       </p>
                     </div>
@@ -547,7 +588,13 @@ export default function StyleExpertPage() {
                       </label>
                       <p className="mt-1 text-sm font-medium text-gray-900">
                         {Array.isArray(selectedRequest.style_preferences)
-                          ? selectedRequest.style_preferences.map(sp => STYLE_PREFERENCES.find(s => s.id === sp)?.label || sp).join(", ")
+                          ? selectedRequest.style_preferences
+                              .map(
+                                (sp) =>
+                                  STYLE_PREFERENCES.find((s) => s.id === sp)
+                                    ?.label || sp,
+                              )
+                              .join(", ")
                           : selectedRequest.style_preferences}
                       </p>
                     </div>
@@ -578,11 +625,11 @@ export default function StyleExpertPage() {
               {/* Additional Info */}
               {selectedRequest.message && (
                 <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                  <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-700">
+                  <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold tracking-wide text-gray-700 uppercase">
                     <MessageSquare className="h-4 w-4" />
                     Message
                   </h3>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                  <p className="text-sm whitespace-pre-wrap text-gray-700">
                     {selectedRequest.message}
                   </p>
                 </div>
@@ -597,7 +644,7 @@ export default function StyleExpertPage() {
                   <div className="mt-2">
                     <span
                       className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(
-                        selectedRequest.status
+                        selectedRequest.status,
                       )}`}
                     >
                       {getStatusIcon(selectedRequest.status)}
@@ -613,7 +660,7 @@ export default function StyleExpertPage() {
                   <div className="mt-2">
                     <span
                       className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-medium ${getPriorityColor(
-                        selectedRequest.priority
+                        selectedRequest.priority,
                       )}`}
                     >
                       {selectedRequest.priority?.charAt(0).toUpperCase() +
@@ -625,7 +672,7 @@ export default function StyleExpertPage() {
 
               {/* Timestamps */}
               <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-700">
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold tracking-wide text-gray-700 uppercase">
                   <Clock className="h-4 w-4" />
                   Timeline
                 </h3>

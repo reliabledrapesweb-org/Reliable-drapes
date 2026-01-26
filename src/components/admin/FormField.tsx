@@ -3,6 +3,13 @@
  * Provides consistent form inputs for all admin pages
  */
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ReactNode } from "react";
 
 interface FormFieldProps {
@@ -12,7 +19,12 @@ interface FormFieldProps {
   error?: string;
 }
 
-export function FormField({ label, required, children, error }: FormFieldProps) {
+export function FormField({
+  label,
+  required,
+  children,
+  error,
+}: FormFieldProps) {
   return (
     <div>
       <label className="mb-2 block text-sm font-semibold text-gray-700">
@@ -49,7 +61,7 @@ export function TextInput({
       placeholder={placeholder}
       required={required}
       disabled={disabled}
-      className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20 disabled:bg-gray-50 disabled:text-gray-500"
+      className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none disabled:bg-gray-50 disabled:text-gray-500"
     />
   );
 }
@@ -79,7 +91,7 @@ export function TextArea({
       required={required}
       rows={rows}
       disabled={disabled}
-      className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20 disabled:bg-gray-50 disabled:text-gray-500"
+      className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none disabled:bg-gray-50 disabled:text-gray-500"
     />
   );
 }
@@ -91,7 +103,12 @@ interface CheckboxProps {
   disabled?: boolean;
 }
 
-export function Checkbox({ checked, onChange, label, disabled }: CheckboxProps) {
+export function Checkbox({
+  checked,
+  onChange,
+  label,
+  disabled,
+}: CheckboxProps) {
   return (
     <div className="flex items-center gap-3">
       <input
@@ -132,19 +149,22 @@ export function SelectInput({
   disabled,
 }: SelectInputProps) {
   return (
-    <select
+    <Select
       value={value}
-      onChange={(e) => onChange(e.target.value)}
-      required={required}
+      onValueChange={onChange}
       disabled={disabled}
-      className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:outline-none focus:ring-2 focus:ring-[#2F2582]/20 disabled:bg-gray-50 disabled:text-gray-500"
+      required={required}
     >
-      {placeholder && <option value="">{placeholder}</option>}
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
+      <SelectTrigger className="h-11 w-full rounded-lg border-2 border-gray-200 px-4 transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 disabled:bg-gray-50 disabled:text-gray-500">
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

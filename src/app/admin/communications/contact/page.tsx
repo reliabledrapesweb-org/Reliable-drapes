@@ -3,6 +3,13 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Mail,
   Phone,
   Calendar,
@@ -43,7 +50,7 @@ export default function ContactSubmissionsPage() {
 
   const handleStatusChange = async (
     id: string,
-    status: ContactSubmission["status"]
+    status: ContactSubmission["status"],
   ) => {
     const result = await updateContactSubmission(id, { status });
     if (result.success) {
@@ -116,12 +123,18 @@ export default function ContactSubmissionsPage() {
         </div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-lg bg-gray-200 sm:h-24" />
+            <div
+              key={i}
+              className="h-20 animate-pulse rounded-lg bg-gray-200 sm:h-24"
+            />
           ))}
         </div>
         <div className="-mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-9 w-20 shrink-0 animate-pulse rounded-lg bg-gray-200 sm:h-10 sm:w-24" />
+            <div
+              key={i}
+              className="h-9 w-20 shrink-0 animate-pulse rounded-lg bg-gray-200 sm:h-10 sm:w-24"
+            />
           ))}
         </div>
         <div className="h-64 animate-pulse rounded-xl bg-gray-200 sm:h-96" />
@@ -145,20 +158,28 @@ export default function ContactSubmissionsPage() {
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-4">
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-600 sm:text-sm">Total</p>
-          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">{stats.total}</p>
+          <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">
+            {stats.total}
+          </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-600 sm:text-sm">New</p>
-          <p className="mt-1 text-lg font-bold text-blue-600 sm:text-2xl">{stats.new}</p>
+          <p className="mt-1 text-lg font-bold text-blue-600 sm:text-2xl">
+            {stats.new}
+          </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
-          <p className="text-xs font-medium text-gray-600 sm:text-sm">In Progress</p>
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">
+            In Progress
+          </p>
           <p className="mt-1 text-lg font-bold text-yellow-600 sm:text-2xl">
             {stats.in_progress}
           </p>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
-          <p className="text-xs font-medium text-gray-600 sm:text-sm">Resolved</p>
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">
+            Resolved
+          </p>
           <p className="mt-1 text-lg font-bold text-green-600 sm:text-2xl">
             {stats.resolved}
           </p>
@@ -166,15 +187,15 @@ export default function ContactSubmissionsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
         {["all", "new", "in_progress", "resolved", "archived"].map((status) => (
           <button
             key={status}
             onClick={() => setFilter(status)}
-            className={`whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium transition-colors sm:px-4 sm:text-sm ${
+            className={`rounded-lg px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors sm:px-4 sm:text-sm ${
               filter === status
                 ? "bg-[#2F2582] text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
+                : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
             }`}
           >
             {status.charAt(0).toUpperCase() + status.slice(1).replace("_", " ")}
@@ -189,7 +210,7 @@ export default function ContactSubmissionsPage() {
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2F2582] border-t-transparent" />
           </div>
         ) : filteredSubmissions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center px-4">
+          <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
             <Mail className="mb-3 h-12 w-12 text-gray-300" />
             <p className="text-base font-medium text-gray-900 sm:text-lg">
               No submissions found
@@ -206,12 +227,12 @@ export default function ContactSubmissionsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="p-3 hover:bg-gray-50 transition-colors sm:p-4"
+                className="p-3 transition-colors hover:bg-gray-50 sm:p-4"
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-gray-900 text-sm sm:text-base">
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <h3 className="text-sm font-semibold text-gray-900 sm:text-base">
                         {submission.name}
                       </h3>
                       <span
@@ -221,16 +242,18 @@ export default function ContactSubmissionsPage() {
                         {submission.status.replace("_", " ")}
                       </span>
                     </div>
-                    <p className="text-xs font-medium text-gray-700 mb-1 sm:text-sm">
+                    <p className="mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                       {submission.subject}
                     </p>
-                    <p className="text-xs text-gray-600 line-clamp-2 mb-2 sm:text-sm">
+                    <p className="mb-2 line-clamp-2 text-xs text-gray-600 sm:text-sm">
                       {submission.message}
                     </p>
                     <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
                       <span className="flex items-center gap-1">
                         <Mail className="h-3 w-3" />
-                        <span className="truncate max-w-[150px] sm:max-w-none">{submission.email}</span>
+                        <span className="max-w-[150px] truncate sm:max-w-none">
+                          {submission.email}
+                        </span>
                       </span>
                       {submission.phone && (
                         <span className="flex items-center gap-1">
@@ -254,21 +277,26 @@ export default function ContactSubmissionsPage() {
                     >
                       <Eye className="h-4 w-4" />
                     </button>
-                    <select
+                    <Select
                       value={submission.status}
-                      onChange={(e) =>
+                      onValueChange={(value) =>
                         handleStatusChange(
                           submission.id,
-                          e.target.value as ContactSubmission["status"]
+                          value as ContactSubmission["status"],
                         )
                       }
-                      className="rounded-lg border border-gray-200 bg-white px-2 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 sm:px-3 sm:text-sm"
                     >
-                      <option value="new">New</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="resolved">Resolved</option>
-                      <option value="archived">Archived</option>
-                    </select>
+                      <SelectTrigger className="w-[130px] rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 sm:text-sm">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="new">New</SelectItem>
+                        <SelectItem value="in_progress">In Progress</SelectItem>
+                        <SelectItem value="resolved">Resolved</SelectItem>
+                        <SelectItem value="archived">Archived</SelectItem>
+                      </SelectContent>
+                    </Select>
+
                     <button
                       onClick={() => handleDelete(submission.id)}
                       className="rounded-lg border border-red-200 bg-white p-2 text-red-600 transition-colors hover:bg-red-50"
@@ -328,7 +356,7 @@ export default function ContactSubmissionsPage() {
               <label className="text-sm font-medium text-gray-700">
                 Message
               </label>
-              <p className="mt-1 text-gray-900 whitespace-pre-wrap">
+              <p className="mt-1 whitespace-pre-wrap text-gray-900">
                 {selectedSubmission.message}
               </p>
             </div>

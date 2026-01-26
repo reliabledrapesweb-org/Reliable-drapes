@@ -5,6 +5,13 @@ import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Package,
   Search,
   Eye,
@@ -806,18 +813,19 @@ export default function AdminOrdersPage() {
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     Order Status
                   </label>
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none"
-                  >
-                    <option value="all">All</option>
-                    {statusOptions.map((status) => (
-                      <option key={status} value={status}>
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="All" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      {statusOptions.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {status.charAt(0).toUpperCase() + status.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -919,18 +927,22 @@ export default function AdminOrdersPage() {
                       <label className="text-sm font-medium text-gray-700">
                         Update Status:
                       </label>
-                      <select
+                      <Select
                         value={selectedOrder.status}
-                        onChange={(e) => handleStatusUpdate(e.target.value)}
+                        onValueChange={handleStatusUpdate}
                         disabled={isUpdatingStatus}
-                        className="rounded-lg border border-gray-300 bg-white px-4 py-2 pr-8 text-sm font-medium text-gray-700 focus:border-[#2F2582] focus:outline-none disabled:opacity-50"
                       >
-                        {statusOptions.map((option) => (
-                          <option key={option} value={option}>
-                            {option.charAt(0).toUpperCase() + option.slice(1)}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Select Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {statusOptions.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option.charAt(0).toUpperCase() + option.slice(1)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {isUpdatingStatus && (
                         <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#2F2582] border-t-transparent" />
                       )}

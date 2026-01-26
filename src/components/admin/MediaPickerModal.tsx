@@ -3,6 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   X,
   Search,
   Upload,
@@ -199,25 +206,26 @@ export function MediaPickerModal({
                 />
               </div>
 
-              <select
-                value={selectedFolder}
-                onChange={(e) => setSelectedFolder(e.target.value)}
-                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none"
-              >
-                <option value="all">All Folders</option>
-                <option value="general">General</option>
-                <option value="products">Products</option>
-                <option value="catalogues">Catalogues</option>
-                {folders
-                  .filter(
-                    (f) => !["general", "products", "catalogues"].includes(f),
-                  )
-                  .map((f) => (
-                    <option key={f} value={f}>
-                      {f}
-                    </option>
-                  ))}
-              </select>
+              <Select value={selectedFolder} onValueChange={setSelectedFolder}>
+                <SelectTrigger className="w-[180px] rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none">
+                  <SelectValue placeholder="All Folders" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Folders</SelectItem>
+                  <SelectItem value="general">General</SelectItem>
+                  <SelectItem value="products">Products</SelectItem>
+                  <SelectItem value="catalogues">Catalogues</SelectItem>
+                  {folders
+                    .filter(
+                      (f) => !["general", "products", "catalogues"].includes(f),
+                    )
+                    .map((f) => (
+                      <SelectItem key={f} value={f}>
+                        {f}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
 
               <div className="relative">
                 <input
