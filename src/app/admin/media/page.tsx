@@ -474,48 +474,105 @@ export default function MediaLibraryPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+      <div className="grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+        <div className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-xl shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
           <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase">
             Total Files
           </p>
-          <p className="mt-2 text-2xl font-black text-gray-900 sm:text-3xl dark:text-white">
+          <p className="mt-2 text-3xl font-black text-gray-900 sm:text-4xl dark:text-white">
             {storageStats?.totalItems || 0}
           </p>
         </div>
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-xl shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
           <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase">
             Storage Used
           </p>
-          <p className="mt-2 text-2xl font-black text-[#2F2582] sm:text-3xl dark:text-[#a099ff]">
+          <p className="mt-2 text-3xl font-black text-[#2F2582] sm:text-4xl dark:text-[#a099ff]">
             {storageStats?.totalSizeFormatted?.split(" ")[0] || "0"}{" "}
-            <span className="text-sm font-bold text-gray-400">
+            <span className="text-base font-bold text-gray-400">
               {storageStats?.totalSizeFormatted?.split(" ")[1] || "Bytes"}
             </span>
           </p>
         </div>
-        <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm min-[400px]:col-span-2 lg:col-span-1 dark:border-gray-800 dark:bg-gray-900">
+        <div className="rounded-[2rem] border border-gray-100 bg-white p-6 shadow-xl shadow-gray-200/50 min-[400px]:col-span-2 lg:col-span-1 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none">
           <p className="text-[10px] font-black tracking-widest text-gray-400 uppercase">
             Folders
           </p>
-          <p className="mt-2 text-2xl font-black text-gray-900 sm:text-3xl dark:text-white">
+          <p className="mt-2 text-3xl font-black text-gray-900 sm:text-4xl dark:text-white">
             {folders.length}
           </p>
         </div>
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
         <div className="relative w-full">
-          <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search filenames, tags, or alt text..."
-            className="w-full rounded-2xl border border-gray-100 py-3 pr-4 pl-12 text-sm shadow-sm transition-all focus:border-[#2F2582] focus:ring-4 focus:ring-[#2F2582]/5 focus:outline-none dark:border-gray-800 dark:bg-gray-900"
+            className="w-full rounded-[1.5rem] border border-gray-100 bg-white py-4 pr-4 pl-12 text-sm shadow-sm transition-all focus:border-[#2F2582] focus:ring-4 focus:ring-[#2F2582]/5 focus:outline-none dark:border-gray-800 dark:bg-gray-900"
           />
         </div>
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={cn(
+                "p-3 px-5 transition-colors",
+                viewMode === "grid"
+                  ? "bg-gray-100 text-[#2F2582] dark:bg-gray-800 dark:text-[#a099ff]"
+                  : "text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50",
+              )}
+            >
+              <FolderKanban className="h-5 w-5" />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={cn(
+                "border-l border-gray-100 p-3 px-5 transition-colors dark:border-gray-800",
+                viewMode === "list"
+                  ? "bg-gray-100 text-[#2F2582] dark:bg-gray-800 dark:text-[#a099ff]"
+                  : "text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50",
+              )}
+            >
+              <FileText className="h-5 w-5" />
+            </button>
+          </div>
+
+          <div className="min-w-[160px] flex-1 sm:flex-none">
+            <Select value={selectedFolder} onValueChange={setSelectedFolder}>
+              <SelectTrigger className="w-full rounded-2xl border border-gray-100 bg-white h-[52px] px-5 text-sm shadow-sm focus:border-[#2F2582] focus:outline-none dark:border-gray-800 dark:bg-gray-900 sm:w-[200px]">
+                <SelectValue placeholder="All Folders" />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl border-gray-100">
+                <SelectItem value="all">All Folders</SelectItem>
+                {folders.map((folder) => (
+                  <SelectItem key={folder} value={folder}>
+                    {folder}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button
+            variant={showUnusedOnly ? "default" : "outline"}
+            onClick={() => setShowUnusedOnly(!showUnusedOnly)}
+            className={cn(
+              "h-[52px] flex-1 rounded-2xl px-6 shadow-sm sm:flex-none font-bold",
+              showUnusedOnly
+                ? "bg-[#2F2582] text-white hover:bg-[#241c66]"
+                : "border-gray-100 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900",
+            )}
+          >
+            {showUnusedOnly ? "Unused Only" : "Show Unused"}
+          </Button>
+        </div>
+      </div>
+
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <button

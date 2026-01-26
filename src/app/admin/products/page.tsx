@@ -548,6 +548,17 @@ export default function AdminProductsPage() {
     validateImportSkus(updated);
   };
 
+  const handleOpenUniversalMassUpload = () => {
+    if (products.length === 0) {
+      addToast("No products found in catalog to match images with.", "info");
+      return;
+    }
+    setProductsMissingImages(
+      products.map((p) => ({ id: p.id, name: p.name, sku: p.sku })),
+    );
+    setShowMassUploadModal(true);
+  };
+
   // Handle file upload for import
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1180,6 +1191,15 @@ export default function AdminProductsPage() {
           >
             <Download className="mr-2 h-4 w-4" />
             Export
+          </Button>
+          <Button
+            onClick={handleOpenUniversalMassUpload}
+            variant="outline"
+            disabled={products.length === 0}
+            className="flex-1 border-[#2F2582] text-[#2F2582] hover:bg-[#2F2582]/10 sm:flex-none"
+          >
+            <ImageIcon className="mr-2 h-4 w-4" />
+            Mass Images
           </Button>
           <Button
             onClick={() => handleOpenModal()}
@@ -2030,10 +2050,11 @@ export default function AdminProductsPage() {
               <div className="mb-6 flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">
-                    Upload Product Images
+                    Product Image Matching
                   </h2>
                   <p className="mt-1 text-sm text-gray-500">
-                    Found {productsMissingImages.length} products without images
+                    Upload images to match with {productsMissingImages.length}{" "}
+                    products in your catalog
                   </p>
                 </div>
                 <button
@@ -2067,7 +2088,7 @@ export default function AdminProductsPage() {
                 <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
                   <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50 px-4 py-3">
                     <h3 className="text-sm font-semibold text-gray-900">
-                      Products Needing Images
+                      Target Product List
                     </h3>
                     <div className="flex gap-2">
                       <Button
