@@ -986,18 +986,6 @@ export default function AdminProductsPage() {
                 gResult.error,
               );
             }
-          } else {
-            console.error(
-              `Upload failed for file ${file.name}:`,
-              uploadResult.error,
-            );
-          }
-
-          } else {
-            console.error(
-              `Upload failed for file ${file.name}:`,
-              uploadResult.error,
-            );
           }
           processedCount++;
           setMassUploadProgress((prev) => ({
