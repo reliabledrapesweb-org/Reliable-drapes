@@ -6,13 +6,19 @@ import { revalidatePath } from "next/cache";
 export interface Catalogue {
   id: string;
   title: string;
-  description: string | null; // This is what the DB actually has
-  subtitle: string | null; // Keep for backward compatibility
-  category: string;
-  file_url: string; // This is what the DB actually has
-  pdf_url?: string; // Keep for backward compatibility
-  thumbnail_url: string | null; // This is what the DB actually has
-  image_url: string | null; // Keep for backward compatibility
+  description: string | null;
+  subtitle: string | null;
+  category_id: string | null;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
+  category_legacy?: string; // Keep for backward compatibility during migration
+  file_url: string;
+  pdf_url?: string;
+  thumbnail_url: string | null;
+  image_url: string | null;
   badge: "new" | "discount" | null;
   discount_value: string | null;
   file_size: number;
@@ -25,7 +31,7 @@ export interface Catalogue {
 export interface CreateCatalogueInput {
   title: string;
   description?: string;
-  category: string;
+  category_id: string;
   file_url: string;
   thumbnail_url?: string;
   badge?: "new" | "discount" | null;
@@ -42,22 +48,29 @@ export interface UpdateCatalogueInput extends Partial<CreateCatalogueInput> {
  */
 export async function getCatalogues() {
   try {
-    // Use admin client to bypass RLS issues
     const supabase = supabaseAdmin();
 
     const { data, error } = await supabase
       .from("catalogues")
-      .select("*")
+      .select(
+        `
+        *,
+        category:category_id (
+          id,
+          name,
+          slug
+        )
+      `,
+      )
+      .eq("is_active", true)
       .order("created_at", { ascending: false });
 
     if (error) {
-
       return { success: false, error: error.message, data: null };
     }
 
     return { success: true, data, error: null };
   } catch (err) {
-
     return { success: false, error: "Failed to fetch catalogues", data: null };
   }
 }
@@ -70,11 +83,19 @@ export async function getAllCatalogues() {
 
   const { data, error } = await supabase
     .from("catalogues")
-    .select("*")
+    .select(
+      `
+      *,
+      category:category_id (
+        id,
+        name,
+        slug
+      )
+    `,
+    )
     .order("created_at", { ascending: false });
 
   if (error) {
-
     return { success: false, error: error.message, data: null };
   }
 
@@ -89,12 +110,20 @@ export async function getCatalogueById(id: string) {
 
   const { data, error } = await supabase
     .from("catalogues")
-    .select("*")
+    .select(
+      `
+      *,
+      category:category_id (
+        id,
+        name,
+        slug
+      )
+    `,
+    )
     .eq("id", id)
     .single();
 
   if (error) {
-
     return { success: false, error: error.message, data: null };
   }
 
@@ -112,18 +141,16 @@ export async function createCatalogue(input: CreateCatalogueInput) {
     .insert({
       title: input.title,
       description: input.description || null,
-      category: input.category,
+      category_id: input.category_id,
       file_url: input.file_url,
       thumbnail_url: input.thumbnail_url || null,
       badge: input.badge || null,
       discount_value: input.discount_value || null,
-
     })
     .select()
     .single();
 
   if (error) {
-
     return { success: false, error: error.message, data: null };
   }
 
@@ -149,7 +176,6 @@ export async function updateCatalogue(input: UpdateCatalogueInput) {
     .single();
 
   if (error) {
-
     return { success: false, error: error.message, data: null };
   }
 
@@ -168,7 +194,6 @@ export async function deleteCatalogue(id: string) {
   const { error } = await supabase.from("catalogues").delete().eq("id", id);
 
   if (error) {
-
     return { success: false, error: error.message };
   }
 

@@ -3,8 +3,39 @@
 import { Mail, Phone, MapPin, InstagramIcon } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { getCategories, type Category } from "@/lib/actions/products";
+
+// Fallback categories when no data from database
+const fallbackCategories: Category[] = [
+  { id: "1", name: "Curtains", slug: "curtains" },
+  { id: "2", name: "Upholstery", slug: "upholstery" },
+  { id: "3", name: "Sheers", slug: "sheers" },
+  { id: "4", name: "Bed Sheets", slug: "bed-sheets" },
+];
 
 export function Footer() {
+  const [categories, setCategories] = useState<Category[]>(fallbackCategories);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch categories from database
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const result = await getCategories();
+        if (result.success && result.data && result.data.length > 0) {
+          // Take top 4 categories
+          setCategories(result.data.slice(0, 4));
+        }
+      } catch (error) {
+        // Keep fallback categories on error
+      }
+      setIsLoading(false);
+    }
+
+    fetchCategories();
+  }, []);
+
   return (
     <footer className="bg-[#0e0e0e] text-white">
       <div className="container mx-auto px-6 py-10 md:py-12 lg:py-16">
@@ -76,46 +107,27 @@ export function Footer() {
                   All Products
                 </motion.a>
               </li>
-              <li>
-                <motion.a
-                  href="/shop?category=curtains"
-                  className="cursor-pointer"
-                  whileHover={{ color: "#ffffff", x: 3 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  Curtains
-                </motion.a>
-              </li>
-              <li>
-                <motion.a
-                  href="/shop?category=upholstery"
-                  className="cursor-pointer"
-                  whileHover={{ color: "#ffffff", x: 3 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  Upholstery
-                </motion.a>
-              </li>
-              <li>
-                <motion.a
-                  href="/shop?category=sheers"
-                  className="cursor-pointer"
-                  whileHover={{ color: "#ffffff", x: 3 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  Sheers
-                </motion.a>
-              </li>
-              <li>
-                <motion.a
-                  href="/shop?category=bed-sheets"
-                  className="cursor-pointer"
-                  whileHover={{ color: "#ffffff", x: 3 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  Bed sheets
-                </motion.a>
-              </li>
+              {isLoading ? (
+                <>
+                  <li className="h-5 w-20 animate-pulse rounded bg-gray-700" />
+                  <li className="h-5 w-24 animate-pulse rounded bg-gray-700" />
+                  <li className="h-5 w-16 animate-pulse rounded bg-gray-700" />
+                  <li className="h-5 w-20 animate-pulse rounded bg-gray-700" />
+                </>
+              ) : (
+                categories.map((category) => (
+                  <li key={category.id}>
+                    <motion.a
+                      href={`/shop?category=${category.slug}`}
+                      className="cursor-pointer"
+                      whileHover={{ color: "#ffffff", x: 3 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {category.name}
+                    </motion.a>
+                  </li>
+                ))
+              )}
             </ul>
           </div>
 

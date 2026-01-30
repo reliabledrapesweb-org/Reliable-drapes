@@ -5,6 +5,10 @@ import { FilterSidebar, ProductGrid } from "@/components/features/catalog";
 import { ProductGridSkeleton } from "@/components/features/catalog/ProductGridSkeleton";
 import { useMemo, useState, useEffect } from "react";
 import { getCatalogues, type Catalogue } from "@/lib/actions/catalogues";
+import {
+  getCatalogueCategories,
+  type CatalogueCategory,
+} from "@/lib/actions/catalogue-categories";
 import { motion, AnimatePresence } from "motion/react";
 import { SlidersHorizontal, X, Check } from "lucide-react";
 import { DEFAULT_CATALOG_IMAGE } from "@/lib/constants/app";
@@ -24,7 +28,8 @@ function transformCatalogueToProduct(catalogue: Catalogue) {
     imageSrc: imageUrl,
     pdfUrl: catalogue.file_url || catalogue.pdf_url,
     badge: catalogue.badge,
-    category: catalogue.category,
+    category: catalogue.category?.name || "Uncategorized",
+    category_id: catalogue.category_id,
   };
 }
 
@@ -32,29 +37,39 @@ export default function CataloguePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
+  const [categories, setCategories] = useState<CatalogueCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 
-  // Fetch catalogues from database
+  // Fetch catalogues and categories from database
   useEffect(() => {
-    async function fetchCatalogues() {
+    async function fetchData() {
       setIsLoading(true);
       try {
-        const result = await getCatalogues();
-        if (result.success && result.data) {
-          setCatalogues(result.data);
-        } else {
+        const [cataloguesResult, categoriesResult] = await Promise.all([
+          getCatalogues(),
+          getCatalogueCategories(),
+        ]);
 
+        if (cataloguesResult.success && cataloguesResult.data) {
+          setCatalogues(cataloguesResult.data);
+        } else {
           setCatalogues([]);
         }
-      } catch (error) {
 
+        if (categoriesResult.success && categoriesResult.data) {
+          setCategories(categoriesResult.data);
+        } else {
+          setCategories([]);
+        }
+      } catch (error) {
         setCatalogues([]);
+        setCategories([]);
       }
       setIsLoading(false);
     }
 
-    fetchCatalogues();
+    fetchData();
   }, []);
 
   // Transform catalogues to products
@@ -62,11 +77,12 @@ export default function CataloguePage() {
     return catalogues.map(transformCatalogueToProduct);
   }, [catalogues]);
 
-  // Get unique categories from products
+  // Get unique categories from the categories table (not from products)
   const availableCategories = useMemo(() => {
-    const categories = products.map((p) => p.category);
-    return Array.from(new Set(categories)).sort();
-  }, [products]);
+    return categories
+      .filter((c) => c.is_active)
+      .sort((a, b) => a.sort_order - b.sort_order);
+  }, [categories]);
 
   // Filter products based on search and selected filters
   const filteredProducts = useMemo(() => {
@@ -77,7 +93,7 @@ export default function CataloguePage() {
         product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
 
-      // Filter by selected categories
+      // Filter by selected categories (by category name)
       const matchesFilter =
         selectedFilters.length === 0 ||
         selectedFilters.includes(product.category);
@@ -86,11 +102,11 @@ export default function CataloguePage() {
     });
   }, [products, searchQuery, selectedFilters]);
 
-  const toggleFilter = (category: string) => {
-    if (selectedFilters.includes(category)) {
-      setSelectedFilters(selectedFilters.filter((f) => f !== category));
+  const toggleFilter = (categoryName: string) => {
+    if (selectedFilters.includes(categoryName)) {
+      setSelectedFilters(selectedFilters.filter((f) => f !== categoryName));
     } else {
-      setSelectedFilters([...selectedFilters, category]);
+      setSelectedFilters([...selectedFilters, categoryName]);
     }
   };
 
@@ -136,11 +152,64 @@ export default function CataloguePage() {
 
             {/* Filter Sidebar - Hidden on mobile, visible on desktop */}
             <div className="hidden lg:sticky lg:top-24 lg:block lg:w-64 lg:shrink-0 lg:self-start">
-              <FilterSidebar
-                selectedFilters={selectedFilters}
-                onFilterChange={setSelectedFilters}
-                availableCategories={availableCategories}
-              />
+              {isLoading ? (
+                <div className="space-y-4">
+                  <div className="h-6 w-32 animate-pulse rounded bg-gray-200" />
+                  {[...Array(4)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-10 w-full animate-pulse rounded bg-gray-100"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="mb-4 text-sm font-semibold tracking-wider text-gray-900 uppercase">
+                      Categories
+                    </h3>
+                    <div className="space-y-2">
+                      {availableCategories.length > 0 ? (
+                        availableCategories.map((category) => {
+                          const isChecked = selectedFilters.includes(
+                            category.name,
+                          );
+                          return (
+                            <button
+                              key={category.id}
+                              type="button"
+                              onClick={() => toggleFilter(category.name)}
+                              className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-left transition-all ${
+                                isChecked
+                                  ? "bg-[#2f2582] text-white"
+                                  : "bg-gray-50 text-gray-700 hover:bg-gray-100"
+                              }`}
+                            >
+                              <span className="font-medium">
+                                {category.name}
+                              </span>
+                              {isChecked && <Check className="h-5 w-5" />}
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <p className="py-4 text-center text-sm text-gray-500">
+                          No categories available
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {selectedFilters.length > 0 && (
+                    <button
+                      onClick={() => setSelectedFilters([])}
+                      className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50"
+                    >
+                      Clear All Filters
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Product Grid */}
@@ -202,21 +271,34 @@ export default function CataloguePage() {
                       <h3 className="mb-3 text-sm font-semibold tracking-wider text-gray-500 uppercase">
                         Categories
                       </h3>
-                      {availableCategories.length > 0 ? (
+                      {isLoading ? (
+                        <div className="space-y-2">
+                          {[...Array(4)].map((_, i) => (
+                            <div
+                              key={i}
+                              className="h-12 w-full animate-pulse rounded-xl bg-gray-100"
+                            />
+                          ))}
+                        </div>
+                      ) : availableCategories.length > 0 ? (
                         availableCategories.map((category) => {
-                          const isChecked = selectedFilters.includes(category);
+                          const isChecked = selectedFilters.includes(
+                            category.name,
+                          );
                           return (
                             <button
-                              key={category}
+                              key={category.id}
                               type="button"
-                              onClick={() => toggleFilter(category)}
+                              onClick={() => toggleFilter(category.name)}
                               className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-left transition-all ${
                                 isChecked
                                   ? "bg-[#2f2582] text-white"
                                   : "bg-gray-50 text-gray-700 hover:bg-gray-100"
                               }`}
                             >
-                              <span className="font-medium">{category}</span>
+                              <span className="font-medium">
+                                {category.name}
+                              </span>
                               {isChecked && <Check className="h-5 w-5" />}
                             </button>
                           );
