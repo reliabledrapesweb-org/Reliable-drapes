@@ -321,6 +321,45 @@ export async function getCategories(): Promise<{
 }
 
 /**
+ * Get categories for footer (max 4)
+ */
+export async function getFooterCategories(): Promise<{
+  success: boolean;
+  data?: Category[];
+  error?: string;
+}> {
+  try {
+    const supabase = getAnonSupabase();
+
+    const { data, error } = await supabase
+      .from("categories")
+      .select("id, name, slug")
+      .eq("published", true)
+      .eq("show_in_footer", true)
+      .order("sort_order", { ascending: true })
+      .order("name")
+      .limit(4);
+
+    if (error) {
+      return {
+        success: false,
+        error: "Failed to fetch footer categories",
+      };
+    }
+
+    return {
+      success: true,
+      data: data as Category[],
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}
+
+/**
  * Get products by category
  */
 export async function getProductsByCategory(
@@ -662,6 +701,7 @@ export interface CategoryFull {
   sort_order: number;
   is_featured: boolean;
   published: boolean;
+  show_in_footer: boolean;
   created_at: string;
   product_count?: number;
 }

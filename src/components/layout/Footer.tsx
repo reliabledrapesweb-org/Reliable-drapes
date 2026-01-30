@@ -4,7 +4,7 @@ import { Mail, Phone, MapPin, InstagramIcon } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { getCategories, type Category } from "@/lib/actions/products";
+import { getFooterCategories, type Category } from "@/lib/actions/products";
 
 // Fallback categories when no data from database
 const fallbackCategories: Category[] = [
@@ -18,14 +18,13 @@ export function Footer() {
   const [categories, setCategories] = useState<Category[]>(fallbackCategories);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch categories from database
+  // Fetch footer categories from database
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const result = await getCategories();
+        const result = await getFooterCategories();
         if (result.success && result.data && result.data.length > 0) {
-          // Take top 4 categories
-          setCategories(result.data.slice(0, 4));
+          setCategories(result.data);
         }
       } catch (error) {
         // Keep fallback categories on error

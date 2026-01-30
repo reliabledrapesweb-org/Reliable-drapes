@@ -11,6 +11,7 @@ import {
   EyeOff,
   Star,
   X,
+  LayoutGrid,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -65,6 +66,7 @@ export default function AdminCategoriesPage() {
     is_featured: false,
     published: true,
     sort_order: 0,
+    show_in_footer: false,
   });
 
   // Fetch categories on admin access
@@ -97,6 +99,7 @@ export default function AdminCategoriesPage() {
         is_featured: category.is_featured,
         published: category.published,
         sort_order: category.sort_order,
+        show_in_footer: category.show_in_footer,
       });
     } else {
       setEditingCategory(null);
@@ -108,6 +111,7 @@ export default function AdminCategoriesPage() {
         is_featured: false,
         published: true,
         sort_order: 0,
+        show_in_footer: false,
       });
     }
     setShowModal(true);
@@ -154,7 +158,6 @@ export default function AdminCategoriesPage() {
         }
       }
     } catch (error) {
-
       addToast("An unexpected error occurred", "error");
     } finally {
       setActionLoading((prev) => ({ ...prev, [actionKey]: null }));
@@ -227,6 +230,38 @@ export default function AdminCategoriesPage() {
     }
   };
 
+  // Toggle show in footer status
+  const toggleShowInFooter = async (category: CategoryFull) => {
+    const newValue = !category.show_in_footer;
+
+    // Check if we're trying to add more than 4 categories to footer
+    if (newValue) {
+      const currentFooterCount = categories.filter(
+        (c) => c.show_in_footer,
+      ).length;
+      if (currentFooterCount >= 4) {
+        addToast(
+          "Maximum 4 categories can be shown in footer. Please remove one first.",
+          "error",
+        );
+        return;
+      }
+    }
+
+    const result = await updateCategory(category.id, {
+      show_in_footer: newValue,
+    });
+    if (result.success) {
+      addToast(
+        `Category ${newValue ? "added to" : "removed from"} footer`,
+        "success",
+      );
+      fetchCategories();
+    } else {
+      addToast("Failed to update category", "error");
+    }
+  };
+
   // Filter categories by search query
   const filteredCategories = categories.filter(
     (category) =>
@@ -240,6 +275,7 @@ export default function AdminCategoriesPage() {
   const totalCategories = categories.length;
   const featuredCount = categories.filter((c) => c.is_featured).length;
   const publishedCount = categories.filter((c) => c.published).length;
+  const footerCount = categories.filter((c) => c.show_in_footer).length;
 
   if (adminLoading || isLoading) {
     return (
@@ -251,8 +287,8 @@ export default function AdminCategoriesPage() {
           </div>
           <div className="h-10 w-full animate-pulse rounded-lg bg-gray-200 sm:w-32" />
         </div>
-        <div className="grid grid-cols-3 gap-2 sm:gap-4">
-          {[...Array(3)].map((_, i) => (
+        <div className="grid grid-cols-4 gap-2 sm:gap-4">
+          {[...Array(4)].map((_, i) => (
             <div
               key={i}
               className="h-20 animate-pulse rounded-lg bg-gray-200 sm:h-24"
@@ -294,7 +330,7 @@ export default function AdminCategoriesPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+      <div className="grid grid-cols-4 gap-2 sm:gap-4">
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-600 sm:text-sm">Total</p>
           <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">
@@ -315,6 +351,17 @@ export default function AdminCategoriesPage() {
           </p>
           <p className="mt-1 text-lg font-bold text-green-600 sm:text-2xl">
             {publishedCount}
+          </p>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
+          <p className="text-xs font-medium text-gray-600 sm:text-sm">
+            In Footer
+          </p>
+          <p
+            className={`mt-1 text-lg font-bold sm:text-2xl ${footerCount >= 4 ? "text-orange-600" : "text-blue-600"}`}
+          >
+            {footerCount}
+            <span className="text-sm text-gray-400">/4</span>
           </p>
         </div>
       </div>
@@ -425,6 +472,16 @@ export default function AdminCategoriesPage() {
                             ) : (
                               <EyeOff className="h-3.5 w-3.5" />
                             )}
+                          </button>
+                          <button
+                            onClick={() => toggleShowInFooter(category)}
+                            className={`rounded-full p-1.5 transition-colors ${
+                              category.show_in_footer
+                                ? "bg-blue-100 text-blue-600"
+                                : "bg-gray-100 text-gray-400"
+                            }`}
+                          >
+                            <LayoutGrid className="h-3.5 w-3.5" />
                           </button>
                         </div>
                       </div>
@@ -552,6 +609,21 @@ export default function AdminCategoriesPage() {
                               ) : (
                                 <EyeOff className="h-4 w-4" />
                               )}
+                            </button>
+                            <button
+                              onClick={() => toggleShowInFooter(category)}
+                              className={`rounded-full p-1 transition-colors ${
+                                category.show_in_footer
+                                  ? "bg-blue-100 text-blue-600"
+                                  : "bg-gray-100 text-gray-400 hover:bg-blue-50"
+                              }`}
+                              title={
+                                category.show_in_footer
+                                  ? "Remove from footer"
+                                  : "Add to footer"
+                              }
+                            >
+                              <LayoutGrid className="h-4 w-4" />
                             </button>
                           </div>
                         </td>
@@ -696,7 +768,7 @@ export default function AdminCategoriesPage() {
                   )}
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-3">
+                <div className="grid gap-4 sm:grid-cols-4">
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-gray-700">
                       Sort Order
@@ -753,6 +825,27 @@ export default function AdminCategoriesPage() {
                       className="text-sm font-medium text-gray-700"
                     >
                       Published
+                    </label>
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-8">
+                    <input
+                      type="checkbox"
+                      id="show_in_footer"
+                      checked={formData.show_in_footer}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          show_in_footer: e.target.checked,
+                        })
+                      }
+                      className="h-4 w-4 rounded border-gray-300 text-[#2F2582] focus:ring-[#2F2582]"
+                    />
+                    <label
+                      htmlFor="show_in_footer"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Show in Footer
                     </label>
                   </div>
                 </div>
