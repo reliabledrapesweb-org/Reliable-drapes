@@ -33,7 +33,9 @@ export async function getCatalogueCategories(): Promise<{
   error?: string;
 }> {
   try {
+    console.log("[Debug] Starting getCatalogueCategories...");
     const supabase = getAnonSupabase();
+    console.log("[Debug] Got supabase client");
     // RLS policy handles the is_active filtering (COALESCE(is_active, true) = true)
     // No need for additional filters here
     const { data, error } = await supabase
@@ -42,11 +44,15 @@ export async function getCatalogueCategories(): Promise<{
       .order("sort_order")
       .order("name");
 
-    if (error) throw error;
-    return { success: true, data };
+    if (error) {
+      console.error("[Debug] Supabase error:", error);
+      throw error;
+    }
+    console.log("[Debug] Raw categories from DB:", data?.length, "items");
+    return { success: true, data: data || [] };
   } catch (error: any) {
-    console.error("Error fetching catalogue categories:", error?.message || error);
-    return { success: false, error: "Failed to fetch categories" };
+    console.error("[Debug] Error fetching catalogue categories:", error?.message || error);
+    return { success: false, error: error?.message || "Failed to fetch categories" };
   }
 }
 
