@@ -1,6 +1,7 @@
 "use server";
 
-import { getAdminSupabase, getAnonSupabase } from "@/lib/supabase/admin";
+import { getAdminSupabase } from "@/lib/supabase/admin";
+import { getAnonSupabase } from "@/lib/supabase/anon";
 
 export interface CatalogueCategory {
   id: string;
@@ -33,9 +34,7 @@ export async function getCatalogueCategories(): Promise<{
   error?: string;
 }> {
   try {
-    console.log("[Debug] Starting getCatalogueCategories...");
     const supabase = getAnonSupabase();
-    console.log("[Debug] Got supabase client");
     // RLS policy handles the is_active filtering (COALESCE(is_active, true) = true)
     // No need for additional filters here
     const { data, error } = await supabase
@@ -44,15 +43,11 @@ export async function getCatalogueCategories(): Promise<{
       .order("sort_order")
       .order("name");
 
-    if (error) {
-      console.error("[Debug] Supabase error:", error);
-      throw error;
-    }
-    console.log("[Debug] Raw categories from DB:", data?.length, "items");
-    return { success: true, data: data || [] };
+    if (error) throw error;
+    return { success: true, data };
   } catch (error: any) {
-    console.error("[Debug] Error fetching catalogue categories:", error?.message || error);
-    return { success: false, error: error?.message || "Failed to fetch categories" };
+    console.error("Error fetching catalogue categories:", error?.message || error);
+    return { success: false, error: "Failed to fetch categories" };
   }
 }
 

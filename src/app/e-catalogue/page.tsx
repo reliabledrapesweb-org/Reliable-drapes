@@ -57,12 +57,9 @@ export default function CataloguePage() {
           setCatalogues([]);
         }
 
-        console.log("[Debug] categoriesResult:", categoriesResult);
         if (categoriesResult.success && categoriesResult.data) {
-          console.log("[Debug] Categories loaded:", categoriesResult.data.length, "items");
           setCategories(categoriesResult.data);
         } else {
-          console.log("[Debug] Categories failed:", categoriesResult.error);
           setCategories([]);
         }
       } catch (error) {
