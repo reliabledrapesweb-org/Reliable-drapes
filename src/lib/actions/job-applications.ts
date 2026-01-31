@@ -7,6 +7,8 @@ import type { JobApplication } from "./jobs";
 export interface JobApplicationWithJob extends JobApplication {
   job_title?: string;
   job_type?: string;
+  desired_role?: string | null;
+  application_type?: "specific" | "open";
 }
 
 /**
@@ -22,11 +24,53 @@ export async function submitJobApplication(applicationData: {
 }) {
   try {
     const supabase = await supabaseServer();
-    
+
     const { data, error } = await supabase
       .from("job_applications")
       .insert([{
         ...applicationData,
+        application_type: "specific",
+        status: "pending"
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    revalidatePath("/admin/careers/applications");
+
+    return { success: true, data: data as JobApplication, error: null };
+  } catch (error) {
+
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to submit application",
+      data: null,
+    };
+  }
+}
+
+/**
+ * Submit an open hire application (public)
+ * For candidates who don't see a matching role
+ */
+export async function submitOpenHireApplication(applicationData: {
+  full_name: string;
+  email: string;
+  phone: string;
+  resume_url: string;
+  desired_role: string;
+  cover_letter?: string;
+}) {
+  try {
+    const supabase = await supabaseServer();
+
+    const { data, error } = await supabase
+      .from("job_applications")
+      .insert([{
+        ...applicationData,
+        job_id: null,
+        application_type: "open",
         status: "pending"
       }])
       .select()
@@ -259,6 +303,7 @@ export async function getApplicationStats() {
       reviewed: data?.filter(app => app.status === "reviewed").length || 0,
       shortlisted: data?.filter(app => app.status === "shortlisted").length || 0,
       rejected: data?.filter(app => app.status === "rejected").length || 0,
+      open_hire: data?.filter(app => app.application_type === "open").length || 0,
     };
 
     return { success: true, data: stats, error: null };

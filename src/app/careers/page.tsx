@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { Phone } from "lucide-react";
 import { Breadcrumb, PageHero, PageHeader } from "@/components/shared";
 import { JobGrid } from "@/components/features/careers";
 import { JobGridSkeleton } from "@/components/features/careers/JobGridSkeleton";
 import { JobApplicationModal } from "@/components/features/careers/JobApplicationModal";
+import { OpenHireModal } from "@/components/features/careers/OpenHireModal";
 import { getActiveJobs, type Job } from "@/lib/actions/jobs";
 
 export default function CareersPage() {
@@ -12,6 +14,7 @@ export default function CareersPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOpenHireModalOpen, setIsOpenHireModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,6 +59,12 @@ export default function CareersPage() {
   const handleApply = (job: Job) => {
     setSelectedJob(job);
     setIsModalOpen(true);
+  };
+
+  const handlePhoneCall = () => {
+    // Mock HR phone number for careers inquiries
+    const hrPhone = "+234 803 456 7890";
+    window.location.href = `tel:${hrPhone.replace(/[^0-9+]/g, "")}`;
   };
 
   return (
@@ -104,6 +113,52 @@ export default function CareersPage() {
               <JobGrid jobs={filteredJobs} onApply={handleApply} />
             )}
           </div>
+
+          {/* Open Hire Section */}
+          <div className="mt-12 rounded-2xl bg-gradient-to-br from-[#2f2582]/5 to-[#2f2582]/10 p-6 md:mt-16 md:p-10">
+            <div className="flex flex-col items-center gap-6 text-center md:flex-row md:justify-between md:text-left">
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-[#161616] md:text-2xl">
+                  Don&apos;t see the right fit?
+                </h3>
+                <p className="mt-2 text-base text-[#6a6a6a] md:text-lg">
+                  Submit your profile for future opportunities. We&apos;ll reach
+                  out when a suitable position opens up.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsOpenHireModalOpen(true)}
+                className="shrink-0 rounded-full bg-[#2f2582] px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-[#251e66] md:px-10 md:py-4 md:text-base"
+              >
+                Submit Open Application
+              </button>
+            </div>
+          </div>
+
+          {/* Call Us Section */}
+          <div className="mt-6 rounded-2xl border-2 border-dashed border-gray-200 bg-white p-6 md:mt-8 md:p-10">
+            <div className="flex flex-col items-center gap-6 text-center md:flex-row md:justify-between md:text-left">
+              <div className="flex-1">
+                <div className="mb-2 flex items-center justify-center gap-2 md:justify-start">
+                  <Phone className="h-5 w-5 text-[#2f2582]" />
+                  <h3 className="text-lg font-bold text-[#161616] md:text-xl">
+                    Prefer to speak with us?
+                  </h3>
+                </div>
+                <p className="text-base text-[#6a6a6a] md:text-lg">
+                  Call our HR team directly for any career-related inquiries.
+                  Available Mon-Fri, 9 AM - 6 PM.
+                </p>
+              </div>
+              <button
+                onClick={handlePhoneCall}
+                className="group flex shrink-0 items-center gap-3 rounded-full bg-white px-8 py-3 text-sm font-semibold text-[#2f2582] shadow-md transition-all hover:bg-[#2f2582] hover:text-white hover:shadow-lg md:px-10 md:py-4 md:text-base"
+              >
+                <Phone className="h-4 w-4 transition-transform group-hover:scale-110 md:h-5 md:w-5" />
+                <span>Call HR: +234 803 456 7890</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -115,6 +170,12 @@ export default function CareersPage() {
           setIsModalOpen(false);
           setSelectedJob(null);
         }}
+      />
+
+      {/* Open Hire Modal */}
+      <OpenHireModal
+        isOpen={isOpenHireModalOpen}
+        onClose={() => setIsOpenHireModalOpen(false)}
       />
     </main>
   );

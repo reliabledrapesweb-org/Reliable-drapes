@@ -12,6 +12,8 @@ import {
   Calendar,
   Briefcase,
   Search,
+  User,
+  FolderOpen,
 } from "lucide-react";
 
 import {
@@ -40,6 +42,7 @@ export default function AdminApplicationsPage() {
     reviewed: 0,
     shortlisted: 0,
     rejected: 0,
+    open_hire: 0,
   });
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -136,7 +139,9 @@ export default function AdminApplicationsPage() {
         app.email.toLowerCase().includes(searchLower) ||
         app.phone.includes(searchQuery) ||
         (app.job_title?.toLowerCase().includes(searchLower) ?? false) ||
-        (app.job_type?.toLowerCase().includes(searchLower) ?? false)
+        (app.job_type?.toLowerCase().includes(searchLower) ?? false) ||
+        (app.desired_role?.toLowerCase().includes(searchLower) ?? false) ||
+        (app.application_type === "open" && "open hire".includes(searchLower))
       );
     });
 
@@ -162,8 +167,8 @@ export default function AdminApplicationsPage() {
           <div className="h-6 w-48 animate-pulse rounded bg-gray-200 sm:h-8 sm:w-64" />
           <div className="mt-2 h-4 w-64 animate-pulse rounded bg-gray-200 sm:w-96" />
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 sm:gap-4">
-          {[...Array(5)].map((_, i) => (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-6 sm:gap-4">
+          {[...Array(6)].map((_, i) => (
             <div
               key={i}
               className="h-20 animate-pulse rounded-lg bg-gray-200 sm:h-24"
@@ -196,7 +201,7 @@ export default function AdminApplicationsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 sm:gap-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-6 sm:gap-4">
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-600 sm:text-sm">Total</p>
           <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">
@@ -227,12 +232,20 @@ export default function AdminApplicationsPage() {
             {stats.shortlisted}
           </p>
         </div>
-        <div className="col-span-2 rounded-lg border border-gray-200 bg-white p-3 sm:col-span-1 sm:p-4">
+        <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-600 sm:text-sm">
             Rejected
           </p>
           <p className="mt-1 text-lg font-bold text-red-600 sm:text-2xl">
             {stats.rejected}
+          </p>
+        </div>
+        <div className="rounded-lg border border-purple-200 bg-purple-50 p-3 sm:p-4">
+          <p className="text-xs font-medium text-purple-600 sm:text-sm">
+            Open Hire
+          </p>
+          <p className="mt-1 text-lg font-bold text-purple-700 sm:text-2xl">
+            {stats.open_hire}
           </p>
         </div>
       </div>
@@ -317,13 +330,28 @@ export default function AdminApplicationsPage() {
                       >
                         {application.status}
                       </span>
+                      {application.application_type === "open" && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">
+                          <FolderOpen className="h-3 w-3" />
+                          Open Hire
+                        </span>
+                      )}
                     </div>
-                    <p className="mb-2 text-xs font-medium text-[#2F2582] sm:text-sm">
-                      {application.job_title}
-                      <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
-                        {application.job_type}
-                      </span>
-                    </p>
+                    {application.application_type === "open" ? (
+                      <p className="mb-2 text-xs font-medium text-purple-700 sm:text-sm">
+                        <span className="flex items-center gap-1">
+                          <User className="h-3 w-3" />
+                          Interested in: {application.desired_role || "Not specified"}
+                        </span>
+                      </p>
+                    ) : (
+                      <p className="mb-2 text-xs font-medium text-[#2F2582] sm:text-sm">
+                        {application.job_title}
+                        <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+                          {application.job_type}
+                        </span>
+                      </p>
+                    )}
                     <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
                       <span className="flex items-center gap-1">
                         <Mail className="h-3 w-3" />

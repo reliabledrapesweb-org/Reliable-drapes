@@ -17,12 +17,14 @@ export interface Job {
 
 export interface JobApplication {
   id: string;
-  job_id: string;
+  job_id: string | null;
   full_name: string;
   email: string;
   phone: string;
   resume_url: string;
   cover_letter: string | null;
+  desired_role: string | null;
+  application_type: "specific" | "open";
   status: "pending" | "reviewed" | "shortlisted" | "rejected";
   created_at: string;
   updated_at: string;
