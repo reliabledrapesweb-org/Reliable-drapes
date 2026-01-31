@@ -1,7 +1,7 @@
 "use client";
 
 import { Breadcrumb, PageHero, PageHeader } from "@/components/shared";
-import { FilterSidebar, ProductGrid } from "@/components/features/catalog";
+import { CatalogFilterSidebar, ProductGrid } from "@/components/features/catalog";
 import { ProductGridSkeleton } from "@/components/features/catalog/ProductGridSkeleton";
 import { useMemo, useState, useEffect } from "react";
 import { getCatalogues, type Catalogue } from "@/lib/actions/catalogues";
@@ -10,7 +10,7 @@ import {
   type CatalogueCategory,
 } from "@/lib/actions/catalogue-categories";
 import { motion, AnimatePresence } from "motion/react";
-import { SlidersHorizontal, X, Check } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import { DEFAULT_CATALOG_IMAGE } from "@/lib/constants/app";
 
 // Transform database catalogue to product format
@@ -111,6 +111,10 @@ export default function CataloguePage() {
     }
   };
 
+  const clearFilters = () => {
+    setSelectedFilters([]);
+  };
+
   const activeFilterCount = selectedFilters.length;
 
   return (
@@ -151,7 +155,7 @@ export default function CataloguePage() {
               </button>
             </div>
 
-            {/* Filter Sidebar - Hidden on mobile, visible on desktop */}
+            {/* Filter Sidebar - Desktop only */}
             <div className="hidden lg:sticky lg:top-24 lg:block lg:w-64 lg:shrink-0 lg:self-start">
               {isLoading ? (
                 <div className="space-y-4">
@@ -164,52 +168,12 @@ export default function CataloguePage() {
                   ))}
                 </div>
               ) : (
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="mb-4 text-sm font-semibold tracking-wider text-gray-900 uppercase">
-                      Categories
-                    </h3>
-                    <div className="space-y-2">
-                      {availableCategories.length > 0 ? (
-                        availableCategories.map((category) => {
-                          const isChecked = selectedFilters.includes(
-                            category.name,
-                          );
-                          return (
-                            <button
-                              key={category.id}
-                              type="button"
-                              onClick={() => toggleFilter(category.name)}
-                              className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-left transition-all ${
-                                isChecked
-                                  ? "bg-[#2f2582] text-white"
-                                  : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                              }`}
-                            >
-                              <span className="font-medium">
-                                {category.name}
-                              </span>
-                              {isChecked && <Check className="h-5 w-5" />}
-                            </button>
-                          );
-                        })
-                      ) : (
-                        <p className="py-4 text-center text-sm text-gray-500">
-                          No categories available
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {selectedFilters.length > 0 && (
-                    <button
-                      onClick={() => setSelectedFilters([])}
-                      className="w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50"
-                    >
-                      Clear All Filters
-                    </button>
-                  )}
-                </div>
+                <CatalogFilterSidebar
+                  categories={availableCategories}
+                  selectedFilters={selectedFilters}
+                  onToggleFilter={toggleFilter}
+                  onClearFilters={clearFilters}
+                />
               )}
             </div>
 
@@ -223,7 +187,7 @@ export default function CataloguePage() {
             </div>
           </div>
 
-          {/* Mobile Filter Sheet - Slide from right like shop page */}
+          {/* Mobile Filter Sheet */}
           <AnimatePresence>
             {isFilterSheetOpen && (
               <>
@@ -236,7 +200,7 @@ export default function CataloguePage() {
                   className="fixed inset-0 z-50 bg-black/50 lg:hidden"
                 />
 
-                {/* Sheet - slides from right */}
+                {/* Sheet */}
                 <motion.div
                   initial={{ x: "100%" }}
                   animate={{ x: 0 }}
@@ -267,58 +231,23 @@ export default function CataloguePage() {
 
                   {/* Sheet Content */}
                   <div className="h-[calc(100%-140px)] overflow-y-auto px-6 py-6">
-                    {/* Category Filters */}
-                    <div className="space-y-2">
-                      <h3 className="mb-3 text-sm font-semibold tracking-wider text-gray-500 uppercase">
-                        Categories
-                      </h3>
-                      {isLoading ? (
-                        <div className="space-y-2">
-                          {[...Array(4)].map((_, i) => (
-                            <div
-                              key={i}
-                              className="h-12 w-full animate-pulse rounded-xl bg-gray-100"
-                            />
-                          ))}
-                        </div>
-                      ) : availableCategories.length > 0 ? (
-                        availableCategories.map((category) => {
-                          const isChecked = selectedFilters.includes(
-                            category.name,
-                          );
-                          return (
-                            <button
-                              key={category.id}
-                              type="button"
-                              onClick={() => toggleFilter(category.name)}
-                              className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-left transition-all ${
-                                isChecked
-                                  ? "bg-[#2f2582] text-white"
-                                  : "bg-gray-50 text-gray-700 hover:bg-gray-100"
-                              }`}
-                            >
-                              <span className="font-medium">
-                                {category.name}
-                              </span>
-                              {isChecked && <Check className="h-5 w-5" />}
-                            </button>
-                          );
-                        })
-                      ) : (
-                        <p className="py-4 text-center text-sm text-gray-500">
-                          No categories available
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Reset Filters */}
-                    {activeFilterCount > 0 && (
-                      <button
-                        onClick={() => setSelectedFilters([])}
-                        className="mt-6 w-full rounded-xl border-2 border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50"
-                      >
-                        Clear All Filters
-                      </button>
+                    {isLoading ? (
+                      <div className="space-y-4">
+                        <div className="h-6 w-32 animate-pulse rounded bg-gray-200" />
+                        {[...Array(4)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="h-10 w-full animate-pulse rounded bg-gray-100"
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <CatalogFilterSidebar
+                        categories={availableCategories}
+                        selectedFilters={selectedFilters}
+                        onToggleFilter={toggleFilter}
+                        onClearFilters={clearFilters}
+                      />
                     )}
                   </div>
 
