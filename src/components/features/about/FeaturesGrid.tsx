@@ -1,8 +1,20 @@
 import Image from "next/image";
 import { motion } from "motion/react";
+import type { AboutSection } from "@/lib/actions/about-sections";
 
-export function FeaturesGrid() {
-  const features = [
+interface FeaturesGridProps {
+  section?: AboutSection;
+}
+
+interface Feature {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+export function FeaturesGrid({ section }: FeaturesGridProps) {
+  // Default features as fallback
+  const defaultFeatures: Feature[] = [
     {
       icon: "/images/fi_1.png",
       title: "Expertly Curated Designs",
@@ -20,6 +32,10 @@ export function FeaturesGrid() {
         "Personalized guidance for a home that feels uniquely yours.",
     },
   ];
+
+  // Use CMS data if available, otherwise use defaults
+  const features =
+    (section?.content_json as unknown as Feature[]) || defaultFeatures;
 
   const container = {
     hidden: { opacity: 0 },
@@ -46,7 +62,7 @@ export function FeaturesGrid() {
           whileInView="show"
           viewport={{ once: true, margin: "-100px" }}
         >
-          {features.map((feature, index) => (
+          {features.map((feature) => (
             <motion.div
               key={feature.title}
               variants={item}

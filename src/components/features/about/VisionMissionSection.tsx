@@ -1,7 +1,35 @@
 import Image from "next/image";
 import { motion } from "motion/react";
+import type { AboutSection } from "@/lib/actions/about-sections";
 
-export function VisionMissionSection() {
+interface VisionMissionSectionProps {
+  section?: AboutSection;
+}
+
+export function VisionMissionSection({ section }: VisionMissionSectionProps) {
+  // Default content as fallback
+  const defaults = {
+    title: "Our Vision & Mission",
+    content:
+      "Our mission is to redefine home styling by creating furnishings that combine timeless elegance with modern innovation. We aspire to make every home a reflection of individuality—warm, inviting, and beautifully designed—through fabrics and collections that go beyond imagination.",
+    mission_points: [
+      "Design collections that balance tradition and innovation.",
+      "Offer a wide range of fabrics and furnishings curated by our expert designer team.",
+      "Ensure durability, comfort, and beauty in every product.",
+      "Help customers transform houses into homes that tell their unique story.",
+    ],
+    image_url: "/images/visPic_1.png",
+    icon_url: "/images/target.png",
+  };
+
+  // Use CMS data if available, otherwise use defaults
+  const contentJson = (section?.content_json as Record<string, string[]>) || {};
+  const title = section?.title || defaults.title;
+  const content = section?.content || defaults.content;
+  const missionPoints = contentJson.mission_points || defaults.mission_points;
+  const imageUrl = section?.image_url || defaults.image_url;
+  const iconUrl = section?.image_url_2 || defaults.icon_url;
+
   return (
     <section className="overflow-hidden bg-white py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -14,14 +42,14 @@ export function VisionMissionSection() {
           transition={{ duration: 0.6 }}
         >
           <Image
-            src="/images/target.png"
+            src={iconUrl}
             alt=""
             width={200}
             height={200}
             className="h-12 w-12 text-black md:h-14 md:w-14"
           />
           <h2 className="text-2xl font-semibold tracking-tight text-black lg:text-[32px]">
-            Our Vision & Mission
+            {title}
           </h2>
         </motion.div>
 
@@ -43,7 +71,7 @@ export function VisionMissionSection() {
                   <Image
                     width={400}
                     height={400}
-                    src="/images/visPic_1.png"
+                    src={imageUrl}
                     alt="Vision"
                     className="h-full w-full translate-x-4 translate-y-4 transform rounded-3xl border-4 border-white object-cover shadow-lg transition-transform duration-500 group-hover:translate-x-2 group-hover:translate-y-2"
                   />
@@ -59,21 +87,8 @@ export function VisionMissionSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              {/* <h3 className="text-2xl font-medium mb-6 text-black">
-                Our Vision
-              </h3> */}
               <div className="space-y-6 text-lg leading-relaxed text-[#575757]">
-                <p>
-                  Our mission is to redefine home styling by creating
-                  furnishings that combine timeless elegance with modern
-                  innovation.
-                </p>
-
-                <p>
-                  We aspire to make every home a reflection of
-                  individuality—warm, inviting, and beautifully designed—through
-                  fabrics and collections that go beyond imagination.
-                </p>
+                <p>{content}</p>
               </div>
             </motion.div>
           </div>
@@ -94,7 +109,7 @@ export function VisionMissionSection() {
                   <Image
                     width={400}
                     height={400}
-                    src="/images/visPic_1.png"
+                    src={imageUrl}
                     alt="Mission"
                     className="h-full w-full -translate-x-4 translate-y-4 transform rounded-3xl border-4 border-white object-cover shadow-lg transition-transform duration-500 group-hover:-translate-x-2 group-hover:translate-y-2"
                   />
@@ -110,9 +125,6 @@ export function VisionMissionSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              {/* <h3 className="text-2xl font-medium mb-6 text-black">
-                Our Mission
-              </h3> */}
               <div className="space-y-6 text-lg leading-relaxed text-[#575757]">
                 <p>
                   At Reliable Drapes, our mission is to craft high-quality,
@@ -121,12 +133,7 @@ export function VisionMissionSection() {
                 </p>
 
                 <ul className="space-y-4 leading-tight">
-                  {[
-                    "Design collections that balance tradition and innovation.",
-                    "Offer a wide range of fabrics and furnishings curated by our expert designer team.",
-                    "Ensure durability, comfort, and beauty in every product.",
-                    "Help customers transform houses into homes that tell their unique story.",
-                  ].map((item, index) => (
+                  {missionPoints.map((item, index) => (
                     <li key={index} className="flex items-start gap-3">
                       <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#2F2582]" />
                       <span>{item}</span>

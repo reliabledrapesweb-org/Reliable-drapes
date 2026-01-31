@@ -18,6 +18,7 @@ import {
   BookOpen,
   MapPin,
   Bell,
+  Layout,
 } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
