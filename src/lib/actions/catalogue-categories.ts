@@ -34,16 +34,18 @@ export async function getCatalogueCategories(): Promise<{
 }> {
   try {
     const supabase = getAnonSupabase();
+    // RLS policy handles the is_active filtering (COALESCE(is_active, true) = true)
+    // No need for additional filters here
     const { data, error } = await supabase
       .from("catalogue_categories")
       .select("*")
-      .or("is_active.eq.true,is_active.is.null")
       .order("sort_order")
       .order("name");
 
     if (error) throw error;
     return { success: true, data };
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Error fetching catalogue categories:", error?.message || error);
     return { success: false, error: "Failed to fetch categories" };
   }
 }
