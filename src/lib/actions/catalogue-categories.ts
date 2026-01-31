@@ -8,7 +8,7 @@ export interface CatalogueCategory {
   slug: string;
   description: string | null;
   sort_order: number;
-  is_active: boolean;
+  is_active: boolean | null;
   created_at: string;
   updated_at: string;
   catalogue_count?: number;
@@ -37,7 +37,7 @@ export async function getCatalogueCategories(): Promise<{
     const { data, error } = await supabase
       .from("catalogue_categories")
       .select("*")
-      .eq("is_active", true)
+      .or("is_active.eq.true,is_active.is.null")
       .order("sort_order")
       .order("name");
 

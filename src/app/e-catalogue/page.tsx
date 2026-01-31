@@ -78,9 +78,10 @@ export default function CataloguePage() {
   }, [catalogues]);
 
   // Get unique categories from the categories table (not from products)
+  // Treat null is_active as active (default behavior)
   const availableCategories = useMemo(() => {
     return categories
-      .filter((c) => c.is_active)
+      .filter((c) => c.is_active !== false)
       .sort((a, b) => a.sort_order - b.sort_order);
   }, [categories]);
 
