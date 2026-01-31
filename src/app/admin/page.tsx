@@ -63,13 +63,13 @@ function StatCard({
     <div className="relative flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div
-          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${color} shadow-sm transition-transform duration-300 group-hover:scale-110`}
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg ${color} shadow-sm transition-transform duration-300 group-hover:scale-110`}
         >
           {icon}
         </div>
         {change && trend && !isLoading && (
           <div
-            className={`flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold ${
+            className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-bold ${
               trend === "up"
                 ? "bg-green-50 text-green-600 dark:bg-green-900/20"
                 : "bg-red-50 text-red-600 dark:bg-red-900/20"
@@ -103,7 +103,7 @@ function StatCard({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="group h-full cursor-pointer rounded-3xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:border-[#2F2582] hover:shadow-xl dark:border-gray-800 dark:bg-gray-900 dark:hover:border-[#a099ff]"
+          className="group h-full cursor-pointer rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:border-[#2F2582] hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-[#a099ff]"
         >
           {content}
         </motion.div>
@@ -115,7 +115,7 @@ function StatCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="group h-full rounded-3xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+      className="group h-full rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
     >
       {content}
     </motion.div>
@@ -146,7 +146,7 @@ function ShortcutIcon({
         onMouseLeave={() => setIsHovered(false)}
         whileHover={{ y: -5, scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
-        className={`flex h-14 w-14 items-center justify-center rounded-2xl ${color} cursor-pointer shadow-sm transition-all duration-300 hover:shadow-lg`}
+        className={`flex h-14 w-14 items-center justify-center rounded-lg ${color} cursor-pointer shadow-sm transition-all duration-300 hover:shadow-lg`}
       >
         {icon}
       </motion.div>
@@ -157,7 +157,7 @@ function ShortcutIcon({
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute bottom-full left-1/2 z-50 mb-3 w-48 -translate-x-1/2 overflow-hidden rounded-2xl border border-gray-100 bg-white p-4 shadow-2xl dark:border-gray-800 dark:bg-gray-900"
+            className="absolute bottom-full left-1/2 z-50 mb-3 w-48 -translate-x-1/2 overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-lg dark:border-gray-800 dark:bg-gray-900"
           >
             <div className="relative z-10">
               <h4 className="text-sm font-bold text-gray-900 dark:text-white">
@@ -467,9 +467,9 @@ export default function AdminDashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="overflow-hidden rounded-[2.5rem] border border-gray-100 bg-white shadow-xl shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none"
+            className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
           >
-            <div className="flex items-center justify-between border-b border-gray-50 p-6 sm:px-8 dark:border-gray-800">
+            <div className="flex items-center justify-between border-b border-gray-200 p-6 sm:px-8 dark:border-gray-800">
               <div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                   Recent Orders
@@ -491,7 +491,7 @@ export default function AdminDashboard() {
             <div className="p-0">
               {recentOrders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-800">
                     <ShoppingCart className="h-10 w-10 text-gray-300" />
                   </div>
                   <h3 className="mt-4 text-lg font-bold text-gray-900 dark:text-white">
@@ -551,7 +551,7 @@ export default function AdminDashboard() {
                   <div className="hidden overflow-x-auto sm:block">
                     <table className="w-full border-collapse">
                       <thead>
-                        <tr className="bg-gray-50/50 text-left text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase dark:bg-gray-800/50">
+                        <tr className="bg-gray-50 text-left text-[10px] font-black tracking-[0.2em] text-gray-400 uppercase dark:bg-gray-800">
                           <th className="px-8 py-5">Order</th>
                           <th className="px-6 py-5">Customer</th>
                           <th className="px-6 py-5">Date</th>
@@ -568,7 +568,7 @@ export default function AdminDashboard() {
                           return (
                             <tr
                               key={order.id}
-                              className="group transition-colors hover:bg-gray-50/80 dark:hover:bg-gray-800/80"
+                              className="group transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
                             >
                               <td className="px-8 py-6">
                                 <span className="font-mono text-xs font-bold text-gray-400">
@@ -625,7 +625,7 @@ export default function AdminDashboard() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.6 }}
-            className="rounded-[2rem] border border-gray-100 bg-white p-8 shadow-xl shadow-gray-200/50 dark:border-gray-800 dark:bg-gray-900 dark:shadow-none"
+            className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900"
           >
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -641,7 +641,7 @@ export default function AdminDashboard() {
 
             {recentMedia.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-center">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-50 dark:bg-gray-800">
                   <ImageIcon className="h-6 w-6 text-gray-300" />
                 </div>
                 <p className="text-xs font-medium text-gray-400">
@@ -654,7 +654,7 @@ export default function AdminDashboard() {
                   <Link
                     key={item.id}
                     href="/admin/media"
-                    className="group relative aspect-square overflow-hidden rounded-2xl bg-gray-50 transition-transform hover:scale-105 dark:bg-gray-800"
+                    className="group relative aspect-square overflow-hidden rounded-lg bg-gray-50 transition-transform hover:scale-105 dark:bg-gray-800"
                   >
                     {item.mime_type.startsWith("image/") ? (
                       <Image
