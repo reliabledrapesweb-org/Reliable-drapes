@@ -15,7 +15,11 @@
       "Bash(npm run build:*)",
       "Bash(curl:*)",
       "Bash(npm run dev:*)",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "Bash(npx prettier --check:*)",
+      "Bash(npm run prettier:*)",
+      "Bash(npx turbo typecheck lint:*)",
+      "Bash(npx vitest run:*)"
     ]
   }
 }

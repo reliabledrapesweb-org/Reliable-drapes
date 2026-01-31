@@ -2,17 +2,22 @@
 
 import { getAdminSupabase } from "@/lib/supabase/admin";
 import { getAnonSupabase } from "@/lib/supabase/anon";
+import type { CatalogueCategoryId } from "@/lib/types/category.types";
 
 export interface CatalogueCategory {
-  id: string;
+  id: CatalogueCategoryId;
   name: string;
   slug: string;
   description: string | null;
   sort_order: number;
   is_active: boolean | null;
+  parent_id: CatalogueCategoryId | null;
+  path: string;
   created_at: string;
   updated_at: string;
   catalogue_count?: number;
+  children?: CatalogueCategory[];
+  level?: number;
 }
 
 export interface CreateCatalogueCategoryInput {
@@ -21,10 +26,12 @@ export interface CreateCatalogueCategoryInput {
   description?: string;
   sort_order?: number;
   is_active?: boolean;
+  parent_id?: CatalogueCategoryId | null;
 }
 
-export interface UpdateCatalogueCategoryInput extends Partial<CreateCatalogueCategoryInput> {
-  id: string;
+export interface UpdateCatalogueCategoryInput
+  extends Partial<CreateCatalogueCategoryInput> {
+  id: CatalogueCategoryId;
 }
 
 // Get all active categories (public)
@@ -46,7 +53,10 @@ export async function getCatalogueCategories(): Promise<{
     if (error) throw error;
     return { success: true, data };
   } catch (error: any) {
-    console.error("Error fetching catalogue categories:", error?.message || error);
+    console.error(
+      "Error fetching catalogue categories:",
+      error?.message || error,
+    );
     return { success: false, error: "Failed to fetch categories" };
   }
 }
@@ -107,6 +117,7 @@ export async function createCatalogueCategory(
         description: input.description || null,
         sort_order: input.sort_order || 0,
         is_active: input.is_active ?? true,
+        parent_id: input.parent_id || null,
       })
       .select()
       .single();
@@ -166,6 +177,19 @@ export async function deleteCatalogueCategory(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = getAdminSupabase();
+
+    // Check if category has child categories
+    const { count: childCount } = await supabase
+      .from("catalogue_categories")
+      .select("*", { count: "exact", head: true })
+      .eq("parent_id", id);
+
+    if (childCount && childCount > 0) {
+      return {
+        success: false,
+        error: `Cannot delete category with ${childCount} subcategory(s). Delete subcategories first.`,
+      };
+    }
 
     // Check if category has catalogues
     const { count } = await supabase

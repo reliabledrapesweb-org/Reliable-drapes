@@ -12,6 +12,9 @@ import {
   Star,
   X,
   LayoutGrid,
+  ChevronRight,
+  ChevronDown,
+  Folder,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -22,6 +25,11 @@ import {
   deleteCategory,
   type CategoryFull,
 } from "@/lib/actions/products";
+import type { CategoryId } from "@/lib/types/category.types";
+import {
+  buildCategoryTree,
+  flattenCategoryTree,
+} from "@/lib/utils/category.utils";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { ConfirmationModal } from "@/components/shared";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,6 +43,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAdmin } from "@/lib/hooks/useAdmin";
 import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants/app";
 
@@ -63,11 +78,17 @@ export default function AdminCategoriesPage() {
     slug: "",
     description: "",
     image_url: "",
+    parent_id: null as CategoryId | null,
     is_featured: false,
     published: true,
     sort_order: 0,
     show_in_footer: false,
   });
+
+  // Tree expansion state
+  const [expandedCategories, setExpandedCategories] = useState<Set<CategoryId>>(
+    new Set(),
+  );
 
   // Fetch categories on admin access
   useEffect(() => {
@@ -81,6 +102,19 @@ export default function AdminCategoriesPage() {
     const result = await getAllCategories();
     if (result.success && result.data) {
       setCategories(result.data);
+      // Auto-expand categories that have children
+      const tree = buildCategoryTree(result.data);
+      const hasChildren = new Set<CategoryId>();
+      const checkChildren = (cats: CategoryFull[]) => {
+        for (const cat of cats) {
+          if (cat.children && cat.children.length > 0) {
+            hasChildren.add(cat.id);
+            checkChildren(cat.children);
+          }
+        }
+      };
+      checkChildren(tree);
+      setExpandedCategories(hasChildren);
     } else {
       addToast(result.error || "Failed to fetch categories", "error");
     }
@@ -96,6 +130,7 @@ export default function AdminCategoriesPage() {
         slug: category.slug,
         description: category.description || "",
         image_url: category.image_url || "",
+        parent_id: category.parent_id,
         is_featured: category.is_featured,
         published: category.published,
         sort_order: category.sort_order,
@@ -108,6 +143,7 @@ export default function AdminCategoriesPage() {
         slug: "",
         description: "",
         image_url: "",
+        parent_id: null,
         is_featured: false,
         published: true,
         sort_order: 0,
@@ -135,7 +171,6 @@ export default function AdminCategoriesPage() {
       const categoryData = {
         ...formData,
         slug: formData.slug || generateSlug(formData.name),
-        parent_id: null,
       };
 
       if (editingCategory) {
@@ -268,6 +303,291 @@ export default function AdminCategoriesPage() {
       category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       category.slug.toLowerCase().includes(searchQuery.toLowerCase()),
   );
+
+  const toggleCategoryExpanded = (categoryId: CategoryId) => {
+    setExpandedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(categoryId)) {
+        next.delete(categoryId);
+      } else {
+        next.add(categoryId);
+      }
+      return next;
+    });
+  };
+
+  // Build category tree for display
+  const categoryTree = buildCategoryTree(filteredCategories);
+
+  // Recursive component for rendering category tree
+  const renderCategoryTree = (
+    cats: CategoryFull[],
+    level = 0,
+  ): JSX.Element[] => {
+    return cats.map((category) => {
+      const hasChildren = category.children && category.children.length > 0;
+      const isExpanded = expandedCategories.has(category.id);
+      const paddingLeft = level * 24;
+
+      return (
+        <>
+          {/* Mobile Card View */}
+          <div
+            key={`mobile-${category.id}`}
+            className="divide-y divide-gray-100 sm:hidden"
+            style={{ marginLeft: level > 0 ? `${level * 16}px` : undefined }}
+          >
+            <div className="space-y-3 p-4">
+              <div className="flex items-start gap-3">
+                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                  <Image
+                    src={category.image_url || fallbackImage}
+                    alt={category.name}
+                    fill
+                    className="object-cover"
+                    sizes="56px"
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="truncate font-medium text-gray-900">
+                    {category.name}
+                  </h3>
+                  <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">
+                    {category.slug}
+                  </code>
+                  {category.description && (
+                    <p className="mt-1 line-clamp-1 text-xs text-gray-500">
+                      {category.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-gray-500">
+                    {category.product_count || 0} products
+                  </span>
+                  {hasChildren && (
+                    <span className="text-xs text-blue-600">
+                      {category.children?.length} subcategories
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1">
+                  {hasChildren && (
+                    <button
+                      onClick={() => toggleCategoryExpanded(category.id)}
+                      className="rounded-full p-1.5 transition-colors hover:bg-gray-100"
+                    >
+                      {isExpanded ? (
+                        <ChevronDown className="h-4 w-4 text-gray-500" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 text-gray-500" />
+                      )}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => toggleFeatured(category)}
+                    className={`rounded-full p-1.5 transition-colors ${
+                      category.is_featured
+                        ? "bg-yellow-100 text-yellow-600"
+                        : "bg-gray-100 text-gray-400"
+                    }`}
+                  >
+                    <Star
+                      className="h-3.5 w-3.5"
+                      fill={category.is_featured ? "currentColor" : "none"}
+                    />
+                  </button>
+                  <button
+                    onClick={() => togglePublished(category)}
+                    className={`rounded-full p-1.5 transition-colors ${
+                      category.published
+                        ? "bg-green-100 text-green-600"
+                        : "bg-gray-100 text-gray-400"
+                    }`}
+                  >
+                    {category.published ? (
+                      <Eye className="h-3.5 w-3.5" />
+                    ) : (
+                      <EyeOff className="h-3.5 w-3.5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleOpenModal(category)}
+                  className="h-8 px-3"
+                >
+                  <Edit className="mr-1 h-3 w-3" />
+                  Edit
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDelete(category.id, category.name)}
+                  disabled={
+                    actionLoading[`delete-${category.id}`] === "delete" ||
+                    hasChildren
+                  }
+                  className="h-8 border-red-200 px-3 text-red-600 hover:bg-red-50 disabled:opacity-50"
+                >
+                  <Trash2 className="mr-1 h-3 w-3" />
+                  Delete
+                </Button>
+              </div>
+            </div>
+            {isExpanded &&
+              hasChildren &&
+              renderCategoryTree(category.children || [], level + 1)}
+          </div>
+
+          {/* Desktop Table View */}
+          <>
+            <tr key={`desktop-${category.id}`} className="hover:bg-gray-50">
+              <td className="px-4 py-3">
+                <div className="flex items-center gap-3">
+                  {hasChildren && (
+                    <button
+                      onClick={() => toggleCategoryExpanded(category.id)}
+                      className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-200"
+                    >
+                      {isExpanded ? (
+                        <ChevronDown className="h-4 w-4 text-gray-500" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 text-gray-500" />
+                      )}
+                    </button>
+                  )}
+                  {!hasChildren && <div className="w-6" />}
+                  <div
+                    className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-gray-100"
+                    style={{ marginLeft: paddingLeft }}
+                  >
+                    <Image
+                      src={category.image_url || fallbackImage}
+                      alt={category.name}
+                      fill
+                      className="object-cover"
+                      sizes="48px"
+                    />
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">
+                      {category.name}
+                    </div>
+                    {category.description && (
+                      <div className="max-w-xs truncate text-xs text-gray-500">
+                        {category.description}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </td>
+              <td className="px-4 py-3">
+                <code className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-600">
+                  {category.slug}
+                </code>
+              </td>
+              <td className="px-4 py-3">
+                <span className="text-sm text-gray-600">
+                  {category.product_count || 0}
+                </span>
+              </td>
+              <td className="px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => toggleFeatured(category)}
+                    className={`rounded-full p-1 transition-colors ${
+                      category.is_featured
+                        ? "bg-yellow-100 text-yellow-600"
+                        : "bg-gray-100 text-gray-400 hover:bg-yellow-50"
+                    }`}
+                    title={
+                      category.is_featured
+                        ? "Remove from featured"
+                        : "Add to featured"
+                    }
+                  >
+                    <Star
+                      className="h-4 w-4"
+                      fill={category.is_featured ? "currentColor" : "none"}
+                    />
+                  </button>
+                  <button
+                    onClick={() => togglePublished(category)}
+                    className={`rounded-full p-1 transition-colors ${
+                      category.published
+                        ? "bg-green-100 text-green-600"
+                        : "bg-gray-100 text-gray-400 hover:bg-green-50"
+                    }`}
+                    title={category.published ? "Unpublish" : "Publish"}
+                  >
+                    {category.published ? (
+                      <Eye className="h-4 w-4" />
+                    ) : (
+                      <EyeOff className="h-4 w-4" />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => toggleShowInFooter(category)}
+                    className={`rounded-full p-1 transition-colors ${
+                      category.show_in_footer
+                        ? "bg-blue-100 text-blue-600"
+                        : "bg-gray-100 text-gray-400 hover:bg-blue-50"
+                    }`}
+                    title={
+                      category.show_in_footer
+                        ? "Remove from footer"
+                        : "Add to footer"
+                    }
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </button>
+                </div>
+              </td>
+              <td className="px-4 py-3">
+                <div className="flex items-center justify-end gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleOpenModal(category)}
+                    className="h-8 w-8 p-0 text-gray-600 hover:text-blue-600"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(category.id, category.name)}
+                    disabled={
+                      actionLoading[`delete-${category.id}`] === "delete" ||
+                      hasChildren
+                    }
+                    className="h-8 w-8 p-0 text-gray-600 hover:text-red-600 disabled:opacity-50"
+                  >
+                    {actionLoading[`delete-${category.id}`] === "delete" ? (
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-600 border-t-transparent" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </td>
+            </tr>
+            {isExpanded &&
+              hasChildren &&
+              renderCategoryTree(category.children || [], level + 1)}
+          </>
+        </>
+      );
+    });
+  };
 
   const fallbackImage = DEFAULT_PRODUCT_IMAGE;
 
@@ -411,106 +731,7 @@ export default function AdminCategoriesPage() {
             <>
               {/* Mobile Card View */}
               <div className="divide-y divide-gray-100 sm:hidden">
-                {filteredCategories.map((category) => (
-                  <div key={category.id} className="space-y-3 p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                        <Image
-                          src={category.image_url || fallbackImage}
-                          alt={category.name}
-                          fill
-                          className="object-cover"
-                          sizes="56px"
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="truncate font-medium text-gray-900">
-                          {category.name}
-                        </h3>
-                        <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">
-                          {category.slug}
-                        </code>
-                        {category.description && (
-                          <p className="mt-1 line-clamp-1 text-xs text-gray-500">
-                            {category.description}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs text-gray-500">
-                          {category.product_count || 0} products
-                        </span>
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => toggleFeatured(category)}
-                            className={`rounded-full p-1.5 transition-colors ${
-                              category.is_featured
-                                ? "bg-yellow-100 text-yellow-600"
-                                : "bg-gray-100 text-gray-400"
-                            }`}
-                          >
-                            <Star
-                              className="h-3.5 w-3.5"
-                              fill={
-                                category.is_featured ? "currentColor" : "none"
-                              }
-                            />
-                          </button>
-                          <button
-                            onClick={() => togglePublished(category)}
-                            className={`rounded-full p-1.5 transition-colors ${
-                              category.published
-                                ? "bg-green-100 text-green-600"
-                                : "bg-gray-100 text-gray-400"
-                            }`}
-                          >
-                            {category.published ? (
-                              <Eye className="h-3.5 w-3.5" />
-                            ) : (
-                              <EyeOff className="h-3.5 w-3.5" />
-                            )}
-                          </button>
-                          <button
-                            onClick={() => toggleShowInFooter(category)}
-                            className={`rounded-full p-1.5 transition-colors ${
-                              category.show_in_footer
-                                ? "bg-blue-100 text-blue-600"
-                                : "bg-gray-100 text-gray-400"
-                            }`}
-                          >
-                            <LayoutGrid className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleOpenModal(category)}
-                          className="h-8 px-3"
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            handleDelete(category.id, category.name)
-                          }
-                          disabled={
-                            actionLoading[`delete-${category.id}`] === "delete"
-                          }
-                          className="h-8 border-red-200 px-3 text-red-600 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                {renderCategoryTree(categoryTree)}
               </div>
 
               {/* Desktop Table View */}
@@ -536,130 +757,7 @@ export default function AdminCategoriesPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {filteredCategories.map((category) => (
-                      <tr key={category.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                              <Image
-                                src={category.image_url || fallbackImage}
-                                alt={category.name}
-                                fill
-                                className="object-cover"
-                                sizes="48px"
-                              />
-                            </div>
-                            <div>
-                              <div className="font-medium text-gray-900">
-                                {category.name}
-                              </div>
-                              {category.description && (
-                                <div className="max-w-xs truncate text-xs text-gray-500">
-                                  {category.description}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <code className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-600">
-                            {category.slug}
-                          </code>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className="text-sm text-gray-600">
-                            {category.product_count || 0}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => toggleFeatured(category)}
-                              className={`rounded-full p-1 transition-colors ${
-                                category.is_featured
-                                  ? "bg-yellow-100 text-yellow-600"
-                                  : "bg-gray-100 text-gray-400 hover:bg-yellow-50"
-                              }`}
-                              title={
-                                category.is_featured
-                                  ? "Remove from featured"
-                                  : "Add to featured"
-                              }
-                            >
-                              <Star
-                                className="h-4 w-4"
-                                fill={
-                                  category.is_featured ? "currentColor" : "none"
-                                }
-                              />
-                            </button>
-                            <button
-                              onClick={() => togglePublished(category)}
-                              className={`rounded-full p-1 transition-colors ${
-                                category.published
-                                  ? "bg-green-100 text-green-600"
-                                  : "bg-gray-100 text-gray-400 hover:bg-green-50"
-                              }`}
-                              title={
-                                category.published ? "Unpublish" : "Publish"
-                              }
-                            >
-                              {category.published ? (
-                                <Eye className="h-4 w-4" />
-                              ) : (
-                                <EyeOff className="h-4 w-4" />
-                              )}
-                            </button>
-                            <button
-                              onClick={() => toggleShowInFooter(category)}
-                              className={`rounded-full p-1 transition-colors ${
-                                category.show_in_footer
-                                  ? "bg-blue-100 text-blue-600"
-                                  : "bg-gray-100 text-gray-400 hover:bg-blue-50"
-                              }`}
-                              title={
-                                category.show_in_footer
-                                  ? "Remove from footer"
-                                  : "Add to footer"
-                              }
-                            >
-                              <LayoutGrid className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleOpenModal(category)}
-                              className="h-8 w-8 p-0 text-gray-600 hover:text-blue-600"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() =>
-                                handleDelete(category.id, category.name)
-                              }
-                              disabled={
-                                actionLoading[`delete-${category.id}`] ===
-                                "delete"
-                              }
-                              className="h-8 w-8 p-0 text-gray-600 hover:text-red-600"
-                            >
-                              {actionLoading[`delete-${category.id}`] ===
-                              "delete" ? (
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-600 border-t-transparent" />
-                              ) : (
-                                <Trash2 className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                    {renderCategoryTree(categoryTree)}
                   </tbody>
                 </table>
               </div>
@@ -766,6 +864,40 @@ export default function AdminCategoriesPage() {
                       />
                     </div>
                   )}
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Parent Category
+                  </label>
+                  <Select
+                    value={formData.parent_id || "none"}
+                    onValueChange={(value) =>
+                      setFormData({
+                        ...formData,
+                        parent_id:
+                          value === "none" ? null : (value as CategoryId),
+                      })
+                    }
+                  >
+                    <SelectTrigger className="border-2">
+                      <SelectValue placeholder="Select parent category (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None (Root Category)</SelectItem>
+                      {flattenCategoryTree(
+                        categoryTree,
+                        editingCategory?.id,
+                      ).map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {"\u00A0".repeat(cat.level * 2) + cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Select a parent to create a subcategory (max 2 levels deep)
+                  </p>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-4">

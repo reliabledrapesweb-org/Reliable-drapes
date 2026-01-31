@@ -7,6 +7,7 @@
 import { getAnonSupabase } from "@/lib/supabase/anon";
 import { getAdminSupabase } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
+import type { CategoryId } from "@/lib/types/category.types";
 
 export interface Product {
   id: string;
@@ -692,18 +693,21 @@ export async function getProductCategoryMappings(
 // ============================================
 
 export interface CategoryFull {
-  id: string;
+  id: CategoryId;
   name: string;
   slug: string;
   description: string | null;
   image_url: string | null;
-  parent_id: string | null;
+  parent_id: CategoryId | null;
+  path: string;
   sort_order: number;
   is_featured: boolean;
   published: boolean;
   show_in_footer: boolean;
   created_at: string;
   product_count?: number;
+  children?: CategoryFull[];
+  level?: number;
 }
 
 interface CategoryResponse {
@@ -785,7 +789,10 @@ export async function getFeaturedCategories(): Promise<CategoriesResponse> {
  * Create a new category (Admin only)
  */
 export async function createCategory(
-  categoryData: Omit<CategoryFull, "id" | "created_at" | "product_count">,
+  categoryData: Omit<
+    CategoryFull,
+    "id" | "created_at" | "product_count" | "path" | "children" | "level"
+  >,
 ): Promise<CategoryResponse> {
   try {
     const supabase = getAdminSupabase();
@@ -839,7 +846,7 @@ export async function createCategory(
 export async function updateCategory(
   id: string,
   categoryData: Partial<
-    Omit<CategoryFull, "id" | "created_at" | "product_count">
+    Omit<CategoryFull, "id" | "created_at" | "product_count" | "path" | "children" | "level">
   >,
 ): Promise<CategoryResponse> {
   try {

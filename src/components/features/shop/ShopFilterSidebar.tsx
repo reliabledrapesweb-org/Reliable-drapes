@@ -1,6 +1,6 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { Check, ChevronRight, ChevronDown } from "lucide-react";
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Category } from "@/lib/actions/products";
@@ -16,6 +16,23 @@ interface ShopFilterSidebarProps {
   maxPrice?: number;
 }
 
+// Build tree from flat categories
+function buildCategoryTree(
+  categories: Category[],
+  parentId: string | null = null,
+): Array<Category & { children?: Category[]; level?: number }> {
+  return categories
+    .filter((cat) => (cat as any).parent_id === parentId)
+    .map((cat) => ({
+      ...cat,
+      level: parentId === null ? 0 : 1,
+      children: buildCategoryTree(categories, cat.id).map((c) => ({
+        ...c,
+        level: 1,
+      })),
+    }));
+}
+
 export function ShopFilterSidebar({
   selectedCategories,
   onCategoryChange,
@@ -29,7 +46,36 @@ export function ShopFilterSidebar({
   const [isExpanded, setIsExpanded] = useState(true);
   const [selectedSort, setSelectedSort] = useState<string>(sortBy);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
+    () => {
+      // Auto-expand categories that have selected children
+      const expanded = new Set<string>();
+      const tree = buildCategoryTree(categories);
+      const checkSelected = (cats: typeof tree) => {
+        for (const cat of cats) {
+          if (cat.children?.some((c) => selectedCategories.includes(c.slug))) {
+            expanded.add(cat.id);
+          }
+          if (cat.children) checkSelected(cat.children as typeof tree);
+        }
+      };
+      checkSelected(tree);
+      return expanded;
+    },
+  );
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const toggleCategoryExpanded = (categoryId: string) => {
+    setExpandedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(categoryId)) {
+        next.delete(categoryId);
+      } else {
+        next.add(categoryId);
+      }
+      return next;
+    });
+  };
 
   const toggleCategory = (categorySlug: string) => {
     if (selectedCategories.includes(categorySlug)) {
@@ -76,6 +122,85 @@ export function ShopFilterSidebar({
   const currentSortLabel =
     sortOptions.find((opt) => opt.value === selectedSort)?.label ||
     "Newest First";
+
+  // Build category tree
+  const categoryTree = buildCategoryTree(categories);
+
+  // Recursive render for category tree
+  const renderCategoryTree = (
+    cats: Array<Category & { children?: Category[]; level?: number }>,
+  ): JSX.Element[] => {
+    return cats.map((category) => {
+      const isChecked = selectedCategories.includes(category.slug);
+      const hasChildren = category.children && category.children.length > 0;
+      const isCategoryExpanded = expandedCategories.has(category.id);
+      const paddingLeft = (category.level || 0) * 16;
+
+      return (
+        <div key={category.id}>
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex cursor-pointer items-center justify-between py-1"
+            style={{ paddingLeft: `${paddingLeft}px` }}
+          >
+            <div className="flex items-center gap-2">
+              {hasChildren && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleCategoryExpanded(category.id);
+                  }}
+                  className="flex h-5 w-5 items-center justify-center rounded hover:bg-gray-100"
+                >
+                  {isCategoryExpanded ? (
+                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-gray-500" />
+                  )}
+                </button>
+              )}
+              {!hasChildren && <div className="w-5" />}
+              <span
+                onClick={() => toggleCategory(category.slug)}
+                className={`text-[16px] transition-colors hover:text-[#2f2582] md:text-[18px] ${
+                  isChecked ? "font-medium text-[#2f2582]" : "text-[#575757]"
+                }`}
+              >
+                {category.name}
+              </span>
+            </div>
+            <motion.div
+              animate={{
+                backgroundColor: isChecked ? "#2f2582" : "#e8e8e8",
+                borderColor: isChecked ? "#2f2582" : "#e8e8e8",
+              }}
+              transition={{ duration: 0.2 }}
+              onClick={() => toggleCategory(category.slug)}
+              className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-sm border-2"
+            >
+              <AnimatePresence>
+                {isChecked && (
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Check className="h-3 w-3 text-white" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
+          {isCategoryExpanded && hasChildren && (
+            <div>{renderCategoryTree(category.children || [])}</div>
+          )}
+        </div>
+      );
+    });
+  };
 
   return (
     <aside className="w-full shrink-0">
@@ -180,59 +305,11 @@ export function ShopFilterSidebar({
 
                 {/* Categories */}
                 {categories.length > 0 && (
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <h3 className="mb-3 text-[16px] font-semibold text-[#161616] md:text-[17px]">
                       Categories
                     </h3>
-                    {categories.map((category) => {
-                      const isChecked = selectedCategories.includes(
-                        category.slug,
-                      );
-                      return (
-                        <motion.label
-                          key={category.id}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.3 }}
-                          whileHover={{ x: 4 }}
-                          className="flex cursor-pointer items-center justify-between py-0.5"
-                        >
-                          <span className="text-[16px] text-[#575757] transition-colors hover:text-[#2f2582] md:text-[18px]">
-                            {category.name}
-                          </span>
-                          <motion.div
-                            animate={{
-                              scale: isChecked ? 1 : 1,
-                              backgroundColor: isChecked
-                                ? "#2f2582"
-                                : "#e8e8e8",
-                              borderColor: isChecked ? "#2f2582" : "#e8e8e8",
-                            }}
-                            transition={{ duration: 0.2 }}
-                            className="flex h-5 w-5 items-center justify-center rounded-sm border-2"
-                          >
-                            <AnimatePresence>
-                              {isChecked && (
-                                <motion.div
-                                  initial={{ scale: 0, opacity: 0 }}
-                                  animate={{ scale: 1, opacity: 1 }}
-                                  exit={{ scale: 0, opacity: 0 }}
-                                  transition={{ duration: 0.2 }}
-                                >
-                                  <Check className="h-3 w-3 text-white" />
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </motion.div>
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => toggleCategory(category.slug)}
-                            className="sr-only"
-                          />
-                        </motion.label>
-                      );
-                    })}
+                    {renderCategoryTree(categoryTree)}
                   </div>
                 )}
 

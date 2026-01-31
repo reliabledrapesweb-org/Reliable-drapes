@@ -2,6 +2,12 @@
  * Common type definitions used across the application
  */
 
+/**
+ * Brand type helper for creating distinct types from base types
+ * Usage: type UserId = Brand<string, "UserId">;
+ */
+export type Brand<K, T> = K & { __brand: T };
+
 export interface NavLink {
   name: string;
   link: string;
