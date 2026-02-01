@@ -286,14 +286,14 @@ describe("Product Actions", () => {
       const result = await deleteProduct("1");
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Failed to delete product");
+      expect(result.error).toBe("Delete failed");
     });
   });
 
   describe("getCategories", () => {
     test("fetches categories successfully", async () => {
       const mockCategories = [
-        { id: "cat-1", name: "Category 1", slug: "cat-1" },
+        { id: "cat-1", name: "Category 1", slug: "cat-1", parent_id: null },
       ];
       const chainable = createChainableMock({
         data: mockCategories,

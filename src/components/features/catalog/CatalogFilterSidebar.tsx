@@ -12,10 +12,11 @@ interface CatalogFilterSidebarProps {
   categories: CatalogueCategory[];
 }
 
-// Build tree from flat categories
+ // Build tree from flat categories
 function buildCategoryTree(
   categories: CatalogueCategory[],
   parentId: string | null = null,
+  level = 0,
 ): Array<
   CatalogueCategory & { children?: CatalogueCategory[]; level?: number }
 > {
@@ -23,11 +24,8 @@ function buildCategoryTree(
     .filter((cat) => cat.parent_id === parentId)
     .map((cat) => ({
       ...cat,
-      level: parentId === null ? 0 : 1,
-      children: buildCategoryTree(categories, cat.id).map((c) => ({
-        ...c,
-        level: 1,
-      })),
+      level,
+      children: buildCategoryTree(categories, cat.id, level + 1),
     }));
 }
 

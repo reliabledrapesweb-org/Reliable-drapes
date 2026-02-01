@@ -134,7 +134,7 @@ describe("Catalogue Management Actions", () => {
 
       const result = await createCatalogue({
         title: "Test",
-        category: "Test",
+        category_id: "test-category-id",
         file_url: "https://example.com/test.pdf",
       });
 
@@ -154,7 +154,7 @@ describe("Catalogue Management Actions", () => {
 
       const result = await createCatalogue({
         title: "Test",
-        category: "Test",
+        category_id: "test-category-id",
         file_url: "https://example.com/test.pdf",
       });
 

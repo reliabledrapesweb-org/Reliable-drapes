@@ -8,10 +8,10 @@ import { getFooterCategories, type Category } from "@/lib/actions/products";
 
 // Fallback categories when no data from database
 const fallbackCategories: Category[] = [
-  { id: "1", name: "Curtains", slug: "curtains" },
-  { id: "2", name: "Upholstery", slug: "upholstery" },
-  { id: "3", name: "Sheers", slug: "sheers" },
-  { id: "4", name: "Bed Sheets", slug: "bed-sheets" },
+  { id: "1", name: "Curtains", slug: "curtains", parent_id: null },
+  { id: "2", name: "Upholstery", slug: "upholstery", parent_id: null },
+  { id: "3", name: "Sheers", slug: "sheers", parent_id: null },
+  { id: "4", name: "Bed Sheets", slug: "bed-sheets", parent_id: null },
 ];
 
 export function Footer() {

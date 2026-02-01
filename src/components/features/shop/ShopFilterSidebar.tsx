@@ -20,16 +20,14 @@ interface ShopFilterSidebarProps {
 function buildCategoryTree(
   categories: Category[],
   parentId: string | null = null,
+  level = 0,
 ): Array<Category & { children?: Category[]; level?: number }> {
   return categories
-    .filter((cat) => (cat as any).parent_id === parentId)
+    .filter((cat) => cat.parent_id === parentId)
     .map((cat) => ({
       ...cat,
-      level: parentId === null ? 0 : 1,
-      children: buildCategoryTree(categories, cat.id).map((c) => ({
-        ...c,
-        level: 1,
-      })),
+      level,
+      children: buildCategoryTree(categories, cat.id, level + 1),
     }));
 }
 

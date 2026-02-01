@@ -19,7 +19,9 @@
       "Bash(npx prettier --check:*)",
       "Bash(npm run prettier:*)",
       "Bash(npx turbo typecheck lint:*)",
-      "Bash(npx vitest run:*)"
+      "Bash(npx vitest run:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm test:*)"
     ]
   }
 }

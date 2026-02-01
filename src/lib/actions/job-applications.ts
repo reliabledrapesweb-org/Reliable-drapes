@@ -7,8 +7,7 @@ import type { JobApplication } from "./jobs";
 export interface JobApplicationWithJob extends JobApplication {
   job_title?: string;
   job_type?: string;
-  desired_role?: string | null;
-  application_type?: "specific" | "open";
+  // Note: desired_role and application_type are inherited from JobApplication
 }
 
 /**
@@ -293,7 +292,7 @@ export async function getApplicationStats() {
 
     const { data, error } = await supabase
       .from("job_applications")
-      .select("status");
+      .select("status, application_type");
 
     if (error) throw error;
 

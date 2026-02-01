@@ -30,6 +30,7 @@ export interface Category {
   id: string;
   name: string;
   slug: string;
+  parent_id: string | null;
 }
 
 export interface ProductImage {
@@ -298,7 +299,7 @@ export async function getCategories(): Promise<{
 
     const { data, error } = await supabase
       .from("categories")
-      .select("id, name, slug")
+      .select("id, name, slug, parent_id")
       .eq("published", true)
       .order("name");
 
@@ -334,7 +335,7 @@ export async function getFooterCategories(): Promise<{
 
     const { data, error } = await supabase
       .from("categories")
-      .select("id, name, slug")
+      .select("id, name, slug, parent_id")
       .eq("published", true)
       .eq("show_in_footer", true)
       .order("sort_order", { ascending: true })

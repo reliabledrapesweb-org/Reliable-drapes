@@ -10,6 +10,8 @@ import {
 
 interface TestNode extends TreeNode {
   name: string;
+  level?: number;
+  children?: TestNode[];
 }
 
 describe("buildTree", () => {
