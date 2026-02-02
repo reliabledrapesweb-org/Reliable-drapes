@@ -115,6 +115,34 @@ export default function ConsultationsPage() {
     return serviceTypes[serviceType] || serviceType;
   };
 
+  const getCustomerIntentDisplay = (intent?: string) => {
+    const intents: Record<string, string> = {
+      "b2b-showroom": "Planning To Style your Showroom with Our Collection",
+      "b2c-space": "Looking To Style Your Space",
+    };
+    return intents[intent || ""] || intent || "-";
+  };
+
+  const getProjectCategoryDisplay = (category?: string) => {
+    const categories: Record<string, string> = {
+      "new-setup": "New Setup (with our Collection)",
+      upgradation: "Upgradation (with our Collection)",
+    };
+    return categories[category || ""] || category || "-";
+  };
+
+  const getSpaceTypeDisplay = (space?: string) => {
+    const spaces: Record<string, string> = {
+      showroom: "Showroom",
+      office: "Office",
+      hospital: "Hospital",
+      "home-villa": "Home / Villa",
+      "hotel-banquet": "Hotel / Banquet",
+      others: "Others",
+    };
+    return spaces[space || ""] || space || "-";
+  };
+
   const getBudgetDisplay = (budget?: string) => {
     const budgets: Record<string, string> = {
       under_50k: "Under ₹50,000",
@@ -366,9 +394,11 @@ export default function ConsultationsPage() {
                       )}
                     </div>
                     <p className="mb-2 text-xs font-medium text-[#2F2582] sm:text-sm">
-                      {getServiceTypeDisplay(request.service_type)}
-                      {request.project_type &&
-                        ` • ${getProjectTypeDisplay(request.project_type)}`}
+                      {request.customer_intent
+                        ? getCustomerIntentDisplay(request.customer_intent)
+                        : getServiceTypeDisplay(request.service_type)}
+                      {request.project_category &&
+                        ` • ${getProjectCategoryDisplay(request.project_category)}`}
                     </p>
                     {request.budget_range && (
                       <p className="mb-2 text-xs text-gray-600">
@@ -377,21 +407,11 @@ export default function ConsultationsPage() {
                           ` • Timeline: ${getTimelineDisplay(request.timeline)}`}
                       </p>
                     )}
-                    {request.room_types && request.room_types.length > 0 && (
+                    {request.space_type && (
                       <div className="mb-2 flex flex-wrap gap-1">
-                        {request.room_types.slice(0, 3).map((room, idx) => (
-                          <span
-                            key={idx}
-                            className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700"
-                          >
-                            {room.replace(/_/g, " ")}
-                          </span>
-                        ))}
-                        {request.room_types.length > 3 && (
-                          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
-                            +{request.room_types.length - 3} more
-                          </span>
-                        )}
+                        <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
+                          {getSpaceTypeDisplay(request.space_type)}
+                        </span>
                       </div>
                     )}
                     {request.message && (
@@ -530,14 +550,40 @@ export default function ConsultationsPage() {
                 Project Details
               </h3>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div>
-                  <label className="text-xs font-medium text-gray-500">
-                    Service Type
-                  </label>
-                  <p className="mt-1 text-sm font-medium text-[#2F2582]">
-                    {getServiceTypeDisplay(selectedRequest.service_type)}
-                  </p>
-                </div>
+                {selectedRequest.customer_intent && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">
+                      Customer Intent
+                    </label>
+                    <p className="mt-1 text-sm font-medium text-[#2F2582]">
+                      {getCustomerIntentDisplay(
+                        selectedRequest.customer_intent,
+                      )}
+                    </p>
+                  </div>
+                )}
+                {!selectedRequest.customer_intent && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">
+                      Service Type
+                    </label>
+                    <p className="mt-1 text-sm font-medium text-[#2F2582]">
+                      {getServiceTypeDisplay(selectedRequest.service_type)}
+                    </p>
+                  </div>
+                )}
+                {selectedRequest.project_category && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">
+                      Project Category
+                    </label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {getProjectCategoryDisplay(
+                        selectedRequest.project_category,
+                      )}
+                    </p>
+                  </div>
+                )}
                 {selectedRequest.project_type && (
                   <div>
                     <label className="text-xs font-medium text-gray-500">
@@ -545,6 +591,16 @@ export default function ConsultationsPage() {
                     </label>
                     <p className="mt-1 text-sm text-gray-900">
                       {getProjectTypeDisplay(selectedRequest.project_type)}
+                    </p>
+                  </div>
+                )}
+                {selectedRequest.space_type && (
+                  <div>
+                    <label className="text-xs font-medium text-gray-500">
+                      Space Type
+                    </label>
+                    <p className="mt-1 text-sm text-gray-900">
+                      {getSpaceTypeDisplay(selectedRequest.space_type)}
                     </p>
                   </div>
                 )}

@@ -151,6 +151,11 @@ export interface ConsultationRequest {
   current_challenges?: string;
   inspiration_images?: string[];
 
+  // New Step 2 fields (replaces service_type, project_type, room_types, property_type for new submissions)
+  customer_intent?: string; // "b2b-showroom" | "b2c-space"
+  project_category?: string; // "new-setup" | "upgradation"
+  space_type?: string; // "showroom" | "office" | "hospital" | "home-villa" | "hotel-banquet" | "others"
+
   // Workflow management fields
   status: "pending" | "confirmed" | "completed" | "cancelled";
   priority?: "low" | "medium" | "high" | "urgent";
@@ -185,6 +190,9 @@ export async function createConsultationRequest(
     | "style_preferences"
     | "current_challenges"
     | "inspiration_images"
+    | "customer_intent"
+    | "project_category"
+    | "space_type"
   >,
 ): Promise<ActionResult<ConsultationRequest>> {
   try {

@@ -10,31 +10,21 @@ import {
   Phone,
   User,
   MessageSquare,
-  Palette,
   Home,
   CheckCircle,
   ArrowRight,
   ArrowLeft,
-  Sparkles,
-  Building2,
   IndianRupee,
   Timer,
-  ImagePlus,
+  SkipForward,
+  Store,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { createConsultationRequest } from "@/lib/actions/communications";
 import { PageHero, Breadcrumb } from "@/components/shared";
 import { StepIndicator } from "@/components/features/consultation/StepIndicator";
-import { RoomTypeSelector } from "@/components/features/consultation/RoomTypeSelector";
-import { StylePreferenceSelector } from "@/components/features/consultation/StylePreferenceSelector";
-import {
-  PROJECT_TYPES,
-  PROPERTY_TYPES,
-  BUDGET_RANGES,
-  TIMELINES,
-  serviceTypes,
-} from "@/lib/constants/consultation";
+import { BUDGET_RANGES, TIMELINES } from "@/lib/constants/consultation";
 
 interface FormData {
   // Step 1: Basic Info
@@ -42,21 +32,23 @@ interface FormData {
   email: string;
   phone: string;
 
-  // Step 2: Project Details
-  service_type: string;
-  project_type: string;
-  room_types: string[];
-  property_type: string;
+  // Step 2: Project Details (New Design)
+  customer_intent: "b2b-showroom" | "b2c-space" | "";
+  project_category: "new-setup" | "upgradation" | "";
+  space_type:
+    | "showroom"
+    | "office"
+    | "hospital"
+    | "home-villa"
+    | "hotel-banquet"
+    | "others"
+    | "";
 
   // Step 3: Budget & Timeline
   budget_range: string;
   timeline: string;
 
-  // Step 4: Style & Preferences
-  style_preferences: string[];
-  current_challenges: string;
-
-  // Step 5: Schedule
+  // Step 4: Schedule
   preferred_date: string;
   preferred_time: string;
   message: string;
@@ -78,8 +70,7 @@ const STEPS = [
   { id: 1, title: "Basic Info", description: "Your contact details" },
   { id: 2, title: "Project", description: "Project details" },
   { id: 3, title: "Budget", description: "Budget & timeline" },
-  { id: 4, title: "Style", description: "Your preferences" },
-  { id: 5, title: "Schedule", description: "Book consultation" },
+  { id: 4, title: "Schedule", description: "Book consultation" },
 ];
 
 export default function StyleExpertPage() {
@@ -92,14 +83,11 @@ export default function StyleExpertPage() {
     name: "",
     email: "",
     phone: "",
-    service_type: "",
-    project_type: "",
-    room_types: [],
-    property_type: "",
+    customer_intent: "",
+    project_category: "",
+    space_type: "",
     budget_range: "",
     timeline: "",
-    style_preferences: [],
-    current_challenges: "",
     preferred_date: "",
     preferred_time: "",
     message: "",
@@ -128,27 +116,18 @@ export default function StyleExpertPage() {
         break;
 
       case 2:
-        if (!formData.service_type)
-          newErrors.service_type = "Please select a service";
-        if (!formData.project_type)
-          newErrors.project_type = "Please select a project type";
-        if (formData.room_types.length === 0)
-          newErrors.room_types = "Please select at least one room";
-        if (!formData.property_type)
-          newErrors.property_type = "Please select a property type";
+        if (!formData.customer_intent)
+          newErrors.customer_intent = "Please select your intent";
+        if (!formData.project_category)
+          newErrors.project_category = "Please select a project category";
+        if (!formData.space_type)
+          newErrors.space_type = "Please select a space type";
         break;
 
       case 3:
         if (!formData.budget_range)
           newErrors.budget_range = "Please select a budget range";
         if (!formData.timeline) newErrors.timeline = "Please select a timeline";
-        break;
-
-      case 4:
-        if (formData.style_preferences.length === 0) {
-          newErrors.style_preferences =
-            "Please select at least one style preference";
-        }
         break;
     }
 
@@ -183,17 +162,15 @@ export default function StyleExpertPage() {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        service_type: formData.service_type,
-        project_type: formData.project_type,
-        room_types: formData.room_types,
-        property_type: formData.property_type,
+        service_type: "style-consultation",
         budget_range: formData.budget_range,
         timeline: formData.timeline,
-        style_preferences: formData.style_preferences,
-        current_challenges: formData.current_challenges || undefined,
         preferred_date: formData.preferred_date || undefined,
         preferred_time: formData.preferred_time || undefined,
         message: formData.message || undefined,
+        customer_intent: formData.customer_intent || undefined,
+        project_category: formData.project_category || undefined,
+        space_type: formData.space_type || undefined,
       });
 
       if (result.success) {
@@ -203,7 +180,6 @@ export default function StyleExpertPage() {
         addToast(result.error || "Failed to submit request", "error");
       }
     } catch (error) {
-
       addToast("An unexpected error occurred", "error");
     } finally {
       setIsSubmitting(false);
@@ -423,7 +399,7 @@ export default function StyleExpertPage() {
                   initial={{ opacity: 0, x: 50 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -50 }}
-                  className="space-y-8"
+                  className="space-y-10"
                 >
                   <div className="mb-6">
                     <h2 className="mb-2 text-2xl font-bold text-[#2a2a2a]">
@@ -434,145 +410,196 @@ export default function StyleExpertPage() {
                     </p>
                   </div>
 
-                  {/* Service Type */}
+                  {/* Section A: Customer Intent (What) */}
                   <div>
-                    <label className="mb-4 block text-sm font-semibold text-gray-700">
-                      <Sparkles className="mr-2 inline h-4 w-4" />
-                      What service do you need? *
+                    <label className="mb-4 block text-lg font-semibold text-gray-900">
+                      What
                     </label>
-                    {errors.service_type && (
-                      <p className="mb-2 text-sm text-red-600">
-                        {errors.service_type}
+                    {errors.customer_intent && (
+                      <p className="mb-3 text-sm text-red-600">
+                        {errors.customer_intent}
                       </p>
                     )}
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                      {serviceTypes.map((service) => (
-                        <motion.button
-                          key={service.id}
-                          type="button"
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() =>
-                            handleInputChange("service_type", service.id)
-                          }
-                          className={`rounded-xl border-2 p-4 text-left transition-all ${
-                            formData.service_type === service.id
-                              ? "border-[#2f2582] bg-[#2f2582]/5"
-                              : "border-gray-200 hover:border-[#2f2582]/50"
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <service.icon
-                              className={`mt-0.5 h-5 w-5 ${
-                                formData.service_type === service.id
-                                  ? "text-[#2f2582]"
-                                  : "text-gray-500"
-                              }`}
-                            />
-                            <div className="flex-1">
-                              <h4 className="mb-1 font-semibold text-gray-900">
-                                {service.name}
-                              </h4>
-                              <p className="text-xs text-gray-600">
-                                {service.description}
-                              </p>
-                            </div>
-                            {formData.service_type === service.id && (
-                              <CheckCircle className="h-5 w-5 text-[#2f2582]" />
-                            )}
+                      <motion.button
+                        type="button"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() =>
+                          handleInputChange("customer_intent", "b2b-showroom")
+                        }
+                        className={`rounded-xl border-2 p-5 text-left transition-all ${
+                          formData.customer_intent === "b2b-showroom"
+                            ? "border-[#2f2582] bg-[#2f2582]/5"
+                            : "border-gray-200 hover:border-[#2f2582]/50"
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <Store
+                            className={`mt-0.5 h-5 w-5 ${
+                              formData.customer_intent === "b2b-showroom"
+                                ? "text-[#2f2582]"
+                                : "text-gray-500"
+                            }`}
+                          />
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900">
+                              Planning To Style your Showroom with Our
+                              Collection?
+                            </h4>
+                            <p className="mt-1 text-xs text-gray-500">
+                              For business customers
+                            </p>
                           </div>
-                        </motion.button>
-                      ))}
+                          {formData.customer_intent === "b2b-showroom" && (
+                            <CheckCircle className="h-5 w-5 text-[#2f2582]" />
+                          )}
+                        </div>
+                      </motion.button>
+
+                      <motion.button
+                        type="button"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() =>
+                          handleInputChange("customer_intent", "b2c-space")
+                        }
+                        className={`rounded-xl border-2 p-5 text-left transition-all ${
+                          formData.customer_intent === "b2c-space"
+                            ? "border-[#2f2582] bg-[#2f2582]/5"
+                            : "border-gray-200 hover:border-[#2f2582]/50"
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <Home
+                            className={`mt-0.5 h-5 w-5 ${
+                              formData.customer_intent === "b2c-space"
+                                ? "text-[#2f2582]"
+                                : "text-gray-500"
+                            }`}
+                          />
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900">
+                              Looking To Style Your Space?
+                            </h4>
+                            <p className="mt-1 text-xs text-gray-500">
+                              For individual customers
+                            </p>
+                          </div>
+                          {formData.customer_intent === "b2c-space" && (
+                            <CheckCircle className="h-5 w-5 text-[#2f2582]" />
+                          )}
+                        </div>
+                      </motion.button>
                     </div>
                   </div>
 
-                  {/* Project Type */}
+                  {/* Section B: Project Category */}
                   <div>
-                    <label className="mb-4 block text-sm font-semibold text-gray-700">
-                      <Home className="mr-2 inline h-4 w-4" />
-                      Project Type *
+                    <label className="mb-4 block text-lg font-semibold text-gray-900">
+                      Project Type
                     </label>
-                    {errors.project_type && (
-                      <p className="mb-2 text-sm text-red-600">
-                        {errors.project_type}
+                    {errors.project_category && (
+                      <p className="mb-3 text-sm text-red-600">
+                        {errors.project_category}
                       </p>
                     )}
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                      {PROJECT_TYPES.map((type) => (
-                        <motion.button
-                          key={type.id}
-                          type="button"
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() =>
-                            handleInputChange("project_type", type.id)
-                          }
-                          className={`rounded-xl border-2 p-4 text-left transition-all ${
-                            formData.project_type === type.id
-                              ? "border-[#2f2582] bg-[#2f2582]/5"
-                              : "border-gray-200 hover:border-[#2f2582]/50"
-                          }`}
-                        >
-                          <h4 className="mb-1 font-semibold text-gray-900">
-                            {type.label}
-                          </h4>
-                          <p className="text-xs text-gray-600">
-                            {type.description}
-                          </p>
-                          {formData.project_type === type.id && (
-                            <CheckCircle className="mt-2 h-4 w-4 text-[#2f2582]" />
+                      <motion.button
+                        type="button"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() =>
+                          handleInputChange("project_category", "new-setup")
+                        }
+                        className={`rounded-xl border-2 p-5 text-left transition-all ${
+                          formData.project_category === "new-setup"
+                            ? "border-[#2f2582] bg-[#2f2582]/5"
+                            : "border-gray-200 hover:border-[#2f2582]/50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-semibold text-gray-900">
+                              New Setup
+                            </h4>
+                            <p className="text-xs text-gray-500">
+                              with our Collection
+                            </p>
+                          </div>
+                          {formData.project_category === "new-setup" && (
+                            <CheckCircle className="h-5 w-5 text-[#2f2582]" />
                           )}
-                        </motion.button>
-                      ))}
+                        </div>
+                      </motion.button>
+
+                      <motion.button
+                        type="button"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() =>
+                          handleInputChange("project_category", "upgradation")
+                        }
+                        className={`rounded-xl border-2 p-5 text-left transition-all ${
+                          formData.project_category === "upgradation"
+                            ? "border-[#2f2582] bg-[#2f2582]/5"
+                            : "border-gray-200 hover:border-[#2f2582]/50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-semibold text-gray-900">
+                              Upgradation
+                            </h4>
+                            <p className="text-xs text-gray-500">
+                              with our Collection
+                            </p>
+                          </div>
+                          {formData.project_category === "upgradation" && (
+                            <CheckCircle className="h-5 w-5 text-[#2f2582]" />
+                          )}
+                        </div>
+                      </motion.button>
                     </div>
                   </div>
 
-                  {/* Room Types */}
+                  {/* Section C: Space Type */}
                   <div>
-                    <label className="mb-4 block text-sm font-semibold text-gray-700">
-                      Which rooms are you working on? *
+                    <label className="mb-4 block text-lg font-semibold text-gray-900">
+                      Which Space are you looking for?
                     </label>
-                    {errors.room_types && (
-                      <p className="mb-2 text-sm text-red-600">
-                        {errors.room_types}
-                      </p>
-                    )}
-                    <RoomTypeSelector
-                      selectedRooms={formData.room_types}
-                      onChange={(rooms) =>
-                        handleInputChange("room_types", rooms)
-                      }
-                    />
-                  </div>
-
-                  {/* Property Type */}
-                  <div>
-                    <label className="mb-4 block text-sm font-semibold text-gray-700">
-                      <Building2 className="mr-2 inline h-4 w-4" />
-                      Property Type *
-                    </label>
-                    {errors.property_type && (
-                      <p className="mb-2 text-sm text-red-600">
-                        {errors.property_type}
+                    {errors.space_type && (
+                      <p className="mb-3 text-sm text-red-600">
+                        {errors.space_type}
                       </p>
                     )}
                     <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-                      {PROPERTY_TYPES.map((type) => (
+                      {[
+                        { id: "showroom", label: "Showroom" },
+                        { id: "office", label: "Office" },
+                        { id: "hospital", label: "Hospital" },
+                        { id: "home-villa", label: "Home / Villa" },
+                        { id: "hotel-banquet", label: "Hotel / Banquet" },
+                        { id: "others", label: "Others" },
+                      ].map((space) => (
                         <motion.button
-                          key={type.id}
+                          key={space.id}
                           type="button"
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() =>
-                            handleInputChange("property_type", type.id)
+                            handleInputChange(
+                              "space_type",
+                              space.id as FormData["space_type"],
+                            )
                           }
-                          className={`rounded-xl border-2 p-3 text-sm font-medium transition-all ${
-                            formData.property_type === type.id
+                          className={`rounded-xl border-2 p-4 text-sm font-medium transition-all ${
+                            formData.space_type === space.id
                               ? "border-[#2f2582] bg-[#2f2582]/5 text-[#2f2582]"
                               : "border-gray-200 text-gray-700 hover:border-[#2f2582]/50"
                           }`}
                         >
-                          {type.label}
+                          {space.label}
                         </motion.button>
                       ))}
                     </div>
@@ -697,67 +724,10 @@ export default function StyleExpertPage() {
                 </motion.div>
               )}
 
-              {/* Step 4: Style & Preferences */}
+              {/* Step 4: Schedule */}
               {currentStep === 4 && (
                 <motion.div
                   key="step4"
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -50 }}
-                  className="space-y-8"
-                >
-                  <div className="mb-6">
-                    <h2 className="mb-2 text-2xl font-bold text-[#2a2a2a]">
-                      Your Style Preferences
-                    </h2>
-                    <p className="text-gray-600">
-                      Help us understand your aesthetic preferences.
-                    </p>
-                  </div>
-
-                  {/* Style Preferences */}
-                  <div>
-                    <label className="mb-4 block text-sm font-semibold text-gray-700">
-                      <Palette className="mr-2 inline h-4 w-4" />
-                      What styles do you love? *
-                    </label>
-                    {errors.style_preferences && (
-                      <p className="mb-2 text-sm text-red-600">
-                        {errors.style_preferences}
-                      </p>
-                    )}
-                    <StylePreferenceSelector
-                      selectedStyles={formData.style_preferences}
-                      onChange={(styles) =>
-                        handleInputChange("style_preferences", styles)
-                      }
-                      maxSelections={3}
-                    />
-                  </div>
-
-                  {/* Current Challenges */}
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700">
-                      <MessageSquare className="mr-2 inline h-4 w-4" />
-                      What challenges are you facing? (Optional)
-                    </label>
-                    <textarea
-                      value={formData.current_challenges}
-                      onChange={(e) =>
-                        handleInputChange("current_challenges", e.target.value)
-                      }
-                      rows={4}
-                      className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 transition-colors focus:border-[#2f2582] focus:ring-2 focus:ring-[#2f2582]/20 focus:outline-none"
-                      placeholder="Tell us about any specific problems you're trying to solve, like lack of storage, poor lighting, or awkward layout..."
-                    />
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Step 5: Schedule */}
-              {currentStep === 5 && (
-                <motion.div
-                  key="step5"
                   initial={{ opacity: 0, x: 50 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -50 }}
@@ -836,17 +806,36 @@ export default function StyleExpertPage() {
                     </h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Service:</span>
+                        <span className="text-gray-600">Intent:</span>
                         <span className="font-medium text-gray-900">
-                          {serviceTypes.find(
-                            (s) => s.id === formData.service_type,
-                          )?.name || "-"}
+                          {formData.customer_intent === "b2b-showroom"
+                            ? "Planning To Style your Showroom"
+                            : formData.customer_intent === "b2c-space"
+                              ? "Looking To Style Your Space"
+                              : "-"}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Rooms:</span>
+                        <span className="text-gray-600">Project:</span>
                         <span className="font-medium text-gray-900">
-                          {formData.room_types.length} selected
+                          {formData.project_category === "new-setup"
+                            ? "New Setup"
+                            : formData.project_category === "upgradation"
+                              ? "Upgradation"
+                              : "-"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Space:</span>
+                        <span className="font-medium text-gray-900">
+                          {formData.space_type
+                            ? formData.space_type
+                                .split("-")
+                                .map(
+                                  (w) => w.charAt(0).toUpperCase() + w.slice(1),
+                                )
+                                .join(" / ")
+                            : "-"}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -872,19 +861,47 @@ export default function StyleExpertPage() {
 
             {/* Navigation Buttons */}
             <div className="mt-8 flex items-center justify-between gap-4">
-              {currentStep > 1 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleBack}
-                  className="flex items-center gap-2"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Back
-                </Button>
-              )}
+              <div className="flex items-center gap-2">
+                {currentStep > 1 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleBack}
+                    className="flex items-center gap-2"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Back
+                  </Button>
+                )}
+                {/* Skip Button */}
+                {currentStep < STEPS.length && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      setCurrentStep((prev) =>
+                        Math.min(prev + 1, STEPS.length),
+                      );
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="flex items-center gap-2 text-gray-500 hover:text-gray-700"
+                  >
+                    <SkipForward className="h-4 w-4" />
+                    Skip
+                  </Button>
+                )}
+              </div>
 
               <div className="flex-1" />
+
+              {/* Contact Us Button */}
+              <a
+                href="tel:+919999999999"
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2f2582]/10 text-[#2f2582] transition-colors hover:bg-[#2f2582]/20"
+                title="Contact Us"
+              >
+                <Phone className="h-5 w-5" />
+              </a>
 
               {currentStep < STEPS.length ? (
                 <Button
