@@ -12,6 +12,8 @@ export type SiteSettings = {
   id: string;
   shop_enabled: boolean;
   coming_soon_message: string;
+  commerce_features_enabled: boolean;
+  commerce_coming_soon_message: string | null;
   hero_video_enabled: boolean;
   hero_video_url: string | null;
   hero_video_type: "youtube" | "upload" | null;
@@ -34,6 +36,8 @@ export type SiteSettingsFormData = Partial<
     SiteSettings,
     | "shop_enabled"
     | "coming_soon_message"
+    | "commerce_features_enabled"
+    | "commerce_coming_soon_message"
     | "hero_video_enabled"
     | "hero_video_url"
     | "hero_video_type"
@@ -80,7 +84,7 @@ export async function getSiteSettings(): Promise<SiteSettingsResponse> {
       success: true,
       settings: data as SiteSettings,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -131,13 +135,15 @@ export async function updateSiteSettings(
     // Revalidate all relevant pages
     revalidatePath("/", "layout");
     revalidatePath("/shop");
+    revalidatePath("/cart");
+    revalidatePath("/wishlist");
     revalidatePath("/admin/settings");
 
     return {
       success: true,
       settings: data as SiteSettings,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "An unexpected error occurred",
@@ -196,6 +202,38 @@ export async function getHeroVideoSettings(): Promise<{
     };
   } catch {
     return { enabled: false, url: null, type: null };
+  }
+}
+
+/**
+ * Get commerce feature gate settings (public convenience method)
+ */
+export async function getCommerceFeatureSettings(): Promise<{
+  enabled: boolean;
+  message: string | null;
+}> {
+  try {
+    const supabase = getAnonSupabase();
+
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select(
+        "commerce_features_enabled, commerce_coming_soon_message, coming_soon_message",
+      )
+      .limit(1)
+      .single();
+
+    if (error) {
+      return { enabled: true, message: null };
+    }
+
+    return {
+      enabled: data?.commerce_features_enabled ?? true,
+      message:
+        data?.commerce_coming_soon_message ?? data?.coming_soon_message ?? null,
+    };
+  } catch {
+    return { enabled: true, message: null };
   }
 }
 

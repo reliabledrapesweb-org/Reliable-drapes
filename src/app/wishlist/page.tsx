@@ -3,20 +3,27 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import Link from "next/link";
-import { Breadcrumb, ConfirmModal } from "@/components/shared";
+import { Breadcrumb, ComingSoonNotice, ConfirmModal } from "@/components/shared";
 import { useWishlistStore, useCartStore } from "@/lib/store";
 import { Heart, ArrowLeft, ArrowRight, AlertTriangle } from "lucide-react";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { ShopProductCard } from "@/components/features/shop/ShopProductCard";
 import type { Product } from "@/lib/actions/products";
+import { useCommerceFeatures } from "@/components/providers";
+import type { WishlistItem } from "@/lib/store";
 
 export default function WishlistPage() {
   const { toasts, addToast, removeToast } = useToast();
   const { items, clearWishlist } = useWishlistStore();
   const { addItem } = useCartStore();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const {
+    commerceFeaturesEnabled,
+    comingSoonMessage,
+    isLoading: isCommerceFeaturesLoading,
+  } = useCommerceFeatures();
 
-  const handleAddToCart = (productId: string, productName: string) => {
+  const handleAddToCart = (productId: string) => {
     const item = items.find((i) => i.productId === productId);
     if (!item) return;
 
@@ -30,16 +37,8 @@ export default function WishlistPage() {
     addToast(`${item.name} added to cart!`, "success", 3000);
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
-
   // Map WishlistItem to a Product object for ShopProductCard
-  const mapItemToProduct = (item: any): Product => ({
+  const mapItemToProduct = (item: WishlistItem): Product => ({
     id: item.productId,
     name: item.name,
     sku: null,
@@ -48,6 +47,28 @@ export default function WishlistPage() {
     description: null,
     created_at: new Date().toISOString(),
   });
+
+  if (isCommerceFeaturesLoading) {
+    return (
+      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+        <Breadcrumb />
+        <div className="flex items-center justify-center py-24">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#2f2582] border-t-transparent" />
+        </div>
+      </main>
+    );
+  }
+
+  if (!commerceFeaturesEnabled) {
+    return (
+      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+        <Breadcrumb />
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-12 lg:px-8">
+          <ComingSoonNotice message={comingSoonMessage} />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">

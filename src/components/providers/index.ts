@@ -3,3 +3,7 @@
  */
 
 export { AuthProvider } from './AuthProvider';
+export {
+  CommerceFeaturesProvider,
+  useCommerceFeatures,
+} from './CommerceFeaturesProvider';

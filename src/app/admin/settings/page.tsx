@@ -1130,6 +1130,10 @@ function SiteSettingsTab({
       setFormData({
         shop_enabled: siteSettings.shop_enabled,
         coming_soon_message: siteSettings.coming_soon_message,
+        commerce_features_enabled:
+          siteSettings.commerce_features_enabled ?? true,
+        commerce_coming_soon_message:
+          siteSettings.commerce_coming_soon_message ?? "",
         hero_video_enabled: siteSettings.hero_video_enabled,
         hero_video_url: siteSettings.hero_video_url,
         hero_video_type: siteSettings.hero_video_type || "youtube",
@@ -1252,6 +1256,85 @@ function SiteSettingsTab({
                 rows={3}
                 className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
                 placeholder="Enter message to display when shop is disabled"
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Commerce Feature Access */}
+      <Card className="dark:border-gray-700 dark:bg-gray-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg dark:text-white">
+            <Store className="h-5 w-5" />
+            Commerce Feature Access
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between rounded-lg border border-gray-200 p-4 dark:border-gray-600 dark:bg-gray-700/50">
+            <div className="flex items-center gap-3">
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                  formData.commerce_features_enabled
+                    ? "bg-green-100 dark:bg-green-900/30"
+                    : "bg-gray-100 dark:bg-gray-700"
+                }`}
+              >
+                <Store
+                  className={`h-5 w-5 ${
+                    formData.commerce_features_enabled
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-gray-500 dark:text-gray-400"
+                  }`}
+                />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  Enable Search, Cart, Wishlist & Checkout
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {formData.commerce_features_enabled
+                    ? "Commerce interactions are available to customers"
+                    : "Commerce interactions show a Coming Soon message"}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() =>
+                handleToggle(
+                  "commerce_features_enabled",
+                  !formData.commerce_features_enabled,
+                )
+              }
+              className={`relative h-6 w-11 rounded-full transition-colors ${
+                formData.commerce_features_enabled
+                  ? "bg-[#2F2582] dark:bg-[#a099ff]"
+                  : "bg-gray-300 dark:bg-gray-600"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                  formData.commerce_features_enabled
+                    ? "translate-x-5"
+                    : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {!formData.commerce_features_enabled && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Commerce Coming Soon Message
+              </label>
+              <textarea
+                value={formData.commerce_coming_soon_message || ""}
+                onChange={(e) =>
+                  handleChange("commerce_coming_soon_message", e.target.value)
+                }
+                rows={3}
+                className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+                placeholder="Enter message for blocked search, cart, wishlist, and checkout"
               />
             </div>
           )}

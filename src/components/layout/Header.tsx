@@ -13,6 +13,8 @@ import { useAuthStore, useCartStore, useWishlistStore } from "@/lib/store";
 import { NAV_LINKS } from "@/lib/constants";
 import { supabaseClient } from "@/lib/supabase/client";
 import { LogoutModal } from "@/components/features/profile/LogoutModal";
+import { useCommerceFeatures } from "@/components/providers";
+import { ComingSoonModal } from "@/components/shared";
 
 export function Header() {
   const pathname = usePathname();
@@ -22,11 +24,13 @@ export function Header() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showComingSoonModal, setShowComingSoonModal] = useState(false);
   const isScrolled = useScrollPosition(50);
 
   const { user, logout } = useAuthStore();
   const { getTotalItems, toggleCart } = useCartStore();
   const { getTotalItems: getWishlistTotal } = useWishlistStore();
+  const { commerceFeaturesEnabled, comingSoonMessage } = useCommerceFeatures();
   const totalItems = getTotalItems();
   const wishlistTotal = getWishlistTotal();
   const shouldUseWhiteText = isHome || isScrolled;
@@ -35,7 +39,13 @@ export function Header() {
   const ActionButtons = ({ isMobile = false }: { isMobile?: boolean }) => (
     <>
       <motion.button
-        onClick={() => setShowSearchModal(true)}
+        onClick={() => {
+          if (!commerceFeaturesEnabled) {
+            setShowComingSoonModal(true);
+            return;
+          }
+          setShowSearchModal(true);
+        }}
         className={`${shouldUseWhiteText ? "text-white" : "text-black"
           } cursor-pointer`}
         aria-label="Search"
@@ -54,6 +64,12 @@ export function Header() {
         className={`${shouldUseWhiteText ? "text-white" : "text-black"
           } relative cursor-pointer`}
         aria-label="Wishlist"
+        onClick={(e) => {
+          if (!commerceFeaturesEnabled) {
+            e.preventDefault();
+            setShowComingSoonModal(true);
+          }
+        }}
         whileHover={{ scale: 1.1, opacity: isMobile ? 1 : 0.8 }}
         transition={{ duration: 0.2 }}
       >
@@ -76,7 +92,13 @@ export function Header() {
       </motion.a>
 
       <motion.button
-        onClick={toggleCart}
+        onClick={() => {
+          if (!commerceFeaturesEnabled) {
+            setShowComingSoonModal(true);
+            return;
+          }
+          toggleCart();
+        }}
         className={`${shouldUseWhiteText ? "text-white" : "text-black"
           } relative cursor-pointer`}
         aria-label="Cart"
@@ -304,8 +326,14 @@ export function Header() {
 
       {/* SEARCH MODAL */}
       <SearchModal
-        isOpen={showSearchModal}
+        isOpen={showSearchModal && commerceFeaturesEnabled}
         onClose={() => setShowSearchModal(false)}
+      />
+
+      <ComingSoonModal
+        isOpen={showComingSoonModal}
+        onClose={() => setShowComingSoonModal(false)}
+        message={comingSoonMessage}
       />
 
       {/* LOGOUT MODAL */}

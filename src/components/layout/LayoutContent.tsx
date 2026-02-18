@@ -10,6 +10,7 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
   
   // Check if current route is admin route
   const isAdminRoute = pathname?.startsWith("/admin");
+  const isHomeRoute = pathname === "/";
 
   // For admin routes, render children directly without Header/Footer/CTA
   if (isAdminRoute) {
@@ -21,7 +22,7 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-white">
       <Header />
       {children}
-      <CTASection />
+      <CTASection enableVideoBackground={isHomeRoute} />
       <Footer />
       <GlobalContactButton />
       <CartDrawer />

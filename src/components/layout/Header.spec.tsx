@@ -1,10 +1,11 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Header } from "./Header";
 import { useAuthStore, useCartStore, useWishlistStore } from "@/lib/store";
 import { useScrollPosition } from "@/lib/hooks";
 import { usePathname } from "next/navigation";
+import { useCommerceFeatures } from "@/components/providers";
 
 // Mock dependencies
 vi.mock("next/navigation", () => ({
@@ -64,6 +65,10 @@ vi.mock("@/lib/store", () => ({
   useWishlistStore: vi.fn(),
 }));
 
+vi.mock("@/components/providers", () => ({
+  useCommerceFeatures: vi.fn(),
+}));
+
 // Mock constants
 vi.mock("@/lib/constants", () => ({
   NAV_LINKS: [
@@ -110,6 +115,15 @@ vi.mock("@/components/features/profile/LogoutModal", () => ({
     ) : null,
 }));
 
+vi.mock("@/components/shared", () => ({
+  ComingSoonModal: ({ isOpen, onClose }: any) =>
+    isOpen ? (
+      <div data-testid="coming-soon-modal">
+        <button onClick={onClose}>Close Coming Soon</button>
+      </div>
+    ) : null,
+}));
+
 describe("Header", () => {
   const mockLogout = vi.fn();
   const mockToggleCart = vi.fn();
@@ -133,6 +147,12 @@ describe("Header", () => {
 
     vi.mocked(useWishlistStore).mockReturnValue({
       getTotalItems: () => 0,
+    });
+
+    vi.mocked(useCommerceFeatures).mockReturnValue({
+      commerceFeaturesEnabled: true,
+      comingSoonMessage: "Coming soon",
+      isLoading: false,
     });
   });
 
@@ -239,6 +259,23 @@ describe("Header", () => {
       expect(screen.getByTestId("search-modal")).toBeInTheDocument();
     });
 
+    test("opens coming soon modal for search when commerce features are disabled", async () => {
+      const user = userEvent.setup();
+      vi.mocked(useCommerceFeatures).mockReturnValue({
+        commerceFeaturesEnabled: false,
+        comingSoonMessage: "Coming soon",
+        isLoading: false,
+      });
+
+      render(<Header />);
+
+      const searchButtons = screen.getAllByLabelText("Search");
+      await user.click(searchButtons[0]);
+
+      expect(screen.getByTestId("coming-soon-modal")).toBeInTheDocument();
+      expect(screen.queryByTestId("search-modal")).not.toBeInTheDocument();
+    });
+
     test("toggles cart when cart button is clicked", async () => {
       const user = userEvent.setup();
       render(<Header />);
@@ -247,6 +284,23 @@ describe("Header", () => {
       await user.click(cartButtons[0]);
 
       expect(mockToggleCart).toHaveBeenCalled();
+    });
+
+    test("does not toggle cart when commerce features are disabled", async () => {
+      const user = userEvent.setup();
+      vi.mocked(useCommerceFeatures).mockReturnValue({
+        commerceFeaturesEnabled: false,
+        comingSoonMessage: "Coming soon",
+        isLoading: false,
+      });
+
+      render(<Header />);
+
+      const cartButtons = screen.getAllByLabelText("Cart");
+      await user.click(cartButtons[0]);
+
+      expect(mockToggleCart).not.toHaveBeenCalled();
+      expect(screen.getByTestId("coming-soon-modal")).toBeInTheDocument();
     });
 
     test("opens mobile menu when menu button is clicked", async () => {

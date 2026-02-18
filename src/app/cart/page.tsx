@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Breadcrumb, ConfirmModal } from "@/components/shared";
+import { Breadcrumb, ComingSoonNotice, ConfirmModal } from "@/components/shared";
 import { useCartStore } from "@/lib/store";
 import {
   ShoppingCart,
@@ -23,6 +23,7 @@ import { createOrderAction } from "@/lib/actions/orders";
 import { getProfile } from "@/lib/actions/users";
 import { useAuthStore } from "@/lib/store";
 import { Loader } from "lucide-react";
+import { useCommerceFeatures } from "@/components/providers";
 
 export default function CartPage() {
   const router = useRouter();
@@ -45,6 +46,11 @@ export default function CartPage() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [hasAddress, setHasAddress] = useState<boolean | null>(null);
   const { user } = useAuthStore();
+  const {
+    commerceFeaturesEnabled,
+    comingSoonMessage,
+    isLoading: isCommerceFeaturesLoading,
+  } = useCommerceFeatures();
 
   // Check if user has address on mount
   useEffect(() => {
@@ -164,6 +170,28 @@ export default function CartPage() {
       addToast("Invalid promo code", "error", 2000);
     }
   };
+
+  if (isCommerceFeaturesLoading) {
+    return (
+      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+        <Breadcrumb />
+        <div className="flex items-center justify-center py-24">
+          <Loader className="h-8 w-8 animate-spin text-[#2f2582]" />
+        </div>
+      </main>
+    );
+  }
+
+  if (!commerceFeaturesEnabled) {
+    return (
+      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+        <Breadcrumb />
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-12 lg:px-8">
+          <ComingSoonNotice message={comingSoonMessage} />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">

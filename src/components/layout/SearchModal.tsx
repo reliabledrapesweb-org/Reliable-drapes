@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getProducts, type Product } from "@/lib/actions/products";
 import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants/app";
+import { ComingSoonModal } from "@/components/shared";
+import { useCommerceFeatures } from "@/components/providers";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -15,6 +17,7 @@ interface SearchModalProps {
 
 export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const router = useRouter();
+  const { commerceFeaturesEnabled, comingSoonMessage } = useCommerceFeatures();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -94,6 +97,16 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   };
 
   const fallbackImage = DEFAULT_PRODUCT_IMAGE;
+
+  if (!commerceFeaturesEnabled) {
+    return (
+      <ComingSoonModal
+        isOpen={isOpen}
+        onClose={handleClose}
+        message={comingSoonMessage}
+      />
+    );
+  }
 
   return (
     <AnimatePresence>

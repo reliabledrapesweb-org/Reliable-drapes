@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { CartDrawer } from "./CartDrawer";
 import { useCartStore } from "@/lib/store";
 import type { CartItem } from "@/lib/store/cartStore";
+import { useCommerceFeatures } from "@/components/providers";
 
 // Mock framer-motion
 vi.mock("framer-motion", () => ({
@@ -53,6 +54,15 @@ vi.mock("@/lib/store", () => ({
   useCartStore: vi.fn(),
 }));
 
+vi.mock("@/components/providers", () => ({
+  useCommerceFeatures: vi.fn(),
+}));
+
+vi.mock("@/components/shared", () => ({
+  ComingSoonModal: ({ isOpen }: any) =>
+    isOpen ? <div data-testid="coming-soon-modal">Coming Soon</div> : null,
+}));
+
 const mockCartStore = {
   items: [] as CartItem[],
   isOpen: true,
@@ -67,6 +77,11 @@ describe("CartDrawer", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useCartStore).mockReturnValue(mockCartStore);
+    vi.mocked(useCommerceFeatures).mockReturnValue({
+      commerceFeaturesEnabled: true,
+      comingSoonMessage: "Coming soon",
+      isLoading: false,
+    });
   });
 
   describe("Empty Cart State", () => {
@@ -298,6 +313,30 @@ describe("CartDrawer", () => {
       const checkoutLink = screen.getByText("View Cart & Checkout");
       expect(checkoutLink).toBeInTheDocument();
       expect(checkoutLink.closest("a")).toHaveAttribute("href", "/cart");
+    });
+
+    test("blocks checkout link and shows coming soon modal when commerce features are disabled", () => {
+      vi.mocked(useCommerceFeatures).mockReturnValue({
+        commerceFeaturesEnabled: false,
+        comingSoonMessage: "Coming soon",
+        isLoading: false,
+      });
+
+      vi.mocked(useCartStore).mockReturnValue({
+        ...mockCartStore,
+        items: mockItems,
+        isOpen: true,
+        getTotalItems: () => 3,
+        getTotalPrice: () => 6500,
+      });
+
+      render(<CartDrawer />);
+
+      const checkoutButton = screen.getByText("View Cart & Checkout");
+      expect(checkoutButton.closest("a")).toBeNull();
+
+      fireEvent.click(checkoutButton);
+      expect(screen.getByTestId("coming-soon-modal")).toBeInTheDocument();
     });
   });
 

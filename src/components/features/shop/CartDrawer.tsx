@@ -1,12 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShoppingCart, Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/lib/store";
+import { ComingSoonModal } from "@/components/shared";
+import { useCommerceFeatures } from "@/components/providers";
 
 export function CartDrawer() {
+  const [showComingSoonModal, setShowComingSoonModal] = useState(false);
   const {
     items,
     isOpen,
@@ -16,6 +20,7 @@ export function CartDrawer() {
     getTotalItems,
     getTotalPrice,
   } = useCartStore();
+  const { commerceFeaturesEnabled, comingSoonMessage } = useCommerceFeatures();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-IN", {
@@ -247,18 +252,29 @@ export function CartDrawer() {
                   </div>
 
                   {/* Checkout Button */}
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Link
-                      href="/cart"
-                      onClick={closeCart}
+                  {commerceFeaturesEnabled ? (
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Link
+                        href="/cart"
+                        onClick={closeCart}
+                        className="block w-full rounded-full bg-[#2f2582] px-6 py-4 text-center text-sm font-semibold tracking-[2px] text-white uppercase transition-all hover:bg-[#241c66] hover:shadow-lg"
+                      >
+                        View Cart & Checkout
+                      </Link>
+                    </motion.div>
+                  ) : (
+                    <motion.button
+                      onClick={() => setShowComingSoonModal(true)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       className="block w-full rounded-full bg-[#2f2582] px-6 py-4 text-center text-sm font-semibold tracking-[2px] text-white uppercase transition-all hover:bg-[#241c66] hover:shadow-lg"
                     >
                       View Cart & Checkout
-                    </Link>
-                  </motion.div>
+                    </motion.button>
+                  )}
 
                   {/* Continue Shopping */}
                   <motion.button
@@ -273,6 +289,12 @@ export function CartDrawer() {
               )}
             </div>
           </motion.div>
+
+          <ComingSoonModal
+            isOpen={showComingSoonModal}
+            onClose={() => setShowComingSoonModal(false)}
+            message={comingSoonMessage}
+          />
         </>
       )}
     </AnimatePresence>
