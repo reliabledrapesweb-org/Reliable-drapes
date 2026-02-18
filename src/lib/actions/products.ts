@@ -418,7 +418,7 @@ export async function getProductsByCategory(
     // Apply additional filters
     if (filters?.search) {
       query = query.or(
-        `name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`,
+        `name.ilike.%${filters.search}%,description.ilike.%${filters.search}%,sku.ilike.%${filters.search}%`,
       );
     }
 

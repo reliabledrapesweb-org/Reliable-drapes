@@ -8,7 +8,6 @@ import {
   Package,
   ShoppingCart,
   Users,
-  FolderOpen,
   Mail,
   Briefcase,
   Image as ImageIcon,
@@ -18,7 +17,8 @@ import {
   BookOpen,
   MapPin,
   Bell,
-  Layout,
+  CalendarDays,
+  TicketPercent,
 } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
@@ -51,6 +51,16 @@ const navItems: NavItem[] = [
     icon: BookOpen,
   },
   {
+    name: "Exhibitions",
+    href: "/admin/exhibitions",
+    icon: CalendarDays,
+  },
+  {
+    name: "Coupons",
+    href: "/admin/coupons",
+    icon: TicketPercent,
+  },
+  {
     name: "Orders",
     href: "/admin/orders",
     icon: ShoppingCart,
@@ -59,11 +69,6 @@ const navItems: NavItem[] = [
     name: "Customers",
     href: "/admin/customers",
     icon: Users,
-  },
-  {
-    name: "Collections",
-    href: "/admin/collections",
-    icon: FolderOpen,
   },
   {
     name: "Communications",

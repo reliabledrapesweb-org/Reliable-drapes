@@ -132,6 +132,19 @@ describe("ShopProductCard", () => {
       const cartButton = screen.getByTitle("Add to Cart");
       expect(cartButton).toBeInTheDocument();
     });
+
+    test("renders offer badges when provided", () => {
+      render(
+        <ShopProductCard
+          product={mockProduct}
+          onAddToCart={mockOnAddToCart}
+          offerBadges={["SAVE10: 10% OFF", "FLAT500: INR 500 OFF"]}
+        />,
+      );
+
+      expect(screen.getByText("SAVE10: 10% OFF")).toBeInTheDocument();
+      expect(screen.getByText("FLAT500: INR 500 OFF")).toBeInTheDocument();
+    });
   });
 
   describe("Description handling", () => {

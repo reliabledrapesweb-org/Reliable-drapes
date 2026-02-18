@@ -98,14 +98,14 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           <motion.a
-            href="/shop"
+            href="/e-catalogue"
             className="mb-32 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[rgba(255,255,255,0.15)] bg-[rgba(0,0,0,0.1)] px-5 py-2.5 text-sm text-white backdrop-blur-[6px] md:px-7 md:py-3.5 md:text-base lg:px-9 lg:py-4"
             whileHover={{ scale: 1.05, backgroundColor: "rgba(0,0,0,0.2)" }}
             whileTap={{ scale: 0.98 }}
             transition={{ duration: 0.2 }}
           >
             <span className="tracking-widest uppercase">
-              Explore Collections
+              Explore Catalogue
             </span>
             <motion.div
               animate={{ x: [0, 5, 0] }}

@@ -10,3 +10,5 @@ export { CategoryCard } from './CategoryCard';
 export { BenefitsSection } from './BenefitsSection';
 export { BestsellerSection } from './BestsellerSection';
 export { NewsletterSection } from './NewsletterSection';
+export { VideoSection } from './VideoSection';
+export { GoogleReviewsSection } from './GoogleReviewsSection';

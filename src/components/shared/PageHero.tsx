@@ -8,7 +8,10 @@ interface PageHeroProps {
   backgroundImage?: string;
 }
 
-export function PageHero({ heading, backgroundImage = "/images/abouthero.png" }: PageHeroProps) {
+export function PageHero({
+  heading,
+  backgroundImage = "/images/abouthero.png",
+}: PageHeroProps) {
   return (
     <section className="relative flex h-[350px] items-center overflow-hidden md:h-[450px] lg:h-[500px]">
       {/* Background Image with Overlays */}
@@ -17,7 +20,7 @@ export function PageHero({ heading, backgroundImage = "/images/abouthero.png" }:
           width={1920}
           height={1080}
           src={backgroundImage}
-          alt="Luxury home furnishings"
+          alt="Reliable Drapes page banner"
           className="h-full w-full object-cover"
           priority
         />

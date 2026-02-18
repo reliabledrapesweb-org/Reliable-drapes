@@ -11,14 +11,11 @@ import {
   Briefcase,
   Mail,
   FolderTree,
-  Layers,
   BookOpen,
   Store,
-  Eye,
   Clock,
   CheckCircle,
   Truck,
-  AlertCircle,
   XCircle,
   Image as ImageIcon,
   FileText,
@@ -287,7 +284,7 @@ export default function AdminDashboard() {
         if (media.success && media.data) {
           setRecentMedia(media.data);
         }
-      } catch (error) {
+      } catch {
       } finally {
         setIsLoading(false);
       }
@@ -356,13 +353,6 @@ export default function AdminDashboard() {
       color: "bg-[#2F2582]/10 dark:bg-[#a099ff]/20",
     },
     {
-      title: "Collections",
-      description: "Create and manage product collections",
-      href: "/admin/collections",
-      icon: <Layers className="h-5 w-5 text-[#2F2582] dark:text-[#a099ff]" />,
-      color: "bg-[#2F2582]/10 dark:bg-[#a099ff]/20",
-    },
-    {
       title: "Catalogues",
       description: "Upload and manage PDF catalogues",
       href: "/admin/catalogues",
@@ -408,7 +398,7 @@ export default function AdminDashboard() {
             <span className="text-[#2F2582] dark:text-[#a099ff]">
               {firstName}
             </span>
-            . Here's what's happening today.
+            . Here&apos;s what&apos;s happening today.
           </p>
         </div>
         <div className="flex items-center gap-3">

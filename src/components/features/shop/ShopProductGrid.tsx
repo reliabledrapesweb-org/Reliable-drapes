@@ -7,8 +7,17 @@ import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { useCartStore } from "@/lib/store";
 import type { Product } from "@/lib/actions/products";
 
+type CouponForDisplay = {
+  id: string;
+  code: string;
+  discount_type: "percentage" | "fixed" | null;
+  discount_value: number;
+  min_order_value?: number | null;
+};
+
 interface ShopProductGridProps {
   products: Product[];
+  coupons?: CouponForDisplay[];
 }
 
 const containerVariants = {
@@ -21,7 +30,7 @@ const containerVariants = {
   },
 };
 
-export function ShopProductGrid({ products }: ShopProductGridProps) {
+export function ShopProductGrid({ products, coupons = [] }: ShopProductGridProps) {
   const [visibleCards, setVisibleCards] = useState<Set<string>>(new Set());
   const observerRef = useRef<IntersectionObserver | null>(null);
   const cardRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -41,6 +50,20 @@ export function ShopProductGrid({ products }: ShopProductGridProps) {
     });
 
     addToast(`${productName} added to cart!`, "success", 3000);
+  };
+
+  const getOfferBadges = (price: number) => {
+    return coupons
+      .filter((coupon) => {
+        const minOrder = coupon.min_order_value || 0;
+        return price >= minOrder;
+      })
+      .slice(0, 2)
+      .map((coupon) =>
+        coupon.discount_type === "percentage"
+          ? `${coupon.code}: ${coupon.discount_value}% OFF`
+          : `${coupon.code}: INR ${coupon.discount_value} OFF`,
+      );
   };
 
   useEffect(() => {
@@ -119,6 +142,7 @@ export function ShopProductGrid({ products }: ShopProductGridProps) {
               isVisible={visibleCards.has(product.id)}
               animationDelay={(index % 3) * 100}
               onAddToCart={handleAddToCart}
+              offerBadges={getOfferBadges(product.price)}
             />
           </div>
         ))}

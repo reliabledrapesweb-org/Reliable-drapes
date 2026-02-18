@@ -10,3 +10,4 @@ export { SearchBar } from './SearchBar';
 export { ImageWithFallback } from './ImageWithFallback';
 export { ConfirmationModal } from './ConfirmationModal';
 export { ConfirmModal } from './ConfirmModal';
+export { GlobalContactButton } from './GlobalContactButton';

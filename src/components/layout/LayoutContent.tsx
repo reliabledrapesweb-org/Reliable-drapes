@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { Header, Footer } from "@/components/layout";
-import { CTASection } from "@/components/shared";
+import { CTASection, GlobalContactButton } from "@/components/shared";
 import { CartDrawer } from "@/components/features/shop";
 
 export function LayoutContent({ children }: { children: React.ReactNode }) {
@@ -23,6 +23,7 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
       {children}
       <CTASection />
       <Footer />
+      <GlobalContactButton />
       <CartDrawer />
     </div>
   );

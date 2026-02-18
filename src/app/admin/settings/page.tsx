@@ -32,12 +32,29 @@ import {
   Table,
   Navigation,
   Type,
+  Settings,
+  Store,
+  Video,
+  Share2,
+  MapPinned,
+  Instagram,
+  Facebook,
+  Twitter,
+  Youtube,
+  Linkedin,
+  Mail as MailIcon,
 } from "lucide-react";
 
 import { UserProfile, getProfile, updateProfile } from "@/lib/actions/users";
+import {
+  getSiteSettings,
+  updateSiteSettings,
+  type SiteSettings,
+} from "@/lib/actions/site-settings";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
+import { FileUpload } from "@/components/admin/FileUpload";
 import { supabaseClient } from "@/lib/supabase/client";
 import { useAdmin } from "@/lib/hooks/useAdmin";
 import { profileSchema, type ProfileFormValues } from "@/lib/validators";
@@ -56,6 +73,7 @@ import {
 const SETTINGS_TABS = [
   { id: "profile", label: "Profile", icon: User },
   { id: "appearance", label: "Appearance", icon: Palette },
+  { id: "site", label: "Site", icon: Settings },
   { id: "security", label: "Security", icon: Shield },
 ] as const;
 
@@ -74,6 +92,11 @@ export default function AdminSettingsPage() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [lastSynced, setLastSynced] = useState<Date | null>(null);
+
+  // Site settings state
+  const [siteSettings, setSiteSettings] = useState<SiteSettings | null>(null);
+  const [isLoadingSiteSettings, setIsLoadingSiteSettings] = useState(false);
+  const [isSavingSiteSettings, setIsSavingSiteSettings] = useState(false);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -197,6 +220,30 @@ export default function AdminSettingsPage() {
       setIsSubmitting(false);
     }
   };
+
+  // Fetch site settings
+  const fetchSiteSettings = async () => {
+    setIsLoadingSiteSettings(true);
+    try {
+      const result = await getSiteSettings();
+      if (result.success && result.settings) {
+        setSiteSettings(result.settings);
+      } else {
+        addToast(result.error || "Failed to load site settings", "error");
+      }
+    } catch (error) {
+      addToast("An unexpected error occurred", "error");
+    } finally {
+      setIsLoadingSiteSettings(false);
+    }
+  };
+
+  // Fetch site settings when tab is active
+  useEffect(() => {
+    if (activeTab === "site" && isAdmin && !siteSettings) {
+      fetchSiteSettings();
+    }
+  }, [activeTab, isAdmin]);
 
   // Loading state
   if (adminLoading || isLoading) {
@@ -513,6 +560,18 @@ export default function AdminSettingsPage() {
       )}
 
       {activeTab === "appearance" && <AppearanceTab addToast={addToast} />}
+
+      {activeTab === "site" && (
+        <SiteSettingsTab
+          siteSettings={siteSettings}
+          isLoading={isLoadingSiteSettings}
+          isSaving={isSavingSiteSettings}
+          onRefresh={fetchSiteSettings}
+          addToast={addToast}
+          setIsSaving={setIsSavingSiteSettings}
+          setSiteSettings={setSiteSettings}
+        />
+      )}
 
       {activeTab === "security" && (
         <motion.div
@@ -1042,6 +1101,495 @@ function AppearanceTab({
           </div>
         </CardContent>
       </Card>
+    </motion.div>
+  );
+}
+
+// Site Settings Tab Component
+function SiteSettingsTab({
+  siteSettings,
+  isLoading,
+  isSaving,
+  onRefresh,
+  addToast,
+  setIsSaving,
+  setSiteSettings,
+}: {
+  siteSettings: SiteSettings | null;
+  isLoading: boolean;
+  isSaving: boolean;
+  onRefresh: () => void;
+  addToast: (message: string, type: "success" | "error" | "info") => void;
+  setIsSaving: (value: boolean) => void;
+  setSiteSettings: (settings: SiteSettings | null) => void;
+}) {
+  const [formData, setFormData] = useState<Partial<SiteSettings>>({});
+
+  useEffect(() => {
+    if (siteSettings) {
+      setFormData({
+        shop_enabled: siteSettings.shop_enabled,
+        coming_soon_message: siteSettings.coming_soon_message,
+        hero_video_enabled: siteSettings.hero_video_enabled,
+        hero_video_url: siteSettings.hero_video_url,
+        hero_video_type: siteSettings.hero_video_type || "youtube",
+        social_instagram: siteSettings.social_instagram,
+        social_facebook: siteSettings.social_facebook,
+        social_twitter: siteSettings.social_twitter,
+        social_youtube: siteSettings.social_youtube,
+        social_linkedin: siteSettings.social_linkedin,
+        company_email: siteSettings.company_email,
+        company_phone: siteSettings.company_phone,
+        company_address: siteSettings.company_address,
+      });
+    }
+  }, [siteSettings]);
+
+  const handleToggle = (field: keyof SiteSettings, value: boolean) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleChange = (field: keyof SiteSettings, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const result = await updateSiteSettings(formData);
+      if (result.success && result.settings) {
+        setSiteSettings(result.settings);
+        addToast("Site settings saved successfully", "success");
+      } else {
+        addToast(result.error || "Failed to save settings", "error");
+      }
+    } catch (error) {
+      addToast("An unexpected error occurred", "error");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader className="h-8 w-8 animate-spin text-[#2F2582] dark:text-[#a099ff]" />
+      </div>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-6"
+    >
+      {/* Shop Status */}
+      <Card className="dark:border-gray-700 dark:bg-gray-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg dark:text-white">
+            <Store className="h-5 w-5" />
+            Shop Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between rounded-lg border border-gray-200 p-4 dark:border-gray-600 dark:bg-gray-700/50">
+            <div className="flex items-center gap-3">
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                  formData.shop_enabled
+                    ? "bg-green-100 dark:bg-green-900/30"
+                    : "bg-gray-100 dark:bg-gray-700"
+                }`}
+              >
+                <Store
+                  className={`h-5 w-5 ${
+                    formData.shop_enabled
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-gray-500 dark:text-gray-400"
+                  }`}
+                />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  Enable Shop
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {formData.shop_enabled
+                    ? "Shop is visible to customers"
+                    : "Shop is hidden from customers"}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() =>
+                handleToggle("shop_enabled", !formData.shop_enabled)
+              }
+              className={`relative h-6 w-11 rounded-full transition-colors ${
+                formData.shop_enabled
+                  ? "bg-[#2F2582] dark:bg-[#a099ff]"
+                  : "bg-gray-300 dark:bg-gray-600"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                  formData.shop_enabled ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {!formData.shop_enabled && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Coming Soon Message
+              </label>
+              <textarea
+                value={formData.coming_soon_message || ""}
+                onChange={(e) =>
+                  handleChange("coming_soon_message", e.target.value)
+                }
+                rows={3}
+                className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+                placeholder="Enter message to display when shop is disabled"
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Hero Video */}
+      <Card className="dark:border-gray-700 dark:bg-gray-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg dark:text-white">
+            <Video className="h-5 w-5" />
+            Hero Video
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between rounded-lg border border-gray-200 p-4 dark:border-gray-600 dark:bg-gray-700/50">
+            <div className="flex items-center gap-3">
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                  formData.hero_video_enabled
+                    ? "bg-purple-100 dark:bg-purple-900/30"
+                    : "bg-gray-100 dark:bg-gray-700"
+                }`}
+              >
+                <Video
+                  className={`h-5 w-5 ${
+                    formData.hero_video_enabled
+                      ? "text-purple-600 dark:text-purple-400"
+                      : "text-gray-500 dark:text-gray-400"
+                  }`}
+                />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  Enable Hero Video
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Show video section on home page
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() =>
+                handleToggle("hero_video_enabled", !formData.hero_video_enabled)
+              }
+              className={`relative h-6 w-11 rounded-full transition-colors ${
+                formData.hero_video_enabled
+                  ? "bg-[#2F2582] dark:bg-[#a099ff]"
+                  : "bg-gray-300 dark:bg-gray-600"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                  formData.hero_video_enabled
+                    ? "translate-x-5"
+                    : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {formData.hero_video_enabled && (
+            <>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Video Type
+                </label>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleChange("hero_video_type", "youtube")}
+                    className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all ${
+                      formData.hero_video_type === "youtube"
+                        ? "border-[#2F2582] bg-[#2F2582]/5 text-[#2F2582] dark:border-[#a099ff] dark:bg-[#a099ff]/10 dark:text-[#a099ff]"
+                        : "border-gray-200 text-gray-700 hover:border-gray-300 dark:border-gray-600 dark:text-gray-300 dark:hover:border-gray-500"
+                    }`}
+                  >
+                    YouTube
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleChange("hero_video_type", "upload")}
+                    className={`flex-1 rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all ${
+                      formData.hero_video_type === "upload"
+                        ? "border-[#2F2582] bg-[#2F2582]/5 text-[#2F2582] dark:border-[#a099ff] dark:bg-[#a099ff]/10 dark:text-[#a099ff]"
+                        : "border-gray-200 text-gray-700 hover:border-gray-300 dark:border-gray-600 dark:text-gray-300 dark:hover:border-gray-500"
+                    }`}
+                  >
+                    Uploaded File
+                  </button>
+                </div>
+              </div>
+
+              {formData.hero_video_type === "youtube" && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Video URL
+                  </label>
+                  <div className="relative">
+                    <Video className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="url"
+                      value={formData.hero_video_url || ""}
+                      onChange={(e) =>
+                        handleChange("hero_video_url", e.target.value)
+                      }
+                      className="h-12 w-full rounded-xl border-2 border-gray-200 pr-4 pl-11 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+                      placeholder="https://www.youtube.com/watch?v=..."
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Enter a YouTube video URL or embed link
+                  </p>
+                </div>
+              )}
+
+              {formData.hero_video_type === "upload" && (
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Upload Video File
+                  </label>
+                  <FileUpload
+                    label=""
+                    accept="video/*"
+                    bucket="products"
+                    folder="hero-videos"
+                    currentUrl={formData.hero_video_url || ""}
+                    onUploadComplete={(url) => handleChange("hero_video_url", url)}
+                    onRemove={() => handleChange("hero_video_url", "")}
+                    maxSizeMB={100}
+                    allowedTypes={[
+                      "video/mp4",
+                      "video/webm",
+                      "video/ogg",
+                      "video/quicktime",
+                    ]}
+                    previewType="file"
+                    registerWithMediaLibrary={true}
+                    mediaLibraryTags={["hero-video", "home"]}
+                  />
+
+                  {!formData.hero_video_url && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Or Enter Video URL
+                      </label>
+                      <input
+                        type="url"
+                        value={formData.hero_video_url || ""}
+                        onChange={(e) =>
+                          handleChange("hero_video_url", e.target.value)
+                        }
+                        className="h-12 w-full rounded-xl border-2 border-gray-200 px-4 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+                        placeholder="https://example.com/video.mp4"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Social Media Links */}
+      <Card className="dark:border-gray-700 dark:bg-gray-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg dark:text-white">
+            <Share2 className="h-5 w-5" />
+            Social Media Links
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Instagram className="h-4 w-4" />
+                Instagram
+              </label>
+              <input
+                type="url"
+                value={formData.social_instagram || ""}
+                onChange={(e) =>
+                  handleChange("social_instagram", e.target.value)
+                }
+                className="h-11 w-full rounded-xl border-2 border-gray-200 px-4 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+                placeholder="https://instagram.com/..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Facebook className="h-4 w-4" />
+                Facebook
+              </label>
+              <input
+                type="url"
+                value={formData.social_facebook || ""}
+                onChange={(e) =>
+                  handleChange("social_facebook", e.target.value)
+                }
+                className="h-11 w-full rounded-xl border-2 border-gray-200 px-4 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+                placeholder="https://facebook.com/..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Twitter className="h-4 w-4" />
+                Twitter / X
+              </label>
+              <input
+                type="url"
+                value={formData.social_twitter || ""}
+                onChange={(e) => handleChange("social_twitter", e.target.value)}
+                className="h-11 w-full rounded-xl border-2 border-gray-200 px-4 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+                placeholder="https://twitter.com/..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Youtube className="h-4 w-4" />
+                YouTube
+              </label>
+              <input
+                type="url"
+                value={formData.social_youtube || ""}
+                onChange={(e) => handleChange("social_youtube", e.target.value)}
+                className="h-11 w-full rounded-xl border-2 border-gray-200 px-4 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+                placeholder="https://youtube.com/..."
+              />
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Linkedin className="h-4 w-4" />
+                LinkedIn
+              </label>
+              <input
+                type="url"
+                value={formData.social_linkedin || ""}
+                onChange={(e) =>
+                  handleChange("social_linkedin", e.target.value)
+                }
+                className="h-11 w-full rounded-xl border-2 border-gray-200 px-4 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+                placeholder="https://linkedin.com/..."
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Company Details */}
+      <Card className="dark:border-gray-700 dark:bg-gray-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg dark:text-white">
+            <Building className="h-5 w-5" />
+            Company Details
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <MailIcon className="h-4 w-4" />
+                Contact Email
+              </label>
+              <input
+                type="email"
+                value={formData.company_email || ""}
+                onChange={(e) => handleChange("company_email", e.target.value)}
+                className="h-11 w-full rounded-xl border-2 border-gray-200 px-4 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+                placeholder="contact@company.com"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <Phone className="h-4 w-4" />
+                Contact Phone
+              </label>
+              <input
+                type="tel"
+                value={formData.company_phone || ""}
+                onChange={(e) => handleChange("company_phone", e.target.value)}
+                className="h-11 w-full rounded-xl border-2 border-gray-200 px-4 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+                placeholder="+91 123 456 7890"
+              />
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <MapPinned className="h-4 w-4" />
+                Company Address
+              </label>
+              <textarea
+                value={formData.company_address || ""}
+                onChange={(e) =>
+                  handleChange("company_address", e.target.value)
+                }
+                rows={3}
+                className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+                placeholder="Enter full company address"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Save Button */}
+      <div className="flex justify-end gap-3">
+        <Button
+          onClick={onRefresh}
+          variant="outline"
+          className="border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+        >
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Reset
+        </Button>
+        <Button
+          onClick={handleSave}
+          disabled={isSaving}
+          className="bg-[#2F2582] hover:bg-[#241c66] dark:bg-[#a099ff] dark:text-[#2F2582] dark:hover:bg-[#b0a9ff]"
+        >
+          {isSaving ? (
+            <>
+              <Loader className="mr-2 h-4 w-4 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save className="mr-2 h-4 w-4" />
+              Save Settings
+            </>
+          )}
+        </Button>
+      </div>
     </motion.div>
   );
 }

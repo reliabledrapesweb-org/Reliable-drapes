@@ -1,10 +1,11 @@
 "use client";
 
-import { Mail, Phone, MapPin, InstagramIcon } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getFooterCategories, type Category } from "@/lib/actions/products";
+import { getSocialLinks } from "@/lib/actions/site-settings";
 
 // Fallback categories when no data from database
 const fallbackCategories: Category[] = [
@@ -14,25 +15,50 @@ const fallbackCategories: Category[] = [
   { id: "4", name: "Bed Sheets", slug: "bed-sheets", parent_id: null },
 ];
 
+type SocialLinks = {
+  instagram: string | null;
+  facebook: string | null;
+  twitter: string | null;
+  youtube: string | null;
+  linkedin: string | null;
+};
+
 export function Footer() {
   const [categories, setCategories] = useState<Category[]>(fallbackCategories);
   const [isLoading, setIsLoading] = useState(true);
+  const [socialLinks, setSocialLinks] = useState<SocialLinks>({
+    instagram: null,
+    facebook: null,
+    twitter: null,
+    youtube: null,
+    linkedin: null,
+  });
 
-  // Fetch footer categories from database
+  // Fetch footer categories and site settings from database
   useEffect(() => {
-    async function fetchCategories() {
+    async function fetchData() {
       try {
-        const result = await getFooterCategories();
-        if (result.success && result.data && result.data.length > 0) {
-          setCategories(result.data);
+        const [categoriesResult, socialResult] = await Promise.all([
+          getFooterCategories(),
+          getSocialLinks(),
+        ]);
+
+        if (
+          categoriesResult.success &&
+          categoriesResult.data &&
+          categoriesResult.data.length > 0
+        ) {
+          setCategories(categoriesResult.data);
         }
-      } catch (error) {
-        // Keep fallback categories on error
+
+        setSocialLinks(socialResult);
+      } catch {
+        // Keep fallback values on error
       }
       setIsLoading(false);
     }
 
-    fetchCategories();
+    fetchData();
   }, []);
 
   return (
@@ -63,29 +89,66 @@ export function Footer() {
             </p>
 
             <p className="text-sm text-[#7e7e7e] md:text-base">
-              Creating spaces of comfort and tranquility with our premium
-              collection of home essentials. Experience luxury, sustainability,
-              and timeless design.
+              Reliable Drapes provides B2B furnishing solutions for showrooms,
+              designers, and project partners with scalable supply and
+              catalogue-driven product selection.
             </p>
 
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-[#7e7e7e]" />
-                <span className="text-sm text-[#7e7e7e] md:text-base">
-                  hello@Reliable.com
-                </span>
+                <a
+                  href="mailto:narangsumit@hotmail.com"
+                  className="text-sm text-[#7e7e7e] transition-colors hover:text-white md:text-base"
+                >
+                  narangsumit@hotmail.com
+                </a>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-start gap-3">
                 <Phone className="h-4 w-4 text-[#7e7e7e]" />
                 <span className="text-sm text-[#7e7e7e] md:text-base">
-                  1-800-Reliable
+                  +91 98960 37657, +91 98101 31945, +91 96257 31948
                 </span>
               </div>
-              <div className="flex items-center gap-3">
+            </div>
+
+            <div className="space-y-4 pt-1">
+              <div className="flex items-start gap-3">
                 <MapPin className="h-4 w-4 text-[#7e7e7e]" />
-                <span className="text-sm text-[#7e7e7e] md:text-base">
-                  Delhi, India
-                </span>
+                <div className="space-y-1 text-sm text-[#7e7e7e] md:text-base">
+                  <p className="font-medium text-[#f1f1f1]">
+                    Reliable Head Office
+                  </p>
+                  <p>Shree Ambica Furnishings (INDIA) Pvt. Ltd.</p>
+                  <p>
+                    4703 First Floor, Laxmi Bazar Cloth Market, Fateh Puri,
+                    Delhi-6
+                  </p>
+                  <p className="text-xs text-[#9b9b9b] md:text-sm">
+                    Location will share soon
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <MapPin className="h-4 w-4 text-[#7e7e7e]" />
+                <div className="space-y-1 text-sm text-[#7e7e7e] md:text-base">
+                  <p className="font-medium text-[#f1f1f1]">
+                    Warehouse Dispatch & Experience Centre
+                  </p>
+                  <p>Shree Ambica Furnishings (INDIA) Pvt. Ltd.</p>
+                  <p>
+                    Plot No. 140-141, Sec-25 Part-1, Huda, Panipat-132103,
+                    Haryana
+                  </p>
+                  <a
+                    href="https://maps.app.goo.gl/P4CB6MufARAT2S5g9?g_st=iw"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block text-sm text-[#c8c8c8] underline underline-offset-4 transition-colors hover:text-white"
+                  >
+                    View on Google Maps
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -148,32 +211,22 @@ export function Footer() {
               </li>
               <li>
                 <motion.a
-                  href="/terms-of-service"
+                  href="/store-locator"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
                 >
-                  Returns & Exchanges
+                  Store Locator
                 </motion.a>
               </li>
               <li>
                 <motion.a
-                  href="/terms-of-service"
+                  href="/style-expert"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
                 >
-                  Shipping Info
-                </motion.a>
-              </li>
-              <li>
-                <motion.a
-                  href="/terms-of-service"
-                  className="cursor-pointer"
-                  whileHover={{ color: "#ffffff", x: 3 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  FAQ
+                  Style Expert
                 </motion.a>
               </li>
             </ul>
@@ -197,12 +250,12 @@ export function Footer() {
               </li>
               <li>
                 <motion.a
-                  href="/careers"
+                  href="/exhibitions-events"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
                 >
-                  Careers
+                  Exhibitions & Events
                 </motion.a>
               </li>
               <li>
@@ -215,6 +268,16 @@ export function Footer() {
                   E-Catalogue
                 </motion.a>
               </li>
+              <li>
+                <motion.a
+                  href="/careers"
+                  className="cursor-pointer"
+                  whileHover={{ color: "#ffffff", x: 3 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  Careers
+                </motion.a>
+              </li>
             </ul>
           </div>
 
@@ -223,10 +286,12 @@ export function Footer() {
             <h3 className="text-sm text-[#7e7e7e] md:text-base">Follow us</h3>
             <div className="flex items-center gap-4">
               <motion.a
-                href="#"
+                href={socialLinks.instagram || "#"}
+                target={socialLinks.instagram ? "_blank" : undefined}
+                rel={socialLinks.instagram ? "noopener noreferrer" : undefined}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="text-gray-400 transition-colors hover:text-white"
+                className={`text-gray-400 transition-colors hover:text-white ${!socialLinks.instagram ? "pointer-events-none opacity-50" : ""}`}
                 aria-label="Instagram"
               >
                 <svg
@@ -243,10 +308,12 @@ export function Footer() {
                 </svg>
               </motion.a>
               <motion.a
-                href="#"
+                href={socialLinks.facebook || "#"}
+                target={socialLinks.facebook ? "_blank" : undefined}
+                rel={socialLinks.facebook ? "noopener noreferrer" : undefined}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="text-gray-400 transition-colors hover:text-white"
+                className={`text-gray-400 transition-colors hover:text-white ${!socialLinks.facebook ? "pointer-events-none opacity-50" : ""}`}
                 aria-label="Facebook"
               >
                 <svg
@@ -258,10 +325,12 @@ export function Footer() {
                 </svg>
               </motion.a>
               <motion.a
-                href="#"
+                href={socialLinks.twitter || "#"}
+                target={socialLinks.twitter ? "_blank" : undefined}
+                rel={socialLinks.twitter ? "noopener noreferrer" : undefined}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="text-gray-400 transition-colors hover:text-white"
+                className={`text-gray-400 transition-colors hover:text-white ${!socialLinks.twitter ? "pointer-events-none opacity-50" : ""}`}
                 aria-label="Twitter"
               >
                 <svg
@@ -273,10 +342,12 @@ export function Footer() {
                 </svg>
               </motion.a>
               <motion.a
-                href="#"
+                href={socialLinks.youtube || "#"}
+                target={socialLinks.youtube ? "_blank" : undefined}
+                rel={socialLinks.youtube ? "noopener noreferrer" : undefined}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="text-gray-400 transition-colors hover:text-white"
+                className={`text-gray-400 transition-colors hover:text-white ${!socialLinks.youtube ? "pointer-events-none opacity-50" : ""}`}
                 aria-label="YouTube"
               >
                 <svg
@@ -288,10 +359,12 @@ export function Footer() {
                 </svg>
               </motion.a>
               <motion.a
-                href="#"
+                href={socialLinks.linkedin || "#"}
+                target={socialLinks.linkedin ? "_blank" : undefined}
+                rel={socialLinks.linkedin ? "noopener noreferrer" : undefined}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="text-gray-400 transition-colors hover:text-white"
+                className={`text-gray-400 transition-colors hover:text-white ${!socialLinks.linkedin ? "pointer-events-none opacity-50" : ""}`}
                 aria-label="LinkedIn"
               >
                 <svg
@@ -311,29 +384,11 @@ export function Footer() {
           <div className="flex flex-col items-start justify-between gap-4 text-xs text-[#a5a5a5] md:flex-row md:items-center md:text-sm">
             <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:gap-4">
               <p className="text-center text-sm md:text-left md:text-base">
-                © 2025 Reliable Drapes. All rights reserved.
+                Copyright 2025 Reliable Drapes. All rights reserved.
               </p>
-              <div className="flex items-center gap-3 text-sm md:gap-4 md:text-base">
-                <motion.a
-                  href="/privacy-policy"
-                  className="cursor-pointer"
-                  whileHover={{ color: "#ffffff" }}
-                  transition={{ duration: 0.2 }}
-                >
-                  Privacy Policy
-                </motion.a>
-                <motion.a
-                  href="/terms-of-service"
-                  className="cursor-pointer"
-                  whileHover={{ color: "#ffffff" }}
-                  transition={{ duration: 0.2 }}
-                >
-                  Terms & Conditions
-                </motion.a>
-              </div>
             </div>
             <p className="text-start text-sm md:text-right md:text-base">
-              Made with ❤️ By Gagan Ahuja
+              Made by Gagan Ahuja
             </p>
           </div>
         </div>
@@ -341,3 +396,4 @@ export function Footer() {
     </footer>
   );
 }
+

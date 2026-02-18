@@ -19,19 +19,19 @@ export function FeaturesGrid({ section }: FeaturesGridProps) {
   const defaultFeatures: Feature[] = [
     {
       icon: "/images/fi_1.png",
-      title: "Expertly Curated Designs",
-      description: "Handpicked collections to elevate every space.",
+      title: "Commercially Curated Ranges",
+      description: "Catalogue lines designed for trade buying and projects.",
     },
     {
       icon: "/images/fi_2.png",
-      title: "Luxury Craftsmanship",
-      description: "From rich embroidery to modern minimal patterns.",
+      title: "Consistent Product Quality",
+      description: "From classic embroidery to modern patterns with QC focus.",
     },
     {
       icon: "/images/fi_3.png",
-      title: "Dedicated Styling Experts",
+      title: "Dedicated Partner Support",
       description:
-        "Personalized guidance for a home that feels uniquely yours.",
+        "Guidance for retailers, designers, and project execution teams.",
     },
   ];
 

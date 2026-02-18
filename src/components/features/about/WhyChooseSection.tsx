@@ -13,9 +13,9 @@ export function WhyChooseSection({ section }: WhyChooseSectionProps) {
   const defaults = {
     title: "Why Choose Reliable Drapes?",
     content:
-      "We combine decades of experience, exceptional craftsmanship, and a passion for design with a dedicated designing team to help you style your home. Our experts carefully select the finest collections to ensure every space feels vibrant, personalized, and effortlessly elegant.",
+      "We combine decades of textile expertise with dependable operations to support retailers, designers, contractors, and project partners at scale.",
     paragraph_2:
-      "From the richness of hand-worked embroidery to the finesse of contemporary patterns, our collections cater to every taste—whether you love classic luxury or modern minimalism.",
+      "From classic embroideries to contemporary patterns, our catalogues are structured for commercial buying, repeat ordering, and project-ready execution.",
     image_url: "/images/whyReliablePic.png",
   };
 

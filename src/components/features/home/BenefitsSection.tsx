@@ -6,18 +6,18 @@ import { motion } from "motion/react";
 const benefits = [
   {
     icon: Package,
-    title: "Premium Materials & Exclusive Styles",
-    description: "Only the best - that's what you deserve",
+    title: "Trade-Ready Product Range",
+    description: "Built for business buyers and project requirements.",
   },
   {
     icon: Award,
-    title: "365-Day Happiness Guarantee",
-    description: "It'll be love at first sleep (or bath).",
+    title: "Consistent Quality Standards",
+    description: "Structured quality control across batches and categories.",
   },
   {
     icon: Truck,
-    title: "Fast, Free Shipping",
-    description: "We're Delhiites, we move quick.",
+    title: "Reliable Dispatch Planning",
+    description: "Delivery timelines aligned to project and retail needs.",
   },
 ];
 

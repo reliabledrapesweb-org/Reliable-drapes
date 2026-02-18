@@ -15,7 +15,6 @@ import {
   ArrowLeft,
   ArrowRight,
   Tag,
-  ChevronRight,
   AlertTriangle,
   MapPin,
 } from "lucide-react";
@@ -24,7 +23,6 @@ import { createOrderAction } from "@/lib/actions/orders";
 import { getProfile } from "@/lib/actions/users";
 import { useAuthStore } from "@/lib/store";
 import { Loader } from "lucide-react";
-import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants/app";
 
 export default function CartPage() {
   const router = useRouter();
@@ -69,8 +67,7 @@ export default function CartPage() {
         } else {
           setHasAddress(false);
         }
-      } catch (error) {
-
+      } catch {
         setHasAddress(false);
       }
     }
@@ -105,7 +102,7 @@ export default function CartPage() {
   const handleCheckout = async () => {
     if (!user) {
       addToast("Please login to complete your purchase", "error", 3000);
-      router.push("/auth/login?redirect=/cart");
+      router.push("/login?redirect=/cart");
       return;
     }
 
@@ -139,8 +136,7 @@ export default function CartPage() {
       } else {
         addToast(result.error || "Failed to place order", "error", 3000);
       }
-    } catch (error) {
-
+    } catch {
       addToast("An unexpected error occurred", "error", 3000);
     } finally {
       setIsCheckingOut(false);
@@ -168,8 +164,6 @@ export default function CartPage() {
       addToast("Invalid promo code", "error", 2000);
     }
   };
-
-  const fallbackImage = DEFAULT_PRODUCT_IMAGE;
 
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
@@ -234,7 +228,7 @@ export default function CartPage() {
               transition={{ delay: 0.4 }}
               className="mb-8 text-center text-base text-[#575757] md:text-lg"
             >
-              Looks like you haven't added anything to your cart yet
+              Looks like you haven&apos;t added anything to your cart yet
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -430,7 +424,7 @@ export default function CartPage() {
                     </div>
                     {appliedPromo && (
                       <p className="mt-2 text-xs text-green-600">
-                        ✓ Promo code "{appliedPromo.code}" applied
+                        Promo code &quot;{appliedPromo.code}&quot; applied
                       </p>
                     )}
                   </div>

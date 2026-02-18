@@ -14,10 +14,10 @@ export function FounderSection({ section }: FounderSectionProps) {
     title: "Our Founder",
     subtitle: "Mr. Sumit Narang",
     content:
-      "Our founder envisioned a home furnishings brand that combines elegance, quality, and innovation. With a deep passion for design and decades of experience in textiles, they built Reliable Drapes on the principles of craftsmanship, creativity, and timeless style.",
+      "Our founder envisioned a furnishing business built for long-term trade partnerships, consistent quality, and dependable execution. With decades of textile experience, Reliable Drapes was built to support retailers, designers, and project teams at scale.",
     role: "Founder & CEO",
     quote:
-      "To inspire every home with beautiful, functional, and personalized furnishings that bring comfort, elegance, and a sense of individuality to living spaces.",
+      "To build a trusted B2B furnishing platform where every partner can source confidently, scale faster, and deliver better project outcomes.",
     image_url: "/images/founderPic.png",
   };
 

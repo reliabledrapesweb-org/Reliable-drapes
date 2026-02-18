@@ -45,13 +45,13 @@ describe("PageHero", () => {
 
   test("renders background image with default src", () => {
     render(<PageHero heading="Test" />);
-    const bgImage = screen.getByAltText("Luxury home furnishings");
+    const bgImage = screen.getByAltText("Reliable Drapes page banner");
     expect(bgImage).toHaveAttribute("src", "/images/abouthero.png");
   });
 
   test("renders background image with custom src", () => {
     render(<PageHero heading="Test" backgroundImage="/custom-bg.jpg" />);
-    const bgImage = screen.getByAltText("Luxury home furnishings");
+    const bgImage = screen.getByAltText("Reliable Drapes page banner");
     expect(bgImage).toHaveAttribute("src", "/custom-bg.jpg");
   });
 

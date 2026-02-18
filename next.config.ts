@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
+import path from "path";
 
 const nextConfig: NextConfig = {
+  // Force Next.js to use this project as tracing root.
+  // Prevents incorrect workspace inference when other lockfiles exist on the machine.
+  outputFileTracingRoot: path.resolve(__dirname),
   // Ignore ESLint errors during build (fix them separately)
   eslint: {
     ignoreDuringBuilds: true,

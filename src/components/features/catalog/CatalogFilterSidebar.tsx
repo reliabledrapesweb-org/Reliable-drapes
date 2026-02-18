@@ -1,7 +1,7 @@
 "use client";
 
-import { Check, ChevronRight, ChevronDown } from "lucide-react";
-import { useState, useRef } from "react";
+import { Check } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { CatalogueCategory } from "@/lib/actions/catalogue-categories";
 
@@ -12,7 +12,7 @@ interface CatalogFilterSidebarProps {
   categories: CatalogueCategory[];
 }
 
- // Build tree from flat categories
+// Build tree from flat categories
 function buildCategoryTree(
   categories: CatalogueCategory[],
   parentId: string | null = null,
@@ -53,21 +53,18 @@ export function CatalogFilterSidebar({
       return expanded;
     },
   );
+  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const hasActiveFilters = selectedFilters.length > 0;
 
-  const toggleCategoryExpanded = (categoryId: string) => {
-    setExpandedCategories((prev) => {
-      const next = new Set(prev);
-      if (next.has(categoryId)) {
-        next.delete(categoryId);
-      } else {
-        next.add(categoryId);
-      }
-      return next;
-    });
-  };
+  const handleMouseEnter = useCallback((categoryId: string) => {
+    setHoveredCategory(categoryId);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setHoveredCategory(null);
+  }, []);
 
   // Build category tree
   const categoryTree = buildCategoryTree(categories);
@@ -81,7 +78,10 @@ export function CatalogFilterSidebar({
     return cats.map((category) => {
       const isChecked = selectedFilters.includes(category.name);
       const hasChildren = category.children && category.children.length > 0;
-      const isCategoryExpanded = expandedCategories.has(category.id);
+      const isCategoryExpanded =
+        expandedCategories.has(category.id) ||
+        hoveredCategory === category.id ||
+        hoveredCategory?.startsWith(`${category.id}:`);
       const paddingLeft = (category.level || 0) * 16;
 
       return (
@@ -92,24 +92,9 @@ export function CatalogFilterSidebar({
             transition={{ duration: 0.3 }}
             className="flex cursor-pointer items-center justify-between py-1"
             style={{ paddingLeft: `${paddingLeft}px` }}
+            onMouseEnter={() => hasChildren && handleMouseEnter(category.id)}
           >
             <div className="flex items-center gap-2">
-              {hasChildren && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleCategoryExpanded(category.id);
-                  }}
-                  className="flex h-5 w-5 items-center justify-center rounded hover:bg-gray-100"
-                >
-                  {isCategoryExpanded ? (
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-gray-500" />
-                  )}
-                </button>
-              )}
-              {!hasChildren && <div className="w-5" />}
               <span
                 onClick={() => onToggleFilter(category.name)}
                 className={`text-[16px] transition-colors hover:text-[#2f2582] md:text-[18px] ${
@@ -142,9 +127,18 @@ export function CatalogFilterSidebar({
               </AnimatePresence>
             </motion.div>
           </motion.div>
-          {isCategoryExpanded && hasChildren && (
-            <div>{renderCategoryTree(category.children || [])}</div>
-          )}
+          <AnimatePresence>
+            {isCategoryExpanded && hasChildren && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, x: -10 }}
+                animate={{ opacity: 1, height: "auto", x: 12 }}
+                exit={{ opacity: 0, height: 0, x: -10 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+              >
+                {renderCategoryTree(category.children || [])}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       );
     });
@@ -195,7 +189,7 @@ export function CatalogFilterSidebar({
               <div className="mt-4 space-y-5 md:mt-5">
                 {/* Categories */}
                 {categories.length > 0 && (
-                  <div className="space-y-1">
+                  <div className="space-y-1" onMouseLeave={handleMouseLeave}>
                     <h3 className="mb-3 text-[16px] font-semibold text-[#161616] md:text-[17px]">
                       Categories
                     </h3>

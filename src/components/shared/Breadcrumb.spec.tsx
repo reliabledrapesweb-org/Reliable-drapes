@@ -66,23 +66,11 @@ describe("Breadcrumb", () => {
     expect(detailsSpan.closest("a")).toBeNull();
   });
 
-  test("renders correct breadcrumbs for Collections page", () => {
-    vi.mocked(usePathname).mockReturnValue("/collections");
+  test("renders correct breadcrumbs for Exhibitions & Events page", () => {
+    vi.mocked(usePathname).mockReturnValue("/exhibitions-events");
     render(<Breadcrumb />);
 
-    expect(screen.getByText("Collections")).toBeInTheDocument();
-  });
-
-  test("renders correct breadcrumbs for Collection details page", () => {
-    vi.mocked(usePathname).mockReturnValue("/collections/summer-sale");
-    render(<Breadcrumb />);
-
-    expect(screen.getByText("Collections")).toHaveAttribute(
-      "href",
-      "/collections",
-    );
-    // Should format slug: summer-sale -> Summer Sale
-    expect(screen.getByText("Summer Sale")).toBeInTheDocument();
+    expect(screen.getByText("Exhibitions & Events")).toBeInTheDocument();
   });
 
   test("renders correct breadcrumbs for Admin Dashboard", () => {

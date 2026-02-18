@@ -50,7 +50,7 @@ describe("HeroSection", () => {
 
   test("renders hero content", () => {
     render(<HeroSection />);
-    expect(screen.getByText("Explore Collections")).toBeInTheDocument();
+    expect(screen.getByText("Explore Catalogue")).toBeInTheDocument();
     expect(screen.getByAltText("Hero Background")).toBeInTheDocument();
   });
 

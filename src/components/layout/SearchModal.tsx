@@ -21,6 +21,17 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [hasSearched, setHasSearched] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const resetSearchState = () => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setHasSearched(false);
+  };
+
+  const handleClose = () => {
+    onClose();
+    resetSearchState();
+  };
+
   // Focus input when modal opens
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -31,7 +42,8 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   // Search products
   useEffect(() => {
     const searchProducts = async () => {
-      if (searchQuery.trim().length < 2) {
+      const normalizedQuery = searchQuery.trim();
+      if (normalizedQuery.length < 2) {
         setSearchResults([]);
         setHasSearched(false);
         return;
@@ -41,14 +53,13 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       setHasSearched(true);
 
       try {
-        const result = await getProducts({ search: searchQuery, limit: 5 });
+        const result = await getProducts({ search: normalizedQuery, limit: 5 });
         if (result.success && result.data) {
           setSearchResults(result.data);
         } else {
           setSearchResults([]);
         }
-      } catch (error) {
-
+      } catch {
         setSearchResults([]);
       }
 
@@ -61,17 +72,16 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   const handleProductClick = (productId: string) => {
     router.push(`/shop/${productId}`);
-    onClose();
-    setSearchQuery("");
-    setSearchResults([]);
-    setHasSearched(false);
+    handleClose();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
-      onClose();
-    } else if (e.key === "Enter" && searchResults.length === 1) {
-      handleProductClick(searchResults[0].id);
+      handleClose();
+    } else if (e.key === "Enter" && searchQuery.trim().length >= 2) {
+      e.preventDefault();
+      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      handleClose();
     }
   };
 
@@ -94,7 +104,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={handleClose}
             className="fixed inset-0 z-[9998] bg-black/50 backdrop-blur-sm"
           />
 
@@ -123,7 +133,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   <Loader2 className="h-5 w-5 animate-spin text-[#2f2582]" />
                 )}
                 <button
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="rounded-full p-1.5 text-[#575757] transition-colors hover:bg-gray-100"
                   aria-label="Close search"
                 >
@@ -202,14 +212,13 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       <button
                         onClick={() => {
                           router.push(
-                            `/shop?search=${encodeURIComponent(searchQuery)}`,
+                            `/shop?search=${encodeURIComponent(searchQuery.trim())}`,
                           );
-                          onClose();
-                          setSearchQuery("");
+                          handleClose();
                         }}
                         className="w-full border-t border-[#d0d0d0] p-4 text-center text-sm font-medium text-[#2f2582] transition-colors hover:bg-gray-50"
                       >
-                        View all results for "{searchQuery}"
+                        View all results for &quot;{searchQuery}&quot;
                       </button>
                     )}
                   </div>
@@ -222,13 +231,13 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       No products found
                     </h3>
                     <p className="mb-4 text-center text-sm text-[#898989]">
-                      We couldn't find any products matching "{searchQuery}"
+                      We couldn&apos;t find any products matching &quot;{searchQuery}
+                      &quot;
                     </p>
                     <button
                       onClick={() => {
                         router.push("/shop");
-                        onClose();
-                        setSearchQuery("");
+                        handleClose();
                       }}
                       className="rounded-full bg-[#2f2582] px-6 py-2.5 text-sm font-medium tracking-[1.5px] text-white uppercase transition-all hover:bg-[#241c66] hover:shadow-lg"
                     >

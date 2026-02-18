@@ -12,16 +12,16 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
-  title: "Reliable Drapes - Luxury Home Furnishings",
-  description: "Discover premium quality drapes and home furnishings. Shop our exclusive collection of luxury curtains, blinds, and interior decor. Fast delivery, premium materials, and exceptional customer service.",
+  title: "Reliable Drapes - B2B Furnishing Solutions",
+  description:
+    "Reliable Drapes delivers B2B furnishing solutions for showrooms, designers, retailers, and project partners across India.",
   keywords: [
     "drapes",
-    "curtains",
-    "home furnishings",
-    "luxury drapes",
-    "interior design",
-    "window treatments",
-    "home decor",
+    "b2b furnishings",
+    "trade catalogue",
+    "interior business supplier",
+    "curtain and upholstery wholesale",
+    "project furnishing partner",
   ],
   authors: [{ name: "Reliable Drapes", url: "https://reliabledrapes.com" }],
   openGraph: {
@@ -29,9 +29,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://reliabledrapes.com",
     siteName: "Reliable Drapes",
-    title: "Reliable Drapes - Luxury Home Furnishings",
+    title: "Reliable Drapes - B2B Furnishing Solutions",
     description:
-      "Premium quality drapes and home furnishings for your perfect space.",
+      "B2B-ready furnishing collections for business buyers, designers, and project teams.",
     images: [
       {
         url: "/og-image.png",
@@ -43,9 +43,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Reliable Drapes - Luxury Home Furnishings",
+    title: "Reliable Drapes - B2B Furnishing Solutions",
     description:
-      "Discover premium quality drapes and home furnishings. Shop our exclusive collection.",
+      "Explore business-focused furnishing collections and project-ready catalogue options.",
     creator: "@reliabledrapes",
     images: ["/og-image.png"],
   },

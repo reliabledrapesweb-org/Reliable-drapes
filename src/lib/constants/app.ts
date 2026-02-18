@@ -4,8 +4,8 @@
 
 export const APP_NAME = "Reliable Drapes";
 export const APP_DESCRIPTION = "Luxury Home Furnishings";
-export const CONTACT_EMAIL = "Helloreliable@gmail.com";
-export const WHATSAPP_NUMBER = ""; // Add your WhatsApp number
+export const CONTACT_EMAIL = "narangsumit@hotmail.com";
+export const WHATSAPP_NUMBER = "919625731948";
 
 export const SOCIAL_LINKS = {
   facebook: "#",

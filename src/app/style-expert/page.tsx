@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 import {
   Calendar,
   Clock,
@@ -179,7 +178,7 @@ export default function StyleExpertPage() {
       } else {
         addToast(result.error || "Failed to submit request", "error");
       }
-    } catch (error) {
+    } catch {
       addToast("An unexpected error occurred", "error");
     } finally {
       setIsSubmitting(false);
@@ -277,7 +276,7 @@ export default function StyleExpertPage() {
               Book Your Design Consultation
             </h1>
             <p className="text-lg text-gray-600">
-              Let's create your dream space together. Fill out the form below to
+              Let&apos;s create your dream space together. Fill out the form below to
               get started.
             </p>
           </motion.div>
@@ -307,10 +306,10 @@ export default function StyleExpertPage() {
                 >
                   <div className="mb-6">
                     <h2 className="mb-2 text-2xl font-bold text-[#2a2a2a]">
-                      Let's start with your details
+                      Let&apos;s start with your details
                     </h2>
                     <p className="text-gray-600">
-                      We'll use this information to contact you about your
+                      We&apos;ll use this information to contact you about your
                       consultation.
                     </p>
                   </div>
@@ -406,7 +405,7 @@ export default function StyleExpertPage() {
                       Tell us about your project
                     </h2>
                     <p className="text-gray-600">
-                      Help us understand what you're looking to achieve.
+                      Help us understand what you&apos;re looking to achieve.
                     </p>
                   </div>
 
@@ -630,7 +629,7 @@ export default function StyleExpertPage() {
                   <div>
                     <label className="mb-4 block text-sm font-semibold text-gray-700">
                       <IndianRupee className="mr-2 inline h-4 w-4" />
-                      What's your budget range? *
+                      What&apos;s your budget range? *
                     </label>
                     {errors.budget_range && (
                       <p className="mb-2 text-sm text-red-600">
@@ -896,7 +895,7 @@ export default function StyleExpertPage() {
 
               {/* Contact Us Button */}
               <a
-                href="tel:+919999999999"
+                href="tel:+919625731948"
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2f2582]/10 text-[#2f2582] transition-colors hover:bg-[#2f2582]/20"
                 title="Contact Us"
               >

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
@@ -14,6 +14,7 @@ interface ShopProductCardProps {
   isVisible?: boolean;
   animationDelay?: number;
   onAddToCart: (productId: string, productName: string) => void;
+  offerBadges?: string[];
 }
 
 export function ShopProductCard({
@@ -21,6 +22,7 @@ export function ShopProductCard({
   isVisible = true,
   animationDelay = 0,
   onAddToCart,
+  offerBadges = [],
 }: ShopProductCardProps) {
   const [imageError, setImageError] = useState(false);
 
@@ -90,6 +92,20 @@ export function ShopProductCard({
               <ShoppingCart className="h-5 w-5" />
             </button>
           </div>
+
+          {/* Offer Badges */}
+          {offerBadges.length > 0 && (
+            <div className="absolute right-3 bottom-3 z-20 flex max-w-[85%] flex-wrap justify-end gap-1.5">
+              {offerBadges.map((badge) => (
+                <span
+                  key={`${product.id}-${badge}`}
+                  className="rounded-full bg-black/70 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-white backdrop-blur-sm"
+                >
+                  {badge}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-2 px-1">

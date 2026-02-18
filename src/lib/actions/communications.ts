@@ -1,6 +1,6 @@
 "use server";
 
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer, supabaseAdmin } from "@/lib/supabase/server";
 import { sendBulkEmail, isSendGridConfigured } from "@/lib/email/sendgrid";
 import { wrapContentInTemplate } from "@/lib/email/templates/newsletter";
 
@@ -323,13 +323,16 @@ export async function createNewsletterSubscriber(
   data: Pick<NewsletterSubscriber, "email" | "name">,
 ): Promise<ActionResult<NewsletterSubscriber>> {
   try {
-    const supabase = await supabaseServer();
+    const supabase = process.env.SUPABASE_SERVICE_ROLE_KEY
+      ? supabaseAdmin()
+      : await supabaseServer();
+    const normalizedEmail = data.email.trim().toLowerCase();
 
     // Check if email already exists
     const { data: existing } = await supabase
       .from("newsletter_subscribers")
       .select("id, status")
-      .eq("email", data.email)
+      .eq("email", normalizedEmail)
       .single();
 
     if (existing) {
@@ -356,6 +359,7 @@ export async function createNewsletterSubscriber(
       .from("newsletter_subscribers")
       .insert({
         ...data,
+        email: normalizedEmail,
         status: "active",
       })
       .select()
@@ -405,7 +409,9 @@ export async function updateNewsletterSubscriber(
   try {
     const supabase = await supabaseServer();
 
-    const updateData: any = { ...updates };
+    const updateData: Partial<Pick<NewsletterSubscriber, "status" | "name">> & {
+      unsubscribed_at?: string | null;
+    } = { ...updates };
     if (updates.status === "unsubscribed") {
       updateData.unsubscribed_at = new Date().toISOString();
     }
