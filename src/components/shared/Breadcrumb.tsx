@@ -32,7 +32,7 @@ export function Breadcrumb() {
     } else if (pathname === "/e-catalogue") {
       items.push({ label: "E-catalogue" });
     } else if (pathname === "/exhibitions-events") {
-      items.push({ label: "Exhibitions & Events" });
+      items.push({ label: "Exhibitions & Moments" });
     } else if (pathname === "/store-locator") {
       items.push({ label: "Store Locator" });
     } else if (pathname === "/style-expert") {

@@ -68,6 +68,11 @@ import {
   type SidebarLayout,
   type FontSize,
 } from "@/lib/store";
+import {
+  CONTACT_EMAIL,
+  COMPANY_PHONE,
+  COMPANY_ADDRESS,
+} from "@/lib/constants/app";
 
 // Settings tabs
 const SETTINGS_TABS = [
@@ -1123,11 +1128,34 @@ function SiteSettingsTab({
   setIsSaving: (value: boolean) => void;
   setSiteSettings: (settings: SiteSettings | null) => void;
 }) {
-  const [formData, setFormData] = useState<Partial<SiteSettings>>({});
+  const getDefaultSiteSettingsForm = (): Partial<SiteSettings> => ({
+    shop_enabled: true,
+    coming_soon_message: "Coming Soon",
+    commerce_features_enabled: true,
+    commerce_coming_soon_message: "",
+    hero_video_enabled: false,
+    hero_video_url: "",
+    hero_video_type: "youtube",
+    social_instagram: "",
+    social_facebook: "",
+    social_twitter: "",
+    social_youtube: "",
+    social_linkedin: "",
+    company_email: CONTACT_EMAIL,
+    company_phone: COMPANY_PHONE,
+    company_address: COMPANY_ADDRESS,
+  });
+
+  const [formData, setFormData] = useState<Partial<SiteSettings>>(
+    getDefaultSiteSettingsForm(),
+  );
 
   useEffect(() => {
+    const defaults = getDefaultSiteSettingsForm();
+
     if (siteSettings) {
       setFormData({
+        ...defaults,
         shop_enabled: siteSettings.shop_enabled,
         coming_soon_message: siteSettings.coming_soon_message,
         commerce_features_enabled:
@@ -1137,15 +1165,18 @@ function SiteSettingsTab({
         hero_video_enabled: siteSettings.hero_video_enabled,
         hero_video_url: siteSettings.hero_video_url,
         hero_video_type: siteSettings.hero_video_type || "youtube",
-        social_instagram: siteSettings.social_instagram,
-        social_facebook: siteSettings.social_facebook,
-        social_twitter: siteSettings.social_twitter,
-        social_youtube: siteSettings.social_youtube,
-        social_linkedin: siteSettings.social_linkedin,
-        company_email: siteSettings.company_email,
-        company_phone: siteSettings.company_phone,
-        company_address: siteSettings.company_address,
+        social_instagram: siteSettings.social_instagram ?? "",
+        social_facebook: siteSettings.social_facebook ?? "",
+        social_twitter: siteSettings.social_twitter ?? "",
+        social_youtube: siteSettings.social_youtube ?? "",
+        social_linkedin: siteSettings.social_linkedin ?? "",
+        company_email: siteSettings.company_email?.trim() || defaults.company_email,
+        company_phone: siteSettings.company_phone?.trim() || defaults.company_phone,
+        company_address:
+          siteSettings.company_address?.trim() || defaults.company_address,
       });
+    } else {
+      setFormData(defaults);
     }
   }, [siteSettings]);
 
@@ -1608,7 +1639,7 @@ function SiteSettingsTab({
                 value={formData.company_email || ""}
                 onChange={(e) => handleChange("company_email", e.target.value)}
                 className="h-11 w-full rounded-xl border-2 border-gray-200 px-4 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
-                placeholder="contact@company.com"
+                placeholder={CONTACT_EMAIL}
               />
             </div>
 
@@ -1622,7 +1653,7 @@ function SiteSettingsTab({
                 value={formData.company_phone || ""}
                 onChange={(e) => handleChange("company_phone", e.target.value)}
                 className="h-11 w-full rounded-xl border-2 border-gray-200 px-4 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
-                placeholder="+91 123 456 7890"
+                placeholder={COMPANY_PHONE}
               />
             </div>
 
@@ -1638,7 +1669,7 @@ function SiteSettingsTab({
                 }
                 rows={3}
                 className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
-                placeholder="Enter full company address"
+                placeholder={COMPANY_ADDRESS}
               />
             </div>
           </div>

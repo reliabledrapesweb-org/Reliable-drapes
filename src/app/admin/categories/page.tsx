@@ -14,7 +14,7 @@ import {
   LayoutGrid,
   ChevronRight,
   ChevronDown,
-  Folder,
+  Image as ImageIcon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -35,6 +35,7 @@ import { ConfirmationModal } from "@/components/shared";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AdminPageSkeleton } from "@/components/ui/AdminPageSkeleton";
+import { FileUpload } from "@/components/admin/FileUpload";
 import {
   Table,
   TableBody,
@@ -192,7 +193,7 @@ export default function AdminCategoriesPage() {
           addToast(result.error || "Failed to create category", "error");
         }
       }
-    } catch (error) {
+    } catch {
       addToast("An unexpected error occurred", "error");
     } finally {
       setActionLoading((prev) => ({ ...prev, [actionKey]: null }));
@@ -842,25 +843,48 @@ export default function AdminCategoriesPage() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Image URL
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.image_url}
-                    onChange={(e) =>
-                      setFormData({ ...formData, image_url: e.target.value })
+                  <div className="mb-2 flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4 text-gray-500" />
+                    <label className="block text-sm font-semibold text-gray-700">
+                      Category Image
+                    </label>
+                  </div>
+
+                  <FileUpload
+                    label=""
+                    accept="image/*"
+                    bucket="products"
+                    folder="categories"
+                    currentUrl={formData.image_url}
+                    onUploadComplete={(url) =>
+                      setFormData({ ...formData, image_url: url })
                     }
-                    className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
-                    placeholder="https://example.com/image.jpg"
+                    onRemove={() => setFormData({ ...formData, image_url: "" })}
+                    maxSizeMB={5}
+                    allowedTypes={[
+                      "image/jpeg",
+                      "image/png",
+                      "image/webp",
+                      "image/jpg",
+                    ]}
+                    previewType="image"
+                    registerWithMediaLibrary
+                    mediaLibraryTags={["category", "product-category"]}
                   />
-                  {formData.image_url && (
-                    <div className="relative mt-3 h-32 w-32 overflow-hidden rounded-lg border-2 border-gray-200">
-                      <Image
-                        src={formData.image_url}
-                        alt="Preview"
-                        fill
-                        className="object-cover"
+
+                  {!formData.image_url && (
+                    <div className="mt-3">
+                      <label className="mb-2 block text-xs font-medium text-gray-600">
+                        Or enter image URL manually
+                      </label>
+                      <input
+                        type="url"
+                        value={formData.image_url}
+                        onChange={(e) =>
+                          setFormData({ ...formData, image_url: e.target.value })
+                        }
+                        className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
+                        placeholder="https://example.com/image.jpg"
                       />
                     </div>
                   )}

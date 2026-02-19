@@ -4,11 +4,26 @@ import { getAdminSupabase } from "@/lib/supabase/admin";
 import { getAnonSupabase } from "@/lib/supabase/anon";
 import type { CatalogueCategoryId } from "@/lib/types/category.types";
 
+const getErrorCode = (error: unknown): string | undefined => {
+  if (typeof error === "object" && error !== null && "code" in error) {
+    return String((error as { code?: unknown }).code);
+  }
+  return undefined;
+};
+
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
+};
+
 export interface CatalogueCategory {
   id: CatalogueCategoryId;
   name: string;
   slug: string;
   description: string | null;
+  image_url: string | null;
   sort_order: number;
   is_active: boolean | null;
   parent_id: CatalogueCategoryId | null;
@@ -24,6 +39,7 @@ export interface CreateCatalogueCategoryInput {
   name: string;
   slug?: string;
   description?: string;
+  image_url?: string;
   sort_order?: number;
   is_active?: boolean;
   parent_id?: CatalogueCategoryId | null;
@@ -52,11 +68,8 @@ export async function getCatalogueCategories(): Promise<{
 
     if (error) throw error;
     return { success: true, data };
-  } catch (error: any) {
-    console.error(
-      "Error fetching catalogue categories:",
-      error?.message || error,
-    );
+  } catch (error: unknown) {
+    console.error("Error fetching catalogue categories:", getErrorMessage(error));
     return { success: false, error: "Failed to fetch categories" };
   }
 }
@@ -89,7 +102,7 @@ export async function getAllCatalogueCategories(): Promise<{
     );
 
     return { success: true, data: categoriesWithCounts };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to fetch categories" };
   }
 }
@@ -115,6 +128,7 @@ export async function createCatalogueCategory(
         name: input.name,
         slug,
         description: input.description || null,
+        image_url: input.image_url || null,
         sort_order: input.sort_order || 0,
         is_active: input.is_active ?? true,
         parent_id: input.parent_id || null,
@@ -124,8 +138,8 @@ export async function createCatalogueCategory(
 
     if (error) throw error;
     return { success: true, data };
-  } catch (error: any) {
-    if (error.code === "23505") {
+  } catch (error: unknown) {
+    if (getErrorCode(error) === "23505") {
       return {
         success: false,
         error: "A category with this name already exists",
@@ -142,10 +156,18 @@ export async function updateCatalogueCategory(
   try {
     const supabase = getAdminSupabase();
     const { id, ...updates } = input;
+    const normalizedUpdates: Partial<CreateCatalogueCategoryInput> & {
+      image_url?: string | null;
+    } = {
+      ...updates,
+    };
+    if (updates.image_url !== undefined) {
+      normalizedUpdates.image_url = updates.image_url || null;
+    }
 
     // Generate slug if name is updated but slug isn't
-    if (updates.name && !updates.slug) {
-      updates.slug = updates.name
+    if (normalizedUpdates.name && !normalizedUpdates.slug) {
+      normalizedUpdates.slug = normalizedUpdates.name
         .toLowerCase()
         .replace(/\s+/g, "-")
         .replace(/[^a-z0-9-]/g, "");
@@ -153,15 +175,15 @@ export async function updateCatalogueCategory(
 
     const { data, error } = await supabase
       .from("catalogue_categories")
-      .update(updates)
+      .update(normalizedUpdates)
       .eq("id", id)
       .select()
       .single();
 
     if (error) throw error;
     return { success: true, data };
-  } catch (error: any) {
-    if (error.code === "23505") {
+  } catch (error: unknown) {
+    if (getErrorCode(error) === "23505") {
       return {
         success: false,
         error: "A category with this name already exists",
@@ -211,7 +233,7 @@ export async function deleteCatalogueCategory(
 
     if (error) throw error;
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false, error: "Failed to delete category" };
   }
 }

@@ -255,7 +255,7 @@ export function Footer() {
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
                 >
-                  Exhibitions & Events
+                  Exhibitions & Moments
                 </motion.a>
               </li>
               <li>

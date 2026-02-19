@@ -2,6 +2,7 @@
 
 import {
   HeroSection,
+  FeaturesSection,
   AboutSection,
   CategoriesSection,
   GoogleReviewsSection,
@@ -12,6 +13,8 @@ export default function HomePage() {
   return (
     <main>
       <HeroSection />
+
+      <FeaturesSection />
 
       <AboutSection />
 

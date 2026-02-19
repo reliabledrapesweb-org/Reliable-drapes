@@ -46,7 +46,7 @@ export default function ExhibitionsEventsPage() {
 
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
-      <PageHero heading="Exhibitions & Events" />
+      <PageHero heading="Exhibitions & Moments" />
       <Breadcrumb />
 
       <section className="relative overflow-hidden bg-gradient-to-b from-[#f8f8f8] via-white to-[#f8f8f8] py-12 md:py-16 lg:py-20">
@@ -80,7 +80,7 @@ export default function ExhibitionsEventsPage() {
               Exhibition Moments
             </h1>
             <p className="mt-3 text-sm text-[#575757] md:text-base">
-              A visual showcase of our events and exhibitions.
+              A visual showcase of our exhibitions and moments.
             </p>
           </motion.div>
 

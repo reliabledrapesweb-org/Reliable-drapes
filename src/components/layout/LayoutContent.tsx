@@ -7,10 +7,9 @@ import { CartDrawer } from "@/components/features/shop";
 
 export function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  
+
   // Check if current route is admin route
   const isAdminRoute = pathname?.startsWith("/admin");
-  const isHomeRoute = pathname === "/";
 
   // For admin routes, render children directly without Header/Footer/CTA
   if (isAdminRoute) {
@@ -22,7 +21,7 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-white">
       <Header />
       {children}
-      <CTASection enableVideoBackground={isHomeRoute} />
+      <CTASection enableVideoBackground />
       <Footer />
       <GlobalContactButton />
       <CartDrawer />

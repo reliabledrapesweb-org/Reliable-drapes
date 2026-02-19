@@ -2,6 +2,7 @@ import { describe, test, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { Breadcrumb } from "./Breadcrumb";
 import { usePathname } from "next/navigation";
+import type { AnchorHTMLAttributes, HTMLAttributes, ReactNode } from "react";
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
@@ -10,7 +11,16 @@ vi.mock("next/navigation", () => ({
 
 // Mock next/link
 vi.mock("next/link", () => ({
-  default: ({ children, href, className, ...props }: any) => (
+  default: ({
+    children,
+    href,
+    className,
+    ...props
+  }: {
+    children: ReactNode;
+    href: string;
+    className?: string;
+  } & AnchorHTMLAttributes<HTMLAnchorElement>) => (
     <a href={href} className={className} {...props}>
       {children}
     </a>
@@ -20,7 +30,14 @@ vi.mock("next/link", () => ({
 // Mock framer-motion
 vi.mock("framer-motion", () => ({
   motion: {
-    nav: ({ children, className, ...props }: any) => (
+    nav: ({
+      children,
+      className,
+      ...props
+    }: {
+      children: ReactNode;
+      className?: string;
+    } & HTMLAttributes<HTMLElement>) => (
       <nav className={className} {...props}>
         {children}
       </nav>
@@ -66,11 +83,11 @@ describe("Breadcrumb", () => {
     expect(detailsSpan.closest("a")).toBeNull();
   });
 
-  test("renders correct breadcrumbs for Exhibitions & Events page", () => {
+  test("renders correct breadcrumbs for Exhibitions & Moments page", () => {
     vi.mocked(usePathname).mockReturnValue("/exhibitions-events");
     render(<Breadcrumb />);
 
-    expect(screen.getByText("Exhibitions & Events")).toBeInTheDocument();
+    expect(screen.getByText("Exhibitions & Moments")).toBeInTheDocument();
   });
 
   test("renders correct breadcrumbs for Admin Dashboard", () => {

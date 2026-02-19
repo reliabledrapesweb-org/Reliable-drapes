@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { useAdmin } from "@/lib/hooks/useAdmin";
 import {
   getAllCatalogues,
@@ -61,11 +62,11 @@ import {
   GripVertical,
   ChevronRight,
   ChevronDown,
-  Folder,
 } from "lucide-react";
 import { FileUpload } from "@/components/admin/FileUpload";
 import { MediaPickerModal } from "@/components/admin/MediaPickerModal";
 import { type MediaItem } from "@/lib/actions/media";
+import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants/app";
 
 type Tab = "catalogues" | "categories";
 
@@ -110,7 +111,9 @@ export default function CataloguesPage() {
   const [categoryFormData, setCategoryFormData] =
     useState<CreateCatalogueCategoryInput>({
       name: "",
+      slug: "",
       description: "",
+      image_url: "",
       sort_order: 0,
       is_active: true,
       parent_id: null,
@@ -203,7 +206,9 @@ export default function CataloguesPage() {
       setEditingCategory(category);
       setCategoryFormData({
         name: category.name,
+        slug: category.slug,
         description: category.description || "",
+        image_url: category.image_url || "",
         sort_order: category.sort_order,
         is_active: category.is_active ?? true,
         parent_id: category.parent_id,
@@ -212,7 +217,9 @@ export default function CataloguesPage() {
       setEditingCategory(null);
       setCategoryFormData({
         name: "",
+        slug: "",
         description: "",
+        image_url: "",
         sort_order: 0,
         is_active: true,
         parent_id: null,
@@ -224,6 +231,13 @@ export default function CataloguesPage() {
   const handleCloseCategoryModal = () => {
     setShowCategoryModal(false);
     setEditingCategory(null);
+  };
+
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
   };
 
   const handleMediaSelect = (media: MediaItem[]) => {
@@ -321,6 +335,7 @@ export default function CataloguesPage() {
   const filteredCategories = categories.filter(
     (category) =>
       category.name.toLowerCase().includes(categorySearchQuery.toLowerCase()) ||
+      category.slug.toLowerCase().includes(categorySearchQuery.toLowerCase()) ||
       (category.description &&
         category.description
           .toLowerCase()
@@ -432,6 +447,7 @@ export default function CataloguesPage() {
 
   // Build category tree for display
   const categoryTree = buildCategoryTree(categories);
+  const fallbackImage = DEFAULT_PRODUCT_IMAGE;
 
   // Recursive component for rendering category tree
   const renderCategoryTree = (
@@ -453,8 +469,14 @@ export default function CataloguesPage() {
           >
             <div className="space-y-3 p-4">
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100">
-                  <Folder className="h-5 w-5 text-blue-600" />
+                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                  <Image
+                    src={category.image_url || fallbackImage}
+                    alt={category.name}
+                    fill
+                    className="object-cover"
+                    sizes="48px"
+                  />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
@@ -467,6 +489,7 @@ export default function CataloguesPage() {
                       </span>
                     )}
                   </div>
+                  <p className="mt-0.5 text-xs text-gray-500">{category.slug}</p>
                   <p className="text-xs text-gray-500">
                     {category.catalogue_count || 0} catalogues
                     {hasChildren && (
@@ -547,10 +570,16 @@ export default function CataloguesPage() {
                   )}
                   {!hasChildren && <div className="w-6" />}
                   <div
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100"
+                    className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-gray-100"
                     style={{ marginLeft: paddingLeft }}
                   >
-                    <Folder className="h-5 w-5 text-blue-600" />
+                    <Image
+                      src={category.image_url || fallbackImage}
+                      alt={category.name}
+                      fill
+                      className="object-cover"
+                      sizes="40px"
+                    />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">
@@ -1614,23 +1643,45 @@ export default function CataloguesPage() {
             {/* Form Content */}
             <form onSubmit={handleCategorySubmit} className="p-4 sm:p-6">
               <div className="space-y-4 sm:space-y-6">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={categoryFormData.name}
-                    onChange={(e) =>
-                      setCategoryFormData({
-                        ...categoryFormData,
-                        name: e.target.value,
-                      })
-                    }
-                    className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
-                    placeholder="Enter category name"
-                  />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700">
+                      Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={categoryFormData.name}
+                      onChange={(e) =>
+                        setCategoryFormData({
+                          ...categoryFormData,
+                          name: e.target.value,
+                          slug:
+                            categoryFormData.slug || generateSlug(e.target.value),
+                        })
+                      }
+                      className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
+                      placeholder="Enter category name"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700">
+                      Slug
+                    </label>
+                    <input
+                      type="text"
+                      value={categoryFormData.slug || ""}
+                      onChange={(e) =>
+                        setCategoryFormData({
+                          ...categoryFormData,
+                          slug: e.target.value,
+                        })
+                      }
+                      className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
+                      placeholder="auto-generated-from-name"
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -1649,6 +1700,61 @@ export default function CataloguesPage() {
                     className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                     placeholder="Brief description of the category"
                   />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Category Image
+                  </label>
+                  <FileUpload
+                    label=""
+                    accept="image/*"
+                    bucket="catalogues"
+                    folder="categories"
+                    currentUrl={categoryFormData.image_url || ""}
+                    onUploadComplete={(url) =>
+                      setCategoryFormData({
+                        ...categoryFormData,
+                        image_url: url,
+                      })
+                    }
+                    onRemove={() =>
+                      setCategoryFormData({
+                        ...categoryFormData,
+                        image_url: "",
+                      })
+                    }
+                    maxSizeMB={5}
+                    allowedTypes={[
+                      "image/jpeg",
+                      "image/png",
+                      "image/webp",
+                      "image/jpg",
+                    ]}
+                    previewType="image"
+                    registerWithMediaLibrary
+                    mediaLibraryTags={["category", "catalogue-category"]}
+                  />
+
+                  {!categoryFormData.image_url && (
+                    <div className="mt-3">
+                      <label className="mb-2 block text-xs font-medium text-gray-600">
+                        Or enter image URL manually
+                      </label>
+                      <input
+                        type="url"
+                        value={categoryFormData.image_url || ""}
+                        onChange={(e) =>
+                          setCategoryFormData({
+                            ...categoryFormData,
+                            image_url: e.target.value,
+                          })
+                        }
+                        className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
+                        placeholder="https://example.com/category.jpg"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>

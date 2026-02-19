@@ -8,7 +8,7 @@ export const NAV_LINKS: NavLink[] = [
   { name: "The Brand", link: "/about" },
   { name: "Shop", link: "/shop" },
   { name: "E-catalogue", link: "/e-catalogue" },
-  { name: "Exhibitions & Events", link: "/exhibitions-events" },
+  { name: "Exhibitions & Moments", link: "/exhibitions-events" },
   { name: "Store Locator", link: "/store-locator" },
   { name: "Style Expert", link: "/style-expert" },
   { name: "Contact Us", link: "/contact" },
