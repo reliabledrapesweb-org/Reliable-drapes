@@ -18,6 +18,12 @@ const getErrorMessage = (error: unknown): string => {
   return String(error);
 };
 
+const isMissingImageUrlColumnError = (error: unknown): boolean => {
+  const code = getErrorCode(error);
+  const message = getErrorMessage(error).toLowerCase();
+  return code === "42703" && message.includes("image_url");
+};
+
 export interface CatalogueCategory {
   id: CatalogueCategoryId;
   name: string;
@@ -122,22 +128,43 @@ export async function createCatalogueCategory(
         .replace(/\s+/g, "-")
         .replace(/[^a-z0-9-]/g, "");
 
-    const { data, error } = await supabase
+    const insertPayload = {
+      name: input.name,
+      slug,
+      description: input.description || null,
+      image_url: input.image_url || null,
+      sort_order: input.sort_order || 0,
+      is_active: input.is_active ?? true,
+      parent_id: input.parent_id || null,
+    };
+
+    let { data, error } = await supabase
       .from("catalogue_categories")
-      .insert({
-        name: input.name,
-        slug,
-        description: input.description || null,
-        image_url: input.image_url || null,
-        sort_order: input.sort_order || 0,
-        is_active: input.is_active ?? true,
-        parent_id: input.parent_id || null,
-      })
+      .insert(insertPayload)
       .select()
       .single();
 
+    // Backward compatibility for environments where image_url migration is pending.
+    if (error && isMissingImageUrlColumnError(error)) {
+      const legacyInsertPayload: Omit<typeof insertPayload, "image_url"> = {
+        name: insertPayload.name,
+        slug: insertPayload.slug,
+        description: insertPayload.description,
+        sort_order: insertPayload.sort_order,
+        is_active: insertPayload.is_active,
+        parent_id: insertPayload.parent_id,
+      };
+      const retryResult = await supabase
+        .from("catalogue_categories")
+        .insert(legacyInsertPayload)
+        .select()
+        .single();
+      data = retryResult.data;
+      error = retryResult.error;
+    }
+
     if (error) throw error;
-    return { success: true, data };
+    return { success: true, data: data as CatalogueCategory };
   } catch (error: unknown) {
     if (getErrorCode(error) === "23505") {
       return {
@@ -145,7 +172,7 @@ export async function createCatalogueCategory(
         error: "A category with this name already exists",
       };
     }
-    return { success: false, error: "Failed to create category" };
+    return { success: false, error: getErrorMessage(error) };
   }
 }
 
@@ -173,15 +200,33 @@ export async function updateCatalogueCategory(
         .replace(/[^a-z0-9-]/g, "");
     }
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from("catalogue_categories")
       .update(normalizedUpdates)
       .eq("id", id)
       .select()
       .single();
 
+    // Backward compatibility for environments where image_url migration is pending.
+    if (
+      error &&
+      isMissingImageUrlColumnError(error) &&
+      "image_url" in normalizedUpdates
+    ) {
+      const legacyUpdates = { ...normalizedUpdates };
+      delete legacyUpdates.image_url;
+      const retryResult = await supabase
+        .from("catalogue_categories")
+        .update(legacyUpdates)
+        .eq("id", id)
+        .select()
+        .single();
+      data = retryResult.data;
+      error = retryResult.error;
+    }
+
     if (error) throw error;
-    return { success: true, data };
+    return { success: true, data: data as CatalogueCategory };
   } catch (error: unknown) {
     if (getErrorCode(error) === "23505") {
       return {
@@ -189,7 +234,7 @@ export async function updateCatalogueCategory(
         error: "A category with this name already exists",
       };
     }
-    return { success: false, error: "Failed to update category" };
+    return { success: false, error: getErrorMessage(error) };
   }
 }
 
