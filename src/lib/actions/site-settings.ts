@@ -17,6 +17,7 @@ export type SiteSettings = {
   hero_video_enabled: boolean;
   hero_video_url: string | null;
   hero_video_type: "youtube" | "upload" | null;
+  hero_carousel_images: string[] | null;
   social_instagram: string | null;
   social_facebook: string | null;
   social_twitter: string | null;
@@ -41,6 +42,7 @@ export type SiteSettingsFormData = Partial<
     | "hero_video_enabled"
     | "hero_video_url"
     | "hero_video_type"
+    | "hero_carousel_images"
     | "social_instagram"
     | "social_facebook"
     | "social_twitter"

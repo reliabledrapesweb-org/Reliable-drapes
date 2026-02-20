@@ -72,6 +72,7 @@ import {
   CONTACT_EMAIL,
   COMPANY_PHONE,
   COMPANY_ADDRESS,
+  DEFAULT_HERO_CAROUSEL_IMAGES,
 } from "@/lib/constants/app";
 
 // Settings tabs
@@ -1110,6 +1111,21 @@ function AppearanceTab({
   );
 }
 
+const normalizeCarouselImages = (images: unknown): string[] => {
+  const fallbackImages = [...DEFAULT_HERO_CAROUSEL_IMAGES];
+
+  if (!Array.isArray(images)) {
+    return fallbackImages;
+  }
+
+  return fallbackImages.map((defaultImage, index) => {
+    const value = images[index];
+    return typeof value === "string" && value.trim().length > 0
+      ? value.trim()
+      : defaultImage;
+  });
+};
+
 // Site Settings Tab Component
 function SiteSettingsTab({
   siteSettings,
@@ -1136,6 +1152,7 @@ function SiteSettingsTab({
     hero_video_enabled: false,
     hero_video_url: "",
     hero_video_type: "youtube",
+    hero_carousel_images: [...DEFAULT_HERO_CAROUSEL_IMAGES],
     social_instagram: "",
     social_facebook: "",
     social_twitter: "",
@@ -1165,6 +1182,9 @@ function SiteSettingsTab({
         hero_video_enabled: siteSettings.hero_video_enabled,
         hero_video_url: siteSettings.hero_video_url,
         hero_video_type: siteSettings.hero_video_type || "youtube",
+        hero_carousel_images: normalizeCarouselImages(
+          siteSettings.hero_carousel_images,
+        ),
         social_instagram: siteSettings.social_instagram ?? "",
         social_facebook: siteSettings.social_facebook ?? "",
         social_twitter: siteSettings.social_twitter ?? "",
@@ -1186,6 +1206,22 @@ function SiteSettingsTab({
 
   const handleChange = (field: keyof SiteSettings, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleCarouselImageChange = (index: number, url: string) => {
+    setFormData((prev) => {
+      const images = normalizeCarouselImages(prev.hero_carousel_images);
+      images[index] = url;
+      return { ...prev, hero_carousel_images: images };
+    });
+  };
+
+  const handleCarouselImageRemove = (index: number) => {
+    setFormData((prev) => {
+      const images = normalizeCarouselImages(prev.hero_carousel_images);
+      images[index] = DEFAULT_HERO_CAROUSEL_IMAGES[index];
+      return { ...prev, hero_carousel_images: images };
+    });
   };
 
   const handleSave = async () => {
@@ -1212,6 +1248,8 @@ function SiteSettingsTab({
       </div>
     );
   }
+
+  const carouselImages = normalizeCarouselImages(formData.hero_carousel_images);
 
   return (
     <motion.div
@@ -1527,6 +1565,68 @@ function SiteSettingsTab({
               )}
             </>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Homepage Carousel Images */}
+      <Card className="dark:border-gray-700 dark:bg-gray-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg dark:text-white">
+            <Home className="h-5 w-5" />
+            Homepage Carousel Images
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Update the hero slider images shown on the homepage.
+          </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            {carouselImages.map((imageUrl, index) => (
+              <div
+                key={`carousel-image-${index}`}
+                className="space-y-3 rounded-xl border border-gray-200 p-4 dark:border-gray-600"
+              >
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                  Slide {index + 1}
+                </p>
+                <FileUpload
+                  label=""
+                  accept="image/*"
+                  bucket="products"
+                  folder="hero-carousel"
+                  currentUrl={imageUrl || ""}
+                  onUploadComplete={(url) =>
+                    handleCarouselImageChange(index, url)
+                  }
+                  onRemove={() => handleCarouselImageRemove(index)}
+                  maxSizeMB={10}
+                  allowedTypes={[
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp",
+                    "image/jpg",
+                  ]}
+                  previewType="image"
+                  registerWithMediaLibrary={true}
+                  mediaLibraryTags={["hero-carousel", "home"]}
+                />
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Or image URL
+                  </label>
+                  <input
+                    type="url"
+                    value={imageUrl || ""}
+                    onChange={(e) =>
+                      handleCarouselImageChange(index, e.target.value)
+                    }
+                    className="h-11 w-full rounded-xl border-2 border-gray-200 px-4 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 

@@ -1,6 +1,7 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { HeroSection } from "./HeroSection";
+import { getSiteSettings } from "@/lib/actions/site-settings";
 
 // Mock next/image
 vi.mock("next/image", () => ({
@@ -31,9 +32,18 @@ vi.mock("motion/react", () => ({
   AnimatePresence: ({ children }: any) => children,
 }));
 
+vi.mock("@/lib/actions/site-settings", () => ({
+  getSiteSettings: vi.fn(),
+}));
+
 describe("HeroSection", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.mocked(getSiteSettings).mockResolvedValue({
+      success: false,
+      error: "Not configured",
+    });
+
     // Mock Image constructor
     global.Image = class {
       onload: (() => void) | null = null;

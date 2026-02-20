@@ -3,49 +3,77 @@
 import { ArrowRight } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-
 import Image from "next/image";
+import { getSiteSettings } from "@/lib/actions/site-settings";
+import { DEFAULT_HERO_CAROUSEL_IMAGES } from "@/lib/constants/app";
 
-const carouselImages = [
-  "/images/hero/heroImg2.png",
-  "/images/hero/2.jpg",
-  "/images/hero/3.jpg",
-  "/images/hero/5.jpg",
-  "/images/hero/6.jpg",
-];
+const normalizeCarouselImages = (images: unknown): string[] => {
+  const fallbackImages = [...DEFAULT_HERO_CAROUSEL_IMAGES];
+
+  if (!Array.isArray(images)) {
+    return fallbackImages;
+  }
+
+  return fallbackImages.map((defaultImage, index) => {
+    const value = images[index];
+    return typeof value === "string" && value.trim().length > 0
+      ? value.trim()
+      : defaultImage;
+  });
+};
 
 export function HeroSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+  const [carouselImages, setCarouselImages] = useState<string[]>([
+    ...DEFAULT_HERO_CAROUSEL_IMAGES,
+  ]);
+
+  const totalSlides = carouselImages.length;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCarouselImages = async () => {
+      try {
+        const result = await getSiteSettings();
+        if (result.success && result.settings && isMounted) {
+          setCarouselImages(
+            normalizeCarouselImages(result.settings.hero_carousel_images),
+          );
+        }
+      } catch {
+        // Keep fallback images
+      }
+    };
+
+    loadCarouselImages();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const nextSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % carouselImages.length);
-  }, []);
+    setCurrentIndex((prev) => (prev + 1) % totalSlides);
+  }, [totalSlides]);
 
   const prevSlide = useCallback(() => {
     setCurrentIndex((prev) =>
-      prev === 0 ? carouselImages.length - 1 : prev - 1,
+      prev === 0 ? totalSlides - 1 : prev - 1,
     );
-  }, []);
+  }, [totalSlides]);
 
-  // Preload images and track when they're loaded
   useEffect(() => {
-    const loaded = new Set<string>();
-    
+    setCurrentIndex((prev) => (prev >= totalSlides ? 0 : prev));
+  }, [totalSlides]);
+
+  // Preload carousel images for smoother transitions
+  useEffect(() => {
     carouselImages.forEach((src) => {
       const img = new window.Image();
-      img.onload = () => {
-        loaded.add(src);
-        setLoadedImages(new Set(loaded));
-      };
-      img.onerror = () => {
-        // Still mark as loaded on error to not block
-        loaded.add(src);
-        setLoadedImages(new Set(loaded));
-      };
       img.src = src;
     });
-  }, []);
+  }, [carouselImages]);
 
   // Auto slide
   useEffect(() => {
@@ -69,7 +97,7 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-black">
         <AnimatePresence>
           <motion.div
-            key={currentIndex}
+            key={`${currentIndex}-${carouselImages[currentIndex]}`}
             initial={{ opacity: 0, scale: 1.05, filter: "blur(2px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, zIndex: -1 }}

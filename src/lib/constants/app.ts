@@ -8,8 +8,15 @@ export const CONTACT_EMAIL = "narangsumit@hotmail.com";
 export const COMPANY_PHONE =
   "+91 98960 37657, +91 98101 31945, +91 96257 31948";
 export const COMPANY_ADDRESS =
-  "4703 First Floor, Laxmi Bazar Cloth Market, Fateh Puri, Delhi-6";
+  "4703 First Floor, Laxmi Bazar Cloth Market, Fateh Puri, Delhi-110006";
 export const WHATSAPP_NUMBER = "919625731948";
+export const DEFAULT_HERO_CAROUSEL_IMAGES = [
+  "/images/hero/heroImg2.png",
+  "/images/hero/2.jpg",
+  "/images/hero/3.jpg",
+  "/images/hero/5.jpg",
+  "/images/hero/6.jpg",
+] as const;
 
 export const SOCIAL_LINKS = {
   facebook: "#",

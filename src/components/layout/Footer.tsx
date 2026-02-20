@@ -122,7 +122,7 @@ export function Footer() {
                   <p>Shree Ambica Furnishings (INDIA) Pvt. Ltd.</p>
                   <p>
                     4703 First Floor, Laxmi Bazar Cloth Market, Fateh Puri,
-                    Delhi-6
+                    Delhi-110006
                   </p>
                   <p className="text-xs text-[#9b9b9b] md:text-sm">
                     Location will share soon
