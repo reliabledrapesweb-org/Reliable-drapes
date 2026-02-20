@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
+import Script from "next/script";
 import "@/app/globals.css";
-import { AuthProvider, CommerceFeaturesProvider } from "@/components/providers";
+import {
+  AuthProvider,
+  CommerceFeaturesProvider,
+  AnalyticsProvider,
+} from "@/components/providers";
 import { LayoutContent } from "@/components/layout";
+import { GA_MEASUREMENT_ID } from "@/lib/analytics/gtag";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -73,8 +79,28 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${dmSans.variable} antialiased`}>
+        {GA_MEASUREMENT_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                window.gtag = gtag;
+                gtag('js', new Date());
+                gtag('config', '${GA_MEASUREMENT_ID}', {
+                  send_page_view: false
+                });
+              `}
+            </Script>
+          </>
+        )}
         <AuthProvider>
           <CommerceFeaturesProvider>
+            <AnalyticsProvider />
             <LayoutContent>{children}</LayoutContent>
           </CommerceFeaturesProvider>
         </AuthProvider>

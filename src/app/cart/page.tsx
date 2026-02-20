@@ -19,11 +19,25 @@ import {
   MapPin,
 } from "lucide-react";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
-import { createOrderAction } from "@/lib/actions/orders";
+import { createPendingOrderAction } from "@/lib/actions/orders";
 import { getProfile } from "@/lib/actions/users";
 import { useAuthStore } from "@/lib/store";
 import { Loader } from "lucide-react";
 import { useCommerceFeatures } from "@/components/providers";
+import { trackBeginCheckout, trackPurchase } from "@/lib/analytics/gtag";
+
+async function loadRazorpayScript() {
+  if (typeof window === "undefined") return false;
+  if (window.Razorpay) return true;
+
+  return new Promise<boolean>((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
 
 export default function CartPage() {
   const router = useRouter();
@@ -120,32 +134,132 @@ export default function CartPage() {
     }
 
     setIsCheckingOut(true);
+    let checkoutOpened = false;
     try {
-      // Simulate checkout delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
       const orderData = {
-        total: total,
         items: items.map((item) => ({
           product_id: item.productId,
           quantity: item.quantity,
-          price: item.price,
         })),
       };
 
-      const result = await createOrderAction(orderData);
-
-      if (result.success) {
-        clearCart();
-        addToast("Order placed successfully!", "success", 3000);
-        router.push("/profile?tab=orders");
-      } else {
-        addToast(result.error || "Failed to place order", "error", 3000);
+      const pendingOrderResult = await createPendingOrderAction(orderData);
+      if (!pendingOrderResult.success || !pendingOrderResult.orderId) {
+        addToast(pendingOrderResult.error || "Failed to create order", "error", 3000);
+        setIsCheckingOut(false);
+        return;
       }
+
+      const checkoutItems = items.map((item) => ({
+        item_id: item.productId,
+        item_name: item.name,
+        item_variant: item.variantName,
+        price: item.price,
+        quantity: item.quantity,
+      }));
+
+      trackBeginCheckout(checkoutItems, pendingOrderResult.pricing?.total ?? total);
+
+      const paymentOrderResponse = await fetch("/api/payments/razorpay/order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ orderId: pendingOrderResult.orderId }),
+      });
+
+      const paymentOrderPayload = await paymentOrderResponse.json();
+      if (!paymentOrderResponse.ok || !paymentOrderPayload.success) {
+        addToast(paymentOrderPayload.error || "Failed to initiate payment", "error", 3000);
+        setIsCheckingOut(false);
+        return;
+      }
+
+      const sdkLoaded = await loadRazorpayScript();
+      if (!sdkLoaded || !window.Razorpay) {
+        addToast("Unable to load Razorpay checkout", "error", 3000);
+        setIsCheckingOut(false);
+        return;
+      }
+
+      const razorpay = new window.Razorpay({
+        key: paymentOrderPayload.data.key,
+        amount: paymentOrderPayload.data.amount,
+        currency: paymentOrderPayload.data.currency,
+        name: "Reliable Drapes",
+        description: "Order payment",
+        order_id: paymentOrderPayload.data.razorpayOrderId,
+        prefill: {
+          name: user.full_name || undefined,
+          email: user.email || undefined,
+        },
+        notes: {
+          app_order_id: pendingOrderResult.orderId,
+        },
+        theme: {
+          color: "#2f2582",
+        },
+        modal: {
+          ondismiss: () => {
+            setIsCheckingOut(false);
+          },
+        },
+        handler: async (response) => {
+          try {
+            const verifyResponse = await fetch("/api/payments/razorpay/verify", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                orderId: pendingOrderResult.orderId,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+
+            const verifyPayload = await verifyResponse.json();
+            if (!verifyResponse.ok || !verifyPayload.success) {
+              addToast(verifyPayload.error || "Payment verification failed", "error", 3000);
+              return;
+            }
+
+            trackPurchase({
+              transactionId: pendingOrderResult.orderId,
+              value: Number(verifyPayload.order?.total ?? pendingOrderResult.pricing?.total ?? total),
+              items: checkoutItems,
+            });
+
+            clearCart();
+            addToast("Payment successful! Order placed.", "success", 3000);
+            router.push("/profile?tab=orders");
+          } catch {
+            addToast("Payment completed but verification failed", "error", 3000);
+          } finally {
+            setIsCheckingOut(false);
+          }
+        },
+      });
+
+      razorpay.on("payment.failed", (failureResponse) => {
+        addToast(
+          failureResponse.error.description || "Payment failed. Please try again.",
+          "error",
+          3000,
+        );
+        setIsCheckingOut(false);
+      });
+
+      razorpay.open();
+      checkoutOpened = true;
     } catch {
       addToast("An unexpected error occurred", "error", 3000);
     } finally {
-      setIsCheckingOut(false);
+      // Keep the button disabled while checkout modal is open.
+      if (!checkoutOpened) {
+        setIsCheckingOut(false);
+      }
     }
   };
 

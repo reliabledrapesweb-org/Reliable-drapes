@@ -4,6 +4,7 @@
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { trackAddToCart } from "@/lib/analytics/gtag";
 
 export interface CartItem {
   id: string;
@@ -64,6 +65,14 @@ export const useCartStore = create<CartState>()(
           };
           set({ items: [...items, newItem], isOpen: true });
         }
+
+        trackAddToCart({
+          item_id: item.productId,
+          item_name: item.name,
+          item_variant: item.variantName,
+          price: item.price,
+          quantity: item.quantity,
+        });
       },
 
       removeItem: (itemId) => {

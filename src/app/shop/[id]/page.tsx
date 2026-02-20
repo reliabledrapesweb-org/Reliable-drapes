@@ -30,6 +30,7 @@ import {
 } from "@/lib/actions/products";
 import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants/app";
 import { WishlistButton } from "@/components/features/shop/WishlistButton";
+import { trackViewItem } from "@/lib/analytics/gtag";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -81,6 +82,16 @@ export default function ProductDetailPage() {
       fetchProduct();
     }
   }, [productId, router]);
+
+  useEffect(() => {
+    if (!product) return;
+    trackViewItem({
+      item_id: product.id,
+      item_name: product.name,
+      price: product.price,
+      quantity: 1,
+    });
+  }, [product]);
 
   const handleAddToCart = () => {
     if (!product) return;

@@ -7,3 +7,4 @@ export {
   CommerceFeaturesProvider,
   useCommerceFeatures,
 } from './CommerceFeaturesProvider';
+export { AnalyticsProvider } from "./AnalyticsProvider";
