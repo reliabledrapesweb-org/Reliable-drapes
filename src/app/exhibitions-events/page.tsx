@@ -7,17 +7,7 @@ import Image from "next/image";
 import { Breadcrumb, PageHero } from "@/components/shared";
 import { getExhibitions, type Exhibition } from "@/lib/actions/exhibitions";
 
-const aspectClassCycle = [
-  "aspect-[4/5]",
-  "aspect-square",
-  "aspect-[3/4]",
-  "aspect-[5/6]",
-  "aspect-[9/10]",
-];
-
-function getAspectClass(index: number) {
-  return aspectClassCycle[index % aspectClassCycle.length];
-}
+const GALLERY_CARD_ASPECT_CLASS = "aspect-[9/10]";
 
 export default function ExhibitionsEventsPage() {
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
@@ -99,7 +89,7 @@ export default function ExhibitionsEventsPage() {
               </p>
             </div>
           ) : (
-            <div className="columns-1 gap-5 sm:columns-2 lg:columns-3">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {galleryItems.map((item, index) => (
                 <motion.a
                   key={item.id}
@@ -111,10 +101,10 @@ export default function ExhibitionsEventsPage() {
                   viewport={{ once: true, margin: "-80px" }}
                   transition={{ duration: 0.45, delay: index * 0.04 }}
                   whileHover={{ y: -4 }}
-                  className="group relative mb-5 block break-inside-avoid overflow-hidden rounded-3xl border border-[#d2d2d2] bg-white shadow-sm"
+                  className="group relative block overflow-hidden rounded-3xl border border-[#d2d2d2] bg-white shadow-sm"
                 >
                   <div
-                    className={`relative overflow-hidden bg-[#ededed] ${getAspectClass(index)}`}
+                    className={`relative overflow-hidden bg-[#ededed] ${GALLERY_CARD_ASPECT_CLASS}`}
                   >
                     <Image
                       src={item.image_url!}
