@@ -55,11 +55,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { FileUpload } from "@/components/admin/FileUpload";
+import { MediaPickerModal } from "@/components/admin/MediaPickerModal";
 import { supabaseClient } from "@/lib/supabase/client";
 import { useAdmin } from "@/lib/hooks/useAdmin";
 import { profileSchema, type ProfileFormValues } from "@/lib/validators";
 import { ChangePasswordModal } from "@/components/features/profile/ChangePasswordModal";
 import { SettingsSkeleton } from "@/components/ui/AdminSkeletons";
+import { type MediaItem } from "@/lib/actions/media";
 import {
   useAdminPreferencesStore,
   ACCENT_COLORS,
@@ -1166,6 +1168,11 @@ function SiteSettingsTab({
   const [formData, setFormData] = useState<Partial<SiteSettings>>(
     getDefaultSiteSettingsForm(),
   );
+  const [isCarouselMediaPickerOpen, setIsCarouselMediaPickerOpen] =
+    useState(false);
+  const [carouselMediaTargetIndex, setCarouselMediaTargetIndex] = useState<
+    number | null
+  >(null);
 
   useEffect(() => {
     const defaults = getDefaultSiteSettingsForm();
@@ -1222,6 +1229,25 @@ function SiteSettingsTab({
       images[index] = DEFAULT_HERO_CAROUSEL_IMAGES[index];
       return { ...prev, hero_carousel_images: images };
     });
+  };
+
+  const openCarouselMediaPicker = (index: number) => {
+    setCarouselMediaTargetIndex(index);
+    setIsCarouselMediaPickerOpen(true);
+  };
+
+  const closeCarouselMediaPicker = () => {
+    setIsCarouselMediaPickerOpen(false);
+    setCarouselMediaTargetIndex(null);
+  };
+
+  const handleCarouselMediaSelect = (media: MediaItem[]) => {
+    if (carouselMediaTargetIndex === null || media.length === 0) {
+      return;
+    }
+
+    handleCarouselImageChange(carouselMediaTargetIndex, media[0].file_url);
+    closeCarouselMediaPicker();
   };
 
   const handleSave = async () => {
@@ -1610,6 +1636,14 @@ function SiteSettingsTab({
                   registerWithMediaLibrary={true}
                   mediaLibraryTags={["hero-carousel", "home"]}
                 />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => openCarouselMediaPicker(index)}
+                  className="w-full border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                >
+                  Select from Media Library
+                </Button>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Or image URL
@@ -1804,6 +1838,18 @@ function SiteSettingsTab({
           )}
         </Button>
       </div>
+
+      <MediaPickerModal
+        isOpen={isCarouselMediaPickerOpen}
+        onClose={closeCarouselMediaPicker}
+        onSelect={handleCarouselMediaSelect}
+        allowMultiple={false}
+        title={
+          carouselMediaTargetIndex !== null
+            ? `Select Image for Slide ${carouselMediaTargetIndex + 1}`
+            : "Select Carousel Image"
+        }
+      />
     </motion.div>
   );
 }

@@ -166,42 +166,44 @@ export function FileUpload({
         </div>
       )}
 
-      {/* Upload button */}
-      {!currentUrl && (
-        <div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={accept}
-            onChange={handleFileSelect}
-            disabled={disabled || uploading}
-            className="hidden"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={disabled || uploading}
-            className="w-full"
-          >
-            {uploading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Uploading...
-              </>
-            ) : (
-              <>
-                {previewType === "image" ? (
-                  <ImageIcon className="mr-2 h-4 w-4" />
-                ) : (
-                  <Upload className="mr-2 h-4 w-4" />
-                )}
-                Choose File
-              </>
-            )}
-          </Button>
-        </div>
-      )}
+      {/* Upload / replace button */}
+      <div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={accept}
+          onChange={handleFileSelect}
+          disabled={disabled || uploading}
+          className="hidden"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={disabled || uploading}
+          className="w-full"
+        >
+          {uploading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Uploading...
+            </>
+          ) : (
+            <>
+              {previewType === "image" ? (
+                <ImageIcon className="mr-2 h-4 w-4" />
+              ) : (
+                <Upload className="mr-2 h-4 w-4" />
+              )}
+              {currentUrl
+                ? previewType === "image"
+                  ? "Replace Image"
+                  : "Replace File"
+                : "Choose File"}
+            </>
+          )}
+        </Button>
+      </div>
 
       {/* Error message */}
       {error && <p className="text-sm text-red-600">{error}</p>}
