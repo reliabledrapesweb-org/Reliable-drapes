@@ -111,10 +111,9 @@ export async function updateSiteSettings(
       .single();
 
     if (fetchError || !existingSettings) {
-      console.error("[updateSiteSettings] Fetch error:", fetchError);
       return {
         success: false,
-        error: `Failed to find site settings: ${fetchError?.message || "Unknown error"}`,
+        error: "Failed to find site settings",
       };
     }
 
@@ -129,10 +128,9 @@ export async function updateSiteSettings(
       .single();
 
     if (error) {
-      console.error("[updateSiteSettings] Update error:", error);
       return {
         success: false,
-        error: `Failed to update site settings: ${error.message}`,
+        error: "Failed to update site settings",
       };
     }
 
@@ -147,11 +145,10 @@ export async function updateSiteSettings(
       success: true,
       settings: data as SiteSettings,
     };
-  } catch (err) {
-    console.error("[updateSiteSettings] Unexpected error:", err);
+  } catch {
     return {
       success: false,
-      error: `An unexpected error occurred: ${err instanceof Error ? err.message : "Unknown error"}`,
+      error: "An unexpected error occurred",
     };
   }
 }
