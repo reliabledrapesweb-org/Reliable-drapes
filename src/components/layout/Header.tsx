@@ -267,7 +267,7 @@ export function Header() {
           </motion.div>
 
           {/* DESKTOP NAVIGATION */}
-          <div className="hidden items-center gap-6 lg:mx-8 lg:flex xl:mx-12 xl:gap-8">
+          <div className="hidden items-center gap-4 lg:mx-4 lg:flex xl:mx-6 xl:gap-5">
             {NAV_LINKS.map((item, i) => (
               <motion.a
                 key={i}
