@@ -77,17 +77,29 @@ export default function CartPage() {
         const result = await getProfile();
         if (result.success && result.data) {
           const profile = result.data;
-          // Check if essential address fields are filled
+          // Check if essential address fields are filled (trim to handle whitespace)
+          const addressLine1 = profile.address_line1?.trim() || "";
+          const city = profile.city?.trim() || "";
+          const country = profile.country?.trim() || "";
+
+          console.log("[Cart] Address check:", {
+            address_line1: addressLine1 || "(empty)",
+            city: city || "(empty)",
+            country: country || "(empty)",
+          });
+
           const hasRequiredAddress = !!(
-            profile.address_line1 &&
-            profile.city &&
-            profile.country
+            addressLine1 &&
+            city &&
+            country
           );
           setHasAddress(hasRequiredAddress);
         } else {
+          console.log("[Cart] Profile fetch failed:", result.error);
           setHasAddress(false);
         }
-      } catch {
+      } catch (error) {
+        console.log("[Cart] Address check error:", error);
         setHasAddress(false);
       }
     }
