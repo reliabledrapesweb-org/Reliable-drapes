@@ -4,15 +4,20 @@ import { Mail, Phone, MapPin } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { getFooterCategories, type Category } from "@/lib/actions/products";
-import { getSocialLinks } from "@/lib/actions/site-settings";
+import { getCatalogueCategories } from "@/lib/actions/catalogue-categories";
+import { getSocialLinks, getCompanyDetails } from "@/lib/actions/site-settings";
+import {
+  CONTACT_EMAIL,
+  COMPANY_PHONE,
+  COMPANY_ADDRESS,
+} from "@/lib/constants/app";
 
 // Fallback categories when no data from database
-const fallbackCategories: Category[] = [
-  { id: "1", name: "Curtains", slug: "curtains", parent_id: null },
-  { id: "2", name: "Upholstery", slug: "upholstery", parent_id: null },
-  { id: "3", name: "Sheers", slug: "sheers", parent_id: null },
-  { id: "4", name: "Bed Sheets", slug: "bed-sheets", parent_id: null },
+const fallbackCategories = [
+  { id: "1", name: "Curtains" },
+  { id: "2", name: "Upholstery" },
+  { id: "3", name: "Sheers" },
+  { id: "4", name: "Bed Linens" },
 ];
 
 type SocialLinks = {
@@ -24,7 +29,9 @@ type SocialLinks = {
 };
 
 export function Footer() {
-  const [categories, setCategories] = useState<Category[]>(fallbackCategories);
+  const [categories, setCategories] = useState<
+    Array<{ id: string; name: string }>
+  >(fallbackCategories);
   const [isLoading, setIsLoading] = useState(true);
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({
     instagram: null,
@@ -33,14 +40,20 @@ export function Footer() {
     youtube: null,
     linkedin: null,
   });
+  const [companyDetails, setCompanyDetails] = useState({
+    email: CONTACT_EMAIL,
+    phone: COMPANY_PHONE,
+    address: COMPANY_ADDRESS,
+  });
 
   // Fetch footer categories and site settings from database
   useEffect(() => {
     async function fetchData() {
       try {
-        const [categoriesResult, socialResult] = await Promise.all([
-          getFooterCategories(),
+        const [categoriesResult, socialResult, companyResult] = await Promise.all([
+          getCatalogueCategories(),
           getSocialLinks(),
+          getCompanyDetails(),
         ]);
 
         if (
@@ -48,10 +61,23 @@ export function Footer() {
           categoriesResult.data &&
           categoriesResult.data.length > 0
         ) {
-          setCategories(categoriesResult.data);
+          setCategories(
+            categoriesResult.data
+              .filter((category) => category.is_active !== false)
+              .slice(0, 4)
+              .map((category) => ({
+                id: category.id,
+                name: category.name,
+              })),
+          );
         }
 
         setSocialLinks(socialResult);
+        setCompanyDetails({
+          email: companyResult.email?.trim() || CONTACT_EMAIL,
+          phone: companyResult.phone?.trim() || COMPANY_PHONE,
+          address: companyResult.address?.trim() || COMPANY_ADDRESS,
+        });
       } catch {
         // Keep fallback values on error
       }
@@ -98,16 +124,16 @@ export function Footer() {
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-[#7e7e7e]" />
                 <a
-                  href="mailto:narangsumit@hotmail.com"
+                  href={`mailto:${companyDetails.email}`}
                   className="text-sm text-[#7e7e7e] transition-colors hover:text-white md:text-base"
                 >
-                  narangsumit@hotmail.com
+                  {companyDetails.email}
                 </a>
               </div>
               <div className="flex items-start gap-3">
                 <Phone className="h-4 w-4 text-[#7e7e7e]" />
                 <span className="text-sm text-[#7e7e7e] md:text-base">
-                  +91 98960 37657, +91 98101 31945, +91 96257 31948
+                  {companyDetails.phone}
                 </span>
               </div>
             </div>
@@ -116,52 +142,22 @@ export function Footer() {
               <div className="flex items-start gap-3">
                 <MapPin className="h-4 w-4 text-[#7e7e7e]" />
                 <div className="space-y-1 text-sm text-[#7e7e7e] md:text-base">
-                  <p className="font-medium text-[#f1f1f1]">
-                    Reliable Head Office
-                  </p>
-                  <p>Shree Ambica Furnishings (INDIA) Pvt. Ltd.</p>
-                  <p>
-                    4703 First Floor, Laxmi Bazar Cloth Market, Fateh Puri,
-                    Delhi-110006
-                  </p>
-                  <p className="text-xs text-[#9b9b9b] md:text-sm">
-                    Location will share soon
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <MapPin className="h-4 w-4 text-[#7e7e7e]" />
-                <div className="space-y-1 text-sm text-[#7e7e7e] md:text-base">
-                  <p className="font-medium text-[#f1f1f1]">
-                    Warehouse Dispatch & Experience Centre
-                  </p>
-                  <p>Shree Ambica Furnishings (INDIA) Pvt. Ltd.</p>
-                  <p>
-                    Plot No. 140-141, Sec-25 Part-1, Huda, Panipat-132103,
-                    Haryana
-                  </p>
-                  <a
-                    href="https://maps.app.goo.gl/P4CB6MufARAT2S5g9?g_st=iw"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block text-sm text-[#c8c8c8] underline underline-offset-4 transition-colors hover:text-white"
-                  >
-                    View on Google Maps
-                  </a>
+                  <p className="font-medium text-[#f1f1f1]">Address</p>
+                  <p>{companyDetails.address}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Shop Links */}
+          {/* E-Catalogue Links */}
           <div className="space-y-4 lg:col-span-2">
             <h3 className="text-sm tracking-widest uppercase md:text-base">
-              Shop
+              E-Catalogues
             </h3>
             <ul className="space-y-3 text-sm text-[#7e7e7e] md:text-base">
               <li>
                 <motion.a
-                  href="/shop"
+                  href="/e-catalogue"
                   className="cursor-pointer"
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
@@ -180,7 +176,7 @@ export function Footer() {
                 categories.map((category) => (
                   <li key={category.id}>
                     <motion.a
-                      href={`/shop?category=${category.slug}`}
+                      href={`/e-catalogue?category=${encodeURIComponent(category.name)}`}
                       className="cursor-pointer"
                       whileHover={{ color: "#ffffff", x: 3 }}
                       transition={{ duration: 0.2 }}

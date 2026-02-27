@@ -43,6 +43,7 @@ export default function WishlistPage() {
     name: item.name,
     sku: null,
     price: item.price,
+    dealer_price: null,
     image_url: item.image,
     description: null,
     created_at: new Date().toISOString(),

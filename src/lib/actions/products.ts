@@ -16,7 +16,17 @@ export interface Product {
   description: string | null;
   image_url: string | null;
   price: number;
+  dealer_price: number | null;
   created_at: string;
+}
+
+export interface ProductInput {
+  name: string;
+  sku?: string | null;
+  description?: string | null;
+  image_url?: string | null;
+  price: number;
+  dealer_price?: number | null;
 }
 
 export interface ProductWithDetails extends Product {
@@ -470,7 +480,7 @@ export async function getProductsByCategory(
  * Create a new product (Admin only)
  */
 export async function createProduct(
-  productData: Omit<Product, "id" | "created_at">,
+  productData: ProductInput,
 ): Promise<ProductResponse> {
   try {
     const supabase = getAdminSupabase();
@@ -481,10 +491,11 @@ export async function createProduct(
         {
           name: productData.name,
           sku: productData.sku || null,
-          description: productData.description,
-          image_url: productData.image_url,
+          description: productData.description || null,
+          image_url: productData.image_url || null,
           price: productData.price,
-          visible_to: ["customer"], // Explicitly set to valid role to satisfy constraint
+          dealer_price: productData.dealer_price || null,
+          visible_to: ["customer", "dealer"],
         },
       ])
       .select()
@@ -521,24 +532,23 @@ export async function createProduct(
  */
 export async function updateProduct(
   id: string,
-  productData: Partial<Omit<Product, "id" | "created_at">>,
+  productData: Partial<ProductInput>,
 ): Promise<ProductResponse> {
   try {
     const supabase = getAdminSupabase();
 
+    const updatePayload: Record<string, unknown> = {};
+
+    if (productData.name !== undefined) updatePayload.name = productData.name;
+    if (productData.sku !== undefined) updatePayload.sku = productData.sku || null;
+    if (productData.description !== undefined) updatePayload.description = productData.description;
+    if (productData.image_url !== undefined) updatePayload.image_url = productData.image_url;
+    if (productData.price !== undefined) updatePayload.price = productData.price;
+    if (productData.dealer_price !== undefined) updatePayload.dealer_price = productData.dealer_price || null;
+
     const { data, error } = await supabase
       .from("products")
-      .update({
-        ...(productData.name && { name: productData.name }),
-        ...(productData.sku !== undefined && { sku: productData.sku || null }),
-        ...(productData.description !== undefined && {
-          description: productData.description,
-        }),
-        ...(productData.image_url !== undefined && {
-          image_url: productData.image_url,
-        }),
-        ...(productData.price && { price: productData.price }),
-      })
+      .update(updatePayload)
       .eq("id", id)
       .select()
       .single();

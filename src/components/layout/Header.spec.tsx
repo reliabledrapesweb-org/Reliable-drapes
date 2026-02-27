@@ -6,6 +6,7 @@ import { useAuthStore, useCartStore, useWishlistStore } from "@/lib/store";
 import { useScrollPosition } from "@/lib/hooks";
 import { usePathname } from "next/navigation";
 import { useCommerceFeatures } from "@/components/providers";
+import { getGemAssessedLogoSettings } from "@/lib/actions/site-settings";
 
 // Mock dependencies
 vi.mock("next/navigation", () => ({
@@ -67,6 +68,10 @@ vi.mock("@/lib/store", () => ({
 
 vi.mock("@/components/providers", () => ({
   useCommerceFeatures: vi.fn(),
+}));
+
+vi.mock("@/lib/actions/site-settings", () => ({
+  getGemAssessedLogoSettings: vi.fn(),
 }));
 
 // Mock constants
@@ -153,6 +158,11 @@ describe("Header", () => {
       commerceFeaturesEnabled: true,
       comingSoonMessage: "Coming soon",
       isLoading: false,
+    });
+
+    vi.mocked(getGemAssessedLogoSettings).mockResolvedValue({
+      enabled: false,
+      url: null,
     });
   });
 

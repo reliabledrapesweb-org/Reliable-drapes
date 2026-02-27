@@ -34,6 +34,7 @@ import {
   Type,
   Settings,
   Store,
+  BadgeCheck,
   Video,
   Share2,
   MapPinned,
@@ -1151,6 +1152,8 @@ function SiteSettingsTab({
     coming_soon_message: "Coming Soon",
     commerce_features_enabled: true,
     commerce_coming_soon_message: "",
+    gem_assessed_logo_enabled: false,
+    gem_assessed_logo_url: "",
     hero_video_enabled: false,
     hero_video_url: "",
     hero_video_type: "youtube",
@@ -1186,6 +1189,9 @@ function SiteSettingsTab({
           siteSettings.commerce_features_enabled ?? true,
         commerce_coming_soon_message:
           siteSettings.commerce_coming_soon_message ?? "",
+        gem_assessed_logo_enabled:
+          siteSettings.gem_assessed_logo_enabled ?? false,
+        gem_assessed_logo_url: siteSettings.gem_assessed_logo_url ?? "",
         hero_video_enabled: siteSettings.hero_video_enabled,
         hero_video_url: siteSettings.hero_video_url,
         hero_video_type: siteSettings.hero_video_type || "youtube",
@@ -1660,6 +1666,99 @@ function SiteSettingsTab({
                 </div>
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Header: GEM Assessed Logo */}
+      <Card className="dark:border-gray-700 dark:bg-gray-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg dark:text-white">
+            <BadgeCheck className="h-5 w-5" />
+            Header GEM Assessed Logo
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between rounded-lg border border-gray-200 p-4 dark:border-gray-600 dark:bg-gray-700/50">
+            <div className="flex items-center gap-3">
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                  formData.gem_assessed_logo_enabled
+                    ? "bg-green-100 dark:bg-green-900/30"
+                    : "bg-gray-100 dark:bg-gray-700"
+                }`}
+              >
+                <BadgeCheck
+                  className={`h-5 w-5 ${
+                    formData.gem_assessed_logo_enabled
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-gray-500 dark:text-gray-400"
+                  }`}
+                />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  Show GEM Assessed Logo
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Display logo in header near Trader Login
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() =>
+                handleToggle(
+                  "gem_assessed_logo_enabled",
+                  !formData.gem_assessed_logo_enabled,
+                )
+              }
+              className={`relative h-6 w-11 rounded-full transition-colors ${
+                formData.gem_assessed_logo_enabled
+                  ? "bg-[#2F2582] dark:bg-[#a099ff]"
+                  : "bg-gray-300 dark:bg-gray-600"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                  formData.gem_assessed_logo_enabled
+                    ? "translate-x-5"
+                    : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Logo Image
+            </label>
+            <FileUpload
+              label=""
+              accept="image/*"
+              bucket="media"
+              folder="branding"
+              currentUrl={formData.gem_assessed_logo_url || ""}
+              onUploadComplete={(url) => handleChange("gem_assessed_logo_url", url)}
+              onRemove={() => handleChange("gem_assessed_logo_url", "")}
+              maxSizeMB={5}
+              allowedTypes={["image/jpeg", "image/png", "image/webp", "image/svg+xml"]}
+              previewType="image"
+              registerWithMediaLibrary={true}
+              mediaLibraryTags={["branding", "gem-assessed", "header"]}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Or Logo URL
+            </label>
+            <input
+              type="url"
+              value={formData.gem_assessed_logo_url || ""}
+              onChange={(e) => handleChange("gem_assessed_logo_url", e.target.value)}
+              className="h-11 w-full rounded-xl border-2 border-gray-200 px-4 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+              placeholder="https://example.com/gem-assessed-logo.png"
+            />
           </div>
         </CardContent>
       </Card>

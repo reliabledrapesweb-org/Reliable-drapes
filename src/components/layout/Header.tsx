@@ -2,19 +2,20 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
-import { Menu, Search, User, ShoppingCart, LogOut, Heart } from "lucide-react";
+import { Menu, Search, User, ShoppingCart, LogOut, Heart, Building2 } from "lucide-react";
 import { MobileMenu } from "./MobileMenu";
 import { SearchModal } from "./SearchModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useScrollPosition } from "@/lib/hooks";
 import { useAuthStore, useCartStore, useWishlistStore } from "@/lib/store";
-import { NAV_LINKS } from "@/lib/constants";
+import { NAV_LINKS, DEALER_CONFIG } from "@/lib/constants";
 import { supabaseClient } from "@/lib/supabase/client";
 import { LogoutModal } from "@/components/features/profile/LogoutModal";
 import { useCommerceFeatures } from "@/components/providers";
 import { ComingSoonModal } from "@/components/shared";
+import { getGemAssessedLogoSettings } from "@/lib/actions/site-settings";
 
 export function Header() {
   const pathname = usePathname();
@@ -25,15 +26,35 @@ export function Header() {
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showComingSoonModal, setShowComingSoonModal] = useState(false);
+  const [gemAssessedLogo, setGemAssessedLogo] = useState<{
+    enabled: boolean;
+    url: string | null;
+  }>({
+    enabled: false,
+    url: null,
+  });
   const isScrolled = useScrollPosition(50);
 
-  const { user, logout } = useAuthStore();
+  const { user, logout, dealerSession, setDealerSession } = useAuthStore();
   const { getTotalItems, toggleCart } = useCartStore();
   const { getTotalItems: getWishlistTotal } = useWishlistStore();
   const { commerceFeaturesEnabled, comingSoonMessage } = useCommerceFeatures();
   const totalItems = getTotalItems();
   const wishlistTotal = getWishlistTotal();
   const shouldUseWhiteText = isHome || isScrolled;
+
+  useEffect(() => {
+    async function fetchGemLogoSettings() {
+      try {
+        const settings = await getGemAssessedLogoSettings();
+        setGemAssessedLogo(settings);
+      } catch {
+        setGemAssessedLogo({ enabled: false, url: null });
+      }
+    }
+
+    fetchGemLogoSettings();
+  }, []);
 
   // Reusable action buttons component
   const ActionButtons = ({ isMobile = false }: { isMobile?: boolean }) => (
@@ -225,15 +246,52 @@ export function Header() {
         )}
       </div>
     ) : (
-      <motion.a
-        href="/login"
-        className={`${shouldUseWhiteText ? "text-white" : "text-black"
-          } hidden cursor-pointer text-sm tracking-tight lg:inline-block xl:text-base`}
-        whileHover={{ scale: 1.05, opacity: 0.8 }}
-        transition={{ duration: 0.2 }}
-      >
-        Trader Log In
-      </motion.a>
+      <div className="hidden items-center gap-3 lg:flex xl:gap-4">
+        {/* Customer Login */}
+        <motion.a
+          href="/login"
+          className={`${shouldUseWhiteText ? "text-white" : "text-black"
+            } cursor-pointer text-sm tracking-tight xl:text-base`}
+          whileHover={{ scale: 1.05, opacity: 0.8 }}
+          transition={{ duration: 0.2 }}
+        >
+          Login
+        </motion.a>
+
+        {/* Divider */}
+        <span className={`${shouldUseWhiteText ? "text-white/40" : "text-black/40"
+          }`}>
+          |
+        </span>
+
+        {/* Trader Login */}
+        <motion.a
+          href="/trader-login"
+          className={`${shouldUseWhiteText ? "text-white" : "text-black"
+            } flex cursor-pointer items-center gap-1.5 text-sm tracking-tight xl:text-base`}
+          whileHover={{ scale: 1.05, opacity: 0.8 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Building2 className="h-4 w-4" />
+          Trader Login
+        </motion.a>
+
+        {gemAssessedLogo.enabled && gemAssessedLogo.url && (
+          <motion.div
+            className="flex items-center"
+            whileHover={{ scale: 1.03, opacity: 0.9 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Image
+              src={gemAssessedLogo.url}
+              alt="GEM Assessed Logo"
+              width={88}
+              height={28}
+              className="h-6 w-auto object-contain xl:h-7"
+            />
+          </motion.div>
+        )}
+      </div>
     );
 
   return (
@@ -343,6 +401,11 @@ export function Header() {
         onConfirm={async () => {
           await supabaseClient.auth.signOut();
           logout();
+          // Also clear dealer session if exists
+          if (dealerSession) {
+            setDealerSession(null);
+            localStorage.removeItem(DEALER_CONFIG.localStorageKey);
+          }
           router.push("/");
         }}
       />

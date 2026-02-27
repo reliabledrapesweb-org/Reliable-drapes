@@ -9,6 +9,7 @@ interface CategoryCardProps {
   image: string;
   title: string;
   slug?: string;
+  href?: string;
   className?: string;
 }
 
@@ -16,12 +17,13 @@ export function CategoryCard({
   image,
   title,
   slug,
+  href,
   className = "",
 }: CategoryCardProps) {
-  const href = slug ? `/shop?category=${slug}` : "/shop";
+  const cardHref = href || (slug ? `/shop?category=${slug}` : "/shop");
 
   return (
-    <Link href={href}>
+    <Link href={cardHref}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}

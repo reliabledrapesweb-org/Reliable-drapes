@@ -19,3 +19,4 @@ export type {
   SidebarLayout,
   FontSize,
 } from "./adminPreferencesStore";
+export type { DealerSession } from "@/lib/constants/dealer";

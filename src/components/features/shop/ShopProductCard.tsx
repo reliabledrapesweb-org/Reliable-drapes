@@ -4,10 +4,17 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Tag } from "lucide-react";
 import type { Product } from "@/lib/actions/products";
 import { WishlistButton } from "./WishlistButton";
 import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants/app";
+import { useAuthStore } from "@/lib/store";
+import {
+  formatPrice,
+  getDisplayPrice,
+  shouldShowDealerPricing,
+  calculateSavings,
+} from "@/lib/utils/pricing";
 
 interface ShopProductCardProps {
   product: Product;
@@ -25,17 +32,25 @@ export function ShopProductCard({
   offerBadges = [],
 }: ShopProductCardProps) {
   const [imageError, setImageError] = useState(false);
+  const { dealerSession } = useAuthStore();
 
   const fallbackImage = DEFAULT_PRODUCT_IMAGE;
   const imageSrc =
     imageError || !product.image_url ? fallbackImage : product.image_url;
 
-  // Format price in Indian Rupees
-  const formattedPrice = new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 0,
-  }).format(product.price);
+  const showDealerPrice = shouldShowDealerPricing(
+    product.dealer_price,
+    dealerSession
+  );
+  const displayPrice = getDisplayPrice(
+    product.price,
+    product.dealer_price,
+    dealerSession
+  );
+  const formattedPrice = formatPrice(displayPrice);
+  const savings = showDealerPrice
+    ? calculateSavings(product.price, product.dealer_price!)
+    : 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -114,9 +129,24 @@ export function ShopProductCard({
           </h3>
 
           {/* Price */}
-          <p className="text-lg font-bold text-[#2f2582] lg:text-xl">
-            {formattedPrice}
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-lg font-bold text-[#2f2582] lg:text-xl">
+              {formattedPrice}
+            </p>
+
+            {/* Show original price with strikethrough for dealers */}
+            {showDealerPrice && (
+              <>
+                <p className="text-sm text-gray-400 line-through lg:text-base">
+                  {formatPrice(product.price)}
+                </p>
+                <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                  <Tag className="h-3 w-3" />
+                  Save {savings}%
+                </span>
+              </>
+            )}
+          </div>
 
           {product.description && (
             <p className="line-clamp-1 text-sm leading-relaxed font-normal text-[#898989] lg:text-base">

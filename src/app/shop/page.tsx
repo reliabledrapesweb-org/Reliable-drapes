@@ -1,6 +1,11 @@
 "use client";
 
-import { Breadcrumb, PageHero, PageHeader } from "@/components/shared";
+import {
+  Breadcrumb,
+  ComingSoonNotice,
+  PageHero,
+  PageHeader,
+} from "@/components/shared";
 import { ShopProductGrid, ShopFilterSidebar } from "@/components/features/shop";
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
@@ -35,10 +40,15 @@ export default function ShopPage() {
   const searchParams = useSearchParams();
   const urlSearchQuery = searchParams.get("search") || "";
   const urlCategory = searchParams.get("category") || "";
+  const parseCategoriesFromUrl = (value: string): string[] =>
+    value
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
 
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    urlCategory ? [urlCategory] : [],
+    parseCategoriesFromUrl(urlCategory),
   );
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [sortBy, setSortBy] = useState<string>("newest");
@@ -65,13 +75,13 @@ export default function ShopPage() {
   // Update search query and category when URL params change
   useEffect(() => {
     setSearchQuery(urlSearchQuery);
-    setSelectedCategories(urlCategory ? [urlCategory] : []);
+    setSelectedCategories(parseCategoriesFromUrl(urlCategory));
   }, [urlSearchQuery, urlCategory]);
 
   const updateShopUrl = useCallback(
     (nextSearchQuery: string, nextCategories: string[]) => {
       const normalizedSearchQuery = nextSearchQuery.trim();
-      const nextCategory = nextCategories.length === 1 ? nextCategories[0] : "";
+      const nextCategory = nextCategories.join(",");
       const currentSearch = searchParams.get("search") || "";
       const currentCategory = searchParams.get("category") || "";
 
@@ -272,6 +282,9 @@ export default function ShopPage() {
     return filtered;
   }, [products, searchQuery, priceRange, sortBy]);
 
+  const isDoorMatsOnlyPage =
+    selectedCategories.length === 1 && selectedCategories[0] === "door-mats";
+
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
       <PageHero heading="Shop" />
@@ -413,7 +426,19 @@ export default function ShopPage() {
                       ))}
                     </div>
                   ) : (
-                    <ShopProductGrid products={filteredProducts} coupons={coupons} />
+                    <>
+                      {isDoorMatsOnlyPage ? (
+                        <ComingSoonNotice
+                          title="Door Mats Coming Soon"
+                          message="Door Mats will be available soon in our catalogue."
+                        />
+                      ) : (
+                        <ShopProductGrid
+                          products={filteredProducts}
+                          coupons={coupons}
+                        />
+                      )}
+                    </>
                   )}
                 </div>
               </div>

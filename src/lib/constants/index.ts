@@ -8,3 +8,4 @@ export * from './legal';
 export * from './mock-products';
 export * from './filter-options';
 export * from './profile';
+export * from './dealer';

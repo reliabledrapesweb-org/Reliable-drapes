@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 export interface UserProfile {
   id: string;
   full_name: string | null;
-  role: "customer" | "admin";
+  role: "customer" | "admin" | "dealer";
   created_at: string;
   email?: string;
   last_sign_in_at?: string;
@@ -23,7 +23,7 @@ export interface UserProfile {
 export interface UpdateUserInput {
   id: string;
   full_name?: string;
-  role?: "customer" | "admin";
+  role?: "customer" | "admin" | "dealer";
 }
 
 export interface UpdateProfileInput {
@@ -146,6 +146,7 @@ export async function getUserStats() {
     total: profiles.length,
     customers: profiles.filter((p) => p.role === "customer").length,
     admins: profiles.filter((p) => p.role === "admin").length,
+    dealers: profiles.filter((p) => p.role === "dealer").length,
   };
 
   return { success: true, data: stats, error: null };

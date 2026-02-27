@@ -4,6 +4,7 @@ import { Breadcrumb, PageHero, PageHeader } from "@/components/shared";
 import { CatalogFilterSidebar, ProductGrid } from "@/components/features/catalog";
 import { ProductGridSkeleton } from "@/components/features/catalog/ProductGridSkeleton";
 import { useMemo, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { getCatalogues, type Catalogue } from "@/lib/actions/catalogues";
 import {
   getCatalogueCategories,
@@ -34,8 +35,19 @@ function transformCatalogueToProduct(catalogue: Catalogue) {
 }
 
 export default function CataloguePage() {
+  const searchParams = useSearchParams();
+  const urlCategory = searchParams.get("category") || "";
+
+  const parseCategoriesFromUrl = (value: string): string[] =>
+    value
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
+
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>(
+    parseCategoriesFromUrl(urlCategory),
+  );
   const [catalogues, setCatalogues] = useState<Catalogue[]>([]);
   const [categories, setCategories] = useState<CatalogueCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,6 +83,10 @@ export default function CataloguePage() {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    setSelectedFilters(parseCategoriesFromUrl(urlCategory));
+  }, [urlCategory]);
 
   // Transform catalogues to products
   const products = useMemo(() => {

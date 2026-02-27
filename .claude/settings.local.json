@@ -26,7 +26,10 @@
       "Bash(npm run typecheck:*)",
       "Bash(npm run)",
       "Bash(tree:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(git log:*)",
+      "Bash(ls:*)",
+      "Bash(npm run test:*)"
     ]
   }
 }

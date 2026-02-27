@@ -58,6 +58,7 @@ const mockProduct: Product = {
   sku: null,
   description: "Beautiful handcrafted curtain for your home",
   price: 3500,
+  dealer_price: null,
   image_url: "/images/curtain.jpg",
   created_at: "2024-01-01",
 };

@@ -138,6 +138,7 @@ export default function AdminProductsPage() {
     description: "",
     image_url: "",
     price: 0,
+    dealer_price: null as number | null,
     categoryIds: [] as string[],
   });
 
@@ -195,6 +196,7 @@ export default function AdminProductsPage() {
         description: product.description || "",
         image_url: product.image_url || "",
         price: product.price,
+        dealer_price: product.dealer_price,
         categoryIds: productCategories[product.id] || [],
       });
 
@@ -213,6 +215,7 @@ export default function AdminProductsPage() {
         description: "",
         image_url: "",
         price: 0,
+        dealer_price: null,
         categoryIds: [],
       });
       setProductImages([]);
@@ -235,6 +238,7 @@ export default function AdminProductsPage() {
           description: formData.description,
           image_url: formData.image_url,
           price: formData.price,
+          dealer_price: formData.dealer_price,
         });
         if (result.success) {
           // Update category associations
@@ -259,6 +263,7 @@ export default function AdminProductsPage() {
           description: formData.description,
           image_url: formData.image_url,
           price: formData.price,
+          dealer_price: formData.dealer_price,
         });
         if (result.success && result.data) {
           // Add category associations for new product
@@ -1593,7 +1598,7 @@ export default function AdminProductsPage() {
                     </div>
 
                     {/* Price and Image URL Row */}
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                       <div>
                         <label className="mb-2 block text-sm font-semibold text-gray-700">
                           Price (₹ INR) <span className="text-red-500">*</span>
@@ -1618,6 +1623,49 @@ export default function AdminProductsPage() {
                             placeholder="0.00"
                           />
                         </div>
+                      </div>
+
+                      {/* Dealer Price */}
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-gray-700">
+                          Dealer Price (₹)
+                          <span className="ml-1 text-xs font-normal text-gray-500">
+                            Optional
+                          </span>
+                        </label>
+                        <div className="relative">
+                          <span className="absolute top-1/2 left-4 -translate-y-1/2 font-medium text-gray-500">
+                            ₹
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={formData.dealer_price ?? ""}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                dealer_price: e.target.value
+                                  ? parseFloat(e.target.value)
+                                  : null,
+                              })
+                            }
+                            className="w-full rounded-lg border-2 border-gray-200 py-2.5 pr-4 pl-8 transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
+                            placeholder="B2B price"
+                          />
+                        </div>
+                        {formData.dealer_price !== null &&
+                          formData.dealer_price > 0 &&
+                          formData.price > 0 && (
+                            <p className="mt-1 text-xs text-green-600">
+                              {Math.round(
+                                ((formData.price - formData.dealer_price) /
+                                  formData.price) *
+                                  100
+                              )}
+                              % off for dealers
+                            </p>
+                          )}
                       </div>
 
                       <div className="space-y-3">

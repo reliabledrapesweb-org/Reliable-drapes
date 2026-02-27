@@ -94,7 +94,41 @@ export function CategoriesSection() {
   }, [isHovering, isLoading]);
 
   // Double the categories for infinite scroll effect
-  const displayCategories = [...categories, ...categories];
+  const mergedCategories = (() => {
+    const bedLinenSlugs = new Set(["bed-sheets", "bedsheets", "comforters"]);
+    const bedLinenCategories = categories.filter((category) =>
+      bedLinenSlugs.has(category.slug),
+    );
+
+    if (bedLinenCategories.length === 0) {
+      return categories;
+    }
+
+    const baseCategory = bedLinenCategories[0];
+    const remainingCategories = categories.filter(
+      (category) => !bedLinenSlugs.has(category.slug),
+    );
+    const firstBedLinenIndex = categories.findIndex((category) =>
+      bedLinenSlugs.has(category.slug),
+    );
+    const insertIndex =
+      firstBedLinenIndex === -1
+        ? remainingCategories.length
+        : Math.min(firstBedLinenIndex, remainingCategories.length);
+    const mergedCategory = {
+      ...baseCategory,
+      id: "bed-linens",
+      name: "Bed Linens",
+      slug: "bed-linens",
+    } as CategoryFull;
+
+    const nextCategories = [...remainingCategories];
+    nextCategories.splice(insertIndex, 0, mergedCategory);
+
+    return nextCategories;
+  })();
+
+  const displayCategories = [...mergedCategories, ...mergedCategories];
 
   return (
     <section className="bg-white py-12 md:py-16 lg:py-20">
@@ -133,6 +167,11 @@ export function CategoriesSection() {
                   }
                   title={category.name}
                   slug={category.slug}
+                  href={
+                    category.slug === "bed-linens"
+                      ? "/shop?category=bed-sheets,comforters"
+                      : undefined
+                  }
                   className="w-[236px] md:w-[280px]"
                 />
               ))}

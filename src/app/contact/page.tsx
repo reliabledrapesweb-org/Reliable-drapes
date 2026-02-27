@@ -234,21 +234,17 @@ export default function ContactPage() {
     {
       icon: Mail,
       title: "Email",
-      lines: ["info@reliabledrapes.com", "support@reliabledrapes.com"],
+      lines: ["Contact@reliabledrapes.org"],
     },
     {
       icon: Phone,
       title: "Phone",
-      lines: ["+91 800 123 4567", "Mon-Sat, 9am-6pm IST"],
+      lines: ["+91 85069 31948", "Mon-Sat, 9am-6pm IST"],
     },
     {
       icon: MapPin,
       title: "Address",
-      lines: [
-        "Shop No. 12-13, 1st Floor",
-        "City Mall, Surat",
-        "Gujarat, India 395010",
-      ],
+      lines: ["Warehouse - PNP"],
     },
   ];
 
@@ -369,6 +365,9 @@ export default function ContactPage() {
               >
                 Send us a Message
               </motion.h2>
+              <p className="mb-4 text-sm text-gray-600">
+                For urgent queries, call us at +91 96257 31948
+              </p>
 
               <motion.form
                 variants={containerVariants}
@@ -416,7 +415,7 @@ export default function ContactPage() {
                     setFormData({ ...formData, phone: e.target.value })
                   }
                   disabled={isLoading || isSuccess}
-                  placeholder="+91 800 000 0000"
+                  placeholder="+91 96257 31948"
                   index={2}
                 />
 

@@ -14,6 +14,8 @@ export type SiteSettings = {
   coming_soon_message: string;
   commerce_features_enabled: boolean;
   commerce_coming_soon_message: string | null;
+  gem_assessed_logo_enabled: boolean;
+  gem_assessed_logo_url: string | null;
   hero_video_enabled: boolean;
   hero_video_url: string | null;
   hero_video_type: "youtube" | "upload" | null;
@@ -39,6 +41,8 @@ export type SiteSettingsFormData = Partial<
     | "coming_soon_message"
     | "commerce_features_enabled"
     | "commerce_coming_soon_message"
+    | "gem_assessed_logo_enabled"
+    | "gem_assessed_logo_url"
     | "hero_video_enabled"
     | "hero_video_url"
     | "hero_video_type"
@@ -236,6 +240,35 @@ export async function getCommerceFeatureSettings(): Promise<{
     };
   } catch {
     return { enabled: true, message: null };
+  }
+}
+
+/**
+ * Get GEM Assessed logo settings (public convenience method)
+ */
+export async function getGemAssessedLogoSettings(): Promise<{
+  enabled: boolean;
+  url: string | null;
+}> {
+  try {
+    const supabase = getAnonSupabase();
+
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("gem_assessed_logo_enabled, gem_assessed_logo_url")
+      .limit(1)
+      .single();
+
+    if (error) {
+      return { enabled: false, url: null };
+    }
+
+    return {
+      enabled: data?.gem_assessed_logo_enabled ?? false,
+      url: data?.gem_assessed_logo_url ?? null,
+    };
+  } catch {
+    return { enabled: false, url: null };
   }
 }
 
