@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence, Variants } from "motion/react";
-import { X, ArrowRight } from "lucide-react";
+import { X, ArrowRight, Building2 } from "lucide-react";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -126,20 +126,31 @@ export function MobileMenu({ isOpen, setIsOpen, navLinks, user }: MobileMenuProp
               </motion.div>
             ))}
 
-            {/* Trader Log In Button - Only show when user is NOT logged in */}
+            {/* Login Buttons - Only show when user is NOT logged in */}
             {!user && (
               <motion.div
                 variants={linkVariants}
-                className="pt-8"
+                className="flex w-full max-w-sm flex-col items-center gap-3 pt-8"
               >
                 <motion.a
                   href="/login"
                   onClick={() => setIsOpen(false)}
-                  className="inline-block transform cursor-pointer rounded-full bg-white px-8 py-3 text-lg font-medium text-black shadow-lg transition-all hover:-translate-y-1 hover:bg-gray-100 hover:shadow-xl active:translate-y-0 md:px-10 md:py-4 md:text-xl"
+                  className="inline-flex w-full transform cursor-pointer items-center justify-center rounded-full border border-white/40 bg-white/10 px-8 py-3 text-lg font-medium text-white shadow-lg transition-all hover:-translate-y-1 hover:bg-white/20 hover:shadow-xl active:translate-y-0 md:px-10 md:py-4 md:text-xl"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Trader Log In
+                  Login
+                </motion.a>
+
+                <motion.a
+                  href="/trader-login"
+                  onClick={() => setIsOpen(false)}
+                  className="inline-flex w-full transform cursor-pointer items-center justify-center gap-2 rounded-full bg-white px-8 py-3 text-lg font-medium text-black shadow-lg transition-all hover:-translate-y-1 hover:bg-gray-100 hover:shadow-xl active:translate-y-0 md:px-10 md:py-4 md:text-xl"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Building2 className="h-5 w-5" />
+                  Trader Login
                 </motion.a>
               </motion.div>
             )}

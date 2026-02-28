@@ -190,8 +190,9 @@ describe("Header", () => {
 
     test("renders login link when user is not authenticated", () => {
       render(<Header />);
-      // Should show login links (desktop + mobile)
-      expect(screen.getAllByText("Trader Log In")).toHaveLength(2);
+      // Login links are rendered in desktop user menu instances.
+      expect(screen.getAllByText("Login")).toHaveLength(2);
+      expect(screen.getAllByText("Trader Login")).toHaveLength(2);
     });
 
     test("renders user avatar when user is authenticated", () => {
@@ -204,7 +205,7 @@ describe("Header", () => {
 
       // Should show user avatar buttons (desktop + mobile)
       expect(screen.getAllByLabelText("User account menu")).toHaveLength(2);
-      expect(screen.queryByText("Trader Log In")).not.toBeInTheDocument();
+      expect(screen.queryByText("Trader Login")).not.toBeInTheDocument();
     });
   });
 
