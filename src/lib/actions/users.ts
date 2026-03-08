@@ -448,10 +448,10 @@ export async function searchUsers(query: string) {
 
 const MAX_PHONE_DISMISSALS = 3;
 
-export function shouldShowPhonePrompt(
+export async function shouldShowPhonePrompt(
   phone: string | null | undefined,
   dismissedCount: number,
-): { needsPhone: boolean; canDismiss: boolean } {
+): Promise<{ needsPhone: boolean; canDismiss: boolean }> {
   const hasPhone = Boolean(phone?.trim());
   if (hasPhone) return { needsPhone: false, canDismiss: true };
   return {
