@@ -287,7 +287,7 @@ export default function ShopPage() {
 
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
-      <PageHero heading="Shop" />
+      <PageHero heading="Shop" backgroundImage="/images/heroes/shop-hero.jpg" />
       <Breadcrumb />
       <div className="w-full py-12 md:py-16 lg:py-20">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
@@ -581,4 +581,3 @@ export default function ShopPage() {
     </main>
   );
 }
-

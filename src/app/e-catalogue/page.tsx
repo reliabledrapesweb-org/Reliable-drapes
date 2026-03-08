@@ -1,7 +1,10 @@
 "use client";
 
 import { Breadcrumb, PageHero, PageHeader } from "@/components/shared";
-import { CatalogFilterSidebar, ProductGrid } from "@/components/features/catalog";
+import {
+  CatalogFilterSidebar,
+  ProductGrid,
+} from "@/components/features/catalog";
 import { ProductGridSkeleton } from "@/components/features/catalog/ProductGridSkeleton";
 import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
@@ -135,7 +138,10 @@ export default function CataloguePage() {
 
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
-      <PageHero heading="E-catalogue" />
+      <PageHero
+        heading="E-catalogue"
+        backgroundImage="/images/heroes/e-catalogue-hero.jpg"
+      />
       <Breadcrumb />
       <div className="w-full py-12 md:py-16 lg:py-20">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">

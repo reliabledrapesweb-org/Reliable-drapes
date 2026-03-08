@@ -3,7 +3,10 @@ import { Breadcrumb, PageHero } from "@/components/shared";
 export default function ShippingInfoPage() {
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
-      <PageHero heading="Shipping Information" />
+      <PageHero
+        heading="Shipping Information"
+        backgroundImage="/images/heroes/shipping-hero.jpg"
+      />
       <Breadcrumb />
 
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">

@@ -26,13 +26,19 @@ const faqs = [
 export default function FaqPage() {
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
-      <PageHero heading="Frequently Asked Questions" />
+      <PageHero
+        heading="Frequently Asked Questions"
+        backgroundImage="/images/heroes/faq-hero.jpg"
+      />
       <Breadcrumb />
 
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="space-y-6">
           {faqs.map((item) => (
-            <div key={item.question} className="rounded-xl border border-gray-200 p-5">
+            <div
+              key={item.question}
+              className="rounded-xl border border-gray-200 p-5"
+            >
               <h2 className="text-base font-semibold text-gray-900 md:text-lg">
                 {item.question}
               </h2>

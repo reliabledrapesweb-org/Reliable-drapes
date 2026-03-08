@@ -198,7 +198,10 @@ export default function StyleExpertPage() {
   if (isSubmitted) {
     return (
       <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
-        <PageHero heading="Style Expert" />
+        <PageHero
+          heading="Style Expert"
+          backgroundImage="/images/heroes/style-expert-hero.jpg"
+        />
         <Breadcrumb />
         <div className="w-full py-12 md:py-16 lg:py-20">
           <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
@@ -261,7 +264,10 @@ export default function StyleExpertPage() {
 
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
-      <PageHero heading="Style Expert" />
+      <PageHero
+        heading="Style Expert"
+        backgroundImage="/images/heroes/style-expert-hero.jpg"
+      />
       <Breadcrumb />
 
       <div className="w-full py-12 md:py-16 lg:py-20">
@@ -276,8 +282,8 @@ export default function StyleExpertPage() {
               Book Your Design Consultation
             </h1>
             <p className="text-lg text-gray-600">
-              Let&apos;s create your dream space together. Fill out the form below to
-              get started.
+              Let&apos;s create your dream space together. Fill out the form
+              below to get started.
             </p>
           </motion.div>
 

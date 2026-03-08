@@ -31,7 +31,6 @@ export default function CareersPage() {
 
         setJobs(result.data);
       } catch (error) {
-
         setError(
           error instanceof Error ? error.message : "Failed to load jobs",
         );
@@ -69,7 +68,10 @@ export default function CareersPage() {
 
   return (
     <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
-      <PageHero heading="Careers" />
+      <PageHero
+        heading="Careers"
+        backgroundImage="/images/heroes/careers-hero.jpg"
+      />
       <Breadcrumb />
       <div className="w-full py-8 md:py-10 lg:py-12">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">

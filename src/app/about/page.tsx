@@ -20,7 +20,10 @@ export default async function AboutPage() {
 
   return (
     <main className="mt-14 md:mt-16 lg:mt-[72px]">
-      <PageHero heading="About Reliable Drapes" />
+      <PageHero
+        heading="About Reliable Drapes"
+        backgroundImage="/images/heroes/about-hero.jpg"
+      />
       <FounderSection section={sectionsMap.get("founder")} />
       <WhyChooseSection section={sectionsMap.get("why-choose")} />
       <FeaturesGrid section={sectionsMap.get("features")} />
