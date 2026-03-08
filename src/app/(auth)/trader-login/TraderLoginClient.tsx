@@ -114,23 +114,33 @@ export function TraderLoginClient() {
   // If not configured, show coming soon
   if (!DEALER_CONFIG.isConfigured) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-xl">
-          <Building2 className="mx-auto h-16 w-16 text-[#2f2582]" />
-          <h1 className="mt-6 text-2xl font-bold text-gray-900">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#f8f8f8] to-white px-4 pt-14 md:pt-16 lg:pt-[72px]">
+        <div className="w-full max-w-lg text-center">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-[#2f2582]/10">
+            <Building2 className="h-10 w-10 text-[#2f2582]" />
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">
             B2B Dealer Portal
           </h1>
-          <p className="mt-4 text-gray-600">
+          <p className="mx-auto mt-4 max-w-sm text-base leading-relaxed text-gray-500">
             Our dealer portal is coming soon. Please contact us for wholesale
             pricing and dealer accounts.
           </p>
-          <Link
-            href="/"
-            className="mt-8 inline-flex items-center gap-2 text-[#2f2582] hover:underline"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Link>
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Link
+              href="/contact"
+              className="inline-flex h-11 items-center justify-center rounded-lg bg-[#2f2582] px-6 text-sm font-medium text-white transition-colors hover:bg-[#241c66]"
+            >
+              Contact Us
+            </Link>
+            <Link
+              href="/"
+              className="inline-flex h-11 items-center gap-2 rounded-lg border border-gray-300 px-6 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
+            </Link>
+          </div>
         </div>
       </div>
     );
