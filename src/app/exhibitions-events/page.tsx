@@ -2,12 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Loader, ImageIcon, Sparkles } from "lucide-react";
+import { Loader, ImageIcon, ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import { Breadcrumb, PageHero } from "@/components/shared";
 import { getExhibitions, type Exhibition } from "@/lib/actions/exhibitions";
-
-const GALLERY_CARD_ASPECT_CLASS = "aspect-[9/10]";
 
 export default function ExhibitionsEventsPage() {
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
@@ -35,99 +33,138 @@ export default function ExhibitionsEventsPage() {
   );
 
   return (
-    <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+    <main className="mt-14 min-h-screen bg-[#faf9f7] md:mt-16 lg:mt-[68px] xl:lg:mt-[72px]">
       <PageHero heading="Exhibitions & Moments" />
       <Breadcrumb />
 
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#f8f8f8] via-white to-[#f8f8f8] py-12 md:py-16 lg:py-20">
-        <motion.div
-          aria-hidden
-          className="pointer-events-none absolute -top-20 -left-20 h-72 w-72 rounded-full bg-[#2F2582]/10 blur-3xl"
-          animate={{ scale: [1, 1.08, 1], opacity: [0.22, 0.35, 0.22] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          aria-hidden
-          className="pointer-events-none absolute right-[-120px] bottom-[-120px] h-80 w-80 rounded-full bg-[#b9b1ff]/30 blur-3xl"
-          animate={{ scale: [1.05, 1, 1.05], opacity: [0.24, 0.4, 0.24] }}
-          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+      {/* Editorial intro section */}
+      <section className="relative overflow-hidden">
+        {/* Subtle texture overlay */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+          }}
         />
 
-        <div className="container relative z-10 mx-auto px-6">
+        <div className="relative mx-auto max-w-[1440px] px-5 py-16 sm:px-8 md:py-20 lg:px-12 lg:py-24 xl:px-16">
+          {/* Section header */}
           <motion.div
-            initial={{ opacity: 0, y: 18 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55 }}
-            className="mx-auto mb-12 max-w-3xl text-center"
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-14 max-w-2xl md:mb-16 lg:mb-20"
           >
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#2F2582]/10 px-4 py-2">
-              <Sparkles className="h-4 w-4 text-[#2F2582]" />
-              <span className="text-xs font-semibold tracking-[0.12em] text-[#2F2582] uppercase">
-                Live Gallery
+            <div className="mb-5 flex items-center gap-3">
+              <span className="h-px w-10 bg-[#2F2582]" />
+              <span className="text-xs font-medium tracking-[0.2em] text-[#2F2582] uppercase">
+                Gallery
               </span>
             </div>
-            <h1 className="mt-4 text-[28px] font-medium tracking-[-1.5px] text-black lg:text-[36px]">
-              Exhibition Moments
-            </h1>
-            <p className="mt-3 text-sm text-[#575757] md:text-base">
-              A visual showcase of our exhibitions and moments.
+            <h2 className="text-3xl font-medium tracking-[-0.03em] text-[#161616] md:text-4xl lg:text-[42px]">
+              Moments from our
+              <br className="hidden sm:block" />
+              <span className="text-[#2F2582]"> exhibitions</span>
+            </h2>
+            <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-[#575757] md:text-base">
+              A curated look at our showcase events, product displays, and the
+              craftsmanship behind every drape.
             </p>
           </motion.div>
 
+          {/* Gallery */}
           {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader className="h-8 w-8 animate-spin text-[#2F2582]" />
+            <div className="flex items-center justify-center py-28">
+              <Loader className="h-7 w-7 animate-spin text-[#2F2582]" />
             </div>
           ) : galleryItems.length === 0 ? (
-            <div className="rounded-2xl border border-[#d9d9d9] bg-[#fafafa] px-6 py-20 text-center">
-              <ImageIcon className="mx-auto mb-4 h-12 w-12 text-gray-300" />
-              <h2 className="text-lg font-semibold text-gray-900">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="rounded-2xl border border-[#e8e6e1] bg-white px-8 py-24 text-center"
+            >
+              <ImageIcon className="mx-auto mb-4 h-10 w-10 text-[#c5c0b8]" />
+              <h3 className="text-lg font-medium text-[#161616]">
                 No Exhibition Photos Yet
-              </h2>
-              <p className="mt-2 text-sm text-gray-600">
+              </h3>
+              <p className="mt-2 text-sm text-[#898989]">
                 We will publish recent event photos here shortly.
               </p>
-            </div>
+            </motion.div>
           ) : (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {galleryItems.map((item, index) => (
-                <motion.a
-                  key={item.id}
-                  href={item.image_url!}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.45, delay: index * 0.04 }}
-                  whileHover={{ y: -4 }}
-                  className="group relative block overflow-hidden rounded-3xl border border-[#d2d2d2] bg-white shadow-sm"
-                >
-                  <div
-                    className={`relative overflow-hidden bg-[#ededed] ${GALLERY_CARD_ASPECT_CLASS}`}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+              {galleryItems.map((item, index) => {
+                const isFeature = index % 5 === 0;
+                return (
+                  <motion.a
+                    key={item.id}
+                    href={item.image_url!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{
+                      duration: 0.5,
+                      delay: (index % 6) * 0.08,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className={`group relative block overflow-hidden rounded-xl bg-[#ededed] ${
+                      isFeature
+                        ? "sm:col-span-2 lg:col-span-2 lg:row-span-2"
+                        : ""
+                    }`}
                   >
-                    <Image
-                      src={item.image_url!}
-                      alt={item.title || `Exhibition image ${index + 1}`}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
+                    <div
+                      className={`relative overflow-hidden ${
+                        isFeature
+                          ? "aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto lg:h-full lg:min-h-[520px]"
+                          : "aspect-[4/5]"
+                      }`}
+                    >
+                      <Image
+                        src={item.image_url!}
+                        alt={item.title || `Exhibition image ${index + 1}`}
+                        fill
+                        className="object-cover transition-transform duration-[800ms] ease-out group-hover:scale-[1.04]"
+                        sizes={
+                          isFeature
+                            ? "(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 66vw"
+                            : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        }
+                      />
 
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
-                    <div className="absolute right-3 bottom-3 left-3 flex items-end justify-between">
-                      <div>
-                        <p className="line-clamp-1 text-sm font-semibold text-white">
-                          {item.title || "Exhibition Photo"}
-                        </p>
+                      {/* Gradient overlay */}
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-90" />
+
+                      {/* Content overlay */}
+                      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-5 sm:p-6">
+                        <div className="min-w-0 flex-1">
+                          <p
+                            className={`line-clamp-2 font-medium text-white ${
+                              isFeature
+                                ? "text-lg sm:text-xl"
+                                : "text-sm sm:text-base"
+                            }`}
+                          >
+                            {item.title || "Exhibition Photo"}
+                          </p>
+                          {item.description && isFeature && (
+                            <p className="mt-1.5 line-clamp-2 text-sm text-white/70">
+                              {item.description}
+                            </p>
+                          )}
+                        </div>
+                        <span className="ml-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-sm transition-all duration-300 group-hover:border-white/50 group-hover:bg-white/20 sm:h-10 sm:w-10">
+                          <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                        </span>
                       </div>
-                      <span className="rounded-full border border-white/40 bg-black/30 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-white uppercase backdrop-blur">
-                        View
-                      </span>
                     </div>
-                  </div>
-                </motion.a>
-              ))}
+                  </motion.a>
+                );
+              })}
             </div>
           )}
         </div>

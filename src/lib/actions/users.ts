@@ -51,7 +51,6 @@ export async function getAllUsers() {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-
     return { success: false, error: "Authentication required", data: null };
   }
 
@@ -63,7 +62,6 @@ export async function getAllUsers() {
     .single();
 
   if (profileError) {
-
     return {
       success: false,
       error: "Failed to verify admin status",
@@ -72,7 +70,6 @@ export async function getAllUsers() {
   }
 
   if (currentUserProfile?.role !== "admin") {
-
     return { success: false, error: "Admin privileges required", data: null };
   }
 
@@ -83,7 +80,6 @@ export async function getAllUsers() {
     .order("created_at", { ascending: false });
 
   if (profilesError) {
-
     return { success: false, error: profilesError.message, data: null };
   }
 
@@ -105,7 +101,6 @@ export async function getAllUsers() {
     await adminSupabase.auth.admin.listUsers();
 
   if (authError2) {
-
     // Return profiles without auth data
     return { success: true, data: profiles, error: null };
   }
@@ -134,7 +129,6 @@ export async function getUserStats() {
     .select("role");
 
   if (error) {
-
     return {
       success: false,
       error: error.message,
@@ -165,7 +159,6 @@ export async function updateUser(input: UpdateUserInput) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-
     return { success: false, error: "Authentication required", data: null };
   }
 
@@ -177,7 +170,6 @@ export async function updateUser(input: UpdateUserInput) {
     .single();
 
   if (profileError) {
-
     return {
       success: false,
       error: "Failed to verify admin status",
@@ -186,7 +178,6 @@ export async function updateUser(input: UpdateUserInput) {
   }
 
   if (currentUserProfile?.role !== "admin") {
-
     return { success: false, error: "Admin privileges required", data: null };
   }
 
@@ -200,7 +191,6 @@ export async function updateUser(input: UpdateUserInput) {
     .single();
 
   if (error) {
-
     return { success: false, error: error.message, data: null };
   }
 
@@ -231,7 +221,6 @@ export async function getProfile() {
     .single();
 
   if (error) {
-
     return { success: false, error: error.message, data: null };
   }
 
@@ -275,7 +264,6 @@ export async function updateProfile(input: UpdateProfileInput) {
     .single();
 
   if (error) {
-
     return { success: false, error: error.message, data: null };
   }
 
@@ -298,7 +286,6 @@ export async function deleteUser(userId: string) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-
     return { success: false, error: "Authentication required" };
   }
 
@@ -310,12 +297,10 @@ export async function deleteUser(userId: string) {
     .single();
 
   if (profileError) {
-
     return { success: false, error: "Failed to verify admin status" };
   }
 
   if (currentUserProfile?.role !== "admin") {
-
     return { success: false, error: "Admin privileges required" };
   }
 
@@ -336,7 +321,6 @@ export async function deleteUser(userId: string) {
   const { error } = await adminSupabase.auth.admin.deleteUser(userId);
 
   if (error) {
-
     return { success: false, error: error.message };
   }
 
@@ -357,7 +341,6 @@ export async function promoteToAdmin(userId: string) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-
     return { success: false, error: "Authentication required", data: null };
   }
 
@@ -368,7 +351,6 @@ export async function promoteToAdmin(userId: string) {
     .single();
 
   if (profileError) {
-
     return {
       success: false,
       error: "Failed to verify admin status",
@@ -377,7 +359,6 @@ export async function promoteToAdmin(userId: string) {
   }
 
   if (currentUserProfile?.role !== "admin") {
-
     return { success: false, error: "Admin privileges required", data: null };
   }
 
@@ -389,7 +370,6 @@ export async function promoteToAdmin(userId: string) {
     .single();
 
   if (error) {
-
     return { success: false, error: error.message, data: null };
   }
 
@@ -410,7 +390,6 @@ export async function demoteFromAdmin(userId: string) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-
     return { success: false, error: "Authentication required", data: null };
   }
 
@@ -421,7 +400,6 @@ export async function demoteFromAdmin(userId: string) {
     .single();
 
   if (profileError) {
-
     return {
       success: false,
       error: "Failed to verify admin status",
@@ -430,7 +408,6 @@ export async function demoteFromAdmin(userId: string) {
   }
 
   if (currentUserProfile?.role !== "admin") {
-
     return { success: false, error: "Admin privileges required", data: null };
   }
 
@@ -442,7 +419,6 @@ export async function demoteFromAdmin(userId: string) {
     .single();
 
   if (error) {
-
     return { success: false, error: error.message, data: null };
   }
 
@@ -464,9 +440,111 @@ export async function searchUsers(query: string) {
     .order("created_at", { ascending: false });
 
   if (error) {
-
     return { success: false, error: error.message, data: null };
   }
 
   return { success: true, data: profiles, error: null };
+}
+
+const MAX_PHONE_DISMISSALS = 3;
+
+export function shouldShowPhonePrompt(
+  phone: string | null | undefined,
+  dismissedCount: number,
+): { needsPhone: boolean; canDismiss: boolean } {
+  const hasPhone = Boolean(phone?.trim());
+  if (hasPhone) return { needsPhone: false, canDismiss: true };
+  return {
+    needsPhone: true,
+    canDismiss: dismissedCount < MAX_PHONE_DISMISSALS,
+  };
+}
+
+export async function getUserPhoneStatus(): Promise<{
+  needsPhone: boolean;
+  canDismiss: boolean;
+}> {
+  const supabase = await supabaseServer();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { needsPhone: false, canDismiss: true };
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("phone, phone_prompt_dismissed_count")
+    .eq("id", user.id)
+    .single();
+
+  if (error || !data) {
+    return { needsPhone: false, canDismiss: true };
+  }
+
+  return shouldShowPhonePrompt(
+    data.phone,
+    data.phone_prompt_dismissed_count ?? 0,
+  );
+}
+
+export async function incrementPhoneDismissCount(): Promise<{
+  success: boolean;
+}> {
+  const supabase = await supabaseServer();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { success: false };
+  }
+
+  const { data } = await supabase
+    .from("profiles")
+    .select("phone_prompt_dismissed_count")
+    .eq("id", user.id)
+    .single();
+
+  const currentCount = data?.phone_prompt_dismissed_count ?? 0;
+
+  const { error: updateError } = await supabase
+    .from("profiles")
+    .update({ phone_prompt_dismissed_count: currentCount + 1 })
+    .eq("id", user.id);
+
+  if (updateError) return { success: false };
+
+  return { success: true };
+}
+
+export async function savePhoneNumber(
+  phone: string,
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await supabaseServer();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { success: false, error: "Authentication required" };
+  }
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ phone, phone_prompt_dismissed_count: 0 })
+    .eq("id", user.id);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
 }

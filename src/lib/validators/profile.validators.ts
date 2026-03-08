@@ -4,9 +4,13 @@
 
 import { z } from "zod";
 
+export const indianPhoneSchema = z
+  .string()
+  .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number");
+
 export const profileSchema = z.object({
   full_name: z.string().min(2, "Name must be at least 2 characters"),
-  phone: z.string().optional(),
+  phone: indianPhoneSchema.or(z.literal("")).optional(),
   address_line1: z.string().optional(),
   address_line2: z.string().optional(),
   city: z.string().optional(),

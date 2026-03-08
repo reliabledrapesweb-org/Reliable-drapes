@@ -2,7 +2,15 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
-import { Menu, Search, User, ShoppingCart, LogOut, Heart, Building2 } from "lucide-react";
+import {
+  Menu,
+  Search,
+  User,
+  ShoppingCart,
+  LogOut,
+  Heart,
+  Building2,
+} from "lucide-react";
 import { MobileMenu } from "./MobileMenu";
 import { SearchModal } from "./SearchModal";
 import { useEffect, useState } from "react";
@@ -67,8 +75,9 @@ export function Header() {
           }
           setShowSearchModal(true);
         }}
-        className={`${shouldUseWhiteText ? "text-white" : "text-black"
-          } cursor-pointer`}
+        className={`${
+          shouldUseWhiteText ? "text-white" : "text-black"
+        } cursor-pointer`}
         aria-label="Search"
         whileHover={{ scale: 1.1, opacity: isMobile ? 1 : 0.8 }}
         transition={{ duration: 0.2 }}
@@ -82,8 +91,9 @@ export function Header() {
 
       <motion.a
         href="/wishlist"
-        className={`${shouldUseWhiteText ? "text-white" : "text-black"
-          } relative cursor-pointer`}
+        className={`${
+          shouldUseWhiteText ? "text-white" : "text-black"
+        } relative cursor-pointer`}
         aria-label="Wishlist"
         onClick={(e) => {
           if (!commerceFeaturesEnabled) {
@@ -120,8 +130,9 @@ export function Header() {
           }
           toggleCart();
         }}
-        className={`${shouldUseWhiteText ? "text-white" : "text-black"
-          } relative cursor-pointer`}
+        className={`${
+          shouldUseWhiteText ? "text-white" : "text-black"
+        } relative cursor-pointer`}
         aria-label="Cart"
         whileHover={{ scale: 1.1, opacity: isMobile ? 1 : 0.8 }}
         transition={{ duration: 0.2 }}
@@ -148,13 +159,14 @@ export function Header() {
 
   // User avatar component
   const UserAvatar = ({ size = "md" }: { size?: "sm" | "md" }) => {
-    const sizeClasses = size === "sm"
-      ? "h-6 w-6 md:h-7 md:w-7"
-      : "h-7 w-7 xl:h-8 xl:w-8";
+    const sizeClasses =
+      size === "sm" ? "h-6 w-6 md:h-7 md:w-7" : "h-7 w-7 xl:h-8 xl:w-8";
 
     if (user?.avatar_url) {
       return (
-        <div className={`${sizeClasses} relative overflow-hidden rounded-full ring-2 ring-white/30`}>
+        <div
+          className={`${sizeClasses} relative overflow-hidden rounded-full ring-2 ring-white/30`}
+        >
           <Image
             src={user.avatar_url}
             alt={user.full_name || "User avatar"}
@@ -168,7 +180,9 @@ export function Header() {
 
     return (
       <User
-        className={size === "sm" ? "h-5 w-5 md:h-6 md:w-6" : "h-5 w-5 xl:h-6 xl:w-6"}
+        className={
+          size === "sm" ? "h-5 w-5 md:h-6 md:w-6" : "h-5 w-5 xl:h-6 xl:w-6"
+        }
       />
     );
   };
@@ -179,8 +193,9 @@ export function Header() {
       <div className="relative">
         <motion.button
           onClick={() => setShowUserMenu(!showUserMenu)}
-          className={`${shouldUseWhiteText ? "text-white" : "text-black"
-            } cursor-pointer flex items-center`}
+          className={`${
+            shouldUseWhiteText ? "text-white" : "text-black"
+          } flex cursor-pointer items-center`}
           aria-label="User account menu"
           whileHover={{ scale: 1.1, opacity: isMobile ? 1 : 0.8 }}
           transition={{ duration: 0.2 }}
@@ -197,9 +212,9 @@ export function Header() {
             className="absolute right-0 z-[110] mt-3 w-56 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl"
           >
             {/* User Info Header */}
-            <div className="border-b border-gray-100 bg-gray-50 px-4 py-3 flex items-center gap-3">
+            <div className="flex items-center gap-3 border-b border-gray-100 bg-gray-50 px-4 py-3">
               {user.avatar_url ? (
-                <div className="h-10 w-10 relative overflow-hidden rounded-full ring-2 ring-gray-200">
+                <div className="relative h-10 w-10 overflow-hidden rounded-full ring-2 ring-gray-200">
                   <Image
                     src={user.avatar_url}
                     alt={user.full_name || "User avatar"}
@@ -209,12 +224,12 @@ export function Header() {
                   />
                 </div>
               ) : (
-                <div className="h-10 w-10 rounded-full bg-[#2f2582]/10 flex items-center justify-center">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2f2582]/10">
                   <User className="h-5 w-5 text-[#2f2582]" />
                 </div>
               )}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-gray-900">
                   {user.full_name || user.email.split("@")[0]}
                 </p>
                 <p className="truncate text-xs text-gray-500">{user.email}</p>
@@ -250,8 +265,9 @@ export function Header() {
         {/* Customer Login */}
         <motion.a
           href="/login"
-          className={`${shouldUseWhiteText ? "text-white" : "text-black"
-            } cursor-pointer text-sm tracking-tight xl:text-base`}
+          className={`${
+            shouldUseWhiteText ? "text-white" : "text-black"
+          } cursor-pointer text-sm tracking-tight xl:text-base`}
           whileHover={{ scale: 1.05, opacity: 0.8 }}
           transition={{ duration: 0.2 }}
         >
@@ -259,16 +275,20 @@ export function Header() {
         </motion.a>
 
         {/* Divider */}
-        <span className={`${shouldUseWhiteText ? "text-white/40" : "text-black/40"
-          }`}>
+        <span
+          className={`${
+            shouldUseWhiteText ? "text-white/40" : "text-black/40"
+          }`}
+        >
           |
         </span>
 
         {/* Trader Login */}
         <motion.a
           href="/trader-login"
-          className={`${shouldUseWhiteText ? "text-white" : "text-black"
-            } flex cursor-pointer items-center gap-1.5 text-sm tracking-tight xl:text-base`}
+          className={`${
+            shouldUseWhiteText ? "text-white" : "text-black"
+          } flex cursor-pointer items-center gap-1.5 text-sm tracking-tight xl:text-base`}
           whileHover={{ scale: 1.05, opacity: 0.8 }}
           transition={{ duration: 0.2 }}
         >
@@ -298,14 +318,15 @@ export function Header() {
     <header className="fixed top-0 left-0 z-[100] w-full">
       {/* NAV */}
       <nav
-        className={`backdrop-blur-[5.1px] ${isScrolled ? "bg-black/80" : "bg-[rgba(0,0,0,0.1)]"
-          } h-14 transition-colors duration-300 md:h-16 lg:h-[72px]`}
+        className={`backdrop-blur-[5.1px] ${
+          isScrolled ? "bg-black/80" : "bg-[rgba(0,0,0,0.1)]"
+        } h-14 transition-colors duration-300 md:h-16 lg:h-[68px] xl:h-[72px]`}
       >
-        <div className="container mx-auto flex h-full items-center justify-between px-4 md:px-6 lg:px-8">
+        <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between px-4 md:px-6 lg:px-6 xl:px-10">
           {/* LOGO */}
           <motion.div
-            className="flex cursor-pointer items-center"
-            whileHover={{ scale: 1.05 }}
+            className="flex shrink-0 cursor-pointer items-center"
+            whileHover={{ scale: 1.03 }}
             transition={{ duration: 0.2 }}
           >
             <Link href={"/"}>
@@ -318,23 +339,27 @@ export function Header() {
                 alt="Logo"
                 width={100}
                 height={100}
-                className="object-contain md:w-[130px] lg:w-[140px]"
+                className="w-[90px] object-contain md:w-[120px] lg:w-[110px] xl:w-[130px]"
                 priority
               />
             </Link>
           </motion.div>
 
           {/* DESKTOP NAVIGATION */}
-          <div className="hidden items-center gap-4 lg:mx-4 lg:flex xl:mx-6 xl:gap-5">
+          <div className="hidden items-center lg:mx-3 lg:flex lg:gap-1 xl:mx-6 xl:gap-3 2xl:gap-4">
             {NAV_LINKS.map((item, i) => (
               <motion.a
                 key={i}
                 href={item.link}
-                className={`${shouldUseWhiteText ? "text-white" : "text-black"
-                  } ${pathname === item.name && "font-semibold"
-                  } cursor-pointer text-sm tracking-tight xl:text-base`}
-                whileHover={{ scale: 1.05, opacity: 0.8 }}
-                transition={{ duration: 0.2 }}
+                className={`${
+                  shouldUseWhiteText ? "text-white" : "text-black"
+                } ${
+                  pathname === item.link ? "font-semibold" : "font-normal"
+                } cursor-pointer rounded-full px-2 py-1 text-[13px] tracking-tight whitespace-nowrap transition-colors duration-200 xl:px-2.5 xl:text-sm 2xl:text-[15px] ${
+                  shouldUseWhiteText ? "hover:bg-white/10" : "hover:bg-black/5"
+                }`}
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.15 }}
               >
                 {item.name}
               </motion.a>
@@ -342,22 +367,23 @@ export function Header() {
           </div>
 
           {/* DESKTOP ACTIONS */}
-          <div className="hidden items-center gap-6 lg:flex xl:gap-8">
-            <div className="flex items-center gap-4 xl:gap-6">
+          <div className="hidden shrink-0 items-center gap-4 lg:flex xl:gap-6">
+            <div className="flex items-center gap-3 xl:gap-5">
               <ActionButtons />
             </div>
             <UserMenu />
           </div>
 
           {/* MOBILE/TABLET ACTIONS */}
-          <div className="flex items-center gap-3 md:gap-4 lg:hidden">
+          <div className="flex items-center gap-2.5 md:gap-3.5 lg:hidden">
             <ActionButtons isMobile={true} />
             <UserMenu isMobile={true} />
 
             {/* MENU BUTTON */}
             <motion.button
-              className={`${shouldUseWhiteText ? "text-white" : "text-black"
-                } cursor-pointer`}
+              className={`${
+                shouldUseWhiteText ? "text-white" : "text-black"
+              } cursor-pointer`}
               aria-label="Menu"
               onClick={() => setIsOpen(true)}
               whileTap={{ scale: 0.9 }}
@@ -368,7 +394,7 @@ export function Header() {
                 animate={{ rotate: isOpen ? 180 : 0 }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
               >
-                <Menu className="h-6 w-6" />
+                <Menu className="h-5 w-5 md:h-6 md:w-6" />
               </motion.div>
             </motion.button>
           </div>

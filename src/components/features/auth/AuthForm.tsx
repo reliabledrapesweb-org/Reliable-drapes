@@ -24,6 +24,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [isPending, startTransition] = useTransition();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isAppleLoading, setIsAppleLoading] = useState(false);
@@ -55,6 +56,11 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
 
     if (!isLogin && (!fullName || fullName.trim().length === 0)) {
       addToast("Full name is required", "warning");
+      return;
+    }
+
+    if (!isLogin && !/^[6-9]\d{9}$/.test(phone)) {
+      addToast("Enter a valid 10-digit Indian mobile number", "warning");
       return;
     }
 
@@ -115,6 +121,7 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
             email,
             password,
             full_name: fullName,
+            phone,
           };
 
           const result = await signupAction(formData);
@@ -139,7 +146,6 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
           addToast("Account created! Please check your email.", "success");
         }
       } catch (error) {
-
         addToast("Authentication failed", "error");
         setLoading(false);
       }
@@ -169,7 +175,6 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
       });
 
       if (error) {
-
         addToast(error.message || "Failed to initiate Google sign-in", "error");
         setStoreError(error.message);
         setIsGoogleLoading(false);
@@ -179,7 +184,6 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
       // OAuth redirect will happen automatically
       // Keep loading state until redirect occurs
     } catch (error) {
-
       addToast("Failed to initiate Google sign-in", "error");
       setIsGoogleLoading(false);
     }
@@ -208,7 +212,6 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
       });
 
       if (error) {
-
         addToast(error.message || "Failed to initiate Apple sign-in", "error");
         setStoreError(error.message);
         setIsAppleLoading(false);
@@ -217,7 +220,6 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
 
       // OAuth redirect will happen automatically
     } catch (error) {
-
       addToast("Failed to initiate Apple sign-in", "error");
       setIsAppleLoading(false);
     }
@@ -288,6 +290,42 @@ export function AuthForm({ mode = "login", title, subtitle }: AuthFormProps) {
                     className="w-full border-0 border-b border-gray-900 bg-transparent px-2 py-3 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
                     required={!isLogin}
                   />
+                </motion.div>
+              )}
+
+              {/* Phone Number (Signup Only) */}
+              {!isLogin && (
+                <motion.div
+                  className="mb-6"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.37 }}
+                >
+                  <label
+                    htmlFor="phone"
+                    className="mb-3 block text-xs tracking-widest text-gray-600 uppercase"
+                  >
+                    Phone Number
+                  </label>
+                  <div className="flex items-center">
+                    <span className="border-b border-gray-900 py-3 pr-2 text-gray-500">
+                      +91
+                    </span>
+                    <input
+                      id="phone"
+                      type="tel"
+                      inputMode="numeric"
+                      maxLength={10}
+                      placeholder="10-digit mobile number"
+                      value={phone}
+                      onChange={(e) =>
+                        setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))
+                      }
+                      disabled={isPending}
+                      className="w-full border-0 border-b border-gray-900 bg-transparent px-2 py-3 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
+                      required={!isLogin}
+                    />
+                  </div>
                 </motion.div>
               )}
 
