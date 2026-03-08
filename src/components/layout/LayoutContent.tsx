@@ -1,22 +1,50 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Header, Footer } from "@/components/layout";
 import { CTASection, GlobalContactButton } from "@/components/shared";
 import { CartDrawer } from "@/components/features/shop";
+import { PhonePromptModal } from "@/components/features/auth/PhonePromptModal";
+import { useAuthStore } from "@/lib/store";
+import { getUserPhoneStatus } from "@/lib/actions/users";
 
 export function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user } = useAuthStore();
+  const [phonePrompt, setPhonePrompt] = useState<{
+    show: boolean;
+    canDismiss: boolean;
+  }>({ show: false, canDismiss: true });
 
-  // Check if current route is admin route
+  useEffect(() => {
+    if (!user) {
+      setPhonePrompt({ show: false, canDismiss: true });
+      return;
+    }
+
+    let cancelled = false;
+
+    async function checkPhone() {
+      const status = await getUserPhoneStatus();
+      if (!cancelled && status.needsPhone) {
+        setPhonePrompt({ show: true, canDismiss: status.canDismiss });
+      }
+    }
+
+    checkPhone();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
   const isAdminRoute = pathname?.startsWith("/admin");
 
-  // For admin routes, render children directly without Header/Footer/CTA
   if (isAdminRoute) {
     return <>{children}</>;
   }
 
-  // For all other routes, render with Header/Footer/CTA
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -25,6 +53,12 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
       <Footer />
       <GlobalContactButton />
       <CartDrawer />
+      <PhonePromptModal
+        isOpen={phonePrompt.show}
+        canDismiss={phonePrompt.canDismiss}
+        onClose={() => setPhonePrompt({ show: false, canDismiss: true })}
+        onSaved={() => setPhonePrompt({ show: false, canDismiss: true })}
+      />
     </div>
   );
 }
