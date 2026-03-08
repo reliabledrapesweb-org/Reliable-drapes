@@ -8,7 +8,9 @@ import { supabaseServer } from "../supabase";
 import { getBaseUrl } from "@/lib/utils/url";
 
 export async function signupAction(
-  formData: FormData | { email: string; password: string; full_name?: string },
+  formData:
+    | FormData
+    | { email: string; password: string; full_name?: string; phone?: string },
 ): Promise<AuthResponse> {
   // Extract data from FormData or object
   const data =
@@ -17,7 +19,6 @@ export async function signupAction(
   // Validate input
   const parse = authSignupSchema.safeParse(data);
   if (!parse.success) {
-
     return {
       success: false,
       error: "Invalid signup payload",
@@ -25,7 +26,7 @@ export async function signupAction(
     };
   }
 
-  const { email, password, full_name } = parse.data;
+  const { email, password, full_name, phone } = parse.data;
   const admin = getAdminSupabase();
 
   // Create user via anon client to trigger OTP email
@@ -54,7 +55,6 @@ export async function signupAction(
 
   const userId = created.user?.id;
   if (!userId) {
-
     return {
       success: false,
       error: "User created but no id returned",
@@ -72,6 +72,7 @@ export async function signupAction(
     {
       id: userId,
       full_name: full_name ?? null,
+      phone: phone ?? null,
       role: isAdminEmail ? "admin" : "customer",
     },
     { onConflict: "id" },
@@ -111,7 +112,6 @@ export async function forgotPasswordAction(
   });
 
   if (error) {
-
     return {
       success: false,
       error: error.message || "Failed to send reset email",
@@ -164,7 +164,6 @@ export async function googleOAuthAction(): Promise<{
     });
 
     if (error) {
-
       return {
         error: error.message || "Failed to initiate Google sign-in",
       };
@@ -178,7 +177,6 @@ export async function googleOAuthAction(): Promise<{
       error: "No OAuth URL returned",
     };
   } catch (error) {
-
     return {
       error: "An unexpected error occurred",
     };
@@ -205,7 +203,6 @@ export async function appleOAuthAction(): Promise<{
     });
 
     if (error) {
-
       return {
         error: error.message || "Failed to initiate Apple sign-in",
       };
@@ -219,7 +216,6 @@ export async function appleOAuthAction(): Promise<{
       error: "No OAuth URL returned",
     };
   } catch (error) {
-
     return {
       error: "An unexpected error occurred",
     };
