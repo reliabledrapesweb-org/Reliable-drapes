@@ -5,7 +5,11 @@ import { motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Breadcrumb, ComingSoonNotice, ConfirmModal } from "@/components/shared";
+import {
+  Breadcrumb,
+  ComingSoonNotice,
+  ConfirmModal,
+} from "@/components/shared";
 import { useCartStore } from "@/lib/store";
 import {
   ShoppingCart,
@@ -20,6 +24,8 @@ import {
 } from "lucide-react";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { createPendingOrderAction } from "@/lib/actions/orders";
+import { validateCouponAction } from "@/lib/actions/coupons";
+import type { ValidatedCoupon } from "@/lib/actions/coupons";
 import { getProfile } from "@/lib/actions/users";
 import { useAuthStore } from "@/lib/store";
 import { Loader } from "lucide-react";
@@ -53,12 +59,13 @@ export default function CartPage() {
 
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [promoCode, setPromoCode] = useState("");
-  const [appliedPromo, setAppliedPromo] = useState<{
-    code: string;
-    discount: number;
-  } | null>(null);
+  const [appliedPromo, setAppliedPromo] = useState<ValidatedCoupon | null>(
+    null,
+  );
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [hasAddress, setHasAddress] = useState<boolean | null>(null);
+  const [userPhone, setUserPhone] = useState<string | undefined>(undefined);
   const { user } = useAuthStore();
   const {
     commerceFeaturesEnabled,
@@ -84,6 +91,9 @@ export default function CartPage() {
             profile.country?.trim()
           );
           setHasAddress(hasRequiredAddress);
+          if (profile.phone?.trim()) {
+            setUserPhone(profile.phone.trim());
+          }
         } else {
           setHasAddress(false);
         }
@@ -96,8 +106,8 @@ export default function CartPage() {
 
   const totalItems = getTotalItems();
   const subtotal = getTotalPrice();
-  const discount = appliedPromo ? subtotal * (appliedPromo.discount / 100) : 0;
-  const shipping = totalItems > 0 ? (subtotal > 5000 ? 0 : 50) : 0; // Free shipping over ₹5000
+  const discount = appliedPromo ? appliedPromo.calculated_discount : 0;
+  const shipping = totalItems > 0 ? (subtotal > 5000 ? 0 : 50) : 0;
   const total = subtotal - discount + shipping;
 
   const formatPrice = (price: number) => {
@@ -141,11 +151,16 @@ export default function CartPage() {
           product_id: item.productId,
           quantity: item.quantity,
         })),
+        coupon_code: appliedPromo?.code,
       };
 
       const pendingOrderResult = await createPendingOrderAction(orderData);
       if (!pendingOrderResult.success || !pendingOrderResult.orderId) {
-        addToast(pendingOrderResult.error || "Failed to create order", "error", 3000);
+        addToast(
+          pendingOrderResult.error || "Failed to create order",
+          "error",
+          3000,
+        );
         setIsCheckingOut(false);
         return;
       }
@@ -158,7 +173,10 @@ export default function CartPage() {
         quantity: item.quantity,
       }));
 
-      trackBeginCheckout(checkoutItems, pendingOrderResult.pricing?.total ?? total);
+      trackBeginCheckout(
+        checkoutItems,
+        pendingOrderResult.pricing?.total ?? total,
+      );
 
       const paymentOrderResponse = await fetch("/api/payments/razorpay/order", {
         method: "POST",
@@ -170,7 +188,11 @@ export default function CartPage() {
 
       const paymentOrderPayload = await paymentOrderResponse.json();
       if (!paymentOrderResponse.ok || !paymentOrderPayload.success) {
-        addToast(paymentOrderPayload.error || "Failed to initiate payment", "error", 3000);
+        addToast(
+          paymentOrderPayload.error || "Failed to initiate payment",
+          "error",
+          3000,
+        );
         setIsCheckingOut(false);
         return;
       }
@@ -189,9 +211,11 @@ export default function CartPage() {
         name: "Reliable Drapes",
         description: "Order payment",
         order_id: paymentOrderPayload.data.razorpayOrderId,
+        timeout: 300,
         prefill: {
           name: user.full_name || undefined,
           email: user.email || undefined,
+          contact: userPhone,
         },
         notes: {
           app_order_id: pendingOrderResult.orderId,
@@ -206,28 +230,39 @@ export default function CartPage() {
         },
         handler: async (response) => {
           try {
-            const verifyResponse = await fetch("/api/payments/razorpay/verify", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
+            const verifyResponse = await fetch(
+              "/api/payments/razorpay/verify",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  orderId: pendingOrderResult.orderId,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                }),
               },
-              body: JSON.stringify({
-                orderId: pendingOrderResult.orderId,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              }),
-            });
+            );
 
             const verifyPayload = await verifyResponse.json();
             if (!verifyResponse.ok || !verifyPayload.success) {
-              addToast(verifyPayload.error || "Payment verification failed", "error", 3000);
+              addToast(
+                verifyPayload.error || "Payment verification failed",
+                "error",
+                3000,
+              );
               return;
             }
 
             trackPurchase({
               transactionId: pendingOrderResult.orderId,
-              value: Number(verifyPayload.order?.total ?? pendingOrderResult.pricing?.total ?? total),
+              value: Number(
+                verifyPayload.order?.total ??
+                  pendingOrderResult.pricing?.total ??
+                  total,
+              ),
               items: checkoutItems,
             });
 
@@ -235,7 +270,11 @@ export default function CartPage() {
             addToast("Payment successful! Order placed.", "success", 3000);
             router.push("/profile?tab=orders");
           } catch {
-            addToast("Payment completed but verification failed", "error", 3000);
+            addToast(
+              "Payment completed but verification failed",
+              "error",
+              3000,
+            );
           } finally {
             setIsCheckingOut(false);
           }
@@ -244,7 +283,8 @@ export default function CartPage() {
 
       razorpay.on("payment.failed", (failureResponse) => {
         addToast(
-          failureResponse.error.description || "Payment failed. Please try again.",
+          failureResponse.error.description ||
+            "Payment failed. Please try again.",
           "error",
           3000,
         );
@@ -263,26 +303,37 @@ export default function CartPage() {
     }
   };
 
-  const handleApplyPromo = () => {
+  const handleApplyPromo = async () => {
     if (!promoCode.trim()) {
       addToast("Please enter a promo code", "error", 2000);
       return;
     }
 
-    // Mock promo codes for demo
-    const promoCodes: Record<string, number> = {
-      SAVE10: 10,
-      SAVE20: 20,
-      WELCOME: 15,
-    };
-
-    const discount = promoCodes[promoCode.toUpperCase()];
-    if (discount) {
-      setAppliedPromo({ code: promoCode.toUpperCase(), discount });
-      addToast(`Promo code applied! ${discount}% off`, "success", 3000);
-    } else {
-      addToast("Invalid promo code", "error", 2000);
+    setIsApplyingPromo(true);
+    try {
+      const result = await validateCouponAction(promoCode, subtotal);
+      if (result.success) {
+        setAppliedPromo(result.data);
+        setPromoCode("");
+        const label =
+          result.data.discount_type === "percentage"
+            ? `${result.data.discount_value}% off`
+            : `₹${result.data.discount_value} off`;
+        addToast(`Coupon applied! ${label}`, "success", 3000);
+      } else {
+        addToast(result.error, "error", 2000);
+      }
+    } catch {
+      addToast("Failed to validate coupon", "error", 2000);
+    } finally {
+      setIsApplyingPromo(false);
     }
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoCode("");
+    addToast("Coupon removed", "success", 2000);
   };
 
   if (isCommerceFeaturesLoading) {
@@ -511,7 +562,10 @@ export default function CartPage() {
                     {appliedPromo && (
                       <div className="flex items-center justify-between text-base">
                         <span className="text-[#00000099]">
-                          Discount (-{appliedPromo.discount}%)
+                          Discount
+                          {appliedPromo.discount_type === "percentage"
+                            ? ` (-${appliedPromo.discount_value}%)`
+                            : ""}
                         </span>
                         <span className="font-semibold text-red-600">
                           -{formatPrice(discount)}
@@ -558,16 +612,24 @@ export default function CartPage() {
                       </div>
                       <button
                         onClick={handleApplyPromo}
-                        disabled={!!appliedPromo}
+                        disabled={!!appliedPromo || isApplyingPromo}
                         className="shrink-0 rounded-full bg-[#2f2582] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#241c66] disabled:opacity-50 disabled:hover:bg-[#2f2582]"
                       >
-                        Apply
+                        {isApplyingPromo ? "..." : "Apply"}
                       </button>
                     </div>
                     {appliedPromo && (
-                      <p className="mt-2 text-xs text-green-600">
-                        Promo code &quot;{appliedPromo.code}&quot; applied
-                      </p>
+                      <div className="mt-2 flex items-center justify-between">
+                        <p className="text-xs text-green-600">
+                          Coupon &quot;{appliedPromo.code}&quot; applied
+                        </p>
+                        <button
+                          onClick={handleRemovePromo}
+                          className="text-xs font-medium text-red-500 hover:text-red-700"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     )}
                   </div>
 

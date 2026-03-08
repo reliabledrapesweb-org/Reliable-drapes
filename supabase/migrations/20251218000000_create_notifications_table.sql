@@ -58,39 +58,3 @@ CREATE TRIGGER notifications_updated_at
   BEFORE UPDATE ON notifications
   FOR EACH ROW
   EXECUTE FUNCTION update_notifications_updated_at();
-
--- Seed some sample notifications for testing
-INSERT INTO notifications (user_id, title, message, type, link)
-SELECT 
-  p.id,
-  'Welcome to Admin Dashboard',
-  'You have been granted administrator access to the system.',
-  'success',
-  '/admin'
-FROM profiles p
-WHERE p.role = 'admin'
-LIMIT 1;
-
-INSERT INTO notifications (user_id, title, message, type, link, is_read)
-SELECT 
-  p.id,
-  'New Order Received',
-  'Order #1234 has been placed and requires processing.',
-  'info',
-  '/admin/orders',
-  false
-FROM profiles p
-WHERE p.role = 'admin'
-LIMIT 1;
-
-INSERT INTO notifications (user_id, title, message, type, link, is_read)
-SELECT 
-  p.id,
-  'Low Stock Alert',
-  'Product "Premium Curtains" is running low on stock.',
-  'warning',
-  '/admin/products',
-  false
-FROM profiles p
-WHERE p.role = 'admin'
-LIMIT 1;

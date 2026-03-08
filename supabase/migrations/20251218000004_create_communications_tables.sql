@@ -195,22 +195,3 @@ CREATE TRIGGER consultation_requests_updated_at
   BEFORE UPDATE ON consultation_requests
   FOR EACH ROW
   EXECUTE FUNCTION update_consultation_requests_updated_at();
-
--- Seed some sample data
-INSERT INTO contact_submissions (name, email, phone, subject, message, status)
-VALUES 
-  ('John Doe', 'john@example.com', '+91 98765 43210', 'Product Inquiry', 'I would like to know more about your curtain collection.', 'new'),
-  ('Jane Smith', 'jane@example.com', '+91 98765 43211', 'Custom Order', 'Can you create custom curtains for my living room?', 'in_progress'),
-  ('Bob Johnson', 'bob@example.com', '+91 98765 43212', 'Delivery Question', 'How long does delivery take?', 'resolved');
-
-INSERT INTO consultation_requests (name, email, phone, service_type, preferred_date, preferred_time, message, status)
-VALUES 
-  ('Alice Brown', 'alice@example.com', '+91 98765 43213', 'Home Consultation', '2024-12-25', '10:00 AM', 'Need help choosing curtains for my new home.', 'pending'),
-  ('Charlie Wilson', 'charlie@example.com', '+91 98765 43214', 'Design Consultation', '2024-12-26', '2:00 PM', 'Looking for modern curtain designs.', 'confirmed'),
-  ('Diana Davis', 'diana@example.com', '+91 98765 43215', 'Measurement Service', '2024-12-27', '11:00 AM', 'Need professional measurement for my windows.', 'completed');
-
-INSERT INTO newsletter_subscribers (email, name, status)
-VALUES 
-  ('subscriber1@example.com', 'Subscriber One', 'active'),
-  ('subscriber2@example.com', 'Subscriber Two', 'active'),
-  ('subscriber3@example.com', 'Subscriber Three', 'unsubscribed');

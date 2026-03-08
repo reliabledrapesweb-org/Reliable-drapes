@@ -1,10 +1,12 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
 import {
   createOrderAction,
+  createPendingOrderAction,
   getOrdersAction,
   getAdminOrdersAction,
   updateOrderStatusAction,
 } from "./orders";
+import { validateCouponAction } from "@/lib/actions/coupons";
 
 // Helper function to create chainable mock
 function createChainableMock(finalValue: any) {
@@ -67,6 +69,10 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock("@/lib/actions/coupons", () => ({
+  validateCouponAction: vi.fn(),
+}));
+
 describe("Order Actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -102,7 +108,7 @@ describe("Order Actions", () => {
       const result = await createOrderAction(orderData);
 
       expect(result.success).toBe(true);
-      expect(result.orderId).toBe("order-1");
+      expect((result as any).orderId).toBe("order-1");
       expect(mockAdminClient.from).toHaveBeenCalledWith("orders");
       expect(mockAdminClient.from).toHaveBeenCalledWith("order_items");
     });
@@ -143,6 +149,89 @@ describe("Order Actions", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe("Authorization required");
+    });
+  });
+
+  describe("createPendingOrderAction with coupon", () => {
+    test("applies coupon discount to order total", async () => {
+      const productId = "123e4567-e89b-12d3-a456-426614174000";
+      const orderData = {
+        items: [{ product_id: productId, quantity: 1 }],
+        coupon_code: "SAVE10",
+      };
+
+      vi.mocked(validateCouponAction).mockResolvedValue({
+        success: true,
+        data: {
+          code: "SAVE10",
+          discount_type: "percentage",
+          discount_value: 10,
+          calculated_discount: 100,
+        },
+      });
+
+      const createdOrder = {
+        id: "order-coupon",
+        user_id: "user-123",
+        total: 950,
+        coupon_code: "SAVE10",
+        discount_amount: 100,
+      };
+
+      const productsChainable = createChainableMock({
+        data: [{ id: productId, price: 1000 }],
+        error: null,
+      });
+      const insertChainable = createChainableMock({
+        data: createdOrder,
+        error: null,
+      });
+      const itemsChainable = createChainableMock({
+        data: null,
+        error: null,
+      });
+
+      let callCount = 0;
+      mockAdminClient.from.mockImplementation((table: string) => {
+        if (table === "products") return productsChainable;
+        if (table === "orders") {
+          callCount++;
+          return insertChainable;
+        }
+        if (table === "order_items") return itemsChainable;
+        return createChainableMock({ data: null, error: null });
+      });
+
+      const result = await createPendingOrderAction(orderData);
+
+      expect(result.success).toBe(true);
+      expect(validateCouponAction).toHaveBeenCalledWith("SAVE10", 1000);
+    });
+
+    test("returns error when coupon validation fails", async () => {
+      const productId = "123e4567-e89b-12d3-a456-426614174000";
+
+      vi.mocked(validateCouponAction).mockResolvedValue({
+        success: false,
+        error: "This coupon has expired",
+      });
+
+      const productsChainable = createChainableMock({
+        data: [{ id: productId, price: 1000 }],
+        error: null,
+      });
+      mockAdminClient.from.mockImplementation((table: string) => {
+        if (table === "products") return productsChainable;
+        return createChainableMock({ data: null, error: null });
+      });
+
+      const result = await createPendingOrderAction({
+        items: [{ product_id: productId, quantity: 1 }],
+        coupon_code: "EXPIRED",
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("This coupon has expired");
     });
   });
 

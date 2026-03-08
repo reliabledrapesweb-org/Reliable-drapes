@@ -34,6 +34,7 @@ type RazorpayOptions = {
   theme?: {
     color?: string;
   };
+  timeout?: number;
   modal?: {
     ondismiss?: () => void;
   };

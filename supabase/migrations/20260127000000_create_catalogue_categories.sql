@@ -21,7 +21,21 @@ CREATE POLICY "Allow public read access" ON catalogue_categories
     FOR SELECT USING (is_active = true);
 
 CREATE POLICY "Allow admin full access" ON catalogue_categories
-    FOR ALL USING (auth.role() = 'authenticated');
+    FOR ALL
+    USING (
+        EXISTS (
+            SELECT 1 FROM profiles
+            WHERE profiles.id = auth.uid()
+            AND profiles.role = 'admin'
+        )
+    )
+    WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM profiles
+            WHERE profiles.id = auth.uid()
+            AND profiles.role = 'admin'
+        )
+    );
 
 -- Add category_id to catalogues table
 ALTER TABLE catalogues 

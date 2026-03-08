@@ -48,6 +48,99 @@ export interface CouponResponse {
   error?: string;
 }
 
+export type ValidatedCoupon = {
+  code: string;
+  discount_type: "percentage" | "fixed";
+  discount_value: number;
+  calculated_discount: number;
+};
+
+export type ValidateCouponResult =
+  | { success: true; data: ValidatedCoupon }
+  | { success: false; error: string };
+
+export function calculateCouponDiscount(
+  discount_type: "percentage" | "fixed",
+  discount_value: number,
+  subtotal: number,
+): number {
+  if (discount_type === "percentage") {
+    return Math.min(subtotal, Math.round((subtotal * discount_value) / 100));
+  }
+  return Math.min(subtotal, discount_value);
+}
+
+export async function validateCouponAction(
+  code: string,
+  subtotal: number,
+): Promise<ValidateCouponResult> {
+  try {
+    const trimmedCode = code.trim();
+    if (!trimmedCode) {
+      return { success: false, error: "Please enter a coupon code" };
+    }
+
+    const admin = getAdminSupabase();
+    const { data: coupon, error } = await admin
+      .from("coupons")
+      .select("*")
+      .ilike("code", trimmedCode)
+      .single();
+
+    if (error || !coupon) {
+      return { success: false, error: "Invalid coupon code" };
+    }
+
+    if (!coupon.is_active) {
+      return { success: false, error: "This coupon is no longer active" };
+    }
+
+    const now = new Date();
+    if (coupon.valid_from && new Date(coupon.valid_from) > now) {
+      return { success: false, error: "This coupon is not yet valid" };
+    }
+    if (coupon.valid_until && new Date(coupon.valid_until) < now) {
+      return { success: false, error: "This coupon has expired" };
+    }
+
+    if (coupon.max_uses && coupon.current_uses >= coupon.max_uses) {
+      return {
+        success: false,
+        error: "This coupon has reached its usage limit",
+      };
+    }
+
+    if (coupon.min_order_value && subtotal < Number(coupon.min_order_value)) {
+      return {
+        success: false,
+        error: `Minimum order value of ₹${coupon.min_order_value} required`,
+      };
+    }
+
+    if (!coupon.discount_type) {
+      return { success: false, error: "Invalid coupon configuration" };
+    }
+
+    const calculated_discount = calculateCouponDiscount(
+      coupon.discount_type as "percentage" | "fixed",
+      Number(coupon.discount_value),
+      subtotal,
+    );
+
+    return {
+      success: true,
+      data: {
+        code: coupon.code,
+        discount_type: coupon.discount_type as "percentage" | "fixed",
+        discount_value: Number(coupon.discount_value),
+        calculated_discount,
+      },
+    };
+  } catch {
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
 /**
  * Get all active coupons (public)
  */

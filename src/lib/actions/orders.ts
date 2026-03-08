@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createNotification } from "@/lib/actions/notifications";
+import { validateCouponAction } from "@/lib/actions/coupons";
 import { getAdminSupabase } from "@/lib/supabase/admin";
 import { supabaseServer } from "@/lib/supabase/server";
 
@@ -55,7 +56,10 @@ async function getAuthenticatedUser() {
   return { userId: user.id };
 }
 
-async function calculateOrderPricing(items: PricedOrderItem[]) {
+async function calculateOrderPricing(
+  items: PricedOrderItem[],
+  discount: number = 0,
+) {
   const admin = getAdminSupabase();
   const uniqueProductIds = [...new Set(items.map((item) => item.product_id))];
 
@@ -77,7 +81,9 @@ async function calculateOrderPricing(items: PricedOrderItem[]) {
     productPriceMap.set(product.id, Number(product.price ?? 0));
   }
 
-  const missingProducts = uniqueProductIds.filter((id) => !productPriceMap.has(id));
+  const missingProducts = uniqueProductIds.filter(
+    (id) => !productPriceMap.has(id),
+  );
   if (missingProducts.length > 0) {
     return {
       success: false as const,
@@ -96,13 +102,15 @@ async function calculateOrderPricing(items: PricedOrderItem[]) {
     (sum, item) => sum + item.price_snapshot * item.quantity,
     0,
   );
-  const shipping = subtotal > SHIPPING_FREE_THRESHOLD ? 0 : DEFAULT_SHIPPING_FEE;
-  const total = subtotal + shipping;
+  const shipping =
+    subtotal > SHIPPING_FREE_THRESHOLD ? 0 : DEFAULT_SHIPPING_FEE;
+  const total = subtotal - discount + shipping;
 
   return {
     success: true as const,
     pricing: {
       subtotal,
+      discount,
       shipping,
       total,
       currency: DEFAULT_CURRENCY,
@@ -154,6 +162,7 @@ function revalidateOrderPaths(orderId: string) {
 
 export async function createPendingOrderAction(data: {
   items: Array<{ product_id: string; quantity: number }>;
+  coupon_code?: string;
 }) {
   const auth = await getAuthenticatedUser();
   if ("error" in auth) {
@@ -169,16 +178,42 @@ export async function createPendingOrderAction(data: {
     };
   }
 
+  let couponDiscount = 0;
+  let validatedCouponCode: string | null = null;
+
+  if (data.coupon_code) {
+    const itemsForPricing = parsed.data.items.map((item) => ({
+      product_id: item.product_id,
+      quantity: item.quantity,
+      price_snapshot: 0,
+    }));
+    const prePricingResult = await calculateOrderPricing(itemsForPricing);
+    if (!prePricingResult.success) {
+      return prePricingResult;
+    }
+
+    const couponResult = await validateCouponAction(
+      data.coupon_code,
+      prePricingResult.pricing.subtotal,
+    );
+    if (!couponResult.success) {
+      return { success: false, error: couponResult.error };
+    }
+    couponDiscount = couponResult.data.calculated_discount;
+    validatedCouponCode = couponResult.data.code;
+  }
+
   const pricingResult = await calculateOrderPricing(
     parsed.data.items.map((item) => ({
       product_id: item.product_id,
       quantity: item.quantity,
       price_snapshot: 0,
     })),
+    couponDiscount,
   );
 
   if (!pricingResult.success) {
-    return { success: false, ...pricingResult };
+    return pricingResult;
   }
 
   const { pricing } = pricingResult;
@@ -190,12 +225,15 @@ export async function createPendingOrderAction(data: {
       user_id: auth.userId,
       status: "pending",
       total: pricing.total,
+      coupon_code: validatedCouponCode,
+      discount_amount: couponDiscount,
       payment_provider: "razorpay",
       payment_status: "created",
       payment_amount: pricing.total,
       payment_currency: pricing.currency,
       payment_metadata: {
         subtotal: pricing.subtotal,
+        discount: pricing.discount,
         shipping: pricing.shipping,
       },
     })
@@ -272,7 +310,9 @@ export async function finalizePaidOrderAction(data: {
 
   const { data: order, error: orderErr } = await admin
     .from("orders")
-    .select("id, user_id, status, payment_status, payment_order_id")
+    .select(
+      "id, user_id, status, payment_status, payment_order_id, coupon_code",
+    )
     .eq("id", data.orderId)
     .single();
 
@@ -284,7 +324,10 @@ export async function finalizePaidOrderAction(data: {
     };
   }
 
-  if (order.payment_order_id && order.payment_order_id !== data.razorpay_order_id) {
+  if (
+    order.payment_order_id &&
+    order.payment_order_id !== data.razorpay_order_id
+  ) {
     return {
       success: false,
       error: "Payment order mismatch",
@@ -317,8 +360,23 @@ export async function finalizePaidOrderAction(data: {
     };
   }
 
-  if (!alreadyCaptured && order.user_id) {
-    await createOrderNotifications(data.orderId, order.user_id);
+  if (!alreadyCaptured) {
+    if (order.coupon_code) {
+      const { data: coupon } = await admin
+        .from("coupons")
+        .select("id, current_uses")
+        .eq("code", order.coupon_code)
+        .single();
+      if (coupon) {
+        await admin
+          .from("coupons")
+          .update({ current_uses: (coupon.current_uses ?? 0) + 1 })
+          .eq("id", coupon.id);
+      }
+    }
+    if (order.user_id) {
+      await createOrderNotifications(data.orderId, order.user_id);
+    }
   }
 
   revalidateOrderPaths(data.orderId);
@@ -489,7 +547,9 @@ export async function getAdminOrdersAction(
     )
     .in("order_id", orderIds);
 
-  const userIds = [...new Set(ordersData.map((o) => o.user_id).filter(Boolean))];
+  const userIds = [
+    ...new Set(ordersData.map((o) => o.user_id).filter(Boolean)),
+  ];
   const { data: profiles } = await admin
     .from("profiles")
     .select("id, full_name, city, address_line1")

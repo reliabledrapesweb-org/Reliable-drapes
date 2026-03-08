@@ -93,16 +93,3 @@ BEGIN
   WHERE id = catalogue_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Insert sample data with all required fields
-INSERT INTO public.catalogues (title, subtitle, category, pdf_url, image_url, badge, product_count) VALUES
-  ('Sofa', 'Premium modern sofas and sectionals for contemporary living spaces', 'Furniture', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&crop=center', 'new', 15),
-  ('Main Curtains', 'Elegant curtains and drapes to transform your windows and rooms', 'Curtains', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=800&h=600&fit=crop&crop=center', NULL, 24),
-  ('Sheer Curtains', 'Light-filtering sheer curtains for privacy and natural illumination', 'Sheers', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800&h=600&fit=crop&crop=center', 'new', 18),
-  ('Comforters', 'Luxurious comforters and bedding sets for ultimate comfort', 'Bedding', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&h=600&fit=crop&crop=center', NULL, 12),
-  ('Accent Chair', 'Stylish accent chairs to complement any interior design', 'Furniture', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&crop=center', NULL, 8),
-  ('Upholstery', 'Premium upholstery fabrics for furniture and interior design', 'Upholstery', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=600&fit=crop&crop=center', 'new', 20),
-  ('Blinds & Shutters', 'Modern window blinds and shutters for light control and privacy', 'Window Treatments', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&crop=center', 'new', 22),
-  ('Outdoor Furniture', 'Weather-resistant outdoor furniture for patios and gardens', 'Outdoor', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?w=800&h=600&fit=crop&crop=center', NULL, 16),
-  ('Wallpaper Collection', 'Designer wallpapers to create stunning feature walls', 'Wall Coverings', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800&h=600&fit=crop&crop=center', 'discount', 35),
-  ('Rugs & Carpets', 'Handcrafted rugs and carpets to define your living spaces', 'Floor Coverings', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&crop=center', NULL, 28);

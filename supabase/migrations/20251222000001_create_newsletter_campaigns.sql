@@ -16,12 +16,25 @@ CREATE INDEX IF NOT EXISTS idx_newsletter_campaigns_created_at ON newsletter_cam
 -- Enable RLS
 ALTER TABLE newsletter_campaigns ENABLE ROW LEVEL SECURITY;
 
--- Policy: Only admins can manage campaigns (using service role for server actions)
-CREATE POLICY "Service role can manage newsletter campaigns"
+-- Policy: Only admins can manage campaigns
+CREATE POLICY "Admins can manage newsletter campaigns"
   ON newsletter_campaigns
   FOR ALL
-  USING (true)
-  WITH CHECK (true);
+  TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.role = 'admin'
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE profiles.id = auth.uid()
+      AND profiles.role = 'admin'
+    )
+  );
 
 -- Add comment for documentation
 COMMENT ON TABLE newsletter_campaigns IS 'Stores newsletter email campaigns sent to subscribers';

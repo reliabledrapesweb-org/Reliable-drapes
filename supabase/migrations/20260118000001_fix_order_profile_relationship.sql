@@ -1,4 +1,8 @@
--- Add foreign key constraint between orders and profiles to enable joins
+-- Drop original FK to auth.users
+ALTER TABLE orders
+DROP CONSTRAINT IF EXISTS orders_user_id_fkey;
+
+-- Add FK to profiles instead
 ALTER TABLE orders
 ADD CONSTRAINT orders_profiles_fkey
 FOREIGN KEY (user_id)

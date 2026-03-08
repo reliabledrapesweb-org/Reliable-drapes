@@ -29,7 +29,20 @@
       "Bash(npx eslint:*)",
       "Bash(git log:*)",
       "Bash(ls:*)",
-      "Bash(npm run test:*)"
+      "Bash(npm run test:*)",
+      "WebSearch",
+      "WebFetch(domain:razorpay.com)",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:d6xcmfyh68wv8.cloudfront.net)",
+      "Bash(python3:*)",
+      "Bash(rm:*)",
+      "Bash(mv:*)",
+      "Bash(grep:*)",
+      "Bash(npx next:*)",
+      "Bash(npm install:*)",
+      "Bash(echo exit: $?:*)",
+      "Bash(echo EXIT:$?:*)",
+      "WebFetch(domain:unsplash.com)"
     ]
   }
 }

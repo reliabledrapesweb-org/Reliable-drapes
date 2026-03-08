@@ -97,57 +97,6 @@ CREATE POLICY "Admins can delete job applications"
     )
   );
 
--- Insert mock job data
-INSERT INTO public.jobs (title, experience, location, type, description, is_active) VALUES
-  (
-    'Senior Sales Advisor/ Sales Advisor',
-    '2 - 4 yrs',
-    'Mumbai(Andheri), Bangalore and Delhi',
-    'Store',
-    'Responsible for individual targets, to follow SOP''s & VM standards in the store Customer service, Customer acquisition & retention Follow up with backend team and customers for timely execution of orders and receivables',
-    true
-  ),
-  (
-    'Stylist (Freelance Stylists)',
-    '2 - 4 yrs',
-    'Mumbai, Chennai, Bangalore, Delhi, Pune, Hyderabad',
-    'Store',
-    'Exceptional designer with strong conceptual skills',
-    true
-  ),
-  (
-    'Marketing Manager',
-    '3 - 6 yrs',
-    'Mumbai, Delhi',
-    'Corporate',
-    'Lead marketing campaigns and brand strategy initiatives. Develop and execute comprehensive marketing plans to drive brand awareness and customer engagement.',
-    true
-  ),
-  (
-    'Interior Designer',
-    '2 - 5 yrs',
-    'All Major Cities',
-    'Design',
-    'Create stunning interior designs for residential and commercial spaces. Work closely with clients to understand their vision and deliver exceptional design solutions.',
-    true
-  ),
-  (
-    'Warehouse Manager',
-    '5 - 8 yrs',
-    'Mumbai, Bangalore',
-    'Warehouse',
-    'Oversee warehouse operations, inventory management, and logistics. Ensure efficient storage and distribution of premium home furnishing products.',
-    true
-  ),
-  (
-    'Digital Marketing Specialist',
-    '1 - 3 yrs',
-    'Mumbai',
-    'Corporate',
-    'Manage social media, SEO, and digital advertising campaigns. Create engaging content and analyze performance metrics to drive online growth.',
-    true
-  );
-
 -- Create function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$

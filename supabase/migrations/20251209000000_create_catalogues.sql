@@ -91,12 +91,3 @@ BEGIN
   WHERE id = catalogue_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Seed some initial data
-INSERT INTO public.catalogues (title, subtitle, category, pdf_url, image_url, badge, product_count) VALUES
-  ('Sofa', 'Modern luxury sofa', 'Furniture', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1763565909003-46e9dfb68a00?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBzb2ZhJTIwZnVybml0dXJlfGVufDF8fHx8MTc2NDA1MDE4MHww&ixlib=rb-4.1.0&q=80&w=1080', 'new', 15),
-  ('Main Curtains', 'Elegant main curtains', 'Curtains', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1684261556324-a09b2cdf68b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBjdXJ0YWlucyUyMGludGVyaW9yfGVufDF8fHx8MTc2Mzk2MzU5Mnww&ixlib=rb-4.1.0&q=80&w=1080', NULL, 24),
-  ('Sheer Curtains', 'Light sheer curtains', 'Sheers', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1755722521990-7dbf21a2bc42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3aW5kb3clMjBzaGVlcnMlMjBjdXJ0YWluc3xlbnwxfHx8fDE3NjQwNzI3Mzl8MA&ixlib=rb-4.1.0&q=80&w=1080', 'new', 18),
-  ('Comforters', 'Cozy bed comforters', 'Bedding', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1517912191359-67659f8690a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiZWRyb29tJTIwY29tZm9ydGVyfGVufDF8fHx8MTc2NDA3MjczOXww&ixlib=rb-4.1.0&q=80&w=1080', NULL, 12),
-  ('Accent Chair', 'Stylish accent chair', 'Furniture', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1759722666941-a90d5a15b1d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxob21lJTIwdXBob2xzdGVyeSUyMGNoYWlyfGVufDF8fHx8MTc2NDA3MjczOHww&ixlib=rb-4.1.0&q=80&w=1080', NULL, 8),
-  ('Upholstery', 'Premium upholstery fabric', 'Upholstery', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 'https://images.unsplash.com/photo-1759722666941-a90d5a15b1d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxob21lJTIwdXBob2xzdGVyeSUyMGNoYWlyfGVufDF8fHx8MTc2NDA3MjczOHww&ixlib=rb-4.1.0&q=80&w=1080', 'new', 20);
