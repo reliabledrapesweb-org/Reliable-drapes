@@ -4,7 +4,7 @@ import {
   FeaturesGrid,
   VisionMissionSection,
 } from "@/components/features/about";
-import { PageHero } from "@/components/shared";
+import { PageHero, Breadcrumb } from "@/components/shared";
 import { getAboutSections } from "@/lib/actions/about-sections";
 
 export const dynamic = "force-dynamic";
@@ -20,10 +20,8 @@ export default async function AboutPage() {
 
   return (
     <main className="mt-14 md:mt-16 lg:mt-[72px]">
-      <PageHero
-        heading="About Reliable Drapes"
-        backgroundImage="/images/heroes/about-hero.jpg"
-      />
+      <PageHero heading="About Reliable Drapes" />
+      <Breadcrumb />
       <FounderSection section={sectionsMap.get("founder")} />
       <WhyChooseSection section={sectionsMap.get("why-choose")} />
       <FeaturesGrid section={sectionsMap.get("features")} />
