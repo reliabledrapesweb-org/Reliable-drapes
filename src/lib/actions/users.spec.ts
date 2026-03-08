@@ -3,7 +3,7 @@
  * Tests core authentication and authorization patterns
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, test, beforeEach, vi } from "vitest";
 
 // Mock next/cache first
 vi.mock("next/cache", () => ({
@@ -59,6 +59,7 @@ import {
   promoteToAdmin,
   demoteFromAdmin,
   searchUsers,
+  shouldShowPhonePrompt,
 } from "./users";
 
 describe("User Management Actions", () => {
@@ -175,6 +176,46 @@ describe("User Management Actions", () => {
       const result = await searchUsers("Test");
 
       expect(result.success).toBe(false);
+    });
+  });
+});
+
+describe("shouldShowPhonePrompt", () => {
+  test("returns needsPhone=false when phone exists", async () => {
+    const result = await shouldShowPhonePrompt("9876543210", 0);
+    expect(result).toEqual({ needsPhone: false, canDismiss: true });
+  });
+
+  test("returns needsPhone=true, canDismiss=true when phone is null and count < 3", async () => {
+    expect(await shouldShowPhonePrompt(null, 0)).toEqual({
+      needsPhone: true,
+      canDismiss: true,
+    });
+    expect(await shouldShowPhonePrompt(null, 2)).toEqual({
+      needsPhone: true,
+      canDismiss: true,
+    });
+  });
+
+  test("returns needsPhone=true, canDismiss=false when phone is null and count >= 3", async () => {
+    expect(await shouldShowPhonePrompt(null, 3)).toEqual({
+      needsPhone: true,
+      canDismiss: false,
+    });
+    expect(await shouldShowPhonePrompt(null, 10)).toEqual({
+      needsPhone: true,
+      canDismiss: false,
+    });
+  });
+
+  test("treats empty string phone as missing", async () => {
+    expect(await shouldShowPhonePrompt("", 0)).toEqual({
+      needsPhone: true,
+      canDismiss: true,
+    });
+    expect(await shouldShowPhonePrompt("  ", 1)).toEqual({
+      needsPhone: true,
+      canDismiss: true,
     });
   });
 });
