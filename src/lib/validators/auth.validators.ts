@@ -2,17 +2,20 @@
  * Authentication validation schemas using Zod
  */
 
-import { z } from 'zod';
+import { z } from "zod";
+
+import { indianPhoneSchema } from "./profile.validators";
 
 export const authSignupSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   full_name: z.string().min(1).optional(),
+  phone: indianPhoneSchema,
 });
 
 export const authLoginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
 });
 
 export const productsQuerySchema = z.object({
@@ -21,14 +24,14 @@ export const productsQuerySchema = z.object({
 });
 
 export const createOrderSchema = z.object({
-  total: z.number().nonnegative('Total must be non-negative'),
+  total: z.number().nonnegative("Total must be non-negative"),
   items: z
     .array(
       z.object({
-        product_id: z.string().uuid('Invalid product ID'),
-        quantity: z.number().int().min(1, 'Quantity must be at least 1'),
+        product_id: z.string().uuid("Invalid product ID"),
+        quantity: z.number().int().min(1, "Quantity must be at least 1"),
         price: z.number().nonnegative().optional(),
-      })
+      }),
     )
     .optional()
     .default([]),
