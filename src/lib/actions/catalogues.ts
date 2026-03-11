@@ -2,6 +2,7 @@
 
 import { supabaseServer, supabaseAdmin } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { verifyAdmin } from "@/lib/utils/admin-auth";
 
 export interface Catalogue {
   id: string;
@@ -134,6 +135,7 @@ export async function getCatalogueById(id: string) {
  * Create a new catalogue (admin only)
  */
 export async function createCatalogue(input: CreateCatalogueInput) {
+  await verifyAdmin();
   const supabase = await supabaseServer();
 
   const { data, error } = await supabase
@@ -164,6 +166,7 @@ export async function createCatalogue(input: CreateCatalogueInput) {
  * Update a catalogue (admin only)
  */
 export async function updateCatalogue(input: UpdateCatalogueInput) {
+  await verifyAdmin();
   const supabase = await supabaseServer();
 
   const { id, ...updateData } = input;
@@ -189,6 +192,7 @@ export async function updateCatalogue(input: UpdateCatalogueInput) {
  * Delete a catalogue (admin only)
  */
 export async function deleteCatalogue(id: string) {
+  await verifyAdmin();
   const supabase = await supabaseServer();
 
   const { error } = await supabase.from("catalogues").delete().eq("id", id);

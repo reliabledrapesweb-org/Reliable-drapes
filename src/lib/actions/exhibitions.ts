@@ -7,6 +7,7 @@
 import { getAdminSupabase } from "@/lib/supabase/admin";
 import { getAnonSupabase } from "@/lib/supabase/anon";
 import { revalidatePath } from "next/cache";
+import { verifyAdmin } from "@/lib/utils/admin-auth";
 
 export type Exhibition = {
   id: string;
@@ -147,6 +148,7 @@ export async function createExhibition(
   formData: ExhibitionFormData,
 ): Promise<ExhibitionResponse> {
   try {
+    await verifyAdmin();
     const admin = getAdminSupabase();
     const title =
       formData.title?.trim() || `Exhibition Photo ${new Date().toISOString().slice(0, 10)}`;
@@ -197,6 +199,7 @@ export async function updateExhibition(
   formData: Partial<ExhibitionFormData>,
 ): Promise<ExhibitionResponse> {
   try {
+    await verifyAdmin();
     const admin = getAdminSupabase();
     const updatePayload: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
@@ -263,6 +266,7 @@ export async function deleteExhibition(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await verifyAdmin();
     const admin = getAdminSupabase();
 
     const { error } = await admin.from("exhibitions").delete().eq("id", id);
@@ -296,6 +300,7 @@ export async function toggleExhibitionStatus(
   isActive: boolean,
 ): Promise<ExhibitionResponse> {
   try {
+    await verifyAdmin();
     const admin = getAdminSupabase();
 
     const { data, error } = await admin

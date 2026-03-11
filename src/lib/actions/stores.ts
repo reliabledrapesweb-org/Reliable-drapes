@@ -7,6 +7,7 @@
 import { getAdminSupabase } from "@/lib/supabase/admin";
 import { getAnonSupabase } from "@/lib/supabase/anon";
 import { revalidatePath } from "next/cache";
+import { verifyAdmin } from "@/lib/utils/admin-auth";
 
 export interface Store {
   id: string;
@@ -162,6 +163,7 @@ export async function createStore(
   formData: StoreFormData
 ): Promise<StoreResponse> {
   try {
+    await verifyAdmin();
     const admin = getAdminSupabase();
 
     const { data, error } = await admin
@@ -217,6 +219,7 @@ export async function updateStore(
   formData: Partial<StoreFormData>
 ): Promise<StoreResponse> {
   try {
+    await verifyAdmin();
     const admin = getAdminSupabase();
 
     const { data, error } = await admin
@@ -258,6 +261,7 @@ export async function updateStore(
  */
 export async function deleteStore(id: string): Promise<{ success: boolean; error?: string }> {
   try {
+    await verifyAdmin();
     const admin = getAdminSupabase();
 
     const { error } = await admin.from("stores").delete().eq("id", id);
@@ -293,6 +297,7 @@ export async function toggleStoreStatus(
   isActive: boolean
 ): Promise<StoreResponse> {
   try {
+    await verifyAdmin();
     const admin = getAdminSupabase();
 
     const { data, error } = await admin

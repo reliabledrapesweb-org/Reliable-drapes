@@ -18,6 +18,12 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { createContactSubmission } from "@/lib/actions/communications";
+import {
+  CONTACT_EMAIL,
+  COMPANY_PHONE,
+  COMPANY_ADDRESS,
+  SOCIAL_LINKS,
+} from "@/lib/constants/app";
 
 // Animation variants
 const containerVariants = {
@@ -234,40 +240,34 @@ export default function ContactPage() {
     {
       icon: Mail,
       title: "Email",
-      lines: ["Contact@reliabledrapes.org"],
+      lines: [CONTACT_EMAIL],
     },
     {
       icon: Phone,
       title: "Phone",
-      lines: ["+91 85069 31948", "Mon-Sat, 9am-6pm IST"],
+      lines: [COMPANY_PHONE, "Mon-Sat, 9am-6pm IST"],
     },
     {
       icon: MapPin,
       title: "Address",
-      lines: ["Warehouse - PNP"],
+      lines: [COMPANY_ADDRESS],
     },
   ];
 
   const socialLinks = [
-    {
-      icon: Instagram,
-      label: "Instagram",
-      href: "https://instagram.com",
-    },
-    {
-      icon: Facebook,
-      label: "Facebook",
-      href: "https://facebook.com",
-    },
-    {
-      icon: Twitter,
-      label: "Twitter",
-      href: "https://twitter.com",
-    },
+    ...(SOCIAL_LINKS.instagram
+      ? [{ icon: Instagram, label: "Instagram", href: SOCIAL_LINKS.instagram }]
+      : []),
+    ...(SOCIAL_LINKS.facebook
+      ? [{ icon: Facebook, label: "Facebook", href: SOCIAL_LINKS.facebook }]
+      : []),
+    ...(SOCIAL_LINKS.twitter
+      ? [{ icon: Twitter, label: "Twitter", href: SOCIAL_LINKS.twitter }]
+      : []),
     {
       icon: Globe,
       label: "Website",
-      href: "https://reliabledrapes.com",
+      href: SOCIAL_LINKS.website || "https://reliabledrapes.com",
     },
   ];
 
@@ -366,7 +366,7 @@ export default function ContactPage() {
                 Send us a Message
               </motion.h2>
               <p className="mb-4 text-sm text-gray-600">
-                For urgent queries, call us at +91 96257 31948
+                For urgent queries, call us at {COMPANY_PHONE}
               </p>
 
               <motion.form
@@ -415,7 +415,7 @@ export default function ContactPage() {
                     setFormData({ ...formData, phone: e.target.value })
                   }
                   disabled={isLoading || isSuccess}
-                  placeholder="+91 96257 31948"
+                  placeholder="+91 XXXXX XXXXX"
                   index={2}
                 />
 

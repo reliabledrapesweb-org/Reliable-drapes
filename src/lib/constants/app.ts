@@ -17,10 +17,11 @@ export const DEFAULT_HERO_CAROUSEL_IMAGES = [
 ] as const;
 
 export const SOCIAL_LINKS = {
-  facebook: "#",
-  instagram: "#",
-  twitter: "#",
-  linkedin: "#",
+  facebook: "",
+  instagram: "",
+  twitter: "",
+  linkedin: "",
+  website: "https://reliabledrapes.com",
 };
 
 export const DEFAULT_PRODUCT_IMAGE = "/images/placeholder-product.svg";

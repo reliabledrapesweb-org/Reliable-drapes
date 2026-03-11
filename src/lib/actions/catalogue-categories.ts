@@ -3,6 +3,7 @@
 import { getAdminSupabase } from "@/lib/supabase/admin";
 import { getAnonSupabase } from "@/lib/supabase/anon";
 import type { CatalogueCategoryId } from "@/lib/types/category.types";
+import { verifyAdmin } from "@/lib/utils/admin-auth";
 
 const getErrorCode = (error: unknown): string | undefined => {
   if (typeof error === "object" && error !== null && "code" in error) {
@@ -118,6 +119,7 @@ export async function createCatalogueCategory(
   input: CreateCatalogueCategoryInput,
 ): Promise<{ success: boolean; data?: CatalogueCategory; error?: string }> {
   try {
+    await verifyAdmin();
     const supabase = getAdminSupabase();
 
     // Generate slug from name if not provided
@@ -181,6 +183,7 @@ export async function updateCatalogueCategory(
   input: UpdateCatalogueCategoryInput,
 ): Promise<{ success: boolean; data?: CatalogueCategory; error?: string }> {
   try {
+    await verifyAdmin();
     const supabase = getAdminSupabase();
     const { id, ...updates } = input;
     const normalizedUpdates: Partial<CreateCatalogueCategoryInput> & {
@@ -243,6 +246,7 @@ export async function deleteCatalogueCategory(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await verifyAdmin();
     const supabase = getAdminSupabase();
 
     // Check if category has child categories

@@ -7,6 +7,7 @@
 import { getAdminSupabase } from "@/lib/supabase/admin";
 import { getAnonSupabase } from "@/lib/supabase/anon";
 import { uploadFile, deleteFile } from "@/lib/utils/storage";
+import { verifyAdmin } from "@/lib/utils/admin-auth";
 
 export interface MediaItem {
   id: string;
@@ -162,6 +163,7 @@ export async function uploadMediaItem(
   },
 ): Promise<MediaItemResponse> {
   try {
+    await verifyAdmin();
     const requestedBucket = options.bucket || "products";
     const folder = options.folder || "general";
 
@@ -302,6 +304,7 @@ export async function updateMediaItem(
   },
 ): Promise<MediaItemResponse> {
   try {
+    await verifyAdmin();
     const supabase = getAdminSupabase();
 
     const { data, error } = await supabase
@@ -338,6 +341,7 @@ export async function deleteMediaItem(id: string): Promise<{
   error?: string;
 }> {
   try {
+    await verifyAdmin();
     const supabase = getAdminSupabase();
 
     const { data: mediaItem, error: fetchError } = await supabase

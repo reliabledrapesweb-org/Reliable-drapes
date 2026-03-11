@@ -8,6 +8,7 @@ import { getAdminSupabase } from "@/lib/supabase/admin";
 import { getAnonSupabase } from "@/lib/supabase/anon";
 import { revalidatePath } from "next/cache";
 import { calculateCouponDiscount } from "@/lib/utils/coupon";
+import { verifyAdmin } from "@/lib/utils/admin-auth";
 
 export type Coupon = {
   id: string;
@@ -209,6 +210,7 @@ export async function createCoupon(
   formData: CouponFormData,
 ): Promise<CouponResponse> {
   try {
+    await verifyAdmin();
     const admin = getAdminSupabase();
 
     const { data, error } = await admin
@@ -259,6 +261,7 @@ export async function updateCoupon(
   formData: Partial<CouponFormData>,
 ): Promise<CouponResponse> {
   try {
+    await verifyAdmin();
     const admin = getAdminSupabase();
 
     const updateData: Record<string, unknown> = {
@@ -306,6 +309,7 @@ export async function deleteCoupon(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await verifyAdmin();
     const admin = getAdminSupabase();
 
     const { error } = await admin.from("coupons").delete().eq("id", id);
@@ -339,6 +343,7 @@ export async function toggleCouponStatus(
   isActive: boolean,
 ): Promise<CouponResponse> {
   try {
+    await verifyAdmin();
     const admin = getAdminSupabase();
 
     const { data, error } = await admin
