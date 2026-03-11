@@ -268,7 +268,6 @@ export default function ShopPage() {
         filtered = [...filtered].sort((a, b) => b.price - a.price);
         break;
       case "popularity":
-        // TODO: Add popularity sorting once we have the data
         break;
       case "newest":
       default:

@@ -979,10 +979,7 @@ export default function AdminProductsPage() {
                 image_url: fileUrl,
               });
               if (!pResult.success) {
-                console.warn(
-                  `Failed to update product ${productId} main image:`,
-                  pResult.error,
-                );
+                failedCount++;
               }
             }
 
@@ -998,10 +995,7 @@ export default function AdminProductsPage() {
             if (gResult.success) {
               successCount++;
             } else {
-              console.warn(
-                `Failed to add image to gallery for product ${productId}:`,
-                gResult.error,
-              );
+              failedCount++;
             }
           }
           processedCount++;
