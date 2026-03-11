@@ -141,9 +141,10 @@ export function validateFile(
   // Check file size
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   if (file.size > maxSizeBytes) {
+    const actualSizeMB = (file.size / (1024 * 1024)).toFixed(1);
     return {
       valid: false,
-      error: `File size exceeds ${maxSizeMB}MB limit`,
+      error: `File size (${actualSizeMB}MB) exceeds ${maxSizeMB}MB limit`,
     };
   }
 

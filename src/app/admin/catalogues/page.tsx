@@ -1478,7 +1478,7 @@ export default function CataloguesPage() {
                         onRemove={() =>
                           setFormData({ ...formData, thumbnail_url: "" })
                         }
-                        maxSizeMB={5}
+                        maxSizeMB={10}
                         allowedTypes={[
                           "image/jpeg",
                           "image/png",
@@ -1586,6 +1586,7 @@ export default function CataloguesPage() {
                     disabled={
                       !!actionLoading.create ||
                       !!actionLoading.update ||
+                      !formData.title.trim() ||
                       !formData.file_url ||
                       !formData.category_id
                     }
