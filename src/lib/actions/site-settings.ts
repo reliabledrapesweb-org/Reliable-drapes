@@ -16,6 +16,7 @@ export type SiteSettings = {
   commerce_coming_soon_message: string | null;
   gem_assessed_logo_enabled: boolean;
   gem_assessed_logo_url: string | null;
+  gem_assessed_logo_size: "small" | "medium" | "large" | "extra-large";
   hero_video_enabled: boolean;
   hero_video_url: string | null;
   hero_video_type: "youtube" | "upload" | null;
@@ -43,6 +44,7 @@ export type SiteSettingsFormData = Partial<
     | "commerce_coming_soon_message"
     | "gem_assessed_logo_enabled"
     | "gem_assessed_logo_url"
+    | "gem_assessed_logo_size"
     | "hero_video_enabled"
     | "hero_video_url"
     | "hero_video_type"
@@ -249,26 +251,30 @@ export async function getCommerceFeatureSettings(): Promise<{
 export async function getGemAssessedLogoSettings(): Promise<{
   enabled: boolean;
   url: string | null;
+  size: "small" | "medium" | "large" | "extra-large";
 }> {
   try {
     const supabase = getAnonSupabase();
 
     const { data, error } = await supabase
       .from("site_settings")
-      .select("gem_assessed_logo_enabled, gem_assessed_logo_url")
+      .select(
+        "gem_assessed_logo_enabled, gem_assessed_logo_url, gem_assessed_logo_size",
+      )
       .limit(1)
       .single();
 
     if (error) {
-      return { enabled: false, url: null };
+      return { enabled: false, url: null, size: "medium" };
     }
 
     return {
       enabled: data?.gem_assessed_logo_enabled ?? false,
       url: data?.gem_assessed_logo_url ?? null,
+      size: data?.gem_assessed_logo_size ?? "medium",
     };
   } catch {
-    return { enabled: false, url: null };
+    return { enabled: false, url: null, size: "medium" };
   }
 }
 

@@ -1154,6 +1154,7 @@ function SiteSettingsTab({
     commerce_coming_soon_message: "",
     gem_assessed_logo_enabled: false,
     gem_assessed_logo_url: "",
+    gem_assessed_logo_size: "medium",
     hero_video_enabled: false,
     hero_video_url: "",
     hero_video_type: "youtube",
@@ -1192,6 +1193,7 @@ function SiteSettingsTab({
         gem_assessed_logo_enabled:
           siteSettings.gem_assessed_logo_enabled ?? false,
         gem_assessed_logo_url: siteSettings.gem_assessed_logo_url ?? "",
+        gem_assessed_logo_size: siteSettings.gem_assessed_logo_size ?? "medium",
         hero_video_enabled: siteSettings.hero_video_enabled,
         hero_video_url: siteSettings.hero_video_url,
         hero_video_type: siteSettings.hero_video_type || "youtube",
@@ -1203,8 +1205,10 @@ function SiteSettingsTab({
         social_twitter: siteSettings.social_twitter ?? "",
         social_youtube: siteSettings.social_youtube ?? "",
         social_linkedin: siteSettings.social_linkedin ?? "",
-        company_email: siteSettings.company_email?.trim() || defaults.company_email,
-        company_phone: siteSettings.company_phone?.trim() || defaults.company_phone,
+        company_email:
+          siteSettings.company_email?.trim() || defaults.company_email,
+        company_phone:
+          siteSettings.company_phone?.trim() || defaults.company_phone,
         company_address:
           siteSettings.company_address?.trim() || defaults.company_address,
       });
@@ -1563,7 +1567,9 @@ function SiteSettingsTab({
                     bucket="products"
                     folder="hero-videos"
                     currentUrl={formData.hero_video_url || ""}
-                    onUploadComplete={(url) => handleChange("hero_video_url", url)}
+                    onUploadComplete={(url) =>
+                      handleChange("hero_video_url", url)
+                    }
                     onRemove={() => handleChange("hero_video_url", "")}
                     maxSizeMB={100}
                     allowedTypes={[
@@ -1738,10 +1744,17 @@ function SiteSettingsTab({
               bucket="media"
               folder="branding"
               currentUrl={formData.gem_assessed_logo_url || ""}
-              onUploadComplete={(url) => handleChange("gem_assessed_logo_url", url)}
+              onUploadComplete={(url) =>
+                handleChange("gem_assessed_logo_url", url)
+              }
               onRemove={() => handleChange("gem_assessed_logo_url", "")}
               maxSizeMB={5}
-              allowedTypes={["image/jpeg", "image/png", "image/webp", "image/svg+xml"]}
+              allowedTypes={[
+                "image/jpeg",
+                "image/png",
+                "image/webp",
+                "image/svg+xml",
+              ]}
               previewType="image"
               registerWithMediaLibrary={true}
               mediaLibraryTags={["branding", "gem-assessed", "header"]}
@@ -1755,10 +1768,52 @@ function SiteSettingsTab({
             <input
               type="url"
               value={formData.gem_assessed_logo_url || ""}
-              onChange={(e) => handleChange("gem_assessed_logo_url", e.target.value)}
+              onChange={(e) =>
+                handleChange("gem_assessed_logo_url", e.target.value)
+              }
               className="h-11 w-full rounded-xl border-2 border-gray-200 px-4 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
               placeholder="https://example.com/gem-assessed-logo.png"
             />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Logo Size
+            </label>
+            <div className="grid grid-cols-4 gap-2">
+              {(
+                [
+                  { value: "small", label: "S", description: "Small" },
+                  { value: "medium", label: "M", description: "Medium" },
+                  { value: "large", label: "L", description: "Large" },
+                  {
+                    value: "extra-large",
+                    label: "XL",
+                    description: "Extra Large",
+                  },
+                ] as const
+              ).map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() =>
+                    handleChange("gem_assessed_logo_size", option.value)
+                  }
+                  className={`flex flex-col items-center gap-1 rounded-xl border-2 px-3 py-3 text-sm transition-all ${
+                    formData.gem_assessed_logo_size === option.value
+                      ? "border-[#2F2582] bg-[#2F2582]/5 text-[#2F2582] dark:border-[#a099ff] dark:bg-[#a099ff]/10 dark:text-[#a099ff]"
+                      : "border-gray-200 text-gray-600 hover:border-gray-300 dark:border-gray-600 dark:text-gray-400 dark:hover:border-gray-500"
+                  }`}
+                >
+                  <span className="text-base font-semibold">
+                    {option.label}
+                  </span>
+                  <span className="text-xs opacity-70">
+                    {option.description}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>

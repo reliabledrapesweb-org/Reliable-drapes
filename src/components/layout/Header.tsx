@@ -37,9 +37,11 @@ export function Header() {
   const [gemAssessedLogo, setGemAssessedLogo] = useState<{
     enabled: boolean;
     url: string | null;
+    size: "small" | "medium" | "large" | "extra-large";
   }>({
     enabled: false,
     url: null,
+    size: "medium",
   });
   const isScrolled = useScrollPosition(50);
 
@@ -57,7 +59,7 @@ export function Header() {
         const settings = await getGemAssessedLogoSettings();
         setGemAssessedLogo(settings);
       } catch {
-        setGemAssessedLogo({ enabled: false, url: null });
+        setGemAssessedLogo({ enabled: false, url: null, size: "medium" });
       }
     }
 
@@ -305,9 +307,36 @@ export function Header() {
             <Image
               src={gemAssessedLogo.url}
               alt="GEM Assessed Logo"
-              width={88}
-              height={28}
-              className="h-6 w-auto object-contain xl:h-7"
+              width={
+                (
+                  {
+                    small: 64,
+                    medium: 88,
+                    large: 120,
+                    "extra-large": 152,
+                  } as const
+                )[gemAssessedLogo.size]
+              }
+              height={
+                (
+                  {
+                    small: 20,
+                    medium: 28,
+                    large: 38,
+                    "extra-large": 48,
+                  } as const
+                )[gemAssessedLogo.size]
+              }
+              className={
+                (
+                  {
+                    small: "h-5 w-auto object-contain xl:h-6",
+                    medium: "h-6 w-auto object-contain xl:h-7",
+                    large: "h-8 w-auto object-contain xl:h-9",
+                    "extra-large": "h-10 w-auto object-contain xl:h-11",
+                  } as const
+                )[gemAssessedLogo.size]
+              }
             />
           </motion.div>
         )}

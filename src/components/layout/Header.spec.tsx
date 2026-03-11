@@ -163,6 +163,7 @@ describe("Header", () => {
     vi.mocked(getGemAssessedLogoSettings).mockResolvedValue({
       enabled: false,
       url: null,
+      size: "medium",
     });
   });
 
