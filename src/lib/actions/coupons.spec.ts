@@ -1,5 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from "vitest";
-import { validateCouponAction, calculateCouponDiscount } from "./coupons";
+import { validateCouponAction } from "./coupons";
+import { calculateCouponDiscount } from "@/lib/utils/coupon";
 
 const mockAdminClient = {
   from: vi.fn(),

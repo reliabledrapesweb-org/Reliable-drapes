@@ -7,6 +7,7 @@
 import { getAdminSupabase } from "@/lib/supabase/admin";
 import { getAnonSupabase } from "@/lib/supabase/anon";
 import { revalidatePath } from "next/cache";
+import { calculateCouponDiscount } from "@/lib/utils/coupon";
 
 export type Coupon = {
   id: string;
@@ -58,17 +59,6 @@ export type ValidatedCoupon = {
 export type ValidateCouponResult =
   | { success: true; data: ValidatedCoupon }
   | { success: false; error: string };
-
-export function calculateCouponDiscount(
-  discount_type: "percentage" | "fixed",
-  discount_value: number,
-  subtotal: number,
-): number {
-  if (discount_type === "percentage") {
-    return Math.min(subtotal, Math.round((subtotal * discount_value) / 100));
-  }
-  return Math.min(subtotal, discount_value);
-}
 
 export async function validateCouponAction(
   code: string,
