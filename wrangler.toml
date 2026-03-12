@@ -2,3 +2,11 @@ name = "reliable-drapes"
 pages_build_output_dir = ".open-next"
 compatibility_date = "2024-12-30"
 compatibility_flags = ["nodejs_compat"]
+
+[vars]
+NEXT_PUBLIC_SUPABASE_URL = "https://loczwathoxljtsxwbyim.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvY3p3YXRob3hsanRzeHdieWltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMDEyODMsImV4cCI6MjA4NzY3NzI4M30._OcbihIu9S-vHeqVyXDhX9R7gSTPtIZR5QkjL-eMWUM"
+NEXT_PUBLIC_APP_URL = "https://reliabledrapes.org"
+NEXT_PUBLIC_GOOGLE_CLIENT_ID = "651101706692-s21suv55rk14a92egmppid8nqfo6sc7r.apps.googleusercontent.com"
+NEXTAUTH_URL = "https://reliabledrapes.org"
+ADMIN_EMAILS = "akoladesalako3@gmail.com,agaganahuja111@gmail.com"
