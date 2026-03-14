@@ -1,7 +1,7 @@
 "use server";
 
 import { supabaseServer, supabaseAdmin } from "@/lib/supabase/server";
-import { sendBulkEmail, isSendGridConfigured } from "@/lib/email/sendgrid";
+import { sendBulkEmail, isResendConfigured } from "@/lib/email/resend";
 import { wrapContentInTemplate } from "@/lib/email/templates/newsletter";
 
 export interface ActionResult<T = void> {
@@ -542,10 +542,10 @@ export async function sendNewsletterCampaign(
       return { success: false, error: "Campaign not found" };
     }
 
-    // Check if SendGrid is configured
-    if (!isSendGridConfigured()) {
+    // Check if Resend is configured
+    if (!isResendConfigured()) {
       console.warn(
-        "[Newsletter] SendGrid not configured - emails will not be sent",
+        "[Newsletter] Resend not configured - emails will not be sent",
       );
 
       // Update campaign status to indicate configuration issue
@@ -554,14 +554,14 @@ export async function sendNewsletterCampaign(
         .update({
           status: "failed",
           admin_notes:
-            "SendGrid API key not configured. Please add SENDGRID_API_KEY to environment variables.",
+            "Resend API key not configured. Please add RESEND_API_KEY to environment variables.",
         })
         .eq("id", campaignId);
 
       return {
         success: false,
         error:
-          "SendGrid not configured. Please add SENDGRID_API_KEY to environment variables.",
+          "Resend not configured. Please add RESEND_API_KEY to environment variables.",
       };
     }
 

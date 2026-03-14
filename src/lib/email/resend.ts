@@ -1,14 +1,15 @@
 /**
- * SendGrid Email Service - Edge-Compatible (Fetch API)
+ * Resend Email Service - Edge-Compatible (Fetch API)
  * Works on both Vercel (Serverless/Edge) and Cloudflare (Edge)
  */
 
-const SENDGRID_API_URL = "https://api.sendgrid.com/v3/mail/send";
+const RESEND_API_URL = "https://api.resend.com/emails";
+const RESEND_BATCH_API_URL = "https://api.resend.com/emails/batch";
 
 // Default sender configuration
 const DEFAULT_FROM_EMAIL =
-  process.env.SENDGRID_FROM_EMAIL || "newsletter@reliabledrapes.com";
-const DEFAULT_FROM_NAME = process.env.SENDGRID_FROM_NAME || "Reliable Drapes";
+  process.env.RESEND_FROM_EMAIL || "newsletter@reliabledrapes.com";
+const DEFAULT_FROM_NAME = process.env.RESEND_FROM_NAME || "Reliable Drapes";
 
 interface EmailOptions {
   to: string | string[];
@@ -46,61 +47,50 @@ interface BulkSendResult {
   errors: Array<{ email: string; error: string }>;
 }
 
-/**
- * Check if SendGrid is properly configured
- */
-export function isSendGridConfigured(): boolean {
-  return !!process.env.SENDGRID_API_KEY;
+function formatFrom(from?: { email: string; name: string }): string {
+  const email = from?.email || DEFAULT_FROM_EMAIL;
+  const name = from?.name || DEFAULT_FROM_NAME;
+  return `${name} <${email}>`;
 }
 
 /**
- * Send a single email using SendGrid REST API
+ * Check if Resend is properly configured
+ */
+export function isResendConfigured(): boolean {
+  return !!process.env.RESEND_API_KEY;
+}
+
+/**
+ * Send a single email using Resend REST API
  */
 export async function sendEmail(
   options: EmailOptions,
 ): Promise<SendEmailResult> {
-  if (!isSendGridConfigured()) {
-
+  if (!isResendConfigured()) {
     return {
       success: false,
       error:
-        "SendGrid API key not configured. Please add SENDGRID_API_KEY to environment variables.",
+        "Resend API key not configured. Please add RESEND_API_KEY to environment variables.",
     };
   }
 
   const { to, subject, html, text, from } = options;
 
-  // Normalize 'to' to array format
   const toAddresses = Array.isArray(to) ? to : [to];
 
   const payload = {
-    personalizations: [
-      {
-        to: toAddresses.map((email) => ({ email })),
-      },
-    ],
-    from: {
-      email: from?.email || DEFAULT_FROM_EMAIL,
-      name: from?.name || DEFAULT_FROM_NAME,
-    },
+    from: formatFrom(from),
+    to: toAddresses,
     subject,
-    content: [
-      {
-        type: "text/plain",
-        value: text || html.replace(/<[^>]*>/g, ""),
-      },
-      {
-        type: "text/html",
-        value: html,
-      },
-    ],
+    html,
+    text: text || html.replace(/<[^>]*>/g, ""),
   };
 
   try {
-    const response = await fetch(SENDGRID_API_URL, {
+    const response = await fetch(RESEND_API_URL, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
@@ -111,18 +101,17 @@ export async function sendEmail(
 
       return {
         success: false,
-        error: `SendGrid API error: ${response.status} - ${errorBody}`,
+        error: `Resend API error: ${response.status} - ${errorBody}`,
       };
     }
 
-    const messageId = response.headers.get("x-message-id") || undefined;
+    const data = await response.json();
 
     return {
       success: true,
-      messageId,
+      messageId: data.id,
     };
   } catch (error) {
-
     const errorMessage =
       error instanceof Error
         ? error.message
@@ -136,18 +125,17 @@ export async function sendEmail(
 }
 
 /**
- * Send bulk emails using SendGrid (for newsletters)
- * Sends in batches to respect rate limits
+ * Send bulk emails using Resend Batch API (for newsletters)
+ * Sends in batches of 100 to respect Resend's batch limit
  */
 export async function sendBulkEmail(
   options: BulkEmailOptions,
 ): Promise<BulkSendResult> {
-  if (!isSendGridConfigured()) {
-
+  if (!isResendConfigured()) {
     return {
       success: false,
       error:
-        "SendGrid API key not configured. Please add SENDGRID_API_KEY to environment variables.",
+        "Resend API key not configured. Please add RESEND_API_KEY to environment variables.",
       sent: 0,
       failed: options.recipients.length,
       errors: [],
@@ -156,8 +144,8 @@ export async function sendBulkEmail(
 
   const { recipients, subject, html, text, from } = options;
 
-  // SendGrid allows up to 1000 personalizations per request
-  const BATCH_SIZE = 1000;
+  // Resend batch API allows up to 100 emails per request
+  const BATCH_SIZE = 100;
   const batches: string[][] = [];
 
   for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
@@ -168,33 +156,23 @@ export async function sendBulkEmail(
   let failed = 0;
   const errors: Array<{ email: string; error: string }> = [];
 
+  const fromFormatted = formatFrom(from);
+  const plainText = text || html.replace(/<[^>]*>/g, "");
+
   for (const batch of batches) {
-    const payload = {
-      personalizations: batch.map((email) => ({
-        to: [{ email }],
-      })),
-      from: {
-        email: from?.email || DEFAULT_FROM_EMAIL,
-        name: from?.name || DEFAULT_FROM_NAME,
-      },
+    const payload = batch.map((email) => ({
+      from: fromFormatted,
+      to: [email],
       subject,
-      content: [
-        {
-          type: "text/plain",
-          value: text || html.replace(/<[^>]*>/g, ""),
-        },
-        {
-          type: "text/html",
-          value: html,
-        },
-      ],
-    };
+      html,
+      text: plainText,
+    }));
 
     try {
-      const response = await fetch(SENDGRID_API_URL, {
+      const response = await fetch(RESEND_BATCH_API_URL, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
@@ -202,11 +180,7 @@ export async function sendBulkEmail(
 
       if (!response.ok) {
         const errorBody = await response.text();
-        console.error(
-          "[SendGrid] Batch send error:",
-          response.status,
-          errorBody,
-        );
+        console.error("[Resend] Batch send error:", response.status, errorBody);
         failed += batch.length;
         batch.forEach((email) => {
           errors.push({
@@ -223,7 +197,6 @@ export async function sendBulkEmail(
         await new Promise((resolve) => setTimeout(resolve, 100));
       }
     } catch (error) {
-
       failed += batch.length;
 
       batch.forEach((email) => {
@@ -246,7 +219,7 @@ export async function sendBulkEmail(
 
 /**
  * Send a newsletter campaign to multiple recipients
- * Uses personalizations for efficient bulk sending
+ * Uses batch API for efficient bulk sending
  */
 export async function sendNewsletterEmail(
   recipients: string[],
