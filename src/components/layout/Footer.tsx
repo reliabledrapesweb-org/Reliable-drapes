@@ -433,7 +433,7 @@ export function Footer() {
               </p>
             </div>
             <p className="text-start text-sm md:text-right md:text-base">
-              Made by Gagan Ahuja
+              Made with ❤️ by Gagan Ahuja
             </p>
           </div>
         </div>
