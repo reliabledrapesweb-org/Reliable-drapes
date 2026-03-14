@@ -107,7 +107,7 @@ export default function StoreLocatorPage() {
                   Our Stores Across India
                 </h3>
               </div>
-              <div className="relative aspect-[16/9] w-full">
+              <div className="relative aspect-[21/9] w-full">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3671904.7585123926!2d68!3d22!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30635ff06b92b797%3A0xd78c4751851fbb5a!2sIndia!5e0!3m2!1sen!2sin!4v1708000000000!5m2!1sen!2sin"
                   width="100%"

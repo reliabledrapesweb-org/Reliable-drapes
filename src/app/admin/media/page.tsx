@@ -25,7 +25,7 @@ import {
   CheckCircle,
   RefreshCw,
   Package,
-  Layout,
+
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -444,16 +444,6 @@ export default function MediaLibraryPage() {
           </p>
         </div>
         <div className="flex flex-col gap-2 min-[400px]:flex-row sm:gap-3">
-          <Button
-            asChild
-            variant="outline"
-            className="w-full rounded-lg border-gray-200 sm:w-auto"
-          >
-            <Link href="/admin/about-sections">
-              <Layout className="mr-2 h-4 w-4" />
-              About Sections
-            </Link>
-          </Button>
           <Button
             onClick={() => setShowSyncModal(true)}
             variant="outline"

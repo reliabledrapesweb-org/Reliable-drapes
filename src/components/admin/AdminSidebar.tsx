@@ -19,6 +19,7 @@ import {
   Bell,
   CalendarDays,
   TicketPercent,
+  Info,
 } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
@@ -103,6 +104,11 @@ const navItems: NavItem[] = [
     name: "Media",
     href: "/admin/media",
     icon: ImageIcon,
+  },
+  {
+    name: "Brand Info",
+    href: "/admin/about-sections",
+    icon: Info,
   },
   {
     name: "Settings",

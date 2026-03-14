@@ -16,17 +16,17 @@ const MapPinIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-interface StoreCardProps {
+type StoreCardProps = {
   store: Store;
-  onLocateStore: (store: Store) => void;
-}
+  onLocateStore?: (store: Store) => void;
+};
 
 export function StoreCard({ store, onLocateStore }: StoreCardProps) {
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
   const handleLocateStore = () => {
     setIsMapModalOpen(true);
-    onLocateStore(store);
+    onLocateStore?.(store);
   };
 
   const handlePhoneCall = () => {

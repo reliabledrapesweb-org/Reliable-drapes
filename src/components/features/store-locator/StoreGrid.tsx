@@ -1,42 +1,60 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { StoreCard } from "./StoreCard";
 import type { Store } from "@/lib/actions/stores";
 
 type StoreGridProps = {
   stores: Store[];
 };
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
 export function StoreGrid({ stores }: StoreGridProps) {
   if (stores.length === 0) {
     return (
-      <div className="py-12 text-center">
-        <p className="text-gray-500">
-          No stores found for the selected filter.
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4 }}
+        className="flex min-h-[400px] w-full flex-col items-center justify-center gap-4 rounded-lg bg-gray-50 p-8 md:p-12"
+      >
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+          className="text-5xl md:text-6xl"
+        >
+          🏪
+        </motion.div>
+        <h3 className="text-xl font-medium text-[#3a3a3a] md:text-2xl">
+          No stores found
+        </h3>
+        <p className="text-center text-sm text-[#898989] md:text-base">
+          Try adjusting your search query
         </p>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+    >
       {stores.map((store) => (
-        <div
-          key={store.id}
-          className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md"
-        >
-          <div className="bg-[#2F2582] px-4 py-2.5 text-center">
-            <p className="text-xs font-bold tracking-widest text-white uppercase">
-              {store.state || store.city}
-            </p>
-          </div>
-          <div className="p-4">
-            <p className="text-sm font-bold text-gray-900">{store.name}</p>
-            <p className="mt-2 text-xs leading-relaxed text-gray-600">
-              {store.address}
-            </p>
-          </div>
-        </div>
+        <StoreCard key={store.id} store={store} />
       ))}
-    </div>
+    </motion.div>
   );
 }
