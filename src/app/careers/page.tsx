@@ -8,6 +8,7 @@ import { JobGridSkeleton } from "@/components/features/careers/JobGridSkeleton";
 import { JobApplicationModal } from "@/components/features/careers/JobApplicationModal";
 import { OpenHireModal } from "@/components/features/careers/OpenHireModal";
 import { getActiveJobs, type Job } from "@/lib/actions/jobs";
+import { HR_PHONE } from "@/lib/constants/app";
 
 export default function CareersPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -61,8 +62,7 @@ export default function CareersPage() {
   };
 
   const handlePhoneCall = () => {
-    // Mock HR phone number for careers inquiries
-    const hrPhone = "+234 803 456 7890";
+    const hrPhone = HR_PHONE;
     window.location.href = `tel:${hrPhone.replace(/[^0-9+]/g, "")}`;
   };
 
@@ -157,7 +157,7 @@ export default function CareersPage() {
                 className="group flex shrink-0 items-center gap-3 rounded-full bg-white px-8 py-3 text-sm font-semibold text-[#2f2582] shadow-md transition-all hover:bg-[#2f2582] hover:text-white hover:shadow-lg md:px-10 md:py-4 md:text-base"
               >
                 <Phone className="h-4 w-4 transition-transform group-hover:scale-110 md:h-5 md:w-5" />
-                <span>Call HR: +234 803 456 7890</span>
+                <span>Call HR: {HR_PHONE}</span>
               </button>
             </div>
           </div>

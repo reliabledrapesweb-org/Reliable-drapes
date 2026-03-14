@@ -5,7 +5,9 @@
 export const APP_NAME = "Reliable Drapes";
 export const APP_DESCRIPTION = "Luxury Home Furnishings";
 export const CONTACT_EMAIL = "contact@reliabledrapes.org";
-export const COMPANY_PHONE = "+91 85069 31948";
+export const COMPANY_PHONE = "+91 96257 31948";
+export const HR_PHONE = "+91 85069 31948";
+export const STORES_PER_PAGE = 8;
 export const COMPANY_ADDRESS = "Warehouse - PNP";
 export const WHATSAPP_NUMBER = "919625731948";
 export const DEFAULT_HERO_CAROUSEL_IMAGES = [

@@ -7,6 +7,23 @@
 import { getAdminSupabase } from "@/lib/supabase/admin";
 import { getAnonSupabase } from "@/lib/supabase/anon";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
+
+const businessHoursSchema = z
+  .array(
+    z.object({
+      day: z.string().min(1),
+      hours: z.string().min(1),
+    }),
+  )
+  .min(1);
+
+export function validateBusinessHours(
+  hours: unknown,
+): Array<{ day: string; hours: string }> | null {
+  const result = businessHoursSchema.safeParse(hours);
+  return result.success ? result.data : null;
+}
 
 export type SiteSettings = {
   id: string;
@@ -29,6 +46,11 @@ export type SiteSettings = {
   company_email: string | null;
   company_phone: string | null;
   company_address: string | null;
+  company_tagline: string | null;
+  head_office_address: string | null;
+  warehouse_address: string | null;
+  contact_call_phone: string | null;
+  business_hours: Array<{ day: string; hours: string }> | null;
   google_place_id: string | null;
   google_reviews_enabled: boolean;
   created_at: string;
@@ -57,6 +79,11 @@ export type SiteSettingsFormData = Partial<
     | "company_email"
     | "company_phone"
     | "company_address"
+    | "company_tagline"
+    | "head_office_address"
+    | "warehouse_address"
+    | "contact_call_phone"
+    | "business_hours"
     | "google_place_id"
     | "google_reviews_enabled"
   >
@@ -123,10 +150,25 @@ export async function updateSiteSettings(
       };
     }
 
+    if (formData.business_hours !== undefined) {
+      const validated = validateBusinessHours(formData.business_hours);
+      if (!validated) {
+        return {
+          success: false,
+          error: "Invalid business hours format",
+        };
+      }
+      formData = { ...formData, business_hours: validated };
+    }
+
+    const updatePayload = Object.fromEntries(
+      Object.entries(formData).filter(([, v]) => v !== undefined),
+    );
+
     const { data, error } = await admin
       .from("site_settings")
       .update({
-        ...formData,
+        ...updatePayload,
         updated_at: new Date().toISOString(),
       })
       .eq("id", existingSettings.id)
@@ -136,7 +178,7 @@ export async function updateSiteSettings(
     if (error) {
       return {
         success: false,
-        error: "Failed to update site settings",
+        error: `Failed to update site settings: ${error.message}`,
       };
     }
 
@@ -334,26 +376,56 @@ export async function getCompanyDetails(): Promise<{
   email: string | null;
   phone: string | null;
   address: string | null;
+  tagline: string | null;
+  headOfficeAddress: string | null;
+  warehouseAddress: string | null;
+  contactCallPhone: string | null;
+  businessHours: Array<{ day: string; hours: string }> | null;
 }> {
   try {
     const supabase = getAnonSupabase();
 
     const { data, error } = await supabase
       .from("site_settings")
-      .select("company_email, company_phone, company_address")
+      .select(
+        "company_email, company_phone, company_address, company_tagline, head_office_address, warehouse_address, contact_call_phone, business_hours",
+      )
       .limit(1)
       .single();
 
     if (error) {
-      return { email: null, phone: null, address: null };
+      return {
+        email: null,
+        phone: null,
+        address: null,
+        tagline: null,
+        headOfficeAddress: null,
+        warehouseAddress: null,
+        contactCallPhone: null,
+        businessHours: null,
+      };
     }
 
     return {
       email: data?.company_email ?? null,
       phone: data?.company_phone ?? null,
       address: data?.company_address ?? null,
+      tagline: data?.company_tagline ?? null,
+      headOfficeAddress: data?.head_office_address ?? null,
+      warehouseAddress: data?.warehouse_address ?? null,
+      contactCallPhone: data?.contact_call_phone ?? null,
+      businessHours: validateBusinessHours(data?.business_hours),
     };
   } catch {
-    return { email: null, phone: null, address: null };
+    return {
+      email: null,
+      phone: null,
+      address: null,
+      tagline: null,
+      headOfficeAddress: null,
+      warehouseAddress: null,
+      contactCallPhone: null,
+      businessHours: null,
+    };
   }
 }

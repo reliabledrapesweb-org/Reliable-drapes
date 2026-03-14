@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, Building } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -29,9 +29,8 @@ type SocialLinks = {
 };
 
 export function Footer() {
-  const [categories, setCategories] = useState<
-    Array<{ id: string; name: string }>
-  >(fallbackCategories);
+  const [categories, setCategories] =
+    useState<Array<{ id: string; name: string }>>(fallbackCategories);
   const [isLoading, setIsLoading] = useState(true);
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({
     instagram: null,
@@ -40,21 +39,32 @@ export function Footer() {
     youtube: null,
     linkedin: null,
   });
-  const [companyDetails, setCompanyDetails] = useState({
-    email: CONTACT_EMAIL,
-    phone: COMPANY_PHONE,
-    address: COMPANY_ADDRESS,
+  const [companyDetails, setCompanyDetails] = useState<{
+    email: string | null;
+    phone: string | null;
+    address: string | null;
+    tagline: string | null;
+    headOfficeAddress: string | null;
+    warehouseAddress: string | null;
+  }>({
+    email: null,
+    phone: null,
+    address: null,
+    tagline: null,
+    headOfficeAddress: null,
+    warehouseAddress: null,
   });
 
   // Fetch footer categories and site settings from database
   useEffect(() => {
     async function fetchData() {
       try {
-        const [categoriesResult, socialResult, companyResult] = await Promise.all([
-          getCatalogueCategories(),
-          getSocialLinks(),
-          getCompanyDetails(),
-        ]);
+        const [categoriesResult, socialResult, companyResult] =
+          await Promise.all([
+            getCatalogueCategories(),
+            getSocialLinks(),
+            getCompanyDetails(),
+          ]);
 
         if (
           categoriesResult.success &&
@@ -77,6 +87,9 @@ export function Footer() {
           email: companyResult.email?.trim() || CONTACT_EMAIL,
           phone: companyResult.phone?.trim() || COMPANY_PHONE,
           address: companyResult.address?.trim() || COMPANY_ADDRESS,
+          tagline: companyResult.tagline?.trim() || null,
+          headOfficeAddress: companyResult.headOfficeAddress?.trim() || null,
+          warehouseAddress: companyResult.warehouseAddress?.trim() || null,
         });
       } catch {
         // Keep fallback values on error
@@ -120,6 +133,10 @@ export function Footer() {
               catalogue-driven product selection.
             </p>
 
+            {companyDetails.tagline && (
+              <p className="text-sm text-gray-400">{companyDetails.tagline}</p>
+            )}
+
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-[#7e7e7e]" />
@@ -139,13 +156,45 @@ export function Footer() {
             </div>
 
             <div className="space-y-4 pt-1">
-              <div className="flex items-start gap-3">
-                <MapPin className="h-4 w-4 text-[#7e7e7e]" />
-                <div className="space-y-1 text-sm text-[#7e7e7e] md:text-base">
-                  <p className="font-medium text-[#f1f1f1]">Address</p>
-                  <p>{companyDetails.address}</p>
+              {companyDetails.headOfficeAddress ||
+              companyDetails.warehouseAddress ? (
+                <div className="flex flex-col gap-3 sm:flex-row sm:gap-6">
+                  {companyDetails.headOfficeAddress && (
+                    <div className="flex items-start gap-2">
+                      <Building className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                      <div>
+                        <p className="text-xs font-semibold text-gray-300">
+                          Head Office
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          {companyDetails.headOfficeAddress}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {companyDetails.warehouseAddress && (
+                    <div className="flex items-start gap-2">
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                      <div>
+                        <p className="text-xs font-semibold text-gray-300">
+                          Warehouse
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          {companyDetails.warehouseAddress}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+              ) : (
+                <div className="flex items-start gap-3">
+                  <MapPin className="h-4 w-4 text-[#7e7e7e]" />
+                  <div className="space-y-1 text-sm text-[#7e7e7e] md:text-base">
+                    <p className="font-medium text-[#f1f1f1]">Address</p>
+                    <p>{companyDetails.address}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -392,4 +441,3 @@ export function Footer() {
     </footer>
   );
 }
-

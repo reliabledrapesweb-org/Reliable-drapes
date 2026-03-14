@@ -310,30 +310,30 @@ export function Header() {
               width={
                 (
                   {
-                    small: 64,
-                    medium: 88,
-                    large: 120,
-                    "extra-large": 152,
+                    small: 96,
+                    medium: 128,
+                    large: 160,
+                    "extra-large": 192,
                   } as const
                 )[gemAssessedLogo.size]
               }
               height={
                 (
                   {
-                    small: 20,
-                    medium: 28,
-                    large: 38,
-                    "extra-large": 48,
+                    small: 32,
+                    medium: 40,
+                    large: 48,
+                    "extra-large": 56,
                   } as const
                 )[gemAssessedLogo.size]
               }
               className={
                 (
                   {
-                    small: "h-5 w-auto object-contain xl:h-6",
-                    medium: "h-6 w-auto object-contain xl:h-7",
-                    large: "h-8 w-auto object-contain xl:h-9",
-                    "extra-large": "h-10 w-auto object-contain xl:h-11",
+                    small: "h-8 w-auto object-contain xl:h-9",
+                    medium: "h-10 w-auto object-contain xl:h-11",
+                    large: "h-12 w-auto object-contain xl:h-14",
+                    "extra-large": "h-14 w-auto object-contain xl:h-16",
                   } as const
                 )[gemAssessedLogo.size]
               }

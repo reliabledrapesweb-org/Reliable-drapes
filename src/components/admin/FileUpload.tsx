@@ -61,34 +61,29 @@ export function FileUpload({
     // Upload file
     setUploading(true);
     try {
-      const result = await uploadFile(file, bucket, folder);
-      if (result.success && result.url) {
-        onUploadComplete(result.url);
-
-        // Register with media library if requested
-        if (registerWithMediaLibrary) {
-          try {
-            // Determine the media library bucket based on file type
-            let mediaBucket = "media"; // Default bucket for general files
-            if (bucket === "products" || bucket === "catalogues") {
-              mediaBucket = bucket; // Use the same bucket for products/catalogues
-            }
-
-            await uploadMediaItem(file, {
-              bucket: mediaBucket,
-              folder: folder || "uploads",
-              tags: mediaLibraryTags,
-              altText: "", // Could be enhanced to accept alt text
-            });
-          } catch (mediaError) {
-
-            // Don't fail the upload if media library registration fails
-          }
+      if (registerWithMediaLibrary) {
+        const mediaBucket =
+          bucket === "products" || bucket === "catalogues" ? bucket : "media";
+        const result = await uploadMediaItem(file, {
+          bucket: mediaBucket,
+          folder: folder || "uploads",
+          tags: mediaLibraryTags,
+          altText: "",
+        });
+        if (result.success && result.data?.file_url) {
+          onUploadComplete(result.data.file_url);
+          setError(null);
+        } else {
+          setError(result.error || "Upload failed");
         }
-
-        setError(null);
       } else {
-        setError(result.error || "Upload failed");
+        const result = await uploadFile(file, bucket, folder);
+        if (result.success && result.url) {
+          onUploadComplete(result.url);
+          setError(null);
+        } else {
+          setError(result.error || "Upload failed");
+        }
       }
     } catch (err) {
       setError("An unexpected error occurred");

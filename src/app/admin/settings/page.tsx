@@ -1167,6 +1167,15 @@ function SiteSettingsTab({
     company_email: CONTACT_EMAIL,
     company_phone: COMPANY_PHONE,
     company_address: COMPANY_ADDRESS,
+    company_tagline: "",
+    head_office_address: "",
+    warehouse_address: "",
+    contact_call_phone: "",
+    business_hours: [
+      { day: "Monday - Friday", hours: "9:00 AM - 6:00 PM" },
+      { day: "Saturday", hours: "10:00 AM - 4:00 PM" },
+      { day: "Sunday", hours: "Closed" },
+    ],
   });
 
   const [formData, setFormData] = useState<Partial<SiteSettings>>(
@@ -1211,6 +1220,15 @@ function SiteSettingsTab({
           siteSettings.company_phone?.trim() || defaults.company_phone,
         company_address:
           siteSettings.company_address?.trim() || defaults.company_address,
+        company_tagline: siteSettings.company_tagline || "",
+        head_office_address: siteSettings.head_office_address || "",
+        warehouse_address: siteSettings.warehouse_address || "",
+        contact_call_phone: siteSettings.contact_call_phone || "",
+        business_hours: siteSettings.business_hours || [
+          { day: "Monday - Friday", hours: "9:00 AM - 6:00 PM" },
+          { day: "Saturday", hours: "10:00 AM - 4:00 PM" },
+          { day: "Sunday", hours: "Closed" },
+        ],
       });
     } else {
       setFormData(defaults);
@@ -1959,6 +1977,144 @@ function SiteSettingsTab({
                 className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
                 placeholder={COMPANY_ADDRESS}
               />
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Company Tagline (Footer)
+              </label>
+              <input
+                type="text"
+                value={formData.company_tagline || ""}
+                onChange={(e) =>
+                  handleChange("company_tagline", e.target.value)
+                }
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                placeholder="e.g., B2B Furnishing Solutions"
+              />
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Head Office Address
+              </label>
+              <textarea
+                value={formData.head_office_address || ""}
+                onChange={(e) =>
+                  handleChange("head_office_address", e.target.value)
+                }
+                rows={2}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                placeholder="Full head office address"
+              />
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Warehouse Address
+              </label>
+              <textarea
+                value={formData.warehouse_address || ""}
+                onChange={(e) =>
+                  handleChange("warehouse_address", e.target.value)
+                }
+                rows={2}
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                placeholder="Full warehouse address"
+              />
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Contact Us Call Number
+              </label>
+              <input
+                type="text"
+                value={formData.contact_call_phone || ""}
+                onChange={(e) =>
+                  handleChange("contact_call_phone", e.target.value)
+                }
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                placeholder="+91 XXXXX XXXXX"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                This number is shown on the Contact Us page call button
+              </p>
+            </div>
+
+            <div className="space-y-2 sm:col-span-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Business Hours
+              </label>
+              {(formData.business_hours || []).map((entry, index) => (
+                <div key={index} className="mb-2 flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={entry.day}
+                    onChange={(e) => {
+                      const updated = [...(formData.business_hours || [])];
+                      updated[index] = {
+                        ...updated[index],
+                        day: e.target.value,
+                      };
+                      setFormData((prev) => ({
+                        ...prev,
+                        business_hours: updated,
+                      }));
+                    }}
+                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    placeholder="Day range"
+                  />
+                  <input
+                    type="text"
+                    value={entry.hours}
+                    onChange={(e) => {
+                      const updated = [...(formData.business_hours || [])];
+                      updated[index] = {
+                        ...updated[index],
+                        hours: e.target.value,
+                      };
+                      setFormData((prev) => ({
+                        ...prev,
+                        business_hours: updated,
+                      }));
+                    }}
+                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    placeholder="Hours"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updated = (formData.business_hours || []).filter(
+                        (_, i) => i !== index,
+                      );
+                      setFormData((prev) => ({
+                        ...prev,
+                        business_hours: updated,
+                      }));
+                    }}
+                    className="text-sm text-red-500 hover:text-red-700"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = [
+                    ...(formData.business_hours || []),
+                    { day: "", hours: "" },
+                  ];
+                  setFormData((prev) => ({
+                    ...prev,
+                    business_hours: updated,
+                  }));
+                }}
+                className="text-sm text-[#2F2582] hover:underline"
+              >
+                + Add Row
+              </button>
             </div>
           </div>
         </CardContent>
