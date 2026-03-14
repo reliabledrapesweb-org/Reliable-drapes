@@ -151,7 +151,8 @@ export async function createExhibition(
     await verifyAdmin();
     const admin = getAdminSupabase();
     const title =
-      formData.title?.trim() || `Exhibition Photo ${new Date().toISOString().slice(0, 10)}`;
+      formData.title?.trim() ||
+      `Exhibition Photo ${new Date().toISOString().slice(0, 10)}`;
 
     const { data, error } = await admin
       .from("exhibitions")
@@ -391,6 +392,38 @@ export async function getExhibitionYears(): Promise<{
   }
 }
 
+export async function getAdminExhibitionYears(): Promise<{
+  success: boolean;
+  data?: ExhibitionYear[];
+  error?: string;
+}> {
+  try {
+    const admin = getAdminSupabase();
+
+    const { data, error } = await admin
+      .from("exhibition_years")
+      .select("*")
+      .order("year", { ascending: false });
+
+    if (error) {
+      return {
+        success: false,
+        error: "Failed to fetch exhibition years",
+      };
+    }
+
+    return {
+      success: true,
+      data: data as ExhibitionYear[],
+    };
+  } catch {
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}
+
 export async function getExhibitionItems(
   yearId: string,
   type?: string,
@@ -407,6 +440,48 @@ export async function getExhibitionItems(
       .select("*")
       .eq("year_id", yearId)
       .eq("is_active", true)
+      .order("display_order", { ascending: true });
+
+    if (type !== undefined) {
+      query = query.eq("type", type);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      return {
+        success: false,
+        error: "Failed to fetch exhibition items",
+      };
+    }
+
+    return {
+      success: true,
+      data: data as ExhibitionItem[],
+    };
+  } catch {
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}
+
+export async function getAdminExhibitionItems(
+  yearId: string,
+  type?: string,
+): Promise<{
+  success: boolean;
+  data?: ExhibitionItem[];
+  error?: string;
+}> {
+  try {
+    const admin = getAdminSupabase();
+
+    let query = admin
+      .from("exhibition_items")
+      .select("*")
+      .eq("year_id", yearId)
       .order("display_order", { ascending: true });
 
     if (type !== undefined) {
