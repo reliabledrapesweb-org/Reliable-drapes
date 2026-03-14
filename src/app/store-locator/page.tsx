@@ -1,57 +1,56 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { Breadcrumb, PageHero, PageHeader } from "@/components/shared";
-import { StoreGrid } from "@/components/features/store-locator";
-import { StoreGridSkeleton } from "@/components/features/store-locator/StoreGridSkeleton";
-import { getStores, type Store } from "@/lib/actions/stores";
-import { MapPin } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Breadcrumb, PageHero } from "@/components/shared";
+import {
+  StoreGrid,
+  StoreGridSkeleton,
+  StateFilterModal,
+} from "@/components/features/store-locator";
+import { getStores } from "@/lib/actions/stores";
+import type { Store } from "@/lib/actions/stores";
+import { STORES_PER_PAGE } from "@/lib/constants/app";
+import { MapPin, SlidersHorizontal } from "lucide-react";
 import { motion } from "motion/react";
 
 export default function StoreLocatorPage() {
-  const [searchQuery, setSearchQuery] = useState("");
   const [stores, setStores] = useState<Store[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedStates, setSelectedStates] = useState<string[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(STORES_PER_PAGE);
 
-  // Fetch stores on mount
   useEffect(() => {
     const fetchStores = async () => {
       setIsLoading(true);
       setError(null);
-
       const result = await getStores();
-
       if (result.success && result.stores) {
         setStores(result.stores);
       } else {
         setError(result.error || "Failed to load stores");
       }
-
       setIsLoading(false);
     };
-
     fetchStores();
   }, []);
 
-  // Filter stores based on search query
-  const filteredStores = useMemo(() => {
-    if (!searchQuery) return stores;
+  const uniqueStates = [
+    ...new Set(stores.map((s) => s.state).filter(Boolean)),
+  ].sort() as string[];
 
-    const query = searchQuery.toLowerCase();
-    return stores.filter(
-      (store) =>
-        store.name.toLowerCase().includes(query) ||
-        store.city.toLowerCase().includes(query) ||
-        (store.state && store.state.toLowerCase().includes(query)) ||
-        store.address.toLowerCase().includes(query) ||
-        store.country.toLowerCase().includes(query),
-    );
-  }, [searchQuery, stores]);
+  const filtered =
+    selectedStates.length === 0
+      ? stores
+      : stores.filter((s) => s.state && selectedStates.includes(s.state));
 
-  const handleLocateStore = (store: Store) => {
-    // Store selection is handled within the modal in StoreGrid.
-    void store;
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = filtered.length > visibleCount;
+
+  const handleApplyFilter = (states: string[]) => {
+    setSelectedStates(states);
+    setVisibleCount(STORES_PER_PAGE);
   };
 
   return (
@@ -63,23 +62,38 @@ export default function StoreLocatorPage() {
       <Breadcrumb />
       <div className="w-full py-12 md:py-16 lg:py-20">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          {/* Header Section */}
-          <PageHeader
-            category="Store Locator"
-            title="All Across India"
-            description={
-              error
-                ? error
-                : isLoading
-                  ? "Loading stores..."
-                  : `Find our stores near you - ${filteredStores.length} store${filteredStores.length !== 1 ? "s" : ""} available`
-            }
-            searchValue={searchQuery}
-            onSearchChange={setSearchQuery}
-            searchPlaceholder="Search by city, state, or store name..."
-          />
+          <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#2F2582]">
+                Store Locator
+              </p>
+              <h1 className="mt-1 text-3xl font-bold text-gray-900 md:text-4xl">
+                All Across India
+              </h1>
+              {!isLoading && !error && (
+                <p className="mt-2 text-sm text-gray-500">
+                  {selectedStates.length > 0
+                    ? `${filtered.length} store${filtered.length !== 1 ? "s" : ""} in ${selectedStates.length} state${selectedStates.length !== 1 ? "s" : ""}`
+                    : `${stores.length} store${stores.length !== 1 ? "s" : ""} across India`}
+                </p>
+              )}
+            </div>
+            {!isLoading && !error && uniqueStates.length > 0 && (
+              <button
+                onClick={() => setIsFilterOpen(true)}
+                className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Filter by States
+                {selectedStates.length > 0 && (
+                  <span className="ml-1 rounded-full bg-[#2F2582] px-2 py-0.5 text-xs text-white">
+                    {selectedStates.length}
+                  </span>
+                )}
+              </button>
+            )}
+          </div>
 
-          {/* India Map Section */}
           {!isLoading && !error && stores.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -118,7 +132,6 @@ export default function StoreLocatorPage() {
             </motion.div>
           )}
 
-          {/* Store Grid Section */}
           <div className="flex flex-col gap-8 md:gap-12">
             {isLoading ? (
               <StoreGridSkeleton />
@@ -134,25 +147,34 @@ export default function StoreLocatorPage() {
                   </button>
                 </div>
               </div>
-            ) : filteredStores.length === 0 ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="text-center">
-                  <p className="text-gray-600">
-                    {searchQuery
-                      ? `No stores found matching "${searchQuery}"`
-                      : "No stores available at the moment"}
-                  </p>
-                </div>
-              </div>
             ) : (
-              <StoreGrid
-                stores={filteredStores}
-                onLocateStore={handleLocateStore}
-              />
+              <>
+                <StoreGrid stores={visible} />
+                {hasMore && (
+                  <div className="flex justify-center">
+                    <button
+                      onClick={() =>
+                        setVisibleCount((c) => c + STORES_PER_PAGE)
+                      }
+                      className="rounded-lg border border-gray-200 bg-white px-8 py-3 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+                    >
+                      Load More
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
       </div>
+
+      <StateFilterModal
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        states={uniqueStates}
+        selectedStates={selectedStates}
+        onApply={handleApplyFilter}
+      />
     </main>
   );
 }
