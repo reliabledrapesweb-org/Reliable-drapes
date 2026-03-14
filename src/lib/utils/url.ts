@@ -2,17 +2,17 @@
  * Get the correct base URL for different environments
  */
 export function getBaseUrl(): string {
-  // Always prioritize the environment variable
   if (process.env.NEXT_PUBLIC_APP_URL) {
-    return process.env.NEXT_PUBLIC_APP_URL;
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
   }
 
-  // Check for Vercel environment
+  if (process.env.NEXTAUTH_URL) {
+    return process.env.NEXTAUTH_URL.replace(/\/$/, "");
+  }
+
   if (process.env.VERCEL_URL) {
-    const url = `https://${process.env.VERCEL_URL}`;
-    return url;
+    return `https://${process.env.VERCEL_URL}`;
   }
 
-  // Fallback to localhost for development
   return "http://localhost:3000";
 }
