@@ -89,7 +89,7 @@ export function FounderSection({ section }: FounderSectionProps) {
             <div className="space-y-6 text-lg leading-relaxed text-[#575757]">
               <div>
                 <h4 className="mb-2 font-semibold">
-                  His Vision Behind Reliable Drapes
+                  Vision Behind Reliable Drapes
                 </h4>
                 <p>{content}</p>
               </div>
