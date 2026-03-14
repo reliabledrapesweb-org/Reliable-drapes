@@ -150,6 +150,18 @@ export async function updateSiteSettings(
       };
     }
 
+    // Validate business_hours if present
+    if (formData.business_hours !== undefined) {
+      const validated = validateBusinessHours(formData.business_hours);
+      if (!validated) {
+        return {
+          success: false,
+          error: "Invalid business hours format",
+        };
+      }
+      formData = { ...formData, business_hours: validated };
+    }
+
     const { data, error } = await admin
       .from("site_settings")
       .update({
