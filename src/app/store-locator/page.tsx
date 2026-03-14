@@ -64,7 +64,7 @@ export default function StoreLocatorPage() {
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
           <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-[#2F2582]">
+              <p className="text-xs font-semibold tracking-widest text-[#2F2582] uppercase">
                 Store Locator
               </p>
               <h1 className="mt-1 text-3xl font-bold text-gray-900 md:text-4xl">

@@ -11,7 +11,10 @@ type SubSectionTabsProps = {
   onTypeChange: (type: string) => void;
 };
 
-export function SubSectionTabs({ activeType, onTypeChange }: SubSectionTabsProps) {
+export function SubSectionTabs({
+  activeType,
+  onTypeChange,
+}: SubSectionTabsProps) {
   return (
     <div className="flex gap-2">
       {SUB_SECTIONS.map((section) => (

@@ -28,9 +28,13 @@ export function NewsArticleCard({ item }: NewsArticleCardProps) {
             {item.source_name}
           </p>
         )}
-        <h3 className="text-sm font-bold text-gray-900 line-clamp-2">{item.title}</h3>
+        <h3 className="line-clamp-2 text-sm font-bold text-gray-900">
+          {item.title}
+        </h3>
         {item.description && (
-          <p className="mt-1 text-xs text-gray-500 line-clamp-2">{item.description}</p>
+          <p className="mt-1 line-clamp-2 text-xs text-gray-500">
+            {item.description}
+          </p>
         )}
         {item.article_url && (
           <a

@@ -10,7 +10,9 @@ export function StoreGrid({ stores }: StoreGridProps) {
   if (stores.length === 0) {
     return (
       <div className="py-12 text-center">
-        <p className="text-gray-500">No stores found for the selected filter.</p>
+        <p className="text-gray-500">
+          No stores found for the selected filter.
+        </p>
       </div>
     );
   }

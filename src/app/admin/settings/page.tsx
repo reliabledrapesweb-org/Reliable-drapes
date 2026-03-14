@@ -2043,17 +2043,20 @@ function SiteSettingsTab({
             </div>
 
             <div className="space-y-2 sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Business Hours
               </label>
               {(formData.business_hours || []).map((entry, index) => (
-                <div key={index} className="flex items-center gap-2 mb-2">
+                <div key={index} className="mb-2 flex items-center gap-2">
                   <input
                     type="text"
                     value={entry.day}
                     onChange={(e) => {
                       const updated = [...(formData.business_hours || [])];
-                      updated[index] = { ...updated[index], day: e.target.value };
+                      updated[index] = {
+                        ...updated[index],
+                        day: e.target.value,
+                      };
                       setFormData((prev) => ({
                         ...prev,
                         business_hours: updated,
@@ -2090,7 +2093,7 @@ function SiteSettingsTab({
                         business_hours: updated,
                       }));
                     }}
-                    className="text-red-500 hover:text-red-700 text-sm"
+                    className="text-sm text-red-500 hover:text-red-700"
                   >
                     Remove
                   </button>

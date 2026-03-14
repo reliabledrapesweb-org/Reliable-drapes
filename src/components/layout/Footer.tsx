@@ -29,9 +29,8 @@ type SocialLinks = {
 };
 
 export function Footer() {
-  const [categories, setCategories] = useState<
-    Array<{ id: string; name: string }>
-  >(fallbackCategories);
+  const [categories, setCategories] =
+    useState<Array<{ id: string; name: string }>>(fallbackCategories);
   const [isLoading, setIsLoading] = useState(true);
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({
     instagram: null,
@@ -60,11 +59,12 @@ export function Footer() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [categoriesResult, socialResult, companyResult] = await Promise.all([
-          getCatalogueCategories(),
-          getSocialLinks(),
-          getCompanyDetails(),
-        ]);
+        const [categoriesResult, socialResult, companyResult] =
+          await Promise.all([
+            getCatalogueCategories(),
+            getSocialLinks(),
+            getCompanyDetails(),
+          ]);
 
         if (
           categoriesResult.success &&
@@ -441,4 +441,3 @@ export function Footer() {
     </footer>
   );
 }
-
