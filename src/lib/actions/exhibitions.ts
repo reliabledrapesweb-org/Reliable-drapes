@@ -335,3 +335,371 @@ export async function toggleExhibitionStatus(
   }
 }
 
+export type ExhibitionYear = {
+  id: string;
+  year: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ExhibitionItem = {
+  id: string;
+  year_id: string;
+  type: "exhibition" | "moment" | "news";
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  source_name: string | null;
+  article_url: string | null;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export async function getExhibitionYears(): Promise<{
+  success: boolean;
+  data?: ExhibitionYear[];
+  error?: string;
+}> {
+  try {
+    const supabase = getAnonSupabase();
+
+    const { data, error } = await supabase
+      .from("exhibition_years")
+      .select("*")
+      .eq("is_active", true)
+      .order("year", { ascending: false });
+
+    if (error) {
+      return {
+        success: false,
+        error: "Failed to fetch exhibition years",
+      };
+    }
+
+    return {
+      success: true,
+      data: data as ExhibitionYear[],
+    };
+  } catch {
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}
+
+export async function getExhibitionItems(
+  yearId: string,
+  type?: string,
+): Promise<{
+  success: boolean;
+  data?: ExhibitionItem[];
+  error?: string;
+}> {
+  try {
+    const supabase = getAnonSupabase();
+
+    let query = supabase
+      .from("exhibition_items")
+      .select("*")
+      .eq("year_id", yearId)
+      .eq("is_active", true)
+      .order("display_order", { ascending: true });
+
+    if (type !== undefined) {
+      query = query.eq("type", type);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      return {
+        success: false,
+        error: "Failed to fetch exhibition items",
+      };
+    }
+
+    return {
+      success: true,
+      data: data as ExhibitionItem[],
+    };
+  } catch {
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}
+
+export async function createExhibitionYear(year: number): Promise<{
+  success: boolean;
+  data?: ExhibitionYear;
+  error?: string;
+}> {
+  try {
+    await verifyAdmin();
+    const admin = getAdminSupabase();
+
+    const { data, error } = await admin
+      .from("exhibition_years")
+      .insert([{ year, is_active: true }])
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        success: false,
+        error: "Failed to create exhibition year",
+      };
+    }
+
+    revalidatePath("/exhibitions-events");
+    revalidatePath("/admin/exhibitions");
+
+    return {
+      success: true,
+      data: data as ExhibitionYear,
+    };
+  } catch {
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}
+
+export async function updateExhibitionYear(
+  id: string,
+  data: { year?: number; is_active?: boolean },
+): Promise<{
+  success: boolean;
+  data?: ExhibitionYear;
+  error?: string;
+}> {
+  try {
+    await verifyAdmin();
+    const admin = getAdminSupabase();
+
+    const { data: updated, error } = await admin
+      .from("exhibition_years")
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        success: false,
+        error: "Failed to update exhibition year",
+      };
+    }
+
+    revalidatePath("/exhibitions-events");
+    revalidatePath("/admin/exhibitions");
+
+    return {
+      success: true,
+      data: updated as ExhibitionYear,
+    };
+  } catch {
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}
+
+export async function deleteExhibitionYear(id: string): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    await verifyAdmin();
+    const admin = getAdminSupabase();
+
+    const { error } = await admin
+      .from("exhibition_years")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      return {
+        success: false,
+        error: "Failed to delete exhibition year",
+      };
+    }
+
+    revalidatePath("/exhibitions-events");
+    revalidatePath("/admin/exhibitions");
+
+    return {
+      success: true,
+    };
+  } catch {
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}
+
+export async function createExhibitionItem(
+  data: Omit<ExhibitionItem, "id" | "created_at" | "updated_at">,
+): Promise<{
+  success: boolean;
+  data?: ExhibitionItem;
+  error?: string;
+}> {
+  try {
+    await verifyAdmin();
+    const admin = getAdminSupabase();
+
+    const { data: created, error } = await admin
+      .from("exhibition_items")
+      .insert([data])
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        success: false,
+        error: "Failed to create exhibition item",
+      };
+    }
+
+    revalidatePath("/exhibitions-events");
+    revalidatePath("/admin/exhibitions");
+
+    return {
+      success: true,
+      data: created as ExhibitionItem,
+    };
+  } catch {
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}
+
+export async function updateExhibitionItem(
+  id: string,
+  data: Partial<ExhibitionItem>,
+): Promise<{
+  success: boolean;
+  data?: ExhibitionItem;
+  error?: string;
+}> {
+  try {
+    await verifyAdmin();
+    const admin = getAdminSupabase();
+
+    const { data: updated, error } = await admin
+      .from("exhibition_items")
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        success: false,
+        error: "Failed to update exhibition item",
+      };
+    }
+
+    revalidatePath("/exhibitions-events");
+    revalidatePath("/admin/exhibitions");
+
+    return {
+      success: true,
+      data: updated as ExhibitionItem,
+    };
+  } catch {
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}
+
+export async function deleteExhibitionItem(id: string): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    await verifyAdmin();
+    const admin = getAdminSupabase();
+
+    const { error } = await admin
+      .from("exhibition_items")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      return {
+        success: false,
+        error: "Failed to delete exhibition item",
+      };
+    }
+
+    revalidatePath("/exhibitions-events");
+    revalidatePath("/admin/exhibitions");
+
+    return {
+      success: true,
+    };
+  } catch {
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}
+
+export async function toggleExhibitionItemStatus(
+  id: string,
+  isActive: boolean,
+): Promise<{
+  success: boolean;
+  data?: ExhibitionItem;
+  error?: string;
+}> {
+  try {
+    await verifyAdmin();
+    const admin = getAdminSupabase();
+
+    const { data, error } = await admin
+      .from("exhibition_items")
+      .update({
+        is_active: isActive,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        success: false,
+        error: "Failed to update exhibition item status",
+      };
+    }
+
+    revalidatePath("/exhibitions-events");
+    revalidatePath("/admin/exhibitions");
+
+    return {
+      success: true,
+      data: data as ExhibitionItem,
+    };
+  } catch {
+    return {
+      success: false,
+      error: "An unexpected error occurred",
+    };
+  }
+}
