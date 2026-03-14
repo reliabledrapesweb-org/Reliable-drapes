@@ -18,7 +18,7 @@ const businessHoursSchema = z
   )
   .min(1);
 
-function validateBusinessHours(
+export function validateBusinessHours(
   hours: unknown,
 ): Array<{ day: string; hours: string }> | null {
   const result = businessHoursSchema.safeParse(hours);
@@ -150,7 +150,6 @@ export async function updateSiteSettings(
       };
     }
 
-    // Validate business_hours if present
     if (formData.business_hours !== undefined) {
       const validated = validateBusinessHours(formData.business_hours);
       if (!validated) {
