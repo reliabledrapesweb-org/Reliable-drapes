@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { validateBusinessHours } from "./site-settings";
+import { validateBusinessHours } from "@/lib/validators/business-hours";
 
 describe("validateBusinessHours", () => {
   const validHours = [
