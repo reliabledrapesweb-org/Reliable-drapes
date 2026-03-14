@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Mail,
@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { createContactSubmission } from "@/lib/actions/communications";
+import { getCompanyDetails } from "@/lib/actions/site-settings";
 import {
   CONTACT_EMAIL,
   COMPANY_PHONE,
@@ -195,6 +196,28 @@ export default function ContactPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [companyInfo, setCompanyInfo] = useState<{
+    phone: string | null;
+    contactCallPhone: string | null;
+    warehouseAddress: string | null;
+    businessHours: Array<{ day: string; hours: string }> | null;
+  }>({
+    phone: null,
+    contactCallPhone: null,
+    warehouseAddress: null,
+    businessHours: null,
+  });
+
+  useEffect(() => {
+    getCompanyDetails().then((details) => {
+      setCompanyInfo({
+        phone: details.phone,
+        contactCallPhone: details.contactCallPhone,
+        warehouseAddress: details.warehouseAddress,
+        businessHours: details.businessHours,
+      });
+    });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -236,23 +259,26 @@ export default function ContactPage() {
     setIsLoading(false);
   };
 
-  const contactItems = [
-    {
-      icon: Mail,
-      title: "Email",
-      lines: [CONTACT_EMAIL],
-    },
-    {
-      icon: Phone,
-      title: "Phone",
-      lines: [COMPANY_PHONE, "Mon-Sat, 9am-6pm IST"],
-    },
-    {
-      icon: MapPin,
-      title: "Address",
-      lines: [COMPANY_ADDRESS],
-    },
-  ];
+  const contactItems = useMemo(
+    () => [
+      {
+        icon: Mail,
+        title: "Email",
+        lines: [CONTACT_EMAIL],
+      },
+      {
+        icon: Phone,
+        title: "Call Us",
+        lines: [companyInfo.contactCallPhone || "+91 98113 31948"],
+      },
+      {
+        icon: MapPin,
+        title: "Address",
+        lines: [companyInfo.warehouseAddress || COMPANY_ADDRESS],
+      },
+    ],
+    [companyInfo],
+  );
 
   const socialLinks = [
     ...(SOCIAL_LINKS.instagram
@@ -366,7 +392,8 @@ export default function ContactPage() {
                 Send us a Message
               </motion.h2>
               <p className="mb-4 text-sm text-gray-600">
-                For urgent queries, call us at {COMPANY_PHONE}
+                For urgent queries, call us at{" "}
+                {companyInfo.phone || COMPANY_PHONE}
               </p>
 
               <motion.form
@@ -616,11 +643,13 @@ export default function ContactPage() {
                   transition={{ delay: 0.8 }}
                   className="space-y-3 text-white/90"
                 >
-                  {[
-                    { day: "Monday - Friday", hours: "9:00 AM - 6:00 PM" },
-                    { day: "Saturday", hours: "10:00 AM - 4:00 PM" },
-                    { day: "Sunday", hours: "Closed" },
-                  ].map((item, index) => (
+                  {(
+                    companyInfo.businessHours || [
+                      { day: "Monday - Friday", hours: "9:00 AM - 6:00 PM" },
+                      { day: "Saturday", hours: "10:00 AM - 4:00 PM" },
+                      { day: "Sunday", hours: "Closed" },
+                    ]
+                  ).map((item, index) => (
                     <motion.div
                       key={item.day}
                       initial={{ opacity: 0, x: -20 }}
