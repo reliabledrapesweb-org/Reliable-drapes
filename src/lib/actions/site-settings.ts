@@ -161,10 +161,14 @@ export async function updateSiteSettings(
       formData = { ...formData, business_hours: validated };
     }
 
+    const updatePayload = Object.fromEntries(
+      Object.entries(formData).filter(([, v]) => v !== undefined),
+    );
+
     const { data, error } = await admin
       .from("site_settings")
       .update({
-        ...formData,
+        ...updatePayload,
         updated_at: new Date().toISOString(),
       })
       .eq("id", existingSettings.id)
@@ -174,7 +178,7 @@ export async function updateSiteSettings(
     if (error) {
       return {
         success: false,
-        error: "Failed to update site settings",
+        error: `Failed to update site settings: ${error.message}`,
       };
     }
 
