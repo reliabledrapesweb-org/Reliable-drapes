@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { DM_Sans } from "next/font/google";
 import Script from "next/script";
 import "@/app/globals.css";
@@ -100,7 +101,9 @@ export default function RootLayout({
         )}
         <AuthProvider>
           <CommerceFeaturesProvider>
-            <AnalyticsProvider />
+            <Suspense fallback={null}>
+              <AnalyticsProvider />
+            </Suspense>
             <LayoutContent>{children}</LayoutContent>
           </CommerceFeaturesProvider>
         </AuthProvider>
