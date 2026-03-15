@@ -10,15 +10,15 @@ type YearTabsProps = {
 
 export function YearTabs({ years, activeYear, onYearChange }: YearTabsProps) {
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2">
+    <div className="flex items-center gap-1.5 overflow-x-auto rounded-xl bg-gray-100 p-1.5">
       {years.map((y) => (
         <button
           key={y.id}
           onClick={() => onYearChange(y.id)}
-          className={`shrink-0 rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
+          className={`relative shrink-0 rounded-lg px-6 py-2.5 text-sm font-bold tracking-wide transition-all ${
             activeYear === y.id
-              ? "bg-[#2F2582] text-white"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-[#2F2582] text-white shadow-md shadow-[#2F2582]/25"
+              : "text-gray-500 hover:bg-white hover:text-gray-800 hover:shadow-sm"
           }`}
         >
           {y.year}
