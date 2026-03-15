@@ -15,6 +15,7 @@ import {
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { FileUpload } from "@/components/admin/FileUpload";
 import { AdminPageSkeleton } from "@/components/ui/AdminPageSkeleton";
 import { ConfirmationModal } from "@/components/shared/ConfirmationModal";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
@@ -715,8 +716,38 @@ export default function ExhibitionsAdminPage() {
 
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                    Image URL
+                    Image
                   </label>
+                  <FileUpload
+                    label=""
+                    accept="image/*"
+                    bucket="products"
+                    folder="exhibitions"
+                    currentUrl={itemForm.image_url}
+                    onUploadComplete={(url) =>
+                      setItemForm((prev) => ({
+                        ...prev,
+                        image_url: url,
+                      }))
+                    }
+                    onRemove={() =>
+                      setItemForm((prev) => ({
+                        ...prev,
+                        image_url: "",
+                      }))
+                    }
+                    maxSizeMB={5}
+                    allowedTypes={[
+                      "image/jpeg",
+                      "image/png",
+                      "image/webp",
+                      "image/jpg",
+                    ]}
+                    previewType="image"
+                  />
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    Or paste an image URL:
+                  </p>
                   <input
                     type="url"
                     value={itemForm.image_url}
@@ -726,19 +757,9 @@ export default function ExhibitionsAdminPage() {
                         image_url: e.target.value,
                       }))
                     }
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
                     placeholder="https://example.com/image.jpg"
                   />
-                  {itemForm.image_url && (
-                    <div className="relative mt-2 h-24 w-24 overflow-hidden rounded-lg border">
-                      <Image
-                        src={itemForm.image_url}
-                        alt="Preview"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  )}
                 </div>
 
                 <div>
