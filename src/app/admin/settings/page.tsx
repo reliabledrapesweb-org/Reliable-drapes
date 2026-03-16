@@ -1169,7 +1169,9 @@ function SiteSettingsTab({
     company_address: COMPANY_ADDRESS,
     company_tagline: "",
     head_office_address: "",
+    head_office_map_link: "",
     warehouse_address: "",
+    warehouse_map_link: "",
     contact_call_phone: "",
     business_hours: [
       { day: "Monday - Friday", hours: "9:00 AM - 6:00 PM" },
@@ -1222,7 +1224,9 @@ function SiteSettingsTab({
           siteSettings.company_address?.trim() || defaults.company_address,
         company_tagline: siteSettings.company_tagline || "",
         head_office_address: siteSettings.head_office_address || "",
+        head_office_map_link: siteSettings.head_office_map_link || "",
         warehouse_address: siteSettings.warehouse_address || "",
+        warehouse_map_link: siteSettings.warehouse_map_link || "",
         contact_call_phone: siteSettings.contact_call_phone || "",
         business_hours: siteSettings.business_hours || [
           { day: "Monday - Friday", hours: "9:00 AM - 6:00 PM" },
@@ -2007,6 +2011,15 @@ function SiteSettingsTab({
                 className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 placeholder="Full head office address"
               />
+              <input
+                type="url"
+                value={formData.head_office_map_link || ""}
+                onChange={(e) =>
+                  handleChange("head_office_map_link", e.target.value)
+                }
+                className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                placeholder="Google Maps link (e.g. https://maps.google.com/...)"
+              />
             </div>
 
             <div className="space-y-2 sm:col-span-2">
@@ -2021,6 +2034,15 @@ function SiteSettingsTab({
                 rows={2}
                 className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 placeholder="Full warehouse address"
+              />
+              <input
+                type="url"
+                value={formData.warehouse_map_link || ""}
+                onChange={(e) =>
+                  handleChange("warehouse_map_link", e.target.value)
+                }
+                className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                placeholder="Google Maps link (e.g. https://maps.google.com/...)"
               />
             </div>
 

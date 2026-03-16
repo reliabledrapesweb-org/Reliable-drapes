@@ -33,6 +33,8 @@ export type SiteSettings = {
   company_tagline: string | null;
   head_office_address: string | null;
   warehouse_address: string | null;
+  head_office_map_link: string | null;
+  warehouse_map_link: string | null;
   contact_call_phone: string | null;
   business_hours: Array<{ day: string; hours: string }> | null;
   google_place_id: string | null;
@@ -66,6 +68,8 @@ export type SiteSettingsFormData = Partial<
     | "company_tagline"
     | "head_office_address"
     | "warehouse_address"
+    | "head_office_map_link"
+    | "warehouse_map_link"
     | "contact_call_phone"
     | "business_hours"
     | "google_place_id"
@@ -363,6 +367,8 @@ export async function getCompanyDetails(): Promise<{
   tagline: string | null;
   headOfficeAddress: string | null;
   warehouseAddress: string | null;
+  headOfficeMapLink: string | null;
+  warehouseMapLink: string | null;
   contactCallPhone: string | null;
   businessHours: Array<{ day: string; hours: string }> | null;
 }> {
@@ -372,7 +378,7 @@ export async function getCompanyDetails(): Promise<{
     const { data, error } = await supabase
       .from("site_settings")
       .select(
-        "company_email, company_phone, company_address, company_tagline, head_office_address, warehouse_address, contact_call_phone, business_hours",
+        "company_email, company_phone, company_address, company_tagline, head_office_address, warehouse_address, head_office_map_link, warehouse_map_link, contact_call_phone, business_hours",
       )
       .limit(1)
       .single();
@@ -385,6 +391,8 @@ export async function getCompanyDetails(): Promise<{
         tagline: null,
         headOfficeAddress: null,
         warehouseAddress: null,
+        headOfficeMapLink: null,
+        warehouseMapLink: null,
         contactCallPhone: null,
         businessHours: null,
       };
@@ -397,6 +405,8 @@ export async function getCompanyDetails(): Promise<{
       tagline: data?.company_tagline ?? null,
       headOfficeAddress: data?.head_office_address ?? null,
       warehouseAddress: data?.warehouse_address ?? null,
+      headOfficeMapLink: data?.head_office_map_link ?? null,
+      warehouseMapLink: data?.warehouse_map_link ?? null,
       contactCallPhone: data?.contact_call_phone ?? null,
       businessHours: validateBusinessHours(data?.business_hours),
     };
@@ -408,6 +418,8 @@ export async function getCompanyDetails(): Promise<{
       tagline: null,
       headOfficeAddress: null,
       warehouseAddress: null,
+      headOfficeMapLink: null,
+      warehouseMapLink: null,
       contactCallPhone: null,
       businessHours: null,
     };

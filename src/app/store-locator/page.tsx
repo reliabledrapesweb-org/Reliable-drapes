@@ -6,7 +6,6 @@ import {
   StoreGrid,
   StoreGridSkeleton,
   StateFilterModal,
-  IndiaStoreMap,
 } from "@/components/features/store-locator";
 import { getStores } from "@/lib/actions/stores";
 import type { Store } from "@/lib/actions/stores";
@@ -129,7 +128,7 @@ export default function StoreLocatorPage() {
             )}
           </div>
 
-          {/* India Map with Store Markers */}
+          {/* Map */}
           {!isLoading && !error && stores.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -143,16 +142,26 @@ export default function StoreLocatorPage() {
                   Our Stores Across India
                 </h3>
               </div>
-              <div className="px-4 py-6 sm:px-6 sm:py-8">
-                <IndiaStoreMap stores={filtered} />
+              <div className="relative aspect-[16/9] w-full sm:aspect-[21/9]">
+                <iframe
+                  src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7343809.5170247555!2d73!3d22!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30635ff06b92b797%3A0xd78c4751851fbb5a!2sIndia!5e0!3m2!1sen!2sin!4v1708000000000!5m2!1sen!2sin`}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Store Locations in India"
+                  className="absolute inset-0"
+                />
               </div>
               <div className="border-t border-gray-100 px-6 py-4">
                 <p className="text-center text-sm text-gray-600">
-                  Hover over a marker to see store details.{" "}
+                  Visit any of our{" "}
                   <span className="font-semibold text-[#2F2582]">
                     {filtered.length} store{filtered.length !== 1 ? "s" : ""}
                   </span>{" "}
-                  across India
+                  across India for trade consultations and B2B sourcing support
                 </p>
               </div>
             </motion.div>

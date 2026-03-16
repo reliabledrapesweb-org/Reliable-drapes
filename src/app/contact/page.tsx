@@ -18,13 +18,13 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { createContactSubmission } from "@/lib/actions/communications";
-import { getCompanyDetails } from "@/lib/actions/site-settings";
+import { getCompanyDetails, getSocialLinks } from "@/lib/actions/site-settings";
 import {
   CONTACT_EMAIL,
   COMPANY_PHONE,
   COMPANY_ADDRESS,
-  SOCIAL_LINKS,
 } from "@/lib/constants/app";
+import { FaYoutube, FaLinkedinIn } from "react-icons/fa";
 
 // Animation variants
 const containerVariants = {
@@ -207,16 +207,32 @@ export default function ContactPage() {
     warehouseAddress: null,
     businessHours: null,
   });
+  const [adminSocialLinks, setAdminSocialLinks] = useState<{
+    instagram: string | null;
+    facebook: string | null;
+    twitter: string | null;
+    youtube: string | null;
+    linkedin: string | null;
+  }>({
+    instagram: null,
+    facebook: null,
+    twitter: null,
+    youtube: null,
+    linkedin: null,
+  });
 
   useEffect(() => {
-    getCompanyDetails().then((details) => {
-      setCompanyInfo({
-        phone: details.phone,
-        contactCallPhone: details.contactCallPhone,
-        warehouseAddress: details.warehouseAddress,
-        businessHours: details.businessHours,
-      });
-    });
+    Promise.all([getCompanyDetails(), getSocialLinks()]).then(
+      ([details, socials]) => {
+        setCompanyInfo({
+          phone: details.phone,
+          contactCallPhone: details.contactCallPhone,
+          warehouseAddress: details.warehouseAddress,
+          businessHours: details.businessHours,
+        });
+        setAdminSocialLinks(socials);
+      },
+    );
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -281,20 +297,33 @@ export default function ContactPage() {
   );
 
   const socialLinks = [
-    ...(SOCIAL_LINKS.instagram
-      ? [{ icon: Instagram, label: "Instagram", href: SOCIAL_LINKS.instagram }]
+    ...(adminSocialLinks.instagram
+      ? [
+          {
+            icon: Instagram,
+            label: "Instagram",
+            href: adminSocialLinks.instagram,
+          },
+        ]
       : []),
-    ...(SOCIAL_LINKS.facebook
-      ? [{ icon: Facebook, label: "Facebook", href: SOCIAL_LINKS.facebook }]
+    ...(adminSocialLinks.facebook
+      ? [{ icon: Facebook, label: "Facebook", href: adminSocialLinks.facebook }]
       : []),
-    ...(SOCIAL_LINKS.twitter
-      ? [{ icon: Twitter, label: "Twitter", href: SOCIAL_LINKS.twitter }]
+    ...(adminSocialLinks.twitter
+      ? [{ icon: Twitter, label: "Twitter", href: adminSocialLinks.twitter }]
       : []),
-    {
-      icon: Globe,
-      label: "Website",
-      href: SOCIAL_LINKS.website || "https://reliabledrapes.com",
-    },
+    ...(adminSocialLinks.youtube
+      ? [{ icon: FaYoutube, label: "YouTube", href: adminSocialLinks.youtube }]
+      : []),
+    ...(adminSocialLinks.linkedin
+      ? [
+          {
+            icon: FaLinkedinIn,
+            label: "LinkedIn",
+            href: adminSocialLinks.linkedin,
+          },
+        ]
+      : []),
   ];
 
   return (

@@ -307,18 +307,16 @@ export function Header() {
         whileHover={{ scale: 1.03, opacity: 0.9 }}
         transition={{ duration: 0.2 }}
       >
-        <Image
+        <img
           src={gemAssessedLogo.url}
           alt="GEM Assessed Logo"
-          width={256}
-          height={80}
           className={
             (
               {
-                small: "h-7 w-auto object-contain xl:h-8",
-                medium: "h-9 w-auto object-contain xl:h-10",
-                large: "h-11 w-auto object-contain xl:h-12",
-                "extra-large": "h-12 w-auto object-contain xl:h-14",
+                small: "h-8 w-auto xl:h-9",
+                medium: "h-10 w-auto xl:h-11",
+                large: "h-11 w-auto xl:h-12",
+                "extra-large": "h-12 w-auto xl:h-14",
               } as const
             )[gemAssessedLogo.size]
           }

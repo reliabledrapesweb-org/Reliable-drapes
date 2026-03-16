@@ -46,6 +46,8 @@ export function Footer() {
     tagline: string | null;
     headOfficeAddress: string | null;
     warehouseAddress: string | null;
+    headOfficeMapLink: string | null;
+    warehouseMapLink: string | null;
   }>({
     email: null,
     phone: null,
@@ -53,6 +55,8 @@ export function Footer() {
     tagline: null,
     headOfficeAddress: null,
     warehouseAddress: null,
+    headOfficeMapLink: null,
+    warehouseMapLink: null,
   });
 
   // Fetch footer categories and site settings from database
@@ -90,6 +94,8 @@ export function Footer() {
           tagline: companyResult.tagline?.trim() || null,
           headOfficeAddress: companyResult.headOfficeAddress?.trim() || null,
           warehouseAddress: companyResult.warehouseAddress?.trim() || null,
+          headOfficeMapLink: companyResult.headOfficeMapLink?.trim() || null,
+          warehouseMapLink: companyResult.warehouseMapLink?.trim() || null,
         });
       } catch {
         // Keep fallback values on error
@@ -169,6 +175,17 @@ export function Footer() {
                         <p className="text-sm text-gray-400">
                           {companyDetails.headOfficeAddress}
                         </p>
+                        {companyDetails.headOfficeMapLink && (
+                          <a
+                            href={companyDetails.headOfficeMapLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-1 inline-flex items-center gap-1 text-xs text-[#2F2582] transition-colors hover:text-white"
+                          >
+                            <MapPin className="h-3 w-3" />
+                            View on Map
+                          </a>
+                        )}
                       </div>
                     </div>
                   )}
@@ -182,6 +199,17 @@ export function Footer() {
                         <p className="text-sm text-gray-400">
                           {companyDetails.warehouseAddress}
                         </p>
+                        {companyDetails.warehouseMapLink && (
+                          <a
+                            href={companyDetails.warehouseMapLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-1 inline-flex items-center gap-1 text-xs text-[#2F2582] transition-colors hover:text-white"
+                          >
+                            <MapPin className="h-3 w-3" />
+                            View on Map
+                          </a>
+                        )}
                       </div>
                     </div>
                   )}
