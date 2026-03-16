@@ -28,7 +28,7 @@ export function PageHero({
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-6 md:px-12 lg:px-20">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 lg:px-20">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -63,7 +63,7 @@ export function PageHero({
 
           {/* Heading */}
           <motion.h1
-            className="mb-4 text-2xl leading-tight font-bold tracking-tight text-white md:text-4xl"
+            className="mb-4 text-xl leading-tight font-bold tracking-tight text-white sm:text-2xl md:text-3xl lg:text-4xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}

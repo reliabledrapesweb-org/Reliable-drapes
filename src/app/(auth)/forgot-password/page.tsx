@@ -38,11 +38,12 @@ export default function ForgotPasswordPage() {
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-8 md:px-8 md:py-16">
       <div className="mx-auto max-w-md">
-        <h1 className="mb-6 mt-14 text-center text-3xl font-semibold text-gray-900 md:mt-16 lg:mt-[72px]">
+        <h1 className="mt-8 mb-6 text-center text-3xl font-semibold text-gray-900 md:mt-14 lg:mt-16 xl:mt-[72px]">
           Reset Your Password
         </h1>
         <p className="mb-8 text-center text-sm text-gray-600">
-          Enter your email address and we'll send you a link to reset your password
+          Enter your email address and we'll send you a link to reset your
+          password
         </p>
 
         {error && (
@@ -59,8 +60,9 @@ export default function ForgotPasswordPage() {
               <div>
                 <p className="font-semibold text-green-900">Check your email</p>
                 <p className="mt-1 text-sm text-green-700">
-                  We&apos;ve sent a password reset link to <strong>{submittedEmail}</strong>. 
-                  Click the link to create a new password.
+                  We&apos;ve sent a password reset link to{" "}
+                  <strong>{submittedEmail}</strong>. Click the link to create a
+                  new password.
                 </p>
               </div>
             </div>
@@ -83,7 +85,7 @@ export default function ForgotPasswordPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isPending}
-                className="w-full border-0 border-b border-gray-900 bg-transparent py-4 px-2 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
+                className="w-full border-0 border-b border-gray-900 bg-transparent px-2 py-4 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
                 required
               />
             </div>
@@ -91,7 +93,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={isPending}
-              className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 bg-gray-200 text-xs tracking-widest text-gray-600 uppercase font-medium transition-colors hover:bg-gray-300 disabled:opacity-50"
+              className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 bg-gray-200 text-xs font-medium tracking-widest text-gray-600 uppercase transition-colors hover:bg-gray-300 disabled:opacity-50"
             >
               {isPending && <Loader className="h-4 w-4 animate-spin" />}
               Send Reset Link

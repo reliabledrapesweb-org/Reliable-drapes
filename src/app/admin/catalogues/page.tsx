@@ -489,7 +489,9 @@ export default function CataloguesPage() {
                       </span>
                     )}
                   </div>
-                  <p className="mt-0.5 text-xs text-gray-500">{category.slug}</p>
+                  <p className="mt-0.5 text-xs text-gray-500">
+                    {category.slug}
+                  </p>
                   <p className="text-xs text-gray-500">
                     {category.catalogue_count || 0} catalogues
                     {hasChildren && (
@@ -686,7 +688,7 @@ export default function CataloguesPage() {
           </div>
           <div className="h-10 w-full animate-pulse rounded-lg bg-gray-200 sm:w-32" />
         </div>
-        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
@@ -768,7 +770,7 @@ export default function CataloguesPage() {
 
       {/* Stats Cards */}
       {activeTab === "catalogues" ? (
-        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
           <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
             <p className="text-xs font-medium text-gray-600 sm:text-sm">
               Total
@@ -795,7 +797,7 @@ export default function CataloguesPage() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
           <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
             <p className="text-xs font-medium text-gray-600 sm:text-sm">
               Total
@@ -1658,7 +1660,8 @@ export default function CataloguesPage() {
                           ...categoryFormData,
                           name: e.target.value,
                           slug:
-                            categoryFormData.slug || generateSlug(e.target.value),
+                            categoryFormData.slug ||
+                            generateSlug(e.target.value),
                         })
                       }
                       className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"

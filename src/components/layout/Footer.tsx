@@ -428,7 +428,7 @@ export function Footer() {
         <div className="pt-6">
           <div className="flex flex-col items-start justify-between gap-4 text-xs text-[#a5a5a5] md:flex-row md:items-center md:text-sm">
             <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:gap-4">
-              <p className="text-center text-sm md:text-left md:text-base">
+              <p className="text-left text-sm md:text-base">
                 Copyright 2025 Reliable Drapes. All rights reserved.
               </p>
             </div>

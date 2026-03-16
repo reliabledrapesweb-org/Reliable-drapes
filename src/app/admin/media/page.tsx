@@ -25,7 +25,6 @@ import {
   CheckCircle,
   RefreshCw,
   Package,
-
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -468,7 +467,7 @@ export default function MediaLibraryPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
         <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
           <p className="text-xs font-medium text-gray-600 sm:text-sm">
             Total Files

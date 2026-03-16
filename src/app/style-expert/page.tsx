@@ -210,7 +210,7 @@ export default function StyleExpertPage() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, type: "spring" }}
-                className="rounded-3xl border border-gray-100 bg-white p-12 shadow-2xl"
+                className="rounded-3xl border border-gray-100 bg-white p-6 shadow-2xl sm:p-8 md:p-12"
               >
                 <motion.div
                   initial={{ scale: 0 }}
@@ -298,7 +298,7 @@ export default function StyleExpertPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-3xl border border-gray-100 bg-white p-8 shadow-2xl lg:p-12"
+            className="rounded-3xl border border-gray-100 bg-white p-4 shadow-2xl sm:p-6 md:p-8 lg:p-12"
           >
             <AnimatePresence mode="wait">
               {/* Step 1: Basic Info */}
@@ -578,7 +578,7 @@ export default function StyleExpertPage() {
                         {errors.space_type}
                       </p>
                     )}
-                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3 md:grid-cols-3">
                       {[
                         { id: "showroom", label: "Showroom" },
                         { id: "office", label: "Office" },

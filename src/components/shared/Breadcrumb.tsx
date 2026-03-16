@@ -61,13 +61,13 @@ export function Breadcrumb() {
   }, [pathname]);
 
   return (
-    <div className="w-full bg-gray-100 py-3">
-      <div className="mx-auto max-w-[1440px] px-6">
+    <div className="w-full bg-gray-100 py-2 sm:py-3">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6">
         <motion.nav
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex items-center gap-2 text-sm"
+          className="flex items-center gap-1 text-xs sm:gap-2 sm:text-sm"
         >
           {breadcrumbs.map((crumb, index) => (
             <div key={index} className="flex items-center gap-2">

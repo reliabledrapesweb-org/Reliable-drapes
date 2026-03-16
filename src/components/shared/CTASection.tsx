@@ -70,7 +70,11 @@ export function CTASection({ enableVideoBackground = false }: CTASectionProps) {
   }, [youtubeVideoId, isMuted, isPlaying]);
 
   useEffect(() => {
-    if (!showVideoBackground || videoSettings.type !== "upload" || !videoRef.current)
+    if (
+      !showVideoBackground ||
+      videoSettings.type !== "upload" ||
+      !videoRef.current
+    )
       return;
 
     videoRef.current.muted = isMuted;
@@ -115,7 +119,9 @@ export function CTASection({ enableVideoBackground = false }: CTASectionProps) {
                 type="button"
                 onClick={() => setIsPlaying((prev) => !prev)}
                 className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-sm transition-colors hover:bg-black/55"
-                aria-label={isPlaying ? "Pause background video" : "Play background video"}
+                aria-label={
+                  isPlaying ? "Pause background video" : "Play background video"
+                }
                 title={isPlaying ? "Pause" : "Play"}
               >
                 {isPlaying ? (
@@ -128,7 +134,9 @@ export function CTASection({ enableVideoBackground = false }: CTASectionProps) {
                 type="button"
                 onClick={() => setIsMuted((prev) => !prev)}
                 className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-sm transition-colors hover:bg-black/55"
-                aria-label={isMuted ? "Unmute background video" : "Mute background video"}
+                aria-label={
+                  isMuted ? "Unmute background video" : "Mute background video"
+                }
                 title={isMuted ? "Unmute" : "Mute"}
               >
                 {isMuted ? (
@@ -161,7 +169,7 @@ export function CTASection({ enableVideoBackground = false }: CTASectionProps) {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="mb-6 font-semibold text-[32px] tracking-tight text-white md:mb-8 md:text-[36px] lg:mb-12 lg:text-[44px]">
+        <h2 className="mb-4 text-[24px] font-semibold tracking-tight text-white sm:text-[28px] md:mb-8 md:text-[36px] lg:mb-12 lg:text-[44px]">
           Trends Beyond
           <br />
           Imagination
@@ -169,7 +177,7 @@ export function CTASection({ enableVideoBackground = false }: CTASectionProps) {
 
         <motion.a
           href="/e-catalogue"
-          className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[rgba(255,255,255,0.15)] bg-[rgba(0,0,0,0.1)] px-5 py-2.5 text-white backdrop-blur-[6px] md:px-7 md:py-3.5 lg:px-9"
+          className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[rgba(255,255,255,0.15)] bg-[rgba(0,0,0,0.1)] px-4 py-2 text-white backdrop-blur-[6px] sm:px-5 sm:py-2.5 md:px-7 md:py-3.5 lg:px-9"
           whileHover={{ scale: 1.05, backgroundColor: "rgba(0,0,0,0.2)" }}
           whileTap={{ scale: 0.98 }}
           transition={{ duration: 0.2 }}

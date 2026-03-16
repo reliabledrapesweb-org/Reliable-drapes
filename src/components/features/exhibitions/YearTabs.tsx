@@ -10,7 +10,7 @@ type YearTabsProps = {
 
 export function YearTabs({ years, activeYear, onYearChange }: YearTabsProps) {
   return (
-    <div className="flex items-center gap-1.5 overflow-x-auto rounded-xl bg-gray-100 p-1.5">
+    <div className="scrollbar-hide flex items-center gap-1.5 overflow-x-auto rounded-xl bg-gray-100 p-1.5">
       {years.map((y) => (
         <button
           key={y.id}

@@ -165,7 +165,6 @@ export default function AdminOrdersPage() {
         setTotalOrders(result.total || 0);
       }
     } catch (error) {
-
     } finally {
       setIsLoading(false);
     }
@@ -385,7 +384,7 @@ export default function AdminOrdersPage() {
             <div className="mt-2 h-4 w-64 animate-pulse rounded bg-gray-200 sm:w-96" />
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
@@ -423,7 +422,7 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-600 sm:text-sm">Total</p>
           <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">

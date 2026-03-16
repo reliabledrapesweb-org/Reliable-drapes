@@ -150,15 +150,15 @@ export function TraderLoginClient() {
     <div className="flex min-h-[60vh] flex-col px-4 py-8">
       <div className="mx-auto w-full max-w-5xl">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 shrink-0" />
             Back to Home
           </Link>
-          <h1 className="text-xl font-semibold text-gray-900">
+          <h1 className="text-lg font-semibold text-gray-900 sm:text-xl">
             B2B Dealer Portal
           </h1>
         </div>
@@ -178,7 +178,7 @@ export function TraderLoginClient() {
 
         {/* Loading State */}
         {!iframeLoaded && (
-          <div className="flex h-[600px] items-center justify-center rounded-xl bg-gray-100">
+          <div className="flex h-[400px] items-center justify-center rounded-xl bg-gray-100 sm:h-[500px] md:h-[600px]">
             <div className="flex flex-col items-center gap-4">
               <Loader2 className="h-8 w-8 animate-spin text-[#2f2582]" />
               <p className="text-gray-600">Loading dealer portal...</p>
@@ -191,7 +191,7 @@ export function TraderLoginClient() {
           src={DEALER_CONFIG.portalUrl}
           title={DEALER_CONFIG.iframeTitle}
           className={`w-full rounded-xl border border-gray-200 shadow-lg ${
-            iframeLoaded ? "h-[600px]" : "hidden"
+            iframeLoaded ? "h-[400px] sm:h-[500px] md:h-[600px]" : "hidden"
           }`}
           onLoad={() => setIframeLoaded(true)}
           allow="clipboard-write; clipboard-read"

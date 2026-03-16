@@ -20,7 +20,9 @@ export default function ResetPasswordPage() {
   // Check if user has a valid recovery session
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabaseClient.auth.getSession();
+      const {
+        data: { session },
+      } = await supabaseClient.auth.getSession();
       setIsValidSession(!!session);
     };
     checkSession();
@@ -62,7 +64,6 @@ export default function ResetPasswordPage() {
       await supabaseClient.auth.signOut();
       setSuccess(true);
     } catch (err) {
-
       setError("An unexpected error occurred");
     } finally {
       setIsPending(false);
@@ -87,9 +88,12 @@ export default function ResetPasswordPage() {
       <section className="mx-auto w-full max-w-7xl px-4 py-8 md:px-8 md:py-16">
         <div className="mx-auto max-w-md text-center">
           <AlertCircle className="mx-auto mb-6 h-16 w-16 text-red-500" />
-          <h1 className="mb-4 text-3xl font-semibold text-gray-900">Invalid or Expired Link</h1>
+          <h1 className="mb-4 text-3xl font-semibold text-gray-900">
+            Invalid or Expired Link
+          </h1>
           <p className="mb-8 text-gray-500">
-            This password reset link is invalid or has expired. Please request a new one.
+            This password reset link is invalid or has expired. Please request a
+            new one.
           </p>
           <Link
             href="/forgot-password"
@@ -107,9 +111,12 @@ export default function ResetPasswordPage() {
       <section className="mx-auto w-full max-w-7xl px-4 py-8 md:px-8 md:py-16">
         <div className="mx-auto max-w-md text-center">
           <CheckCircle className="mx-auto mb-6 h-16 w-16 text-green-600" />
-          <h1 className="mb-4 text-3xl font-semibold text-gray-900">Password Reset Successful</h1>
+          <h1 className="mb-4 text-3xl font-semibold text-gray-900">
+            Password Reset Successful
+          </h1>
           <p className="mb-8 text-gray-500">
-            Your password has been reset successfully. You can now log in with your new password.
+            Your password has been reset successfully. You can now log in with
+            your new password.
           </p>
           <Link
             href="/login"
@@ -125,7 +132,7 @@ export default function ResetPasswordPage() {
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-8 md:px-8 md:py-16">
       <div className="mx-auto max-w-md">
-        <h1 className="mb-6 mt-14 text-center text-3xl font-semibold text-gray-900 md:mt-16 lg:mt-[72px]">
+        <h1 className="mt-8 mb-6 text-center text-3xl font-semibold text-gray-900 md:mt-14 lg:mt-16 xl:mt-[72px]">
           Create New Password
         </h1>
         <p className="mb-8 text-center text-sm text-gray-600">
@@ -155,7 +162,7 @@ export default function ResetPasswordPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isPending}
-                className="w-full border-0 border-b border-gray-900 bg-transparent py-4 px-2 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
+                className="w-full border-0 border-b border-gray-900 bg-transparent px-2 py-4 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
                 required
               />
               <button
@@ -188,7 +195,7 @@ export default function ResetPasswordPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={isPending}
-                className="w-full border-0 border-b border-gray-900 bg-transparent py-4 px-2 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
+                className="w-full border-0 border-b border-gray-900 bg-transparent px-2 py-4 text-gray-500 placeholder-gray-300 focus:border-[#2f2581] focus:outline-none disabled:opacity-50"
                 required
               />
               <button
@@ -209,7 +216,7 @@ export default function ResetPasswordPage() {
           <button
             type="submit"
             disabled={isPending}
-            className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 bg-gray-200 text-xs tracking-widest text-gray-600 uppercase font-medium transition-colors hover:bg-gray-300 disabled:opacity-50"
+            className="flex h-12 w-full cursor-pointer items-center justify-center gap-2 bg-gray-200 text-xs font-medium tracking-widest text-gray-600 uppercase transition-colors hover:bg-gray-300 disabled:opacity-50"
           >
             {isPending && <Loader className="h-4 w-4 animate-spin" />}
             Reset Password

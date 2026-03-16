@@ -143,7 +143,7 @@ export function ConfirmationModal({
             <div className="mb-6 text-sm text-gray-600">{message}</div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-3">
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
               {showCancel && (
                 <button
                   onClick={onCancel}

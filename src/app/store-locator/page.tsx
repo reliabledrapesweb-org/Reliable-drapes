@@ -67,7 +67,7 @@ export default function StoreLocatorPage() {
               <p className="text-xs font-semibold tracking-widest text-[#2F2582] uppercase">
                 Store Locator
               </p>
-              <h1 className="mt-1 text-3xl font-bold text-gray-900 md:text-4xl">
+              <h1 className="mt-1 text-2xl font-bold text-gray-900 md:text-3xl lg:text-4xl">
                 All Across India
               </h1>
               {!isLoading && !error && (

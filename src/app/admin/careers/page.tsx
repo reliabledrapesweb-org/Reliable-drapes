@@ -77,7 +77,6 @@ export default function AdminCareersPage() {
         setJobs(result.data);
       }
     } catch (error) {
-
     } finally {
       setIsLoading(false);
     }
@@ -119,7 +118,6 @@ export default function AdminCareersPage() {
         }
       }
     } catch (error) {
-
       addToast("Failed to save job", "error");
     } finally {
       setIsSubmitting(false);
@@ -161,7 +159,6 @@ export default function AdminCareersPage() {
         setConfirmAction({ type: null });
       }
     } catch (error) {
-
       addToast("Failed to delete job", "error");
       setConfirmAction({ type: null });
     }
@@ -196,7 +193,6 @@ export default function AdminCareersPage() {
         setConfirmAction({ type: null });
       }
     } catch (error) {
-
       addToast("Failed to update job status", "error");
       setConfirmAction({ type: null });
     }
@@ -238,7 +234,7 @@ export default function AdminCareersPage() {
           </div>
           <div className="h-10 w-full animate-pulse rounded-lg bg-gray-200 sm:w-32" />
         </div>
-        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
@@ -273,7 +269,7 @@ export default function AdminCareersPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
         <div className="rounded-lg border border-gray-200 bg-white p-3 sm:p-4">
           <p className="text-xs font-medium text-gray-600 sm:text-sm">Total</p>
           <p className="mt-1 text-lg font-bold text-gray-900 sm:text-2xl">

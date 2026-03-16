@@ -180,7 +180,7 @@ export function MediaPickerModal({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="flex h-[80vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl"
+            className="flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl sm:h-[80vh]"
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
@@ -194,7 +194,7 @@ export function MediaPickerModal({
             </div>
 
             {/* Toolbar */}
-            <div className="flex flex-col gap-4 border-b border-gray-100 bg-gray-50 px-6 py-4 sm:flex-row sm:items-center">
+            <div className="flex flex-col gap-4 border-b border-gray-100 bg-gray-50 px-4 py-4 sm:flex-row sm:items-center sm:px-6">
               <div className="relative flex-1">
                 <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 <input
@@ -207,7 +207,7 @@ export function MediaPickerModal({
               </div>
 
               <Select value={selectedFolder} onValueChange={setSelectedFolder}>
-                <SelectTrigger className="w-[180px] rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none">
+                <SelectTrigger className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-[#2F2582] focus:outline-none sm:w-[180px]">
                   <SelectValue placeholder="All Folders" />
                 </SelectTrigger>
                 <SelectContent>

@@ -16,15 +16,20 @@ import {
 } from "@/lib/actions/exhibitions";
 import type { ExhibitionYear, ExhibitionItem } from "@/lib/actions/exhibitions";
 
-const TYPE_META: Record<string, { title: string; subtitle: string; icon: typeof Award }> = {
+const TYPE_META: Record<
+  string,
+  { title: string; subtitle: string; icon: typeof Award }
+> = {
   exhibition: {
     title: "Exhibitions",
-    subtitle: "Our presence at leading trade shows and industry events across India and the world.",
+    subtitle:
+      "Our presence at leading trade shows and industry events across India and the world.",
     icon: Award,
   },
   moment: {
     title: "Moments",
-    subtitle: "Capturing milestones, celebrations, and behind-the-scenes highlights from our journey.",
+    subtitle:
+      "Capturing milestones, celebrations, and behind-the-scenes highlights from our journey.",
     icon: Camera,
   },
   news: {
@@ -76,7 +81,7 @@ export default function ExhibitionsEventsPage() {
         <div className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
           {/* Controls row */}
           {years.length > 0 && (
-            <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mb-6 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-center sm:justify-between">
               <YearTabs
                 years={years}
                 activeYear={activeYearId}
@@ -107,10 +112,14 @@ export default function ExhibitionsEventsPage() {
                   <h2 className="text-2xl font-bold text-gray-900 md:text-3xl">
                     {meta.title}
                     {activeYear && (
-                      <span className="ml-2 text-[#2F2582]">{activeYear.year}</span>
+                      <span className="ml-2 text-[#2F2582]">
+                        {activeYear.year}
+                      </span>
                     )}
                   </h2>
-                  <p className="mt-0.5 text-sm text-gray-500">{meta.subtitle}</p>
+                  <p className="mt-0.5 text-sm text-gray-500">
+                    {meta.subtitle}
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -132,7 +141,8 @@ export default function ExhibitionsEventsPage() {
                 Nothing here yet
               </h3>
               <p className="mx-auto mt-2 max-w-sm text-sm text-gray-500">
-                Content for this section will be published shortly. Check back soon!
+                Content for this section will be published shortly. Check back
+                soon!
               </p>
             </motion.div>
           ) : activeType === "news" ? (

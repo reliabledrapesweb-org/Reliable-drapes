@@ -85,7 +85,7 @@ function FaqItem({
             transition={{ duration: 0.25, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <p className="pb-5 pr-10 text-sm leading-relaxed text-[#575757] md:pb-6 md:text-[15px]">
+            <p className="pr-4 pb-5 text-sm leading-relaxed text-[#575757] md:pr-10 md:pb-6 md:text-base">
               {answer}
             </p>
           </motion.div>

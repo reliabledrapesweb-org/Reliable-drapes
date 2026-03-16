@@ -315,7 +315,7 @@ export default function ContactPage() {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 container mx-auto px-6 md:px-12 lg:px-20">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-12 lg:px-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -372,8 +372,8 @@ export default function ContactPage() {
 
       {/* Contact Form and Info Section */}
       <div className="bg-gradient-to-b from-gray-50 to-white py-12 md:py-16 lg:py-24">
-        <div className="container mx-auto px-6">
-          <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-2">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 lg:grid-cols-2">
             {/* Contact Form with staggered animations */}
             <motion.div
               variants={cardVariants}

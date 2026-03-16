@@ -33,9 +33,9 @@ export function ComingSoonModal({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed top-20 left-1/2 z-[9999] w-full max-w-2xl -translate-x-1/2 px-4"
+            className="fixed top-16 left-1/2 z-[9999] w-full max-w-xl -translate-x-1/2 px-3 sm:top-20 sm:max-w-2xl sm:px-4"
           >
-            <div className="relative overflow-hidden rounded-2xl bg-white px-6 py-8 shadow-2xl">
+            <div className="relative overflow-hidden rounded-2xl bg-white px-4 py-6 shadow-2xl sm:px-6 sm:py-8">
               <button
                 onClick={onClose}
                 aria-label="Close coming soon message"
