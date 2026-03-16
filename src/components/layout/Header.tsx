@@ -297,51 +297,34 @@ export function Header() {
           <Building2 className="h-4 w-4" />
           Trader Login
         </motion.a>
-
-        {gemAssessedLogo.enabled && gemAssessedLogo.url && (
-          <motion.div
-            className="flex items-center"
-            whileHover={{ scale: 1.03, opacity: 0.9 }}
-            transition={{ duration: 0.2 }}
-          >
-            <Image
-              src={gemAssessedLogo.url}
-              alt="GEM Assessed Logo"
-              width={
-                (
-                  {
-                    small: 96,
-                    medium: 128,
-                    large: 160,
-                    "extra-large": 192,
-                  } as const
-                )[gemAssessedLogo.size]
-              }
-              height={
-                (
-                  {
-                    small: 32,
-                    medium: 40,
-                    large: 48,
-                    "extra-large": 56,
-                  } as const
-                )[gemAssessedLogo.size]
-              }
-              className={
-                (
-                  {
-                    small: "h-8 w-auto object-contain xl:h-9",
-                    medium: "h-10 w-auto object-contain xl:h-11",
-                    large: "h-12 w-auto object-contain xl:h-14",
-                    "extra-large": "h-14 w-auto object-contain xl:h-16",
-                  } as const
-                )[gemAssessedLogo.size]
-              }
-            />
-          </motion.div>
-        )}
       </div>
     );
+
+  const GemLogo = () =>
+    gemAssessedLogo.enabled && gemAssessedLogo.url ? (
+      <motion.div
+        className="flex items-center"
+        whileHover={{ scale: 1.03, opacity: 0.9 }}
+        transition={{ duration: 0.2 }}
+      >
+        <Image
+          src={gemAssessedLogo.url}
+          alt="GEM Assessed Logo"
+          width={256}
+          height={80}
+          className={
+            (
+              {
+                small: "h-7 w-auto object-contain xl:h-8",
+                medium: "h-9 w-auto object-contain xl:h-10",
+                large: "h-11 w-auto object-contain xl:h-12",
+                "extra-large": "h-12 w-auto object-contain xl:h-14",
+              } as const
+            )[gemAssessedLogo.size]
+          }
+        />
+      </motion.div>
+    ) : null;
 
   return (
     <header className="fixed top-0 left-0 z-[100] w-full">
@@ -401,6 +384,7 @@ export function Header() {
               <ActionButtons />
             </div>
             <UserMenu />
+            <GemLogo />
           </div>
 
           {/* MOBILE/TABLET ACTIONS */}
