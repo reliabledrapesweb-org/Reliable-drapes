@@ -6,6 +6,7 @@ import {
   StoreGrid,
   StoreGridSkeleton,
   StateFilterModal,
+  IndiaStoreMap,
 } from "@/components/features/store-locator";
 import { getStores } from "@/lib/actions/stores";
 import type { Store } from "@/lib/actions/stores";
@@ -94,44 +95,6 @@ export default function StoreLocatorPage() {
             )}
           </div>
 
-          {!isLoading && !error && stores.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="mb-12 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg"
-            >
-              <div className="flex items-center gap-2 border-b border-gray-100 px-6 py-4">
-                <MapPin className="h-5 w-5 text-[#2F2582]" />
-                <h3 className="font-semibold text-gray-900">
-                  Our Stores Across India
-                </h3>
-              </div>
-              <div className="relative aspect-[21/9] w-full">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3671904.7585123926!2d68!3d22!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30635ff06b92b797%3A0xd78c4751851fbb5a!2sIndia!5e0!3m2!1sen!2sin!4v1708000000000!5m2!1sen!2sin"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Store Locations in India"
-                  className="absolute inset-0"
-                />
-              </div>
-              <div className="border-t border-gray-100 px-6 py-4">
-                <p className="text-center text-sm text-gray-600">
-                  Visit any of our{" "}
-                  <span className="font-semibold text-[#2F2582]">
-                    {stores.length} stores
-                  </span>{" "}
-                  across India for trade consultations and B2B sourcing support
-                </p>
-              </div>
-            </motion.div>
-          )}
-
           <div className="flex flex-col gap-8 md:gap-12">
             {isLoading ? (
               <StoreGridSkeleton />
@@ -165,6 +128,35 @@ export default function StoreLocatorPage() {
               </>
             )}
           </div>
+
+          {/* India Map with Store Markers */}
+          {!isLoading && !error && stores.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mt-12 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg"
+            >
+              <div className="flex items-center gap-2 border-b border-gray-100 px-6 py-4">
+                <MapPin className="h-5 w-5 text-[#2F2582]" />
+                <h3 className="font-semibold text-gray-900">
+                  Our Stores Across India
+                </h3>
+              </div>
+              <div className="px-4 py-6 sm:px-6 sm:py-8">
+                <IndiaStoreMap stores={filtered} />
+              </div>
+              <div className="border-t border-gray-100 px-6 py-4">
+                <p className="text-center text-sm text-gray-600">
+                  Hover over a marker to see store details.{" "}
+                  <span className="font-semibold text-[#2F2582]">
+                    {filtered.length} store{filtered.length !== 1 ? "s" : ""}
+                  </span>{" "}
+                  across India
+                </p>
+              </div>
+            </motion.div>
+          )}
         </div>
       </div>
 

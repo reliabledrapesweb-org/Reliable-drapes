@@ -1,5 +1,6 @@
-export { StoreCard } from './StoreCard';
-export { StoreGrid } from './StoreGrid';
-export { StoreMapModal } from './StoreMapModal';
-export { StoreGridSkeleton } from './StoreGridSkeleton';
-export { StateFilterModal } from './StateFilterModal';
+export { StoreCard } from "./StoreCard";
+export { StoreGrid } from "./StoreGrid";
+export { StoreMapModal } from "./StoreMapModal";
+export { StoreGridSkeleton } from "./StoreGridSkeleton";
+export { StateFilterModal } from "./StateFilterModal";
+export { IndiaStoreMap } from "./IndiaStoreMap";
