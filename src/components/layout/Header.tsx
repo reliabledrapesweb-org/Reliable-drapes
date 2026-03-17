@@ -307,9 +307,12 @@ export function Header() {
         whileHover={{ scale: 1.03, opacity: 0.9 }}
         transition={{ duration: 0.2 }}
       >
-        <img
+        <Image
           src={gemAssessedLogo.url}
           alt="GEM Assessed Logo"
+          width={200}
+          height={60}
+          unoptimized
           className={
             (
               {

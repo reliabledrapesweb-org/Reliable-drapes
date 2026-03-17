@@ -281,16 +281,19 @@ export default function ContactPage() {
         icon: Mail,
         title: "Email",
         lines: [CONTACT_EMAIL],
+        href: `mailto:${CONTACT_EMAIL}`,
       },
       {
         icon: Phone,
         title: "Call Us",
         lines: [companyInfo.contactCallPhone || "+91 98113 31948"],
+        href: `tel:${(companyInfo.contactCallPhone || "+91 98113 31948").replace(/\s/g, "")}`,
       },
       {
         icon: MapPin,
         title: "Address",
         lines: [companyInfo.warehouseAddress || COMPANY_ADDRESS],
+        href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(companyInfo.warehouseAddress || COMPANY_ADDRESS)}`,
       },
     ],
     [companyInfo],
@@ -616,15 +619,22 @@ export default function ContactPage() {
 
                 <div className="space-y-6">
                   {contactItems.map((item, index) => (
-                    <motion.div
+                    <motion.a
                       key={item.title}
+                      href={item.href}
+                      target={item.title === "Address" ? "_blank" : undefined}
+                      rel={
+                        item.title === "Address"
+                          ? "noopener noreferrer"
+                          : undefined
+                      }
                       custom={index}
                       variants={contactInfoVariants}
                       initial="hidden"
                       whileInView="visible"
                       viewport={{ once: true }}
                       whileHover={{ x: 5 }}
-                      className="group flex cursor-default items-start gap-4"
+                      className="group flex cursor-pointer items-start gap-4"
                     >
                       <motion.div
                         className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#2F2582]/10 transition-colors duration-300 group-hover:bg-[#2F2582]/20"
@@ -638,12 +648,15 @@ export default function ContactPage() {
                           {item.title}
                         </h3>
                         {item.lines.map((line, i) => (
-                          <p key={i} className="mt-1 text-gray-600">
+                          <p
+                            key={i}
+                            className="mt-1 text-gray-600 transition-colors group-hover:text-[#2F2582]"
+                          >
                             {line}
                           </p>
                         ))}
                       </div>
-                    </motion.div>
+                    </motion.a>
                   ))}
                 </div>
               </motion.div>

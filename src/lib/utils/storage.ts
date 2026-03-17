@@ -4,6 +4,86 @@
 
 import { supabaseClient } from "@/lib/supabase/client";
 
+const MAX_IMAGE_DIMENSION = 2048;
+const COMPRESS_QUALITY = 0.85;
+const COMPRESS_THRESHOLD_BYTES = 2 * 1024 * 1024; // 2MB
+
+/**
+ * Compress an image file client-side before upload.
+ * Resizes to max 2048px on longest side and re-encodes as JPEG/WebP.
+ * Skips non-image files and images already under the threshold.
+ */
+async function compressImage(file: File): Promise<File> {
+  if (!file.type.startsWith("image/") || file.type === "image/svg+xml") {
+    return file;
+  }
+  if (file.size <= COMPRESS_THRESHOLD_BYTES) {
+    return file;
+  }
+
+  return new Promise<File>((resolve) => {
+    const img = new window.Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+
+      let { width, height } = img;
+      if (
+        width <= MAX_IMAGE_DIMENSION &&
+        height <= MAX_IMAGE_DIMENSION &&
+        file.size <= COMPRESS_THRESHOLD_BYTES
+      ) {
+        resolve(file);
+        return;
+      }
+
+      const scale = Math.min(
+        MAX_IMAGE_DIMENSION / width,
+        MAX_IMAGE_DIMENSION / height,
+        1,
+      );
+      width = Math.round(width * scale);
+      height = Math.round(height * scale);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        resolve(file);
+        return;
+      }
+      ctx.drawImage(img, 0, 0, width, height);
+
+      const outputType = file.type === "image/png" ? "image/png" : "image/jpeg";
+      canvas.toBlob(
+        (blob) => {
+          if (!blob || blob.size >= file.size) {
+            resolve(file);
+            return;
+          }
+          resolve(
+            new File([blob], file.name, {
+              type: outputType,
+              lastModified: Date.now(),
+            }),
+          );
+        },
+        outputType,
+        COMPRESS_QUALITY,
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(file);
+    };
+
+    img.src = url;
+  });
+}
+
 export interface UploadResult {
   success: boolean;
   url?: string;
@@ -33,21 +113,23 @@ export async function uploadFile(
       };
     }
 
+    // Compress image files before upload
+    const processedFile = await compressImage(file);
+
     // Generate unique filename
-    const fileExt = file.name.split(".").pop();
+    const fileExt = processedFile.name.split(".").pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
     const filePath = folder ? `${folder}/${fileName}` : fileName;
 
     // Upload file
     const { data, error } = await client.storage
       .from(bucket)
-      .upload(filePath, file, {
+      .upload(filePath, processedFile, {
         cacheControl: "3600",
         upsert: true,
       });
 
     if (error) {
-
       return {
         success: false,
         error: error.message || `Failed to upload file to ${bucket}`,
@@ -64,7 +146,6 @@ export async function uploadFile(
       url: urlData.publicUrl,
     };
   } catch (error) {
-
     return {
       success: false,
       error: "An unexpected error occurred during upload",
@@ -101,7 +182,6 @@ export async function deleteFile(
     const { error } = await client.storage.from(bucket).remove([filePath]);
 
     if (error) {
-
       return {
         success: false,
         error: error.message || "Failed to delete file",
@@ -110,7 +190,6 @@ export async function deleteFile(
 
     return { success: true };
   } catch (error) {
-
     return {
       success: false,
       error: "An unexpected error occurred during deletion",
