@@ -13,7 +13,7 @@ const COMPRESS_THRESHOLD_BYTES = 2 * 1024 * 1024; // 2MB
  * Resizes to max 2048px on longest side and re-encodes as JPEG/WebP.
  * Skips non-image files and images already under the threshold.
  */
-async function compressImage(file: File): Promise<File> {
+export async function compressImage(file: File): Promise<File> {
   if (!file.type.startsWith("image/") || file.type === "image/svg+xml") {
     return file;
   }

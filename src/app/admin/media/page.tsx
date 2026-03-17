@@ -46,7 +46,7 @@ import { MediaLibrarySkeleton } from "@/components/ui/AdminSkeletons";
 import { ConfirmationModal } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import { syncExistingFiles } from "@/lib/actions/media";
-import { validateFile } from "@/lib/utils/storage";
+import { validateFile, compressImage } from "@/lib/utils/storage";
 
 const ALLOWED_TYPES = [
   "image/jpeg",
@@ -194,7 +194,8 @@ export default function MediaLibraryPage() {
         continue;
       }
 
-      const result = await uploadMediaItem(file, {
+      const compressed = await compressImage(file);
+      const result = await uploadMediaItem(compressed, {
         bucket: "products",
         folder: selectedFolder === "all" ? "general" : selectedFolder,
       });
@@ -237,7 +238,8 @@ export default function MediaLibraryPage() {
         continue;
       }
 
-      const result = await uploadMediaItem(file, {
+      const compressed = await compressImage(file);
+      const result = await uploadMediaItem(compressed, {
         bucket: "products",
         folder: selectedFolder === "all" ? "general" : selectedFolder,
       });

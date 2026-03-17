@@ -5,7 +5,7 @@
 import { useState, useRef } from "react";
 import { Upload, X, Loader2, File, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { uploadFile, validateFile } from "@/lib/utils/storage";
+import { uploadFile, validateFile, compressImage } from "@/lib/utils/storage";
 import { uploadMediaItem } from "@/lib/actions/media";
 
 interface FileUploadProps {
@@ -61,10 +61,11 @@ export function FileUpload({
     // Upload file
     setUploading(true);
     try {
+      const processedFile = await compressImage(file);
       if (registerWithMediaLibrary) {
         const mediaBucket =
           bucket === "products" || bucket === "catalogues" ? bucket : "media";
-        const result = await uploadMediaItem(file, {
+        const result = await uploadMediaItem(processedFile, {
           bucket: mediaBucket,
           folder: folder || "uploads",
           tags: mediaLibraryTags,
