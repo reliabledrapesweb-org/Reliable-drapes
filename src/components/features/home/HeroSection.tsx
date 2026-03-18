@@ -92,7 +92,7 @@ export function HeroSection() {
   }, [nextSlide, prevSlide]);
 
   return (
-    <section className="relative h-[576px] w-full overflow-hidden md:h-screen lg:h-screen">
+    <section className="relative h-[50vh] w-full overflow-hidden md:h-screen lg:h-screen">
       {/* Background Image Carousel */}
       <div className="absolute inset-0 bg-black">
         <AnimatePresence>

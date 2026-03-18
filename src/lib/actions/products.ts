@@ -396,11 +396,30 @@ export async function getProductsByCategory(
       };
     }
 
-    // Get product IDs for this category
+    // Get all descendant category IDs (including the selected category itself)
+    const { data: allCategories } = await supabase
+      .from("categories")
+      .select("id, parent_id")
+      .eq("published", true);
+
+    const categoryIds = [category.id];
+    if (allCategories) {
+      const collectDescendants = (parentId: string) => {
+        for (const cat of allCategories) {
+          if (cat.parent_id === parentId) {
+            categoryIds.push(cat.id);
+            collectDescendants(cat.id);
+          }
+        }
+      };
+      collectDescendants(category.id);
+    }
+
+    // Get product IDs for this category and all subcategories
     const { data: productCategories, error: pcError } = await supabase
       .from("product_categories")
       .select("product_id")
-      .eq("category_id", category.id);
+      .in("category_id", categoryIds);
 
     if (pcError) {
       return {

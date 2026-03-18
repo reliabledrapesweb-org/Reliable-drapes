@@ -17,6 +17,27 @@ import { motion, AnimatePresence } from "motion/react";
 import { SlidersHorizontal, X } from "lucide-react";
 import { DEFAULT_CATALOG_IMAGE } from "@/lib/constants/app";
 
+// Collect all descendant category names for a given category name
+function getDescendantCategoryNames(
+  categoryName: string,
+  allCategories: CatalogueCategory[],
+): string[] {
+  const category = allCategories.find((c) => c.name === categoryName);
+  if (!category) return [categoryName];
+
+  const names = [categoryName];
+  const collectChildren = (parentId: string) => {
+    for (const cat of allCategories) {
+      if (cat.parent_id === parentId) {
+        names.push(cat.name);
+        collectChildren(cat.id);
+      }
+    }
+  };
+  collectChildren(category.id);
+  return names;
+}
+
 // Transform database catalogue to product format
 function transformCatalogueToProduct(catalogue: Catalogue) {
   const fallbackImage = DEFAULT_CATALOG_IMAGE;
@@ -104,6 +125,17 @@ export default function CataloguePage() {
       .sort((a, b) => a.sort_order - b.sort_order);
   }, [categories]);
 
+  // Expand selected filters to include all descendant category names
+  const expandedFilterNames = useMemo(() => {
+    const names = new Set<string>();
+    for (const filter of selectedFilters) {
+      for (const name of getDescendantCategoryNames(filter, categories)) {
+        names.add(name);
+      }
+    }
+    return names;
+  }, [selectedFilters, categories]);
+
   // Filter products based on search and selected filters
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -113,14 +145,14 @@ export default function CataloguePage() {
         product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
 
-      // Filter by selected categories (by category name)
+      // Filter by selected categories (including subcategories)
       const matchesFilter =
         selectedFilters.length === 0 ||
-        selectedFilters.includes(product.category);
+        expandedFilterNames.has(product.category);
 
       return matchesSearch && matchesFilter;
     });
-  }, [products, searchQuery, selectedFilters]);
+  }, [products, searchQuery, selectedFilters, expandedFilterNames]);
 
   const toggleFilter = (categoryName: string) => {
     if (selectedFilters.includes(categoryName)) {
