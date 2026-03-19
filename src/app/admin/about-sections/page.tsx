@@ -44,9 +44,10 @@ export default function AdminAboutSectionsPage() {
     image_url: "",
     image_url_2: "",
     is_active: true,
-    // Founder-specific fields (stored in content_json)
+    // Leadership fields (stored in content_json)
     founder_role: "",
     founder_quote: "",
+    content_heading: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{
@@ -116,12 +117,16 @@ export default function AdminAboutSectionsPage() {
         is_active: formData.is_active,
       };
 
-      // For founder section, persist role/quote into content_json
-      if (editingSection.section_key === "founder") {
+      // For founder/chairman sections, persist role/quote/content_heading into content_json
+      if (
+        editingSection.section_key === "founder" ||
+        editingSection.section_key === "chairman"
+      ) {
         updatePayload.content_json = {
           ...((editingSection.content_json as Record<string, unknown>) || {}),
           role: formData.founder_role,
           quote: formData.founder_quote,
+          content_heading: formData.content_heading,
         };
       }
 
@@ -152,6 +157,7 @@ export default function AdminAboutSectionsPage() {
       is_active: section.is_active,
       founder_role: contentJson.role || "",
       founder_quote: contentJson.quote || "",
+      content_heading: contentJson.content_heading || "",
     });
     setIsModalOpen(true);
   };
@@ -204,6 +210,7 @@ export default function AdminAboutSectionsPage() {
       is_active: true,
       founder_role: "",
       founder_quote: "",
+      content_heading: "",
     });
   };
 
@@ -470,12 +477,14 @@ export default function AdminAboutSectionsPage() {
                   />
                 </div>
 
-                {/* Founder-specific fields */}
-                {editingSection.section_key === "founder" && (
+                {/* Founder/Chairman fields */}
+                {["founder", "chairman"].includes(
+                  editingSection.section_key,
+                ) && (
                   <>
                     <div>
                       <label className="mb-2 block text-sm font-medium text-gray-700">
-                        Founder Role
+                        Role
                       </label>
                       <input
                         type="text"
@@ -492,7 +501,7 @@ export default function AdminAboutSectionsPage() {
                     </div>
                     <div>
                       <label className="mb-2 block text-sm font-medium text-gray-700">
-                        Founder Quote
+                        Quote
                       </label>
                       <textarea
                         value={formData.founder_quote}
@@ -504,7 +513,24 @@ export default function AdminAboutSectionsPage() {
                         }
                         rows={3}
                         className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
-                        placeholder="Founder's quote or vision statement"
+                        placeholder="Quote or vision statement (leave empty to hide)"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                        Content Heading
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.content_heading}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            content_heading: e.target.value,
+                          })
+                        }
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
+                        placeholder="e.g. Vision Behind Reliable Drapes"
                       />
                     </div>
                   </>
@@ -517,7 +543,9 @@ export default function AdminAboutSectionsPage() {
                       editingSection.section_key,
                     )
                       ? "Leadership Row Image"
-                      : "Primary Image"}
+                      : editingSection.section_key === "vision-mission"
+                        ? "Vision Image"
+                        : "Primary Image"}
                   </label>
                   <div className="flex gap-2">
                     <input
@@ -557,7 +585,9 @@ export default function AdminAboutSectionsPage() {
                       editingSection.section_key,
                     )
                       ? "Section Portrait Image"
-                      : "Secondary Image (optional)"}
+                      : editingSection.section_key === "vision-mission"
+                        ? "Mission Image"
+                        : "Secondary Image (optional)"}
                   </label>
                   <div className="flex gap-2">
                     <input

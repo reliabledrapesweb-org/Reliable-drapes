@@ -9,30 +9,19 @@ interface VisionMissionSectionProps {
 }
 
 export function VisionMissionSection({ section }: VisionMissionSectionProps) {
-  // Default content as fallback
-  const defaults = {
-    title: "Our Vision & Mission",
-    content:
-      "Our mission is to strengthen furnishing supply for business buyers by combining reliable quality, practical design, and scalable fulfillment across product lines.",
-    mission_content:
-      "At Reliable Drapes, we strive to create elegant, durable, and thoughtfully designed home furnishings that elevate modern living. Driven by creativity, quality, and attention to detail, we craft collections that seamlessly blend timeless heritage with contemporary trends. Our carefully curated range of fabrics and furnishings reflects expert design, superior comfort, and long-lasting performance. We aim to inspire our customers to shape beautiful, meaningful spaces that truly feel like home.",
-    image_url: "/images/visPic_1.png",
-    icon_url: "/images/target.png",
-  };
+  if (!section) return null;
 
-  // Use CMS data if available, otherwise use defaults
-  const contentJson = (section?.content_json as Record<string, unknown>) || {};
-  const title = section?.title || defaults.title;
-  const content = section?.content || defaults.content;
+  const contentJson = (section.content_json as Record<string, unknown>) || {};
+  const title = section.title;
+  const content = section.content;
   const missionContent =
     (typeof contentJson.mission_content === "string"
       ? contentJson.mission_content
       : null) ||
-    (typeof contentJson.mission === "string" ? contentJson.mission : null) ||
-    defaults.mission_content;
-  const imageUrl = section?.image_url || defaults.image_url;
-  const missionImageUrl = section?.image_url_2 || imageUrl;
-  const iconUrl = defaults.icon_url;
+    (typeof contentJson.mission === "string" ? contentJson.mission : null);
+  const imageUrl = section.image_url;
+  const missionImageUrl = section.image_url_2 || imageUrl;
+  const iconUrl = "/images/target.png";
 
   return (
     <section className="overflow-hidden bg-white py-16 lg:py-24">
@@ -71,15 +60,17 @@ export function VisionMissionSection({ section }: VisionMissionSectionProps) {
             >
               <div className="group relative">
                 <div className="h-72 w-72 rotate-[-6deg] transform rounded-3xl bg-gray-100 shadow-xl transition-transform duration-500 group-hover:rotate-[-3deg] md:h-80 md:w-80 lg:h-96 lg:w-96" />
-                <div className="absolute inset-0 h-72 w-72 md:h-80 md:w-80 lg:h-96 lg:w-96">
-                  <Image
-                    width={400}
-                    height={400}
-                    src={imageUrl}
-                    alt="Vision"
-                    className="h-full w-full translate-x-4 translate-y-4 transform rounded-3xl border-4 border-white object-cover shadow-lg transition-transform duration-500 group-hover:translate-x-2 group-hover:translate-y-2"
-                  />
-                </div>
+                {imageUrl && (
+                  <div className="absolute inset-0 h-72 w-72 md:h-80 md:w-80 lg:h-96 lg:w-96">
+                    <Image
+                      width={400}
+                      height={400}
+                      src={imageUrl}
+                      alt="Vision"
+                      className="h-full w-full translate-x-4 translate-y-4 transform rounded-3xl border-4 border-white object-cover shadow-lg transition-transform duration-500 group-hover:translate-x-2 group-hover:translate-y-2"
+                    />
+                  </div>
+                )}
               </div>
             </motion.div>
 
@@ -91,9 +82,11 @@ export function VisionMissionSection({ section }: VisionMissionSectionProps) {
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <div className="space-y-6 text-lg leading-relaxed text-[#575757]">
-                <p>{content}</p>
-              </div>
+              {content && (
+                <div className="space-y-6 text-lg leading-relaxed text-[#575757]">
+                  <p>{content}</p>
+                </div>
+              )}
             </motion.div>
           </div>
 
@@ -109,15 +102,17 @@ export function VisionMissionSection({ section }: VisionMissionSectionProps) {
             >
               <div className="group relative">
                 <div className="h-72 w-72 rotate-[6deg] transform rounded-3xl bg-gray-100 shadow-xl transition-transform duration-500 group-hover:rotate-[3deg] md:h-80 md:w-80 lg:h-96 lg:w-96" />
-                <div className="absolute inset-0 h-72 w-72 md:h-80 md:w-80 lg:h-96 lg:w-96">
-                  <Image
-                    width={400}
-                    height={400}
-                    src={missionImageUrl}
-                    alt="Mission"
-                    className="h-full w-full -translate-x-4 translate-y-4 transform rounded-3xl border-4 border-white object-cover shadow-lg transition-transform duration-500 group-hover:-translate-x-2 group-hover:translate-y-2"
-                  />
-                </div>
+                {missionImageUrl && (
+                  <div className="absolute inset-0 h-72 w-72 md:h-80 md:w-80 lg:h-96 lg:w-96">
+                    <Image
+                      width={400}
+                      height={400}
+                      src={missionImageUrl}
+                      alt="Mission"
+                      className="h-full w-full -translate-x-4 translate-y-4 transform rounded-3xl border-4 border-white object-cover shadow-lg transition-transform duration-500 group-hover:-translate-x-2 group-hover:translate-y-2"
+                    />
+                  </div>
+                )}
               </div>
             </motion.div>
 
@@ -129,9 +124,11 @@ export function VisionMissionSection({ section }: VisionMissionSectionProps) {
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              <div className="space-y-6 text-lg leading-relaxed text-[#575757]">
-                <p>{missionContent}</p>
-              </div>
+              {missionContent && (
+                <div className="space-y-6 text-lg leading-relaxed text-[#575757]">
+                  <p>{missionContent}</p>
+                </div>
+              )}
             </motion.div>
           </div>
         </div>

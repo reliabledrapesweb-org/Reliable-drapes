@@ -17,6 +17,7 @@ export function ChairmanSection({ section }: Props) {
   const content = section.content;
   const role = contentJson.role;
   const quote = contentJson.quote;
+  const contentHeading = contentJson.content_heading;
   const imageUrl = section.image_url_2 || section.image_url;
 
   return (
@@ -90,9 +91,9 @@ export function ChairmanSection({ section }: Props) {
             <div className="space-y-6 text-lg leading-relaxed text-[#575757]">
               {content && (
                 <div>
-                  <h4 className="mb-2 font-semibold">
-                    Vision Behind Reliable Drapes
-                  </h4>
+                  {contentHeading && (
+                    <h4 className="mb-2 font-semibold">{contentHeading}</h4>
+                  )}
                   <p>{content}</p>
                 </div>
               )}
