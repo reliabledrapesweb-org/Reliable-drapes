@@ -48,6 +48,8 @@ export default function AdminAboutSectionsPage() {
     founder_role: "",
     founder_quote: "",
     content_heading: "",
+    // Vision-mission fields (stored in content_json)
+    mission_content: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{
@@ -130,6 +132,14 @@ export default function AdminAboutSectionsPage() {
         };
       }
 
+      // For vision-mission section, persist mission_content into content_json
+      if (editingSection.section_key === "vision-mission") {
+        updatePayload.content_json = {
+          ...((editingSection.content_json as Record<string, unknown>) || {}),
+          mission_content: formData.mission_content,
+        };
+      }
+
       const result = await updateAboutSection(editingSection.id, updatePayload);
       if (result.success) {
         addToast("Section updated successfully!", "success");
@@ -158,6 +168,8 @@ export default function AdminAboutSectionsPage() {
       founder_role: contentJson.role || "",
       founder_quote: contentJson.quote || "",
       content_heading: contentJson.content_heading || "",
+      mission_content:
+        contentJson.mission_content || contentJson.mission || "",
     });
     setIsModalOpen(true);
   };
@@ -211,6 +223,7 @@ export default function AdminAboutSectionsPage() {
       founder_role: "",
       founder_quote: "",
       content_heading: "",
+      mission_content: "",
     });
   };
 
@@ -464,7 +477,9 @@ export default function AdminAboutSectionsPage() {
                 {/* Content */}
                 <div>
                   <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Content
+                    {editingSection.section_key === "vision-mission"
+                      ? "Vision Content"
+                      : "Content"}
                   </label>
                   <textarea
                     value={formData.content}
@@ -476,6 +491,27 @@ export default function AdminAboutSectionsPage() {
                     placeholder="Main content text"
                   />
                 </div>
+
+                {/* Vision-mission: Mission Content */}
+                {editingSection.section_key === "vision-mission" && (
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                      Mission Content
+                    </label>
+                    <textarea
+                      value={formData.mission_content}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          mission_content: e.target.value,
+                        })
+                      }
+                      rows={4}
+                      className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
+                      placeholder="Mission statement text"
+                    />
+                  </div>
+                )}
 
                 {/* Founder/Chairman fields */}
                 {["founder", "chairman"].includes(
