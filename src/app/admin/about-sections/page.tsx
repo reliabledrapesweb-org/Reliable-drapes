@@ -44,6 +44,9 @@ export default function AdminAboutSectionsPage() {
     image_url: "",
     image_url_2: "",
     is_active: true,
+    // Founder-specific fields (stored in content_json)
+    founder_role: "",
+    founder_quote: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{
@@ -85,6 +88,9 @@ export default function AdminAboutSectionsPage() {
   };
 
   const filteredSections = sections.filter((section) => {
+    // Features section is not editable through this UI — skip it
+    if (section.section_key === "features") return false;
+
     const searchLower = searchQuery.toLowerCase();
     return (
       section.title.toLowerCase().includes(searchLower) ||
@@ -100,7 +106,26 @@ export default function AdminAboutSectionsPage() {
     setIsSubmitting(true);
 
     try {
-      const result = await updateAboutSection(editingSection.id, formData);
+      // Build the update payload
+      const updatePayload: Record<string, unknown> = {
+        title: formData.title,
+        subtitle: formData.subtitle,
+        content: formData.content,
+        image_url: formData.image_url,
+        image_url_2: formData.image_url_2,
+        is_active: formData.is_active,
+      };
+
+      // For founder section, persist role/quote into content_json
+      if (editingSection.section_key === "founder") {
+        updatePayload.content_json = {
+          ...((editingSection.content_json as Record<string, unknown>) || {}),
+          role: formData.founder_role,
+          quote: formData.founder_quote,
+        };
+      }
+
+      const result = await updateAboutSection(editingSection.id, updatePayload);
       if (result.success) {
         addToast("Section updated successfully!", "success");
         handleCloseModal();
@@ -117,6 +142,7 @@ export default function AdminAboutSectionsPage() {
 
   const handleEdit = (section: AboutSection) => {
     setEditingSection(section);
+    const contentJson = (section.content_json as Record<string, string>) || {};
     setFormData({
       title: section.title,
       subtitle: section.subtitle || "",
@@ -124,6 +150,8 @@ export default function AdminAboutSectionsPage() {
       image_url: section.image_url || "",
       image_url_2: section.image_url_2 || "",
       is_active: section.is_active,
+      founder_role: contentJson.role || "",
+      founder_quote: contentJson.quote || "",
     });
     setIsModalOpen(true);
   };
@@ -174,6 +202,8 @@ export default function AdminAboutSectionsPage() {
       image_url: "",
       image_url_2: "",
       is_active: true,
+      founder_role: "",
+      founder_quote: "",
     });
   };
 
@@ -440,10 +470,54 @@ export default function AdminAboutSectionsPage() {
                   />
                 </div>
 
+                {/* Founder-specific fields */}
+                {editingSection.section_key === "founder" && (
+                  <>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                        Founder Role
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.founder_role}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            founder_role: e.target.value,
+                          })
+                        }
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
+                        placeholder="e.g. Founder & CEO"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-gray-700">
+                        Founder Quote
+                      </label>
+                      <textarea
+                        value={formData.founder_quote}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            founder_quote: e.target.value,
+                          })
+                        }
+                        rows={3}
+                        className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none"
+                        placeholder="Founder's quote or vision statement"
+                      />
+                    </div>
+                  </>
+                )}
+
                 {/* Image 1 */}
                 <div>
                   <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Primary Image
+                    {["founder", "chairman", "director"].includes(
+                      editingSection.section_key,
+                    )
+                      ? "Leadership Row Image"
+                      : "Primary Image"}
                   </label>
                   <div className="flex gap-2">
                     <input
@@ -479,7 +553,11 @@ export default function AdminAboutSectionsPage() {
                 {/* Image 2 */}
                 <div>
                   <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Secondary Image (optional)
+                    {["founder", "chairman"].includes(
+                      editingSection.section_key,
+                    )
+                      ? "Section Portrait Image"
+                      : "Secondary Image (optional)"}
                   </label>
                   <div className="flex gap-2">
                     <input

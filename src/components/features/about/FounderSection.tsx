@@ -28,7 +28,7 @@ export function FounderSection({ section }: FounderSectionProps) {
   const content = section?.content || defaults.content;
   const role = contentJson.role || defaults.role;
   const quote = contentJson.quote || defaults.quote;
-  const imageUrl = section?.image_url || defaults.image_url;
+  const imageUrl = section?.image_url_2 || section?.image_url || defaults.image_url;
 
   return (
     <section className="overflow-hidden bg-white py-16 lg:py-24">

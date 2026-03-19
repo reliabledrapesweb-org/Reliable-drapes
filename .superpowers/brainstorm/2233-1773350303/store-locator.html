@@ -1,0 +1,168 @@
+<h2>Design: Store Locator Redesign</h2>
+<p class="subtitle">Sarom-inspired layout with Reliable Drapes design aesthetic</p>
+
+<div class="section">
+  <h3>Store Cards — State Filter + 4-Column Grid</h3>
+  <p>Cards grouped by state with colored header bar. "Filter by States" opens a checkbox modal.</p>
+
+  <div class="mockup">
+    <div class="mockup-header">Store Locator — Card Grid</div>
+    <div class="mockup-body" style="padding: 30px; background: #fafafa;">
+
+      <!-- Filter button -->
+      <div style="margin-bottom: 24px;">
+        <button style="background: #2F2582; color: white; border: none; padding: 12px 28px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 16px;">▼</span> Filter by States
+        </button>
+      </div>
+
+      <!-- 4-column card grid -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+
+        <!-- Card 1 -->
+        <div style="background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e5e5e5; box-shadow: 0 1px 6px rgba(0,0,0,0.04);">
+          <div style="background: #2F2582; padding: 10px 16px; text-align: center;">
+            <p style="color: white; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin: 0;">Delhi</p>
+          </div>
+          <div style="padding: 16px;">
+            <p style="font-size: 14px; font-weight: 700; color: #111; margin: 0 0 8px;">Nirmal Handloom House</p>
+            <p style="font-size: 12px; color: #666; line-height: 1.6; margin: 0;">3/4 Furniture Block, Keerti Nagar, Delhi-110015</p>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div style="background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e5e5e5; box-shadow: 0 1px 6px rgba(0,0,0,0.04);">
+          <div style="background: #2F2582; padding: 10px 16px; text-align: center;">
+            <p style="color: white; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin: 0;">Delhi</p>
+          </div>
+          <div style="padding: 16px;">
+            <p style="font-size: 14px; font-weight: 700; color: #111; margin: 0 0 8px;">Jagdish Store</p>
+            <p style="font-size: 12px; color: #666; line-height: 1.6; margin: 0;">D-2, /1, Okhala Industrial Area, Phase-II, New Delhi-110020</p>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div style="background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e5e5e5; box-shadow: 0 1px 6px rgba(0,0,0,0.04);">
+          <div style="background: #2F2582; padding: 10px 16px; text-align: center;">
+            <p style="color: white; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin: 0;">Maharashtra</p>
+          </div>
+          <div style="padding: 16px;">
+            <p style="font-size: 14px; font-weight: 700; color: #111; margin: 0 0 8px;">Colors Furnishing Studio</p>
+            <p style="font-size: 12px; color: #666; line-height: 1.6; margin: 0;">92, First Floor, Andheri West, Mumbai-400053</p>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div style="background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e5e5e5; box-shadow: 0 1px 6px rgba(0,0,0,0.04);">
+          <div style="background: #2F2582; padding: 10px 16px; text-align: center;">
+            <p style="color: white; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin: 0;">Gujarat</p>
+          </div>
+          <div style="padding: 16px;">
+            <p style="font-size: 14px; font-weight: 700; color: #111; margin: 0 0 8px;">Home Saaz</p>
+            <p style="font-size: 12px; color: #666; line-height: 1.6; margin: 0;">J-44, Near Central Market, Lajpat Nagar 2, Ahmedabad-380001</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Load More -->
+      <div style="text-align: center; margin-top: 28px;">
+        <button style="background: white; color: #2F2582; border: 2px solid #2F2582; padding: 10px 32px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;">Load More</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 28px;">
+  <h3>State Filter Modal</h3>
+  <p>Opens when "Filter by States" is clicked. Checkboxes for each state. Dynamically populated from stores in DB.</p>
+
+  <div class="mockup">
+    <div class="mockup-header">Filter by States — Modal</div>
+    <div class="mockup-body" style="padding: 30px; background: white;">
+
+      <div style="max-width: 600px; margin: 0 auto; border: 1px solid #e5e5e5; border-radius: 16px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.1);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h3 style="font-size: 18px; font-weight: 700; color: #111; margin: 0;">Select States</h3>
+          <span style="font-size: 20px; color: #999; cursor: pointer;">✕</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 20px;">
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; cursor: pointer;">
+            <input type="checkbox" style="accent-color: #2F2582; width: 16px; height: 16px;"> All States
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; cursor: pointer;">
+            <input type="checkbox" style="accent-color: #2F2582; width: 16px; height: 16px;"> Andhra Pradesh
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; cursor: pointer;">
+            <input type="checkbox" style="accent-color: #2F2582; width: 16px; height: 16px;"> Chandigarh
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; cursor: pointer;">
+            <input type="checkbox" style="accent-color: #2F2582; width: 16px; height: 16px;"> Delhi
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; cursor: pointer;">
+            <input type="checkbox" style="accent-color: #2F2582; width: 16px; height: 16px;"> Gujarat
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; cursor: pointer;">
+            <input type="checkbox" style="accent-color: #2F2582; width: 16px; height: 16px;"> Haryana
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; cursor: pointer;">
+            <input type="checkbox" style="accent-color: #2F2582; width: 16px; height: 16px;"> Karnataka
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; cursor: pointer;">
+            <input type="checkbox" style="accent-color: #2F2582; width: 16px; height: 16px;"> Maharashtra
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #333; cursor: pointer;">
+            <input type="checkbox" style="accent-color: #2F2582; width: 16px; height: 16px;"> Tamil Nadu
+          </label>
+        </div>
+
+        <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: flex-end;">
+          <button style="background: #f0f0f0; color: #555; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">Clear</button>
+          <button style="background: #2F2582; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">Apply Filter</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 28px;">
+  <h3>Map with State Pointers</h3>
+  <p>Below the card grid. Interactive Google Maps embed with markers for each store's lat/lng. Clicking a marker shows the store name.</p>
+
+  <div class="mockup">
+    <div class="mockup-header">India Map — Store Markers</div>
+    <div class="mockup-body" style="padding: 20px; background: #f0f0f0;">
+      <div style="aspect-ratio: 16/9; background: linear-gradient(135deg, #d4e4d4, #b8c8d8); border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative;">
+        <p style="color: #666; font-size: 16px; font-weight: 600;">Google Maps Embed</p>
+        <p style="position: absolute; bottom: 16px; font-size: 12px; color: #888;">Interactive map with store markers from lat/lng data in DB</p>
+
+        <!-- Simulated pins -->
+        <div style="position: absolute; top: 25%; left: 40%; width: 12px; height: 12px; background: #2F2582; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.3);"></div>
+        <div style="position: absolute; top: 35%; left: 55%; width: 12px; height: 12px; background: #2F2582; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.3);"></div>
+        <div style="position: absolute; top: 50%; left: 30%; width: 12px; height: 12px; background: #2F2582; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.3);"></div>
+        <div style="position: absolute; top: 60%; left: 50%; width: 12px; height: 12px; background: #2F2582; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 4px rgba(0,0,0,0.3);"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: #f5f5f5; padding: 16px 20px; border-radius: 10px; margin-top: 16px; font-size: 13px; color: #555;">
+    <strong>Implementation note:</strong> Uses existing store lat/lng data from the <code>stores</code> table. No DB changes needed for the map — just a UI replacement of the current generic Google Maps iframe with a marker-based embed.
+  </div>
+</div>
+
+<div class="section" style="margin-top: 28px;">
+  <h3>Key Differences from Sarom</h3>
+  <div style="background: #f5f5f5; padding: 20px; border-radius: 12px; font-size: 14px; color: #333;">
+    <ul style="margin: 0; padding-left: 20px; line-height: 2;">
+      <li><strong>Brand colors</strong> — purple (#2F2582) headers instead of Sarom's grey/olive</li>
+      <li><strong>Rounded corners</strong> — 12px radius cards matching our design system</li>
+      <li><strong>Modern filter modal</strong> — clean modal with Apply/Clear buttons instead of plain dropdown</li>
+      <li><strong>Responsive</strong> — 4 cols → 2 cols on tablet → 1 col on mobile</li>
+      <li><strong>Map below</strong> — interactive markers instead of generic iframe</li>
+      <li><strong>Same admin</strong> — existing /admin/stores manages all data, no changes needed</li>
+    </ul>
+  </div>
+</div>

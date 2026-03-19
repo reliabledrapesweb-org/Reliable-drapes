@@ -31,7 +31,8 @@ export function VisionMissionSection({ section }: VisionMissionSectionProps) {
     (typeof contentJson.mission === "string" ? contentJson.mission : null) ||
     defaults.mission_content;
   const imageUrl = section?.image_url || defaults.image_url;
-  const iconUrl = section?.image_url_2 || defaults.icon_url;
+  const missionImageUrl = section?.image_url_2 || imageUrl;
+  const iconUrl = defaults.icon_url;
 
   return (
     <section className="overflow-hidden bg-white py-16 lg:py-24">
@@ -112,7 +113,7 @@ export function VisionMissionSection({ section }: VisionMissionSectionProps) {
                   <Image
                     width={400}
                     height={400}
-                    src={imageUrl}
+                    src={missionImageUrl}
                     alt="Mission"
                     className="h-full w-full -translate-x-4 translate-y-4 transform rounded-3xl border-4 border-white object-cover shadow-lg transition-transform duration-500 group-hover:-translate-x-2 group-hover:translate-y-2"
                   />

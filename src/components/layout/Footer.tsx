@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, Phone, MapPin, Building } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -164,51 +164,63 @@ export function Footer() {
             <div className="space-y-4 pt-1">
               {companyDetails.headOfficeAddress ||
               companyDetails.warehouseAddress ? (
-                <div className="flex flex-col gap-3 sm:flex-row sm:gap-6">
+                <div className="flex flex-col gap-5">
                   {companyDetails.headOfficeAddress && (
-                    <div className="flex items-start gap-2">
-                      <Building className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
-                      <div>
-                        <p className="text-xs font-semibold text-gray-300">
-                          Head Office
+                    <div className="flex items-start gap-3">
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#7e7e7e]" />
+                      <div className="space-y-1">
+                        <p className="font-semibold text-white">
+                          Reliable Head Office
                         </p>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-[#7e7e7e] md:text-base">
+                          Shree Ambica Furnishings (INDIA) Pvt. Ltd.
+                        </p>
+                        <p className="text-sm text-[#7e7e7e] md:text-base">
                           {companyDetails.headOfficeAddress}
                         </p>
-                        {companyDetails.headOfficeMapLink && (
+                        {companyDetails.headOfficeMapLink ? (
                           <a
                             href={companyDetails.headOfficeMapLink}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-1 inline-flex items-center gap-1 text-xs text-[#2F2582] transition-colors hover:text-white"
+                            className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-white underline transition-colors hover:text-gray-300"
                           >
-                            <MapPin className="h-3 w-3" />
-                            View on Map
+                            View on Google Maps
                           </a>
+                        ) : (
+                          <p className="mt-1 text-sm text-[#7e7e7e]">
+                            Location will share soon
+                          </p>
                         )}
                       </div>
                     </div>
                   )}
                   {companyDetails.warehouseAddress && (
-                    <div className="flex items-start gap-2">
-                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
-                      <div>
-                        <p className="text-xs font-semibold text-gray-300">
-                          Warehouse
+                    <div className="flex items-start gap-3">
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#7e7e7e]" />
+                      <div className="space-y-1">
+                        <p className="font-semibold text-white">
+                          Warehouse Dispatch & Experience Centre
                         </p>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-[#7e7e7e] md:text-base">
+                          Shree Ambica Furnishings (INDIA) Pvt. Ltd.
+                        </p>
+                        <p className="text-sm text-[#7e7e7e] md:text-base">
                           {companyDetails.warehouseAddress}
                         </p>
-                        {companyDetails.warehouseMapLink && (
+                        {companyDetails.warehouseMapLink ? (
                           <a
                             href={companyDetails.warehouseMapLink}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-1 inline-flex items-center gap-1 text-xs text-[#2F2582] transition-colors hover:text-white"
+                            className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-white underline transition-colors hover:text-gray-300"
                           >
-                            <MapPin className="h-3 w-3" />
-                            View on Map
+                            View on Google Maps
                           </a>
+                        ) : (
+                          <p className="mt-1 text-sm text-[#7e7e7e]">
+                            Location will share soon
+                          </p>
                         )}
                       </div>
                     </div>

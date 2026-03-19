@@ -1,0 +1,188 @@
+<h2>Design: Remaining Changes</h2>
+<p class="subtitle">Header, Footer, Contact, Careers, and Admin-editable fields</p>
+
+<!-- REQ 1: GeM Logo -->
+<div class="section">
+  <h3>1. GeM Logo — Increase Size</h3>
+  <p>The GeM Assessed logo in the header currently has 4 size options (small/medium/large/extra-large). The fix is simple:</p>
+  <div style="background: #f5f5f5; padding: 20px; border-radius: 12px; font-size: 14px; color: #333;">
+    <ul style="margin: 0; padding-left: 20px; line-height: 2;">
+      <li>Increase all size tiers so the logo is more visible</li>
+      <li><strong>small:</strong> h-6 → h-8 | <strong>medium:</strong> h-7 → h-10 | <strong>large:</strong> h-9 → h-12 | <strong>extra-large:</strong> h-11 → h-14</li>
+      <li>Admin can still pick which tier via Settings</li>
+    </ul>
+  </div>
+</div>
+
+<!-- REQ 2 + 11: Footer -->
+<div class="section" style="margin-top: 28px;">
+  <h3>2 & 11. Footer — Addresses + Editable B2B Line</h3>
+
+  <div class="mockup">
+    <div class="mockup-header">Footer — Company Info Section (Updated)</div>
+    <div class="mockup-body" style="padding: 30px; background: #0e0e0e; color: white;">
+
+      <!-- Logo -->
+      <div style="margin-bottom: 12px;">
+        <div style="width: 130px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; justify-content: center;">
+          <span style="color: #999; font-size: 11px;">Logo</span>
+        </div>
+      </div>
+
+      <!-- Company line (admin-editable) -->
+      <p style="font-size: 14px; color: #f1f1f1; margin: 0 0 8px;">A Unit of Shree Ambica Furnishings (India) Pvt. Ltd.</p>
+
+      <!-- B2B line (admin-editable, currently hardcoded) -->
+      <p style="font-size: 13px; color: #7e7e7e; margin: 0 0 16px; padding: 8px 12px; border: 1px dashed #444; border-radius: 6px; background: rgba(47,37,130,0.1);">
+        <span style="font-size: 10px; color: #2F2582; display: block; margin-bottom: 4px;">⟵ ADMIN-EDITABLE</span>
+        "B2B Furnishing" line — content to be shared later
+      </p>
+
+      <!-- Contact -->
+      <div style="margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <span style="color: #7e7e7e;">✉</span>
+          <span style="color: #7e7e7e; font-size: 13px;">contact@reliabledrapes.org</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="color: #7e7e7e;">☎</span>
+          <span style="color: #7e7e7e; font-size: 13px;">96257 31948</span>
+        </div>
+      </div>
+
+      <!-- TWO Address blocks -->
+      <div style="display: flex; gap: 20px; margin-top: 12px;">
+        <div style="flex: 1; padding: 14px; border: 1px solid #222; border-radius: 10px; background: rgba(255,255,255,0.03);">
+          <p style="font-size: 12px; font-weight: 600; color: #f1f1f1; margin: 0 0 6px;">🏢 Head Office</p>
+          <p style="font-size: 12px; color: #7e7e7e; margin: 0; line-height: 1.6;">Address to be added via admin panel</p>
+        </div>
+        <div style="flex: 1; padding: 14px; border: 1px solid #222; border-radius: 10px; background: rgba(255,255,255,0.03);">
+          <p style="font-size: 12px; font-weight: 600; color: #f1f1f1; margin: 0 0 6px;">🏭 Warehouse</p>
+          <p style="font-size: 12px; color: #7e7e7e; margin: 0; line-height: 1.6;">Complete address to be added via admin panel</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div style="background: #f5f5f5; padding: 16px 20px; border-radius: 10px; margin-top: 12px; font-size: 13px; color: #555;">
+    <strong>Admin:</strong> New fields in <code>/admin/settings</code> → Site tab: <code>company_tagline</code> (the B2B line), <code>head_office_address</code>, <code>warehouse_address</code>. All stored in <code>site_settings</code>.
+  </div>
+</div>
+
+<!-- REQ 8 + 9 + 10: Phone Numbers -->
+<div class="section" style="margin-top: 28px;">
+  <h3>8, 9, 10. Phone Number Changes</h3>
+
+  <div style="background: white; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+      <thead>
+        <tr style="background: #f8f8f8;">
+          <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #333; border-bottom: 1px solid #e5e5e5;">Location</th>
+          <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #333; border-bottom: 1px solid #e5e5e5;">Number</th>
+          <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: #333; border-bottom: 1px solid #e5e5e5;">Admin-Editable?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0;">Contact Us — Call button</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-family: monospace; color: #2F2582;">+91 98113 31948</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0;">✅ Yes (admin can change later)</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0;">Contact Us — Message section</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-family: monospace; color: #2F2582;">96257 31948</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0;">Stays as-is</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0;">Style Expert</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-family: monospace; color: #2F2582;">96257 31948</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0;">Stays as-is</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0;">Footer</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0; font-family: monospace; color: #2F2582;">96257 31948</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0;">Stays as-is</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px;">Careers — HR</td>
+          <td style="padding: 12px 16px; font-family: monospace; color: #2F2582;">+91 85069 31948</td>
+          <td style="padding: 12px 16px;">Stays as-is</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="background: #f5f5f5; padding: 16px 20px; border-radius: 10px; margin-top: 12px; font-size: 13px; color: #555;">
+    <strong>Implementation:</strong> Add a <code>contact_call_phone</code> field to <code>site_settings</code> for the admin-editable Contact Us call number. Other numbers stay in constants or existing settings.
+  </div>
+</div>
+
+<!-- REQ 12: Business Hours -->
+<div class="section" style="margin-top: 28px;">
+  <h3>12. Business Hours — Admin-Editable</h3>
+  <div style="background: #f5f5f5; padding: 20px; border-radius: 12px; font-size: 14px; color: #333;">
+    <ul style="margin: 0; padding-left: 20px; line-height: 2;">
+      <li>Currently hardcoded in <code>contact/page.tsx</code> (Mon-Fri 9-6, Sat 10-4, Sun Closed)</li>
+      <li><strong>Move to <code>site_settings</code></strong> as a JSON field: <code>business_hours</code></li>
+      <li>Admin Settings → Site tab: editable rows for each day's hours</li>
+      <li>Contact page reads from DB instead of hardcoded values</li>
+    </ul>
+  </div>
+</div>
+
+<!-- REQ 13: Contact Us Warehouse Address -->
+<div class="section" style="margin-top: 28px;">
+  <h3>13. Contact Us — Warehouse Address</h3>
+  <div style="background: #f5f5f5; padding: 20px; border-radius: 12px; font-size: 14px; color: #333;">
+    <ul style="margin: 0; padding-left: 20px; line-height: 2;">
+      <li>Currently shows <code>"Warehouse - PNP"</code> from constants</li>
+      <li>Replace with the complete warehouse address from <code>site_settings.warehouse_address</code> (same field as footer)</li>
+      <li>Contact page Address section will show the full warehouse address</li>
+    </ul>
+  </div>
+</div>
+
+<!-- REQ 14: Careers HR -->
+<div class="section" style="margin-top: 28px;">
+  <h3>14. Careers — HR Contact Number</h3>
+  <div style="background: #f5f5f5; padding: 20px; border-radius: 12px; font-size: 14px; color: #333;">
+    <ul style="margin: 0; padding-left: 20px; line-height: 2;">
+      <li>Add <code>+91 85069 31948</code> as the HR contact number in the Careers section</li>
+      <li>Shows in the "Contact HR" / "Open Hire" section of the careers page</li>
+    </ul>
+  </div>
+</div>
+
+<!-- BUG: Admin Upload -->
+<div class="section" style="margin-top: 28px;">
+  <h3>Bug: Admin Panel Upload Error</h3>
+  <div style="background: #fff3f3; padding: 20px; border-radius: 12px; font-size: 14px; color: #333; border: 1px solid #ffd4d4;">
+    <p style="margin: 0 0 12px; font-weight: 600; color: #c00;">Reported Issues:</p>
+    <ul style="margin: 0; padding-left: 20px; line-height: 2;">
+      <li>Upload works first time but errors on second attempt</li>
+      <li>Admin → Settings → Shop toggle fails with error</li>
+      <li>Instagram and Facebook links can't be saved</li>
+    </ul>
+    <p style="margin: 12px 0 0; font-weight: 600; color: #555;">Investigation Plan:</p>
+    <ul style="margin: 8px 0 0; padding-left: 20px; line-height: 2;">
+      <li>Inspect <code>site-settings</code> server action — likely a Supabase upsert/RLS issue</li>
+      <li>Check if the <code>site_settings</code> table has proper UPDATE policies</li>
+      <li>Look at the media upload action for state management issues (stale references)</li>
+      <li>Test the settings save flow for race conditions or missing error handling</li>
+    </ul>
+  </div>
+</div>
+
+<!-- New site_settings fields summary -->
+<div class="section" style="margin-top: 28px;">
+  <h3>Summary: New <code>site_settings</code> Fields</h3>
+  <div style="background: #1a1a2e; padding: 24px; border-radius: 12px; font-family: monospace; font-size: 13px; color: #a8d8a8; line-height: 2;">
+    <span style="color: #6ba3d6;">-- New columns in site_settings</span><br>
+    <span style="color: #e8c87a;">company_tagline</span> <span style="color: #c9a0dc;">text</span> <span style="color: #666;">-- the B2B line near address</span><br>
+    <span style="color: #e8c87a;">head_office_address</span> <span style="color: #c9a0dc;">text</span> <span style="color: #666;">-- head office full address</span><br>
+    <span style="color: #e8c87a;">warehouse_address</span> <span style="color: #c9a0dc;">text</span> <span style="color: #666;">-- warehouse full address</span><br>
+    <span style="color: #e8c87a;">contact_call_phone</span> <span style="color: #c9a0dc;">text</span> <span style="color: #666;">-- admin-editable call number</span><br>
+    <span style="color: #e8c87a;">business_hours</span> <span style="color: #c9a0dc;">jsonb</span> <span style="color: #666;">-- day-by-day hours</span><br>
+  </div>
+</div>

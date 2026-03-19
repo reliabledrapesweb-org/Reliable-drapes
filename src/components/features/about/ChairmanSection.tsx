@@ -17,7 +17,7 @@ export function ChairmanSection({ section }: Props) {
   const content = section.content;
   const role = contentJson.role;
   const quote = contentJson.quote;
-  const imageUrl = section.image_url;
+  const imageUrl = section.image_url_2 || section.image_url;
 
   return (
     <section className="overflow-hidden bg-gray-50 py-16 lg:py-24">

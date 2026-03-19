@@ -313,16 +313,16 @@ export function Header() {
           width={200}
           height={60}
           unoptimized
-          className={
-            (
-              {
-                small: "h-8 w-auto xl:h-9",
-                medium: "h-10 w-auto xl:h-11",
-                large: "h-11 w-auto xl:h-12",
-                "extra-large": "h-12 w-auto xl:h-14",
-              } as const
-            )[gemAssessedLogo.size]
-          }
+          style={{
+            height:
+              ({
+                small: 48,
+                medium: 56,
+                large: 64,
+                "extra-large": 72,
+              } as const)[gemAssessedLogo.size],
+            width: "auto",
+          }}
         />
       </motion.div>
     ) : null;
