@@ -13,3 +13,4 @@ export { ConfirmModal } from './ConfirmModal';
 export { GlobalContactButton } from './GlobalContactButton';
 export { ComingSoonNotice } from './ComingSoonNotice';
 export { ComingSoonModal } from './ComingSoonModal';
+export { RecoveryRedirect } from './RecoveryRedirect';

@@ -108,7 +108,7 @@ export async function forgotPasswordAction(
   const anon = getAnonSupabase();
 
   const { error } = await anon.auth.resetPasswordForEmail(email, {
-    redirectTo: `${getBaseUrl()}/auth/callback?type=recovery`,
+    redirectTo: `${getBaseUrl()}/reset-password`,
   });
 
   if (error) {

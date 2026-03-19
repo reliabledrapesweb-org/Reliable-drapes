@@ -17,15 +17,31 @@ export default function ResetPasswordPage() {
   const [isPending, setIsPending] = useState(false);
   const [isValidSession, setIsValidSession] = useState<boolean | null>(null);
 
-  // Check if user has a valid recovery session
+  // Check if user has a valid recovery session.
+  // Uses onAuthStateChange to detect sessions from hash fragments
+  // (Supabase implicit flow puts tokens in #access_token=...).
   useEffect(() => {
-    const checkSession = async () => {
-      const {
-        data: { session },
-      } = await supabaseClient.auth.getSession();
-      setIsValidSession(!!session);
-    };
-    checkSession();
+    const {
+      data: { subscription },
+    } = supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
+        setIsValidSession(!!session);
+      } else if (event === "INITIAL_SESSION") {
+        // Only mark invalid if there's truly no session after init
+        if (!session) {
+          // Delay slightly to allow hash fragment processing
+          setTimeout(() => {
+            supabaseClient.auth.getSession().then(({ data }) => {
+              if (!data.session) setIsValidSession(false);
+            });
+          }, 1000);
+        } else {
+          setIsValidSession(true);
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

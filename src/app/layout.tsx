@@ -9,6 +9,7 @@ import {
   AnalyticsProvider,
 } from "@/components/providers";
 import { LayoutContent } from "@/components/layout";
+import { RecoveryRedirect } from "@/components/shared";
 import { GA_MEASUREMENT_ID } from "@/lib/analytics/gtag";
 
 const dmSans = DM_Sans({
@@ -104,6 +105,7 @@ export default function RootLayout({
             <Suspense fallback={null}>
               <AnalyticsProvider />
             </Suspense>
+            <RecoveryRedirect />
             <LayoutContent>{children}</LayoutContent>
           </CommerceFeaturesProvider>
         </AuthProvider>
