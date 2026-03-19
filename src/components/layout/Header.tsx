@@ -71,10 +71,6 @@ export function Header() {
     <>
       <motion.button
         onClick={() => {
-          if (!commerceFeaturesEnabled) {
-            setShowComingSoonModal(true);
-            return;
-          }
           setShowSearchModal(true);
         }}
         className={`${
@@ -424,7 +420,7 @@ export function Header() {
 
       {/* SEARCH MODAL */}
       <SearchModal
-        isOpen={showSearchModal && commerceFeaturesEnabled}
+        isOpen={showSearchModal}
         onClose={() => setShowSearchModal(false)}
       />
 

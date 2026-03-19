@@ -20,7 +20,7 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
-  title: "Reliable Drapes - B2B Furnishing Solutions",
+  title: "Reliable Drapes",
   description:
     "Reliable Drapes delivers B2B furnishing solutions for showrooms, designers, retailers, and project partners across India.",
   keywords: [
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://reliabledrapes.com",
     siteName: "Reliable Drapes",
-    title: "Reliable Drapes - B2B Furnishing Solutions",
+    title: "Reliable Drapes",
     description:
       "B2B-ready furnishing collections for business buyers, designers, and project teams.",
     images: [
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Reliable Drapes - B2B Furnishing Solutions",
+    title: "Reliable Drapes",
     description:
       "Explore business-focused furnishing collections and project-ready catalogue options.",
     creator: "@reliabledrapes",

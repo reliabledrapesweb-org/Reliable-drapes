@@ -77,7 +77,10 @@ export function Footer() {
         ) {
           setCategories(
             categoriesResult.data
-              .filter((category) => category.is_active !== false)
+              .filter(
+                (category) =>
+                  category.is_active !== false && !category.parent_id,
+              )
               .slice(0, 4)
               .map((category) => ({
                 id: category.id,
@@ -251,7 +254,7 @@ export function Footer() {
                   whileHover={{ color: "#ffffff", x: 3 }}
                   transition={{ duration: 0.2 }}
                 >
-                  All Products
+                  All Catalogues
                 </motion.a>
               </li>
               {isLoading ? (

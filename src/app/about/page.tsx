@@ -21,23 +21,27 @@ export default async function AboutPage() {
 
   const founderSection = sectionsMap.get("founder");
   const chairmanSection = sectionsMap.get("chairman");
-  const directorSection = sectionsMap.get("director");
+
+  // Leadership row uses separate DB entries so editing doesn't affect individual sections
+  const leadershipFounder = sectionsMap.get("leadership-founder");
+  const leadershipChairman = sectionsMap.get("leadership-chairman");
+  const leadershipDirector = sectionsMap.get("leadership-director");
 
   const leadershipMembers = [
     {
-      name: founderSection?.title || "Founder",
-      designation: "Founder",
-      imageUrl: founderSection?.image_url || null,
+      name: leadershipFounder?.title || "Founder",
+      designation: leadershipFounder?.subtitle || "FOUNDER",
+      imageUrl: leadershipFounder?.image_url || null,
     },
     {
-      name: chairmanSection?.title || "Chairman",
-      designation: "Chairman",
-      imageUrl: chairmanSection?.image_url || null,
+      name: leadershipChairman?.title || "Chairman",
+      designation: leadershipChairman?.subtitle || "CHAIRMAN",
+      imageUrl: leadershipChairman?.image_url || null,
     },
     {
-      name: directorSection?.title || "Director",
-      designation: "Director",
-      imageUrl: directorSection?.image_url || null,
+      name: leadershipDirector?.title || "Director",
+      designation: leadershipDirector?.subtitle || "DIRECTOR",
+      imageUrl: leadershipDirector?.image_url || null,
     },
   ];
 

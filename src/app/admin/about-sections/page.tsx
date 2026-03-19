@@ -242,8 +242,16 @@ export default function AdminAboutSectionsPage() {
 
   const getSectionPreview = (section: AboutSection) => {
     switch (section.section_key) {
+      case "leadership-founder":
+        return "Leadership row — Founder card";
+      case "leadership-chairman":
+        return "Leadership row — Chairman card";
+      case "leadership-director":
+        return "Leadership row — Director card";
       case "founder":
-        return "Founder section with portrait and bio";
+        return "Founder detailed section with portrait and bio";
+      case "chairman":
+        return "Chairman detailed section with portrait and bio";
       case "why-choose":
         return "Why choose us with images";
       case "features":
@@ -575,13 +583,15 @@ export default function AdminAboutSectionsPage() {
                 {/* Image 1 */}
                 <div>
                   <label className="mb-2 block text-sm font-medium text-gray-700">
-                    {["founder", "chairman", "director"].includes(
-                      editingSection.section_key,
-                    )
-                      ? "Leadership Row Image"
-                      : editingSection.section_key === "vision-mission"
-                        ? "Vision Image"
-                        : "Primary Image"}
+                    {editingSection.section_key.startsWith("leadership-")
+                      ? "Portrait Image"
+                      : ["founder", "chairman"].includes(
+                            editingSection.section_key,
+                          )
+                        ? "Primary Image"
+                        : editingSection.section_key === "vision-mission"
+                          ? "Vision Image"
+                          : "Primary Image"}
                   </label>
                   <div className="flex gap-2">
                     <input

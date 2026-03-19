@@ -21,6 +21,7 @@ interface ProductCardProps {
   discountValue?: string;
   isVisible?: boolean;
   animationDelay?: number;
+  initialOpen?: boolean;
   onDownload?: (productName: string, catalogueId?: string) => void;
 }
 
@@ -34,9 +35,10 @@ export function ProductCard({
   discountValue = "-30%",
   isVisible = true,
   animationDelay = 0,
+  initialOpen = false,
   onDownload,
 }: ProductCardProps) {
-  const [showPreview, setShowPreview] = useState(false);
+  const [showPreview, setShowPreview] = useState(initialOpen);
   const [imageError, setImageError] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(true);
   const [pdfError, setPdfError] = useState(false);

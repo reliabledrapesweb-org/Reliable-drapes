@@ -61,6 +61,8 @@ function transformCatalogueToProduct(catalogue: Catalogue) {
 export default function CataloguePage() {
   const searchParams = useSearchParams();
   const urlCategory = searchParams.get("category") || "";
+  const openCatalogueId = searchParams.get("open") || null;
+  const urlSearch = searchParams.get("search") || "";
 
   const parseCategoriesFromUrl = (value: string): string[] =>
     value
@@ -68,7 +70,7 @@ export default function CataloguePage() {
       .map((item) => item.trim())
       .filter((item) => item.length > 0);
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(urlSearch);
   const [selectedFilters, setSelectedFilters] = useState<string[]>(
     parseCategoriesFromUrl(urlCategory),
   );
@@ -236,7 +238,7 @@ export default function CataloguePage() {
               {isLoading ? (
                 <ProductGridSkeleton />
               ) : (
-                <ProductGrid filteredProducts={filteredProducts} />
+                <ProductGrid filteredProducts={filteredProducts} openCatalogueId={openCatalogueId} />
               )}
             </div>
           </div>

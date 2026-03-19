@@ -17,6 +17,7 @@ export interface Product {
 
 interface ProductGridProps {
   filteredProducts: Product[];
+  openCatalogueId?: string | null;
 }
 
 const containerVariants = {
@@ -29,7 +30,7 @@ const containerVariants = {
   },
 };
 
-export function ProductGrid({ filteredProducts }: ProductGridProps) {
+export function ProductGrid({ filteredProducts, openCatalogueId }: ProductGridProps) {
   const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set());
   const observerRef = useRef<IntersectionObserver | null>(null);
   const cardRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -132,6 +133,7 @@ export function ProductGrid({ filteredProducts }: ProductGridProps) {
                 badge={product.badge}
                 isVisible={visibleCards.has(numericId)}
                 animationDelay={(index % 3) * 100}
+                initialOpen={openCatalogueId === String(product.id)}
                 onDownload={handleProductClick}
               />
             </div>

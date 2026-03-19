@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, Loader2 } from "lucide-react";
+import { Search, X, Loader2, BookOpen, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getProducts, type Product } from "@/lib/actions/products";
+import { getCatalogues, type Catalogue } from "@/lib/actions/catalogues";
 import { DEFAULT_PRODUCT_IMAGE } from "@/lib/constants/app";
-import { ComingSoonModal } from "@/components/shared";
 import { useCommerceFeatures } from "@/components/providers";
 
 interface SearchModalProps {
@@ -15,18 +15,22 @@ interface SearchModalProps {
   onClose: () => void;
 }
 
+type SearchResult =
+  | { type: "catalogue"; data: Catalogue }
+  | { type: "product"; data: Product };
+
 export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const router = useRouter();
-  const { commerceFeaturesEnabled, comingSoonMessage } = useCommerceFeatures();
+  const { commerceFeaturesEnabled } = useCommerceFeatures();
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const resetSearchState = () => {
     setSearchQuery("");
-    setSearchResults([]);
+    setResults([]);
     setHasSearched(false);
   };
 
@@ -35,19 +39,18 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     resetSearchState();
   };
 
-  // Focus input when modal opens
   useEffect(() => {
     if (isOpen && inputRef.current) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen]);
 
-  // Search products
+  // Search catalogues and products
   useEffect(() => {
-    const searchProducts = async () => {
-      const normalizedQuery = searchQuery.trim();
+    const performSearch = async () => {
+      const normalizedQuery = searchQuery.trim().toLowerCase();
       if (normalizedQuery.length < 2) {
-        setSearchResults([]);
+        setResults([]);
         setHasSearched(false);
         return;
       }
@@ -56,25 +59,61 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       setHasSearched(true);
 
       try {
-        const result = await getProducts({ search: normalizedQuery, limit: 5 });
-        if (result.success && result.data) {
-          setSearchResults(result.data);
-        } else {
-          setSearchResults([]);
+        // Search catalogues and products in parallel
+        const [catalogueResult, productResult] = await Promise.all([
+          getCatalogues(),
+          getProducts({ search: normalizedQuery, limit: 5 }),
+        ]);
+
+        const combined: SearchResult[] = [];
+
+        // Filter catalogues client-side by title/description
+        if (catalogueResult.success && catalogueResult.data) {
+          const matchingCatalogues = catalogueResult.data
+            .filter(
+              (c) =>
+                c.title.toLowerCase().includes(normalizedQuery) ||
+                c.description?.toLowerCase().includes(normalizedQuery) ||
+                c.subtitle?.toLowerCase().includes(normalizedQuery),
+            )
+            .slice(0, 5);
+
+          matchingCatalogues.forEach((c) =>
+            combined.push({ type: "catalogue", data: c }),
+          );
         }
+
+        // Add product results
+        if (productResult.success && productResult.data) {
+          productResult.data.forEach((p) =>
+            combined.push({ type: "product", data: p }),
+          );
+        }
+
+        setResults(combined);
       } catch {
-        setSearchResults([]);
+        setResults([]);
       }
 
       setIsSearching(false);
     };
 
-    const debounceTimer = setTimeout(searchProducts, 300);
+    const debounceTimer = setTimeout(performSearch, 300);
     return () => clearTimeout(debounceTimer);
   }, [searchQuery]);
 
-  const handleProductClick = (productId: string) => {
-    router.push(`/shop/${productId}`);
+  const handleResultClick = (result: SearchResult) => {
+    if (result.type === "catalogue") {
+      router.push(
+        `/e-catalogue?open=${encodeURIComponent(result.data.id)}`,
+      );
+    } else {
+      if (!commerceFeaturesEnabled) {
+        router.push("/shop");
+      } else {
+        router.push(`/shop/${result.data.id}`);
+      }
+    }
     handleClose();
   };
 
@@ -83,30 +122,15 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
       handleClose();
     } else if (e.key === "Enter" && searchQuery.trim().length >= 2) {
       e.preventDefault();
-      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(
+        `/e-catalogue?search=${encodeURIComponent(searchQuery.trim())}`,
+      );
       handleClose();
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
-
-  const fallbackImage = DEFAULT_PRODUCT_IMAGE;
-
-  if (!commerceFeaturesEnabled) {
-    return (
-      <ComingSoonModal
-        isOpen={isOpen}
-        onClose={handleClose}
-        message={comingSoonMessage}
-      />
-    );
-  }
+  const catalogueResults = results.filter((r) => r.type === "catalogue");
+  const productResults = results.filter((r) => r.type === "product");
 
   return (
     <AnimatePresence>
@@ -139,7 +163,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Search for products..."
+                  placeholder="Search catalogues and products..."
                   className="flex-1 text-base text-[#161616] placeholder:text-[#898989] focus:outline-none"
                 />
                 {isSearching && (
@@ -167,72 +191,140 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   <div className="flex items-center justify-center py-12">
                     <Loader2 className="h-8 w-8 animate-spin text-[#2f2582]" />
                   </div>
-                ) : searchResults.length > 0 ? (
-                  <div className="divide-y divide-gray-100">
-                    {searchResults.map((product) => (
-                      <motion.button
-                        key={product.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        onClick={() => handleProductClick(product.id)}
-                        className="flex w-full items-center gap-4 p-4 text-left transition-colors hover:bg-gray-50"
-                      >
-                        {/* Product Image */}
-                        <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                          <Image
-                            src={product.image_url || fallbackImage}
-                            alt={product.name}
-                            fill
-                            className="object-cover"
-                            sizes="64px"
-                          />
+                ) : results.length > 0 ? (
+                  <div>
+                    {/* Catalogue Results */}
+                    {catalogueResults.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 bg-gray-50 px-4 py-2">
+                          <BookOpen className="h-3.5 w-3.5 text-[#575757]" />
+                          <span className="text-xs font-semibold tracking-wide text-[#575757] uppercase">
+                            Catalogues
+                          </span>
                         </div>
-
-                        {/* Product Info */}
-                        <div className="min-w-0 flex-1">
-                          <h4 className="line-clamp-1 text-sm font-semibold text-[#161616]">
-                            {product.name}
-                          </h4>
-                          {product.description && (
-                            <p className="mt-0.5 line-clamp-1 text-xs text-[#898989]">
-                              {product.description}
-                            </p>
-                          )}
-                          <p className="mt-1 text-sm font-bold text-[#2f2582]">
-                            {formatPrice(product.price)}
-                          </p>
+                        <div className="divide-y divide-gray-100">
+                          {catalogueResults.map((result) => {
+                            const catalogue = result.data as Catalogue;
+                            return (
+                              <motion.button
+                                key={catalogue.id}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                onClick={() => handleResultClick(result)}
+                                className="flex w-full items-center gap-4 p-4 text-left transition-colors hover:bg-gray-50"
+                              >
+                                <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                  <Image
+                                    src={
+                                      catalogue.thumbnail_url ||
+                                      catalogue.image_url ||
+                                      DEFAULT_PRODUCT_IMAGE
+                                    }
+                                    alt={catalogue.title}
+                                    fill
+                                    className="object-cover"
+                                    sizes="64px"
+                                  />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <h4 className="line-clamp-1 text-sm font-semibold text-[#161616]">
+                                    {catalogue.title}
+                                  </h4>
+                                  {catalogue.description && (
+                                    <p className="mt-0.5 line-clamp-1 text-xs text-[#898989]">
+                                      {catalogue.description}
+                                    </p>
+                                  )}
+                                  {catalogue.category?.name && (
+                                    <p className="mt-1 text-xs font-medium text-[#2f2582]">
+                                      {catalogue.category.name}
+                                    </p>
+                                  )}
+                                </div>
+                                <svg
+                                  className="h-5 w-5 flex-shrink-0 text-[#898989]"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                  />
+                                </svg>
+                              </motion.button>
+                            );
+                          })}
                         </div>
+                      </div>
+                    )}
 
-                        {/* Arrow */}
-                        <svg
-                          className="h-5 w-5 flex-shrink-0 text-[#898989]"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </motion.button>
-                    ))}
-
-                    {/* View All Results */}
-                    {searchResults.length === 5 && (
-                      <button
-                        onClick={() => {
-                          router.push(
-                            `/shop?search=${encodeURIComponent(searchQuery.trim())}`,
-                          );
-                          handleClose();
-                        }}
-                        className="w-full border-t border-[#d0d0d0] p-4 text-center text-sm font-medium text-[#2f2582] transition-colors hover:bg-gray-50"
-                      >
-                        View all results for &quot;{searchQuery}&quot;
-                      </button>
+                    {/* Product Results */}
+                    {productResults.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 bg-gray-50 px-4 py-2">
+                          <ShoppingBag className="h-3.5 w-3.5 text-[#575757]" />
+                          <span className="text-xs font-semibold tracking-wide text-[#575757] uppercase">
+                            Products
+                          </span>
+                        </div>
+                        <div className="divide-y divide-gray-100">
+                          {productResults.map((result) => {
+                            const product = result.data as Product;
+                            return (
+                              <motion.button
+                                key={product.id}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                onClick={() => handleResultClick(result)}
+                                className="flex w-full items-center gap-4 p-4 text-left transition-colors hover:bg-gray-50"
+                              >
+                                <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                                  <Image
+                                    src={product.image_url || DEFAULT_PRODUCT_IMAGE}
+                                    alt={product.name}
+                                    fill
+                                    className="object-cover"
+                                    sizes="64px"
+                                  />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <h4 className="line-clamp-1 text-sm font-semibold text-[#161616]">
+                                    {product.name}
+                                  </h4>
+                                  {product.description && (
+                                    <p className="mt-0.5 line-clamp-1 text-xs text-[#898989]">
+                                      {product.description}
+                                    </p>
+                                  )}
+                                  <p className="mt-1 text-sm font-bold text-[#2f2582]">
+                                    {new Intl.NumberFormat("en-IN", {
+                                      style: "currency",
+                                      currency: "INR",
+                                      minimumFractionDigits: 0,
+                                    }).format(product.price)}
+                                  </p>
+                                </div>
+                                <svg
+                                  className="h-5 w-5 flex-shrink-0 text-[#898989]"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                  />
+                                </svg>
+                              </motion.button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     )}
                   </div>
                 ) : hasSearched ? (
@@ -241,33 +333,33 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       <Search className="h-8 w-8 text-gray-400" />
                     </div>
                     <h3 className="mb-2 text-lg font-semibold text-[#161616]">
-                      No products found
+                      No results found
                     </h3>
                     <p className="mb-4 text-center text-sm text-[#898989]">
-                      We couldn&apos;t find any products matching &quot;{searchQuery}
+                      We couldn&apos;t find anything matching &quot;{searchQuery}
                       &quot;
                     </p>
                     <button
                       onClick={() => {
-                        router.push("/shop");
+                        router.push("/e-catalogue");
                         handleClose();
                       }}
                       className="rounded-full bg-[#2f2582] px-6 py-2.5 text-sm font-medium tracking-[1.5px] text-white uppercase transition-all hover:bg-[#241c66] hover:shadow-lg"
                     >
-                      Browse All Products
+                      Browse All Catalogues
                     </button>
                   </div>
                 ) : null}
               </div>
 
               {/* Keyboard Hints */}
-              {searchResults.length > 0 && (
+              {results.length > 0 && (
                 <div className="border-t border-gray-100 bg-gray-50 px-4 py-2 text-xs text-[#898989]">
                   <span className="font-medium">Tip:</span> Press{" "}
                   <kbd className="rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono">
                     Enter
                   </kbd>{" "}
-                  {searchResults.length === 1 && "to view product"}
+                  to view all catalogue results
                 </div>
               )}
             </div>

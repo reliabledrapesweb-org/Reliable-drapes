@@ -17,31 +17,45 @@ export default function ResetPasswordPage() {
   const [isPending, setIsPending] = useState(false);
   const [isValidSession, setIsValidSession] = useState<boolean | null>(null);
 
-  // Check if user has a valid recovery session.
-  // Uses onAuthStateChange to detect sessions from hash fragments
-  // (Supabase implicit flow puts tokens in #access_token=...).
+  // Establish session from hash fragment tokens or existing session.
+  // Supabase implicit flow puts tokens in #access_token=...&refresh_token=...
+  // The SSR browser client doesn't always auto-detect these, so we parse manually.
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabaseClient.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
-        setIsValidSession(!!session);
-      } else if (event === "INITIAL_SESSION") {
-        // Only mark invalid if there's truly no session after init
-        if (!session) {
-          // Delay slightly to allow hash fragment processing
-          setTimeout(() => {
-            supabaseClient.auth.getSession().then(({ data }) => {
-              if (!data.session) setIsValidSession(false);
-            });
-          }, 1000);
-        } else {
-          setIsValidSession(true);
-        }
-      }
-    });
+    const establishSession = async () => {
+      const hash = window.location.hash;
 
-    return () => subscription.unsubscribe();
+      // If hash contains tokens, manually set the session
+      if (hash && hash.includes("access_token")) {
+        const params = new URLSearchParams(hash.substring(1));
+        const accessToken = params.get("access_token");
+        const refreshToken = params.get("refresh_token");
+
+        if (accessToken && refreshToken) {
+          const { data, error } = await supabaseClient.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          if (data.session && !error) {
+            setIsValidSession(true);
+            // Clean hash from URL
+            window.history.replaceState(null, "", window.location.pathname);
+            return;
+          }
+        }
+
+        setIsValidSession(false);
+        return;
+      }
+
+      // No hash fragment — check for existing session
+      const {
+        data: { session },
+      } = await supabaseClient.auth.getSession();
+      setIsValidSession(!!session);
+    };
+
+    establishSession();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
