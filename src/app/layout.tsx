@@ -57,6 +57,13 @@ export const metadata: Metadata = {
     creator: "@reliabledrapes",
     images: ["/og-image.png"],
   },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", type: "image/png" }],
+  },
   robots: {
     index: true,
     follow: true,
