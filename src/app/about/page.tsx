@@ -46,7 +46,7 @@ export default async function AboutPage() {
   ];
 
   return (
-    <main className="mt-14 md:mt-16 lg:mt-[72px]">
+    <main className="mt-14 md:mt-16 lg:mt-[68px] xl:mt-20">
       <PageHero heading="About Reliable Drapes" />
       <Breadcrumb />
       <LeadershipRow members={leadershipMembers} />

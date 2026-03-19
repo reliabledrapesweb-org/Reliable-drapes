@@ -198,7 +198,7 @@ export default function ProductDetailPage() {
 
   if (isLoading) {
     return (
-      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[68px] xl:mt-20">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="mb-6 h-6 w-32 animate-pulse rounded bg-gray-200" />
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-16">
@@ -233,7 +233,7 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+    <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[68px] xl:mt-20">
       <Breadcrumb />
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 md:py-10 lg:px-8">

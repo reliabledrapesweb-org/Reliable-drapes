@@ -338,7 +338,7 @@ export default function CartPage() {
 
   if (isCommerceFeaturesLoading) {
     return (
-      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[68px] xl:mt-20">
         <Breadcrumb />
         <div className="flex items-center justify-center py-24">
           <Loader className="h-8 w-8 animate-spin text-[#2f2582]" />
@@ -349,7 +349,7 @@ export default function CartPage() {
 
   if (!commerceFeaturesEnabled) {
     return (
-      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[68px] xl:mt-20">
         <Breadcrumb />
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-12 lg:px-8">
           <ComingSoonNotice message={comingSoonMessage} />
@@ -359,7 +359,7 @@ export default function CartPage() {
   }
 
   return (
-    <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+    <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[68px] xl:mt-20">
       <Breadcrumb />
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-12 lg:px-8">

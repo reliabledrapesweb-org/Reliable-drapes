@@ -51,7 +51,7 @@ export default function WishlistPage() {
 
   if (isCommerceFeaturesLoading) {
     return (
-      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[68px] xl:mt-20">
         <Breadcrumb />
         <div className="flex items-center justify-center py-24">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#2f2582] border-t-transparent" />
@@ -62,7 +62,7 @@ export default function WishlistPage() {
 
   if (!commerceFeaturesEnabled) {
     return (
-      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[68px] xl:mt-20">
         <Breadcrumb />
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-12 lg:px-8">
           <ComingSoonNotice message={comingSoonMessage} />
@@ -72,7 +72,7 @@ export default function WishlistPage() {
   }
 
   return (
-    <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+    <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[68px] xl:mt-20">
       <Breadcrumb />
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-12 lg:px-8">

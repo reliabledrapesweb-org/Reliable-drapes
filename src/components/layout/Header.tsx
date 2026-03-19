@@ -299,23 +299,23 @@ export function Header() {
   const GemLogo = () =>
     gemAssessedLogo.enabled && gemAssessedLogo.url ? (
       <motion.div
-        className="flex items-center"
+        className="ml-3 flex items-center xl:ml-4"
         whileHover={{ scale: 1.03, opacity: 0.9 }}
         transition={{ duration: 0.2 }}
       >
         <Image
           src={gemAssessedLogo.url}
           alt="GEM Assessed Logo"
-          width={200}
-          height={60}
+          width={300}
+          height={90}
           unoptimized
           style={{
             height:
               ({
-                small: 48,
-                medium: 56,
-                large: 64,
-                "extra-large": 72,
+                small: 52,
+                medium: 60,
+                large: 68,
+                "extra-large": 76,
               } as const)[gemAssessedLogo.size],
             width: "auto",
           }}
@@ -329,7 +329,7 @@ export function Header() {
       <nav
         className={`backdrop-blur-[5.1px] ${
           isScrolled ? "bg-black/80" : "bg-[rgba(0,0,0,0.1)]"
-        } h-14 transition-colors duration-300 md:h-16 lg:h-[68px] xl:h-[72px]`}
+        } h-14 transition-colors duration-300 md:h-16 lg:h-[68px] xl:h-20`}
       >
         <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between px-4 md:px-6 lg:px-6 xl:px-10">
           {/* LOGO */}

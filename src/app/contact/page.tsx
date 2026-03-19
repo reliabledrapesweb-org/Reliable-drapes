@@ -330,7 +330,7 @@ export default function ContactPage() {
   ];
 
   return (
-    <main className="mt-14 md:mt-16 lg:mt-[72px]">
+    <main className="mt-14 md:mt-16 lg:mt-[68px] xl:mt-20">
       {/* Hero Section */}
       <section className="relative flex h-[350px] items-center overflow-hidden md:h-[450px] lg:h-[500px]">
         {/* Background Image with Overlays */}

@@ -49,7 +49,7 @@ const shippingDetails = [
 
 export default function ShippingInfoPage() {
   return (
-    <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+    <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[68px] xl:mt-20">
       <PageHero
         heading="Shipping Information"
         backgroundImage="/images/heroes/shipping-hero.jpg"

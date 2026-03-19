@@ -197,7 +197,7 @@ export default function StyleExpertPage() {
 
   if (isSubmitted) {
     return (
-      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+      <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[68px] xl:mt-20">
         <PageHero
           heading="Style Expert"
           backgroundImage="/images/heroes/style-expert-hero.jpg"
@@ -263,7 +263,7 @@ export default function StyleExpertPage() {
   }
 
   return (
-    <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[72px]">
+    <main className="mt-14 min-h-screen bg-white md:mt-16 lg:mt-[68px] xl:mt-20">
       <PageHero
         heading="Style Expert"
         backgroundImage="/images/heroes/style-expert-hero.jpg"
