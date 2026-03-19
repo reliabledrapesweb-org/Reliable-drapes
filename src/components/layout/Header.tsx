@@ -307,17 +307,24 @@ export function Header() {
           src={gemAssessedLogo.url}
           alt="GEM Assessed Logo"
           width={300}
-          height={90}
+          height={300}
           unoptimized
           style={{
             height:
               ({
-                small: 52,
-                medium: 60,
-                large: 68,
+                small: 56,
+                medium: 64,
+                large: 72,
                 "extra-large": 76,
               } as const)[gemAssessedLogo.size],
-            width: "auto",
+            width:
+              ({
+                small: 56,
+                medium: 64,
+                large: 72,
+                "extra-large": 76,
+              } as const)[gemAssessedLogo.size],
+            objectFit: "contain",
           }}
         />
       </motion.div>
