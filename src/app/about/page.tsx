@@ -1,6 +1,7 @@
 import {
   FounderSection,
   ChairmanSection,
+  DirectorSection,
   LeadershipRow,
   WhyChooseSection,
   FeaturesGrid,
@@ -21,6 +22,7 @@ export default async function AboutPage() {
 
   const founderSection = sectionsMap.get("founder");
   const chairmanSection = sectionsMap.get("chairman");
+  const directorSection = sectionsMap.get("director");
 
   // Leadership row uses separate DB entries so editing doesn't affect individual sections
   const leadershipFounder = sectionsMap.get("leadership-founder");
@@ -52,6 +54,7 @@ export default async function AboutPage() {
       <LeadershipRow members={leadershipMembers} />
       <FounderSection section={founderSection} />
       <ChairmanSection section={chairmanSection} />
+      <DirectorSection section={directorSection} />
       <WhyChooseSection section={sectionsMap.get("why-choose")} />
       <FeaturesGrid section={sectionsMap.get("features")} />
       <VisionMissionSection section={sectionsMap.get("vision-mission")} />

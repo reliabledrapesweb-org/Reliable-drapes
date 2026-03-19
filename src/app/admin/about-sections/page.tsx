@@ -119,10 +119,11 @@ export default function AdminAboutSectionsPage() {
         is_active: formData.is_active,
       };
 
-      // For founder/chairman sections, persist role/quote/content_heading into content_json
+      // For founder/chairman/director sections, persist role/quote/content_heading into content_json
       if (
         editingSection.section_key === "founder" ||
-        editingSection.section_key === "chairman"
+        editingSection.section_key === "chairman" ||
+        editingSection.section_key === "director"
       ) {
         updatePayload.content_json = {
           ...((editingSection.content_json as Record<string, unknown>) || {}),
@@ -252,6 +253,8 @@ export default function AdminAboutSectionsPage() {
         return "Founder detailed section with portrait and bio";
       case "chairman":
         return "Chairman detailed section with portrait and bio";
+      case "director":
+        return "Director detailed section with portrait and bio";
       case "why-choose":
         return "Why choose us with images";
       case "features":
@@ -522,7 +525,7 @@ export default function AdminAboutSectionsPage() {
                 )}
 
                 {/* Founder/Chairman fields */}
-                {["founder", "chairman"].includes(
+                {["founder", "chairman", "director"].includes(
                   editingSection.section_key,
                 ) && (
                   <>
