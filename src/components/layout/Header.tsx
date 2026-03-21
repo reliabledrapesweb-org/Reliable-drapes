@@ -299,7 +299,7 @@ export function Header() {
   const GemLogo = () =>
     gemAssessedLogo.enabled && gemAssessedLogo.url ? (
       <motion.div
-        className="ml-3 flex items-center xl:ml-4"
+        className="ml-2 flex shrink-0 items-center xl:ml-3"
         whileHover={{ scale: 1.03, opacity: 0.9 }}
         transition={{ duration: 0.2 }}
       >
@@ -338,7 +338,7 @@ export function Header() {
           isScrolled ? "bg-black/80" : "bg-[rgba(0,0,0,0.1)]"
         } h-14 transition-colors duration-300 md:h-16 lg:h-[68px] xl:h-20`}
       >
-        <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between px-4 md:px-6 lg:px-6 xl:px-10">
+        <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between px-4 md:px-6 lg:px-4 xl:px-6">
           {/* LOGO */}
           <motion.div
             className="flex shrink-0 cursor-pointer items-center"
@@ -362,7 +362,7 @@ export function Header() {
           </motion.div>
 
           {/* DESKTOP NAVIGATION */}
-          <div className="hidden items-center lg:mx-3 lg:flex lg:gap-1 xl:mx-6 xl:gap-3 2xl:gap-4">
+          <div className="hidden min-w-0 items-center lg:mx-2 lg:flex lg:gap-0.5 xl:mx-3 xl:gap-1.5 2xl:gap-3">
             {NAV_LINKS.map((item, i) => (
               <motion.a
                 key={i}
@@ -371,7 +371,7 @@ export function Header() {
                   shouldUseWhiteText ? "text-white" : "text-black"
                 } ${
                   pathname === item.link ? "font-semibold" : "font-normal"
-                } cursor-pointer rounded-full px-2 py-1 text-[13px] tracking-tight whitespace-nowrap transition-colors duration-200 xl:px-2.5 xl:text-sm 2xl:text-[15px] ${
+                } cursor-pointer rounded-full px-1.5 py-1 text-[12px] tracking-tight whitespace-nowrap transition-colors duration-200 xl:px-2 xl:text-[13px] 2xl:px-2.5 2xl:text-sm ${
                   shouldUseWhiteText ? "hover:bg-white/10" : "hover:bg-black/5"
                 }`}
                 whileHover={{ scale: 1.02 }}
@@ -383,8 +383,8 @@ export function Header() {
           </div>
 
           {/* DESKTOP ACTIONS */}
-          <div className="hidden shrink-0 items-center gap-4 lg:flex xl:gap-6">
-            <div className="flex items-center gap-3 xl:gap-5">
+          <div className="hidden shrink-0 items-center gap-2 lg:flex xl:gap-3">
+            <div className="flex items-center gap-2 xl:gap-3">
               <ActionButtons />
             </div>
             <UserMenu />

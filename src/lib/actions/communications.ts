@@ -30,24 +30,22 @@ export async function createContactSubmission(
     ContactSubmission,
     "name" | "email" | "phone" | "subject" | "message"
   >,
-): Promise<ActionResult<ContactSubmission>> {
+): Promise<ActionResult> {
   try {
     const supabase = await supabaseServer();
 
-    const { data: submission, error } = await supabase
+    const { error } = await supabase
       .from("contact_submissions")
       .insert({
         ...data,
         status: "new",
-      })
-      .select()
-      .single();
+      });
 
     if (error) {
       return { success: false, error: error.message };
     }
 
-    return { success: true, data: submission };
+    return { success: true };
   } catch (error) {
     return {
       success: false,
