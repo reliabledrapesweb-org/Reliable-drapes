@@ -4,54 +4,15 @@ import { ArrowRight } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
-import { getSiteSettings } from "@/lib/actions/site-settings";
 import { DEFAULT_HERO_CAROUSEL_IMAGES } from "@/lib/constants/app";
 
-const normalizeCarouselImages = (images: unknown): string[] => {
-  const fallbackImages = [...DEFAULT_HERO_CAROUSEL_IMAGES];
-
-  if (!Array.isArray(images)) {
-    return fallbackImages;
-  }
-
-  return fallbackImages.map((defaultImage, index) => {
-    const value = images[index];
-    return typeof value === "string" && value.trim().length > 0
-      ? value.trim()
-      : defaultImage;
-  });
-};
-
-export function HeroSection() {
+export function HeroSection({ images }: { images?: string[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [carouselImages, setCarouselImages] = useState<string[]>([
-    ...DEFAULT_HERO_CAROUSEL_IMAGES,
-  ]);
+  const [carouselImages, setCarouselImages] = useState<string[]>(
+    images?.length ? images : [...DEFAULT_HERO_CAROUSEL_IMAGES],
+  );
 
   const totalSlides = carouselImages.length;
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadCarouselImages = async () => {
-      try {
-        const result = await getSiteSettings();
-        if (result.success && result.settings && isMounted) {
-          setCarouselImages(
-            normalizeCarouselImages(result.settings.hero_carousel_images),
-          );
-        }
-      } catch {
-        // Keep fallback images
-      }
-    };
-
-    loadCarouselImages();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const nextSlide = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % totalSlides);
