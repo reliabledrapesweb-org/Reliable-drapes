@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store";
 import { supabaseClient } from "@/lib/supabase/client";
@@ -11,6 +11,7 @@ import { supabaseClient } from "@/lib/supabase/client";
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setUser, setSession } = useAuthStore();
+  const [isRestored, setIsRestored] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -70,16 +71,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               },
             });
           }
-        } else {
         }
-      } catch (error) {
-
+      } catch {
       } finally {
+        setIsRestored(true);
       }
     };
 
     restoreSession();
   }, [setUser, setSession, router]);
+
+  if (!isRestored) {
+    return null;
+  }
 
   return <>{children}</>;
 }
