@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X, Upload, Loader2, CheckCircle } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { submitJobApplication } from "@/lib/actions/job-applications";
 import type { Job } from "@/lib/actions/jobs";
 import { supabaseClient } from "@/lib/supabase/client";

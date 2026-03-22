@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Menu, User, LogOut } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store";
 import { supabaseClient } from "@/lib/supabase/client";

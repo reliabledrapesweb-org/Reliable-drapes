@@ -2,7 +2,7 @@
 
 import { ShopProductCard } from "./ShopProductCard";
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useToast, ToastContainer } from "@/components/ui/Toast";
 import { useCartStore } from "@/lib/store";
 import type { Product } from "@/lib/actions/products";

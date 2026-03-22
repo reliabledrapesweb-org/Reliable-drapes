@@ -1,5 +1,5 @@
 import { Phone } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import type { Store } from "@/lib/actions/stores";
 import { useState } from "react";
 import { StoreMapModal } from "./StoreMapModal";

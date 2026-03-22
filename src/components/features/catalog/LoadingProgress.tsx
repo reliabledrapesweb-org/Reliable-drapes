@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 type LoadingPhase = 'initializing' | 'fetching' | 'rendering' | 'finalizing';
 

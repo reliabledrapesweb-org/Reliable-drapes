@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X, Upload, Loader2, CheckCircle, Briefcase } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { submitOpenHireApplication } from "@/lib/actions/job-applications";
 import { supabaseClient } from "@/lib/supabase/client";
 import { useToast } from "@/components/ui/Toast";

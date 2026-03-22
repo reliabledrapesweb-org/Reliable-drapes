@@ -2,7 +2,7 @@
 
 import { Check } from "lucide-react";
 import { useState, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import type { CatalogueCategory } from "@/lib/actions/catalogue-categories";
 
 interface CatalogFilterSidebarProps {

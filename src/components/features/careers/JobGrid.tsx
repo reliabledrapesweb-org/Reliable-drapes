@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { JobCard } from "./JobCard";
 import type { Job } from "@/lib/actions/jobs";
 

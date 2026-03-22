@@ -1,7 +1,7 @@
 "use client";
 
 import { Send, Check } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
 import { createNewsletterSubscriber } from "@/lib/actions/communications";
 

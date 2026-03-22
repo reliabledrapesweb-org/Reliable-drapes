@@ -12,7 +12,7 @@ import {
   Search,
 } from "lucide-react";
 
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { AdminPageSkeleton } from "@/components/ui/AdminPageSkeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

@@ -21,7 +21,7 @@ import {
   FileWarning,
   Info,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import Image from "next/image";
 import * as XLSX from "xlsx";
 import { FileUpload } from "@/components/admin/FileUpload";

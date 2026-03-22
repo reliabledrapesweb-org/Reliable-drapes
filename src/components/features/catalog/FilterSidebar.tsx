@@ -2,7 +2,7 @@
 
 import { Check } from "lucide-react";
 import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { CATEGORY_OPTIONS } from "@/lib/constants";
 
 interface FilterSidebarProps {
