@@ -22,6 +22,7 @@ export function PageHero({
           src={backgroundImage}
           alt="Reliable Drapes page banner"
           className="h-full w-full object-cover"
+          sizes="100vw"
           priority
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
@@ -48,6 +49,7 @@ export function PageHero({
               width={140}
               height={45}
               className="w-[120px] object-contain md:w-[140px] lg:w-[160px]"
+              sizes="(max-width: 768px) 120px, (max-width: 1024px) 140px, 160px"
               priority
             />
           </motion.div>
