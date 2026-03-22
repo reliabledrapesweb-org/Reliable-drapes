@@ -10,7 +10,7 @@ import {
 import { PageHero, Breadcrumb } from "@/components/shared";
 import { getAboutSections } from "@/lib/actions/about-sections";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export default async function AboutPage() {
   const result = await getAboutSections();
