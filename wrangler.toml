@@ -12,3 +12,7 @@ NEXTAUTH_URL = "https://reliabledrapes.org"
 ADMIN_EMAILS = "akoladesalako3@gmail.com,agaganahuja111@gmail.com"
 NEXT_PUBLIC_GA_MEASUREMENT_ID = "G-TRG8MNTZDS"
 RAZORPAY_KEY_ID = "rzp_live_ST0VG0yeE331uJ"
+
+[[kv_namespaces]]
+binding = "NEXT_CACHE_WORKERS_KV"
+id = "d959f6d5fb174dfead100d995ff4512f"
