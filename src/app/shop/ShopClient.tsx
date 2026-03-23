@@ -7,8 +7,12 @@ import {
   PageHeader,
 } from "@/components/shared";
 import { ShopProductGrid, ShopFilterSidebar } from "@/components/features/shop";
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import {
+  getProducts,
+  getProductsByCategory,
+} from "@/lib/actions/products";
 import type { Product, Category } from "@/lib/actions/products";
 import type { SiteSettings } from "@/lib/actions/site-settings";
 import type { Coupon } from "@/lib/actions/coupons";
@@ -57,10 +61,10 @@ export default function ShopClient({
   );
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [sortBy, setSortBy] = useState<string>("newest");
-  const [products] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
   const [allProducts] = useState<Product[]>(initialProducts);
   const [categories] = useState<Category[]>(initialCategories);
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [siteSettings] = useState<SiteSettings | null>(initialSiteSettings);
   const [coupons] = useState<Coupon[]>(initialCoupons);
@@ -111,6 +115,53 @@ export default function ShopClient({
     },
     [searchQuery, updateShopUrl],
   );
+
+  // Re-fetch products when category selection changes
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        if (selectedCategories.length === 0) {
+          const result = await getProducts();
+          if (!cancelled && result.success && result.data) {
+            setProducts(result.data);
+          }
+        } else {
+          const allFetched: Product[] = [];
+          const seenIds = new Set<string>();
+
+          for (const categorySlug of selectedCategories) {
+            const result = await getProductsByCategory(categorySlug);
+            if (result.success && result.data) {
+              for (const product of result.data) {
+                if (!seenIds.has(product.id)) {
+                  seenIds.add(product.id);
+                  allFetched.push(product);
+                }
+              }
+            }
+          }
+
+          if (!cancelled) {
+            setProducts(allFetched);
+          }
+        }
+      } catch {
+        // Keep existing products on error
+      }
+      if (!cancelled) {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCategories]);
 
   const copyCouponCode = async (code: string, couponId: string) => {
     try {
