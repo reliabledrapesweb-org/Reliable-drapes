@@ -5,7 +5,11 @@ import { motion } from "motion/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getCatalogueCategories } from "@/lib/actions/catalogue-categories";
-import { getSocialLinks, getCompanyDetails } from "@/lib/actions/site-settings";
+import {
+  getSocialLinks,
+  getCompanyDetails,
+  getGemAssessedLogoSettings,
+} from "@/lib/actions/site-settings";
 import {
   CONTACT_EMAIL,
   COMPANY_PHONE,
@@ -39,6 +43,11 @@ export function Footer() {
     youtube: null,
     linkedin: null,
   });
+  const [gemLogo, setGemLogo] = useState<{
+    enabled: boolean;
+    url: string | null;
+    size: "small" | "medium" | "large" | "extra-large";
+  }>({ enabled: false, url: null, size: "medium" });
   const [companyDetails, setCompanyDetails] = useState<{
     email: string | null;
     phone: string | null;
@@ -63,11 +72,12 @@ export function Footer() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [categoriesResult, socialResult, companyResult] =
+        const [categoriesResult, socialResult, companyResult, gemResult] =
           await Promise.all([
             getCatalogueCategories(),
             getSocialLinks(),
             getCompanyDetails(),
+            getGemAssessedLogoSettings(),
           ]);
 
         if (
@@ -90,6 +100,7 @@ export function Footer() {
         }
 
         setSocialLinks(socialResult);
+        setGemLogo(gemResult);
         setCompanyDetails({
           email: companyResult.email?.trim() || CONTACT_EMAIL,
           phone: companyResult.phone?.trim() || COMPANY_PHONE,
@@ -464,6 +475,29 @@ export function Footer() {
                 </svg>
               </motion.a>
             </div>
+
+            {gemLogo.enabled && gemLogo.url && (
+              <div className="mt-6">
+                <Image
+                  src={gemLogo.url}
+                  alt="GEM Assessed Logo"
+                  width={300}
+                  height={300}
+                  unoptimized
+                  style={{
+                    height:
+                      ({
+                        small: 80,
+                        medium: 100,
+                        large: 120,
+                        "extra-large": 140,
+                      } as const)[gemLogo.size],
+                    width: "auto",
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
 
