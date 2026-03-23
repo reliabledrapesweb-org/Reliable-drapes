@@ -7,7 +7,7 @@ import {
   PageHeader,
 } from "@/components/shared";
 import { ShopProductGrid, ShopFilterSidebar } from "@/components/features/shop";
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   getProducts,
@@ -116,8 +116,14 @@ export default function ShopClient({
     [searchQuery, updateShopUrl],
   );
 
-  // Re-fetch products when category selection changes
+  // Re-fetch products when category selection changes (skip initial mount)
+  const isInitialMount = useRef(true);
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
     let cancelled = false;
 
     const fetchProducts = async () => {
