@@ -1,8 +1,14 @@
 "use server";
 
 import { supabaseServer, supabaseAdmin } from "@/lib/supabase/server";
-import { sendBulkEmail, isResendConfigured } from "@/lib/email/resend";
+import { sendEmail, sendBulkEmail, isResendConfigured } from "@/lib/email/resend";
 import { wrapContentInTemplate } from "@/lib/email/templates/newsletter";
+import {
+  contactConfirmationEmail,
+  adminNewContactEmail,
+  consultationConfirmationEmail,
+  adminNewConsultationEmail,
+} from "@/lib/email/templates/transactional";
 
 export interface ActionResult<T = void> {
   success: boolean;
@@ -43,6 +49,36 @@ export async function createContactSubmission(
 
     if (error) {
       return { success: false, error: error.message };
+    }
+
+    // Send emails in background (don't block the response)
+    if (isResendConfigured()) {
+      const adminEmails = (process.env.ADMIN_EMAILS || "")
+        .split(",")
+        .map((e) => e.trim())
+        .filter(Boolean);
+
+      // Confirmation to the submitter
+      sendEmail({
+        to: data.email,
+        subject: "We received your message — Reliable Drapes",
+        html: contactConfirmationEmail(data.name, data.subject),
+      }).catch(() => {});
+
+      // Notification to admins
+      if (adminEmails.length > 0) {
+        sendEmail({
+          to: adminEmails,
+          subject: `New Contact: ${data.subject}`,
+          html: adminNewContactEmail(
+            data.name,
+            data.email,
+            data.phone,
+            data.subject,
+            data.message,
+          ),
+        }).catch(() => {});
+      }
     }
 
     return { success: true };
@@ -209,6 +245,41 @@ export async function createConsultationRequest(
 
     if (error) {
       return { success: false, error: error.message };
+    }
+
+    // Send emails in background (don't block the response)
+    if (isResendConfigured()) {
+      const adminEmails = (process.env.ADMIN_EMAILS || "")
+        .split(",")
+        .map((e) => e.trim())
+        .filter(Boolean);
+
+      // Confirmation to the submitter
+      sendEmail({
+        to: data.email,
+        subject: "Consultation Request Received — Reliable Drapes",
+        html: consultationConfirmationEmail(
+          data.name,
+          data.service_type,
+          data.preferred_date,
+          data.preferred_time,
+        ),
+      }).catch(() => {});
+
+      // Notification to admins
+      if (adminEmails.length > 0) {
+        sendEmail({
+          to: adminEmails,
+          subject: `New Consultation: ${data.service_type} — ${data.name}`,
+          html: adminNewConsultationEmail(
+            data.name,
+            data.email,
+            data.phone,
+            data.service_type,
+            data.message,
+          ),
+        }).catch(() => {});
+      }
     }
 
     return { success: true, data: request };
