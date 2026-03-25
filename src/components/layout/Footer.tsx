@@ -477,7 +477,7 @@ export function Footer() {
             </div>
 
             {gemLogo.enabled && gemLogo.url && (
-              <div className="mt-6">
+              <div className="mt-6 flex justify-center">
                 <Image
                   src={gemLogo.url}
                   alt="GEM Assessed Logo"

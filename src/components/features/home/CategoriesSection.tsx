@@ -3,37 +3,32 @@
 import { CategoryCard } from "./CategoryCard";
 import { useEffect, useRef, useState } from "react";
 import {
-  getFeaturedCategories,
-  type CategoryFull,
-} from "@/lib/actions/products";
+  getCatalogueCategories,
+  type CatalogueCategory,
+} from "@/lib/actions/catalogue-categories";
 
-// Fallback categories when no data from database
-const fallbackCategories = [
+const fallbackCategories: Array<{ id: string; name: string; image_url: string | null }> = [
   {
     id: "1",
     name: "Curtains",
-    slug: "curtains",
     image_url:
       "https://images.unsplash.com/photo-1651936020103-65154077c003?w=600&h=600&fit=crop",
   },
   {
     id: "2",
     name: "Upholstery",
-    slug: "upholstery",
     image_url:
       "https://images.unsplash.com/photo-1718587608491-f40ae3b13273?w=600&h=600&fit=crop",
   },
   {
     id: "3",
     name: "Sheers",
-    slug: "sheers",
     image_url:
       "https://images.unsplash.com/photo-1759517857499-7f27b61aad5d?w=600&h=600&fit=crop",
   },
   {
     id: "4",
-    name: "Bed Sheets",
-    slug: "bed-sheets",
+    name: "Bed Linens",
     image_url:
       "https://images.unsplash.com/photo-1669989657165-d9f8e6cb6366?w=600&h=600&fit=crop",
   },
@@ -42,23 +37,30 @@ const fallbackCategories = [
 export function CategoriesSection() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isHovering, setIsHovering] = useState(false);
-  const [categories, setCategories] = useState<CategoryFull[]>([]);
+  const [categories, setCategories] = useState<
+    Array<{ id: string; name: string; image_url: string | null }>
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch categories from database
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const result = await getFeaturedCategories();
+        const result = await getCatalogueCategories();
         if (result.success && result.data && result.data.length > 0) {
-          setCategories(result.data);
+          const active = result.data
+            .filter((c: CatalogueCategory) => c.is_active !== false)
+            .sort((a: CatalogueCategory, b: CatalogueCategory) => a.sort_order - b.sort_order)
+            .map((c: CatalogueCategory) => ({
+              id: c.id,
+              name: c.name,
+              image_url: c.image_url,
+            }));
+          setCategories(active.length > 0 ? active : fallbackCategories);
         } else {
-          // Use fallback if no categories in database
-          setCategories(fallbackCategories as CategoryFull[]);
+          setCategories(fallbackCategories);
         }
-      } catch (error) {
-
-        setCategories(fallbackCategories as CategoryFull[]);
+      } catch {
+        setCategories(fallbackCategories);
       }
       setIsLoading(false);
     }
@@ -79,7 +81,6 @@ export function CategoriesSection() {
 
       scrollContainer.scrollLeft += speed;
 
-      // infinite loop effect
       const halfWidth = scrollContainer.scrollWidth / 2;
       if (scrollContainer.scrollLeft >= halfWidth) {
         scrollContainer.scrollLeft = 0;
@@ -94,41 +95,7 @@ export function CategoriesSection() {
   }, [isHovering, isLoading]);
 
   // Double the categories for infinite scroll effect
-  const mergedCategories = (() => {
-    const bedLinenSlugs = new Set(["bed-sheets", "bedsheets", "comforters"]);
-    const bedLinenCategories = categories.filter((category) =>
-      bedLinenSlugs.has(category.slug),
-    );
-
-    if (bedLinenCategories.length === 0) {
-      return categories;
-    }
-
-    const baseCategory = bedLinenCategories[0];
-    const remainingCategories = categories.filter(
-      (category) => !bedLinenSlugs.has(category.slug),
-    );
-    const firstBedLinenIndex = categories.findIndex((category) =>
-      bedLinenSlugs.has(category.slug),
-    );
-    const insertIndex =
-      firstBedLinenIndex === -1
-        ? remainingCategories.length
-        : Math.min(firstBedLinenIndex, remainingCategories.length);
-    const mergedCategory = {
-      ...baseCategory,
-      id: "bed-linens",
-      name: "Bed Linens",
-      slug: "bed-linens",
-    } as CategoryFull;
-
-    const nextCategories = [...remainingCategories];
-    nextCategories.splice(insertIndex, 0, mergedCategory);
-
-    return nextCategories;
-  })();
-
-  const displayCategories = [...mergedCategories, ...mergedCategories];
+  const displayCategories = [...categories, ...categories];
 
   return (
     <section className="bg-white py-12 md:py-16 lg:py-20">
@@ -166,12 +133,7 @@ export function CategoriesSection() {
                     "https://images.unsplash.com/photo-1651936020103-65154077c003?w=600&h=600&fit=crop"
                   }
                   title={category.name}
-                  slug={category.slug}
-                  href={
-                    category.slug === "bed-linens"
-                      ? "/shop?category=bed-sheets,comforters"
-                      : undefined
-                  }
+                  href={`/e-catalogue?category=${encodeURIComponent(category.name)}`}
                   className="w-[236px] md:w-[280px]"
                 />
               ))}
