@@ -952,6 +952,7 @@ export default function AdminProductsPage() {
 
     let processedCount = 0;
     let successCount = 0;
+    let failedCount = 0;
 
     try {
       for (const [productId, files] of Object.entries(massUploadMatches)) {

@@ -514,7 +514,7 @@ export async function createProduct(
           image_url: productData.image_url || null,
           price: productData.price,
           dealer_price: productData.dealer_price || null,
-          visible_to: ["customer", "dealer"],
+          visible_to: ["customer"],
         },
       ])
       .select()
