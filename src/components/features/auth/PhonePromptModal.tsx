@@ -69,16 +69,14 @@ export function PhonePromptModal({
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
-            {canDismiss && (
-              <button
-                onClick={handleDismiss}
-                disabled={isSubmitting}
-                className="absolute top-4 right-4 cursor-pointer rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:opacity-50"
-                aria-label="Close"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            )}
+            <button
+              onClick={handleDismiss}
+              disabled={isSubmitting}
+              className="absolute top-4 right-4 cursor-pointer rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:opacity-50"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" />
+            </button>
 
             <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-[#2F2582]/10">
               <Phone className="h-6 w-6 text-[#2F2582]" />

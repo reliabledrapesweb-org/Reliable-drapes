@@ -530,7 +530,7 @@ export async function createProduct(
       }
       return {
         success: false,
-        error: "Failed to create product",
+        error: `Failed to create product: ${error.message}`,
       };
     }
 
