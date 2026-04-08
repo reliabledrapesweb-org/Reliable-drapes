@@ -74,6 +74,7 @@ export default function ExhibitionsEventsPage() {
       <PageHero
         heading="Exhibitions & Moments"
         backgroundImage="/images/heroes/exhibitions-hero.jpg"
+        objectPosition="center 60%"
       />
       <Breadcrumb />
 

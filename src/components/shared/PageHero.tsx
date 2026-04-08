@@ -6,11 +6,15 @@ import { motion } from "motion/react";
 interface PageHeroProps {
   heading: string;
   backgroundImage?: string;
+  imagePosition?: string;
+  objectPosition?: string;
 }
 
 export function PageHero({
   heading,
   backgroundImage = "/images/abouthero.png",
+  imagePosition = "object-center",
+  objectPosition,
 }: PageHeroProps) {
   return (
     <section className="relative flex h-[350px] items-center overflow-hidden md:h-[450px] lg:h-[500px]">
@@ -22,6 +26,7 @@ export function PageHero({
           src={backgroundImage}
           alt="Reliable Drapes page banner"
           className="h-full w-full object-cover"
+          style={objectPosition ? { objectPosition } : undefined}
           sizes="100vw"
           priority
         />
