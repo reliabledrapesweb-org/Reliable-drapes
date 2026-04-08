@@ -21,16 +21,17 @@ export function AboutSection() {
             </h2>
             <div className="space-y-4 text-[#575757]">
               <p>
-                Reliable Drapes is a B2B-focused furnishing partner for
-                retailers, designers, contractors, and project teams. Our
-                catalogue includes curtains, sheers, wider-width drapes,
-                upholstery, and coordinated furnishing ranges tailored for
-                business requirements.
+                Reliable Drapes is a trusted furnishing partner for retailers,
+                interior designers, contractors, and project teams. Our
+                collection includes curtains, sheers, wider-width drapes,
+                upholstery, and coordinated furnishing ranges, thoughtfully
+                crafted to complement diverse interior requirements.
               </p>
               <p>
-                With dependable sourcing and scalable supply capabilities, we
-                support showroom rollouts, hospitality projects, and multi-site
-                furnishing programs across India.
+                Backed by strong sourcing expertise and efficient supply
+                capabilities, we support showroom rollouts, hospitality
+                projects, and multi-location furnishing needs across India with
+                consistency, quality, and reliability.
               </p>
             </div>
           </motion.div>

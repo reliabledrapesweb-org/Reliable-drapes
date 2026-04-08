@@ -148,9 +148,9 @@ export function Footer() {
             </p>
 
             <p className="text-sm text-[#7e7e7e] md:text-base">
-              Reliable Drapes provides B2B furnishing solutions for showrooms,
-              designers, and project partners with scalable supply and
-              catalogue-driven product selection.
+              Reliable Drapes brings premium furnishing solutions to showrooms,
+              designers, and project partners through a refined and thoughtfully
+              curated selection.
             </p>
 
             {companyDetails.tagline && (
