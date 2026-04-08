@@ -152,15 +152,6 @@ export default function StoreLocatorPage() {
                   className="w-full object-contain"
                 />
               </div>
-              <div className="border-t border-gray-100 px-6 py-4">
-                <p className="text-center text-sm text-gray-600">
-                  Visit any of our{" "}
-                  <span className="font-semibold text-[#2F2582]">
-                    {filtered.length} store{filtered.length !== 1 ? "s" : ""}
-                  </span>{" "}
-                  across India for trade consultations and B2B sourcing support
-                </p>
-              </div>
             </motion.div>
           )}
         </div>
