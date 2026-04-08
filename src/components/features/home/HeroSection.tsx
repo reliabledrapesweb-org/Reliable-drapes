@@ -94,7 +94,7 @@ export function HeroSection({ images }: { images?: string[] }) {
             transition={{ duration: 0.2 }}
           >
             <span className="tracking-widest uppercase">
-              Explore Catalogue
+              Explore Collections
             </span>
             <motion.div
               animate={{ x: [0, 5, 0] }}
