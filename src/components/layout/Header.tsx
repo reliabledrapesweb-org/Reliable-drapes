@@ -283,7 +283,9 @@ export function Header() {
 
         {/* Trader Login */}
         <motion.a
-          href="/trader-login"
+          href="http://103.67.92.142:4141/"
+          target="_blank"
+          rel="noopener noreferrer"
           className={`${
             shouldUseWhiteText ? "text-white" : "text-black"
           } flex cursor-pointer items-center gap-1.5 text-sm tracking-tight xl:text-base`}

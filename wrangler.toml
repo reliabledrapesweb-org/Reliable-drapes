@@ -11,7 +11,7 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID = "651101706692-s21suv55rk14a92egmppid8nqfo6sc7r.ap
 NEXTAUTH_URL = "https://reliabledrapes.org"
 ADMIN_EMAILS = "akoladesalako3@gmail.com,agaganahuja111@gmail.com"
 NEXT_PUBLIC_GA_MEASUREMENT_ID = "G-TRG8MNTZDS"
-RAZORPAY_KEY_ID = "rzp_live_ST0VG0yeE331uJ"
+# RAZORPAY_KEY_ID moved to Cloudflare secrets (wrangler secret put RAZORPAY_KEY_ID)
 
 [[kv_namespaces]]
 binding = "NEXT_CACHE_WORKERS_KV"

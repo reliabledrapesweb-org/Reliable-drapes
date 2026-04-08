@@ -19,13 +19,16 @@ export function TraderLoginClient() {
 
   const handleMessage = useCallback(
     (event: MessageEvent) => {
+      if (
+        DEALER_CONFIG.portalUrl &&
+        event.origin !== new URL(DEALER_CONFIG.portalUrl).origin
+      ) {
+        return;
+      }
+
       const message = event.data as B2BMessage;
 
       if (!message?.type) return;
-
-      // In production, validate origin here
-      // const allowedOrigins = [DEALER_CONFIG.portalUrl];
-      // if (!allowedOrigins.includes(event.origin)) return;
 
       switch (message.type) {
         case "B2B_LOGIN_SUCCESS": {

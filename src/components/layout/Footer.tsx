@@ -509,9 +509,14 @@ export function Footer() {
                 Copyright 2025 Reliable Drapes. All rights reserved.
               </p>
             </div>
-            <p className="text-start text-sm md:text-right md:text-base">
+            <a
+              href="https://wa.me/918708327338?text=Hi%2C%20I%20loved%20the%20Reliable%20Drapes%20website.%20I%E2%80%99m%20planning%20to%20build%20an%20eCommerce%20site%20can%20we%20connect%3F"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-start text-sm hover:underline md:text-right md:text-base"
+            >
               Made with ❤️ by Gagan Ahuja
-            </p>
+            </a>
           </div>
         </div>
       </div>

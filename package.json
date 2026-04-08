@@ -11,6 +11,7 @@
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
     "test:ui": "vitest --ui",
+    "db:types": "npx supabase gen types typescript --local > src/lib/types/supabase.generated.ts",
     "cf:build": "opennextjs-cloudflare build && node scripts/flatten-assets.js",
     "cf:preview": "npm run cf:build && wrangler pages dev",
     "cf:deploy": "npm run cf:build && wrangler pages deploy",

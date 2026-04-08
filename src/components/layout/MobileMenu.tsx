@@ -150,7 +150,9 @@ export function MobileMenu({
                   </motion.a>
 
                   <motion.a
-                    href="/trader-login"
+                    href="http://103.67.92.142:4141/"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={() => setIsOpen(false)}
                     className="inline-flex w-full transform cursor-pointer items-center justify-center gap-2 rounded-full bg-white px-6 py-2.5 text-base font-medium text-black shadow-lg transition-all hover:-translate-y-1 hover:bg-gray-100 hover:shadow-xl active:translate-y-0 sm:px-8 sm:py-3 sm:text-lg md:px-10 md:py-4 md:text-xl"
                     whileHover={{ scale: 1.05 }}

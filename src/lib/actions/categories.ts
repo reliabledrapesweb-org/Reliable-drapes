@@ -1,8 +1,7 @@
 "use server";
 
 import { getAdminSupabase } from "@/lib/supabase/admin";
-import { getAnonSupabase } from "@/lib/supabase/anon";
-import { cookies } from "next/headers";
+import { supabaseServer } from "@/lib/supabase/server";
 
 export async function createCategoryAction(data: {
   name: string;
@@ -16,34 +15,26 @@ export async function createCategoryAction(data: {
   meta_description?: string;
   published?: boolean;
 }) {
-  // Get auth token from cookies or header
-  const cookieStore = await cookies();
-  const token = cookieStore.get("sb-access-token")?.value;
+  const supabase = await supabaseServer();
+  const {
+    data: { user },
+    error: userErr,
+  } = await supabase.auth.getUser();
 
-  if (!token) {
+  if (userErr || !user) {
     return {
       success: false,
       error: "Authorization required",
-    };
-  }
-
-  const anon = getAnonSupabase();
-  const admin = getAdminSupabase();
-
-  const { data: userData, error: userErr } = await anon.auth.getUser(token);
-  if (userErr || !userData?.user?.id) {
-    return {
-      success: false,
-      error: "Invalid token",
       details: userErr?.message,
     };
   }
 
-  // Check if user is admin
+  const admin = getAdminSupabase();
+
   const { data: profile } = await admin
     .from("profiles")
     .select("role")
-    .eq("id", userData.user.id)
+    .eq("id", user.id)
     .single();
 
   if (!profile || profile.role !== "admin") {
@@ -91,7 +82,6 @@ export async function createCategoryAction(data: {
     .single();
 
   if (insertError) {
-
     return {
       success: false,
       error: "Failed to create category",

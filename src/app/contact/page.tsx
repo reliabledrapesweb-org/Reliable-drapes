@@ -338,7 +338,7 @@ export default function ContactPage() {
           <Image
             width={1920}
             height={1080}
-            src="/images/abouthero.png"
+            src="/images/heroes/contact-hero.jpg"
             alt="Contact us background"
             className="h-full w-full object-cover"
             priority

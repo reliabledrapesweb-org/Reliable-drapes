@@ -136,15 +136,17 @@ async function createOrderNotifications(orderId: string, userId: string) {
       .eq("role", "admin");
 
     if (adminUsers && adminUsers.length > 0) {
-      for (const adminUser of adminUsers) {
-        await createNotification({
-          user_id: adminUser.id,
-          title: "New Paid Order Received",
-          message: `Order #${orderId.slice(0, 8)} has been paid and requires processing.`,
-          type: "info",
-          link: `/admin/orders`,
-        });
-      }
+      await Promise.all(
+        adminUsers.map((adminUser) =>
+          createNotification({
+            user_id: adminUser.id,
+            title: "New Paid Order Received",
+            message: `Order #${orderId.slice(0, 8)} has been paid and requires processing.`,
+            type: "info",
+            link: `/admin/orders`,
+          }),
+        ),
+      );
     }
   } catch {
     // Keep payment/order flow resilient to notification issues.
@@ -219,61 +221,46 @@ export async function createPendingOrderAction(data: {
   const { pricing } = pricingResult;
   const admin = getAdminSupabase();
 
-  const { data: inserted, error: insertErr } = await admin
-    .from("orders")
-    .insert({
-      user_id: auth.userId,
-      status: "pending",
-      total: pricing.total,
-      coupon_code: validatedCouponCode,
-      discount_amount: couponDiscount,
-      payment_provider: "razorpay",
-      payment_status: "created",
-      payment_amount: pricing.total,
-      payment_currency: pricing.currency,
-      payment_metadata: {
+  const { data: orderJson, error: rpcErr } = await admin.rpc(
+    "create_order_with_items",
+    {
+      p_user_id: auth.userId,
+      p_status: "pending",
+      p_total: pricing.total,
+      p_coupon_code: validatedCouponCode,
+      p_discount_amount: couponDiscount,
+      p_payment_provider: "razorpay",
+      p_payment_status: "created",
+      p_payment_amount: pricing.total,
+      p_payment_currency: pricing.currency,
+      p_payment_metadata: {
         subtotal: pricing.subtotal,
         discount: pricing.discount,
         shipping: pricing.shipping,
       },
-    })
-    .select()
-    .single();
+      p_items: pricing.pricedItems.map((item) => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        price_snapshot: item.price_snapshot,
+      })),
+    },
+  );
 
-  if (insertErr || !inserted?.id) {
+  if (rpcErr || !orderJson?.id) {
     return {
       success: false,
       error: "Failed to create order",
-      details: insertErr?.message,
+      details: rpcErr?.message,
     };
   }
 
-  const { error: itemInsertErr } = await admin.from("order_items").insert(
-    pricing.pricedItems.map((item) => ({
-      order_id: inserted.id,
-      product_id: item.product_id,
-      quantity: item.quantity,
-      price_snapshot: item.price_snapshot,
-    })),
-  );
-
-  if (itemInsertErr) {
-    await admin.from("orders").delete().eq("id", inserted.id);
-
-    return {
-      success: false,
-      error: "Failed to create order items",
-      details: itemInsertErr.message,
-    };
-  }
-
-  revalidateOrderPaths(inserted.id);
+  revalidateOrderPaths(orderJson.id);
 
   return {
     success: true,
     message: "Pending order created",
-    orderId: inserted.id,
-    order: inserted,
+    orderId: orderJson.id,
+    order: orderJson,
     pricing,
   };
 }
@@ -557,11 +544,17 @@ export async function getAdminOrdersAction(
 
   const ordersWithDetails = ordersData.map((order) => {
     const items = (orderItems || [])
-      .filter((item: any) => item.order_id === order.id)
-      .map((item: any) => ({
-        ...item,
-        product: item.products,
-      }));
+      .filter((item: { order_id: string }) => item.order_id === order.id)
+      .map(
+        (item: {
+          order_id: string;
+          products?: unknown;
+          [key: string]: unknown;
+        }) => ({
+          ...item,
+          product: item.products,
+        }),
+      );
     const userProfile = profiles?.find((p) => p.id === order.user_id);
     return {
       ...order,
