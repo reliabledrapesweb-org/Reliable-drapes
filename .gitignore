@@ -48,6 +48,14 @@ yarn-error.log*
 # claude code
 .claude/settings.local.json
 .claude/worktrees/
+.superpowers/
+
+# editor
+.vscode/
+
+# docs (internal development notes)
+docs/
+TRADER_LOGIN_IFRAME.md
 
 # typescript
 *.tsbuildinfo
