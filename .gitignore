@@ -49,6 +49,7 @@ yarn-error.log*
 .claude/settings.local.json
 .claude/worktrees/
 .superpowers/
+CLAUDE.md
 
 # editor
 .vscode/
