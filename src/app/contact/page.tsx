@@ -340,7 +340,7 @@ export default function ContactPage() {
             height={1080}
             src="/images/heroes/contact-hero.jpg"
             alt="Contact us background"
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover object-bottom"
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
