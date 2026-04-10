@@ -1034,7 +1034,7 @@ export default function CataloguesPage() {
                             ?.name || "Uncategorized";
                         return (
                           <tr key={catalogue.id} className="hover:bg-gray-50">
-                            <td className="px-4 py-3">
+                            <td className="max-w-xs px-4 py-3">
                               <div className="flex items-center space-x-3">
                                 <div className="shrink-0">
                                   {catalogue.thumbnail_url ||
