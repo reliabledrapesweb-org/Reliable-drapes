@@ -1178,6 +1178,9 @@ function SiteSettingsTab({
       { day: "Saturday", hours: "10:00 AM - 4:00 PM" },
       { day: "Sunday", hours: "Closed" },
     ],
+    custom_ad_enabled: false,
+    custom_ad_image_url: "",
+    custom_ad_link_url: "",
   });
 
   const [formData, setFormData] = useState<Partial<SiteSettings>>(
@@ -1233,11 +1236,16 @@ function SiteSettingsTab({
           { day: "Saturday", hours: "10:00 AM - 4:00 PM" },
           { day: "Sunday", hours: "Closed" },
         ],
+        custom_ad_enabled: siteSettings.custom_ad_enabled ?? false,
+        custom_ad_image_url: siteSettings.custom_ad_image_url ?? "",
+        custom_ad_link_url: siteSettings.custom_ad_link_url ?? "",
       });
     } else {
       setFormData(defaults);
     }
   }, [siteSettings]);
+
+  const handleToggle = (field: keyof SiteSettings, value: boolean) => {
 
   const handleToggle = (field: keyof SiteSettings, value: boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -1623,6 +1631,138 @@ function SiteSettingsTab({
                   )}
                 </div>
               )}
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Custom Ad Popup */}
+      <Card className="dark:border-gray-700 dark:bg-gray-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg dark:text-white">
+            <Sparkles className="h-5 w-5" />
+            Custom Ad Popup
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Show a custom advertisement popup to visitors 5 seconds after the
+            homepage loads. Upload an image and optionally link it to a URL.
+          </p>
+          <div className="flex items-center justify-between rounded-lg border border-gray-200 p-4 dark:border-gray-600 dark:bg-gray-700/50">
+            <div className="flex items-center gap-3">
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                  formData.custom_ad_enabled
+                    ? "bg-green-100 dark:bg-green-900/30"
+                    : "bg-gray-100 dark:bg-gray-700"
+                }`}
+              >
+                <Sparkles
+                  className={`h-5 w-5 ${
+                    formData.custom_ad_enabled
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-gray-500 dark:text-gray-400"
+                  }`}
+                />
+              </div>
+              <div>
+                <p className="font-medium text-gray-900 dark:text-white">
+                  Enable Custom Ad Popup
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {formData.custom_ad_enabled
+                    ? "Popup will appear 5 seconds after homepage load"
+                    : "Popup is disabled"}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() =>
+                handleToggle(
+                  "custom_ad_enabled",
+                  !formData.custom_ad_enabled,
+                )
+              }
+              className={`relative h-6 w-11 rounded-full transition-colors ${
+                formData.custom_ad_enabled
+                  ? "bg-[#2F2582] dark:bg-[#a099ff]"
+                  : "bg-gray-300 dark:bg-gray-600"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                  formData.custom_ad_enabled
+                    ? "translate-x-5"
+                    : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {formData.custom_ad_enabled && (
+            <>
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Ad Image
+                </label>
+                <FileUpload
+                  label=""
+                  accept="image/*"
+                  bucket="media"
+                  folder="custom-ads"
+                  currentUrl={formData.custom_ad_image_url || ""}
+                  onUploadComplete={(url) =>
+                    handleChange("custom_ad_image_url", url)
+                  }
+                  onRemove={() => handleChange("custom_ad_image_url", "")}
+                  maxSizeMB={5}
+                  allowedTypes={[
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp",
+                    "image/gif",
+                    "image/svg+xml",
+                  ]}
+                  previewType="image"
+                  registerWithMediaLibrary={true}
+                  mediaLibraryTags={["custom-ad", "popup"]}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Or Image URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.custom_ad_image_url || ""}
+                  onChange={(e) =>
+                    handleChange("custom_ad_image_url", e.target.value)
+                  }
+                  className="h-11 w-full rounded-xl border-2 border-gray-200 px-4 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+                  placeholder="https://example.com/ad-image.jpg"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Link URL (Optional)
+                </label>
+                <input
+                  type="url"
+                  value={formData.custom_ad_link_url || ""}
+                  onChange={(e) =>
+                    handleChange("custom_ad_link_url", e.target.value)
+                  }
+                  className="h-11 w-full rounded-xl border-2 border-gray-200 px-4 text-sm transition-colors focus:border-[#2F2582] focus:ring-2 focus:ring-[#2F2582]/20 focus:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:border-[#a099ff] dark:focus:ring-[#a099ff]/20"
+                  placeholder="https://example.com/promo-page"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  The ad will open this URL in a new tab when clicked. Leave
+                  empty to make the ad non-clickable.
+                </p>
+              </div>
             </>
           )}
         </CardContent>

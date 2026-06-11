@@ -39,6 +39,9 @@ export type SiteSettings = {
   business_hours: Array<{ day: string; hours: string }> | null;
   google_place_id: string | null;
   google_reviews_enabled: boolean;
+  custom_ad_enabled: boolean;
+  custom_ad_image_url: string | null;
+  custom_ad_link_url: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -74,6 +77,9 @@ export type SiteSettingsFormData = Partial<
     | "business_hours"
     | "google_place_id"
     | "google_reviews_enabled"
+    | "custom_ad_enabled"
+    | "custom_ad_image_url"
+    | "custom_ad_link_url"
   >
 >;
 
@@ -423,5 +429,36 @@ export async function getCompanyDetails(): Promise<{
       contactCallPhone: null,
       businessHours: null,
     };
+  }
+}
+
+/**
+ * Get custom ad settings (public convenience method)
+ */
+export async function getCustomAdSettings(): Promise<{
+  enabled: boolean;
+  imageUrl: string | null;
+  linkUrl: string | null;
+}> {
+  try {
+    const supabase = getAnonSupabase();
+
+    const { data, error } = await supabase
+      .from("site_settings")
+      .select("custom_ad_enabled, custom_ad_image_url, custom_ad_link_url")
+      .limit(1)
+      .single();
+
+    if (error) {
+      return { enabled: false, imageUrl: null, linkUrl: null };
+    }
+
+    return {
+      enabled: data?.custom_ad_enabled ?? false,
+      imageUrl: data?.custom_ad_image_url ?? null,
+      linkUrl: data?.custom_ad_link_url ?? null,
+    };
+  } catch {
+    return { enabled: false, imageUrl: null, linkUrl: null };
   }
 }
