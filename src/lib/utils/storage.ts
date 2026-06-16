@@ -6,7 +6,7 @@ import { supabaseClient } from "@/lib/supabase/client";
 
 const MAX_IMAGE_DIMENSION = 2048;
 const COMPRESS_QUALITY = 0.85;
-const COMPRESS_THRESHOLD_BYTES = 1 * 1024 * 1024; // 1MB
+const COMPRESS_THRESHOLD_BYTES = 256 * 1024; // 256KB — compress most images before upload
 
 /**
  * Compress an image file client-side before upload.

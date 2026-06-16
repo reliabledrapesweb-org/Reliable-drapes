@@ -133,7 +133,7 @@ export function CatalogFilterSidebar({
                 initial={{ opacity: 0, height: 0, x: -10 }}
                 animate={{ opacity: 1, height: "auto", x: 12 }}
                 exit={{ opacity: 0, height: 0, x: -10 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
               >
                 {renderCategoryTree(category.children || [])}
               </motion.div>

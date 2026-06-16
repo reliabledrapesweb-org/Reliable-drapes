@@ -8,23 +8,23 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 let _browserClient: SupabaseClient | null = null;
 
 /**
- * Create Supabase browser client with cookie-based storage
- * This ensures sessions persist across page reloads
+ * Get or create Supabase browser client.
+ * Uses a function (not IIFE) so the client is created lazily on first
+ * client-side access, avoiding SSR null-caching issues on Cloudflare.
+ * Returns null when env vars are unavailable (e.g. Cloudflare edge runtime).
  */
-export const supabaseClient = (() => {
-  if (typeof window === 'undefined') {
-    // Return a placeholder during SSR
-    return null as any;
-  }
-
+export function getSupabaseClient(): SupabaseClient | null {
   if (_browserClient) return _browserClient;
+
+  if (typeof window === 'undefined') {
+    return null;
+  }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !anonKey) {
-
-    return null as any;
+    return null;
   }
 
   _browserClient = createBrowserClient(url, anonKey, {
@@ -33,7 +33,7 @@ export const supabaseClient = (() => {
         if (typeof document === 'undefined') return undefined;
         
         const matches = document.cookie.match(
-          new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)') 
+          new RegExp('(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/+^])/g, '\\$1') + '=([^;]*)') 
         );
         return matches ? decodeURIComponent(matches[1]) : undefined;
       },
@@ -66,4 +66,24 @@ export const supabaseClient = (() => {
   });
 
   return _browserClient;
-})();
+}
+
+/**
+ * @deprecated Use `getSupabaseClient()` instead.
+ * Kept for backward compatibility — calls the lazy getter.
+ * Returns a no-op stub when the real client is unavailable (e.g. Cloudflare edge).
+ */
+const noopHandler: ProxyHandler<any> = {
+  get(_target, prop) {
+    const client = getSupabaseClient();
+    if (!client) {
+      // Return a no-op function for method calls like .auth.getSession()
+      // so the app doesn't crash when Supabase is unavailable.
+      return () => Promise.resolve({ data: null, error: { message: 'Supabase client unavailable' } });
+    }
+    const value = (client as any)[prop];
+    return typeof value === 'function' ? value.bind(client) : value;
+  },
+};
+
+export const supabaseClient = new Proxy({} as SupabaseClient, noopHandler);

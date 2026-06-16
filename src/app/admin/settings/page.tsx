@@ -1246,8 +1246,6 @@ function SiteSettingsTab({
   }, [siteSettings]);
 
   const handleToggle = (field: keyof SiteSettings, value: boolean) => {
-
-  const handleToggle = (field: keyof SiteSettings, value: boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -1716,7 +1714,7 @@ function SiteSettingsTab({
                     handleChange("custom_ad_image_url", url)
                   }
                   onRemove={() => handleChange("custom_ad_image_url", "")}
-                  maxSizeMB={5}
+                  maxSizeMB={10}
                   allowedTypes={[
                     "image/jpeg",
                     "image/png",
