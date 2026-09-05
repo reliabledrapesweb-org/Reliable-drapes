@@ -150,7 +150,7 @@ export function MobileMenu({
                   </motion.a>
 
                   <motion.a
-                    href="http://103.67.92.142:4141/"
+                    href="http://103.67.92.110:4141/"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setIsOpen(false)}
