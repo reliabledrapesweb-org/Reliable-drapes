@@ -24,6 +24,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # NEXT_PUBLIC_* vars must be present at `next build` time to be inlined
+      # into the client bundle - Cloudflare's [vars] in wrangler.toml only
+      # apply at Worker runtime, not during this build step. wrangler.toml
+      # already carries these as plaintext (non-secret) values, so load them
+      # from there instead of duplicating them in workflow config.
+      - name: Load public env vars from wrangler.toml
+        run: |
+          grep -E '^NEXT_PUBLIC_[A-Z_]+ = ' wrangler.toml \
+            | sed -E 's/^([A-Z_]+) = "(.*)"$/\1=\2/' >> "$GITHUB_ENV"
+
       - name: Deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

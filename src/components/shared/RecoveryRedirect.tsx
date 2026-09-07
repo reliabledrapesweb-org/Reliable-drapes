@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { supabaseClient } from "@/lib/supabase/client";
+import { getSupabaseClient } from "@/lib/supabase/client";
 
 /**
  * Detects Supabase PASSWORD_RECOVERY events from hash fragments
@@ -24,9 +24,12 @@ export function RecoveryRedirect() {
     }
 
     // Listen for Supabase PASSWORD_RECOVERY auth event
+    const client = getSupabaseClient();
+    if (!client) return;
+
     const {
       data: { subscription },
-    } = supabaseClient.auth.onAuthStateChange((event) => {
+    } = client.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY" && pathname !== "/reset-password") {
         router.replace("/reset-password");
       }
